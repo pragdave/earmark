@@ -72,13 +72,13 @@ defmodule Earmark.HtmlRenderer do
   # Lists #
   #########
 
-  def render_block(%Block.List{items: items}, result) do
+  def render_block(%Block.List{type: type, blocks: items}, result) do
     content = render(items)
-    [ "<ul>\n#{content}\n<\ul>" | result ]
+    [ "<#{type}>\n#{content}\n<\#{type}>" | result ]
   end
 
   # format a single paragraph, and remove the para tags
-  def render_block(%Block.UlItem{blocks: blocks, spaced: false}, result) 
+  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, result) 
   when length(blocks) == 1 do
     content = render(blocks)
     content = Regex.replace(~r{</?p>}, content, "")
@@ -86,7 +86,7 @@ defmodule Earmark.HtmlRenderer do
   end
 
   # format a spaced list
-  def render_block(%Block.UlItem{blocks: blocks}, result) do
+  def render_block(%Block.ListItem{blocks: blocks}, result) do
     content = render(blocks)
     [ "<li>#{content}</li>", result ]                             
   end

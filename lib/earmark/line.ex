@@ -6,7 +6,18 @@ defmodule Earmark.Line do
   """
 
   # This is the re that matches the ridiculous "[id]: url title" syntax
-  @id_re ~R'''
+
+  @id_title_part ~S"""
+        (?|
+             " ([^"]*)  "         # in quotes
+          |  ' ([^']*)  '         # 
+          | \( ([^)]*) \)         # in parens
+        )
+  """
+
+  @id_title_part_re ~r[^\s*#{@id_title_part}\s*$]x
+
+  @id_re ~r'''
      ^\s{0,3}             # leading spaces
      \[([^\]]*)\]:        # [someid]:
      \s+
@@ -16,11 +27,7 @@ defmodule Earmark.Line do
      )
      (?:
         \s+                   # optional title
-        (?|
-             " ([^"]*)  "         # in quotes
-          |  ' ([^']*)  '         # 
-          | \( ([^)]*) \)         # in parens
-        )
+        #{@id_title_part}
      )?
   $
   '''x
@@ -36,8 +43,8 @@ defmodule Earmark.Line do
   defmodule HtmlOpenTag,  do: defstruct line: "", tag: "", content: ""
   defmodule HtmlCloseTag, do: defstruct line: "", tag: "<... to eol"
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
-  defmodule UlItem,       do: defstruct line: "", bullet: "* or -", content: "text"
-  defmodule OlItem,       do: defstruct line: "", bullet: "* or -", content: "text"
+  defmodule ListItem,     do: defstruct type: :ul, line: "", 
+                                        bullet: "* or -", content: "text"
   defmodule SetextUnderlineHeading, 
                           do: defstruct line: "", level: 1
   defmodule Text,         do: defstruct line: "", content: "text"
@@ -46,7 +53,14 @@ defmodule Earmark.Line do
     %{ _type_of(line) | line: line }
   end
 
-  def _type_of(line) do
+  def matches_id_title(content) do
+    case Regex.run(@id_title_part_re, content) do
+      [ _, title ] -> title
+      _            -> nil
+    end
+  end
+
+  defp _type_of(line) do
     cond do
       line =~ ~r/^\s*$/ ->
         %Blank{}
@@ -91,11 +105,11 @@ defmodule Earmark.Line do
 
       match = Regex.run(~r/^([-*+])\s+(.*)/, line) ->
         [ _, bullet, text ] = match
-        %UlItem{bullet: bullet, content: text }
+        %ListItem{type: :ul, bullet: bullet, content: text }
 
       match = Regex.run(~r/^(\d+\.)\s+(.*)/, line) ->
         [ _, bullet, text ] = match
-        %OlItem{bullet: bullet, content: text }
+        %ListItem{type: :ol, bullet: bullet, content: text }
 
       match = Regex.run(~r/^(=|-)+\s*$/, line) ->
         [ _, type ] = match

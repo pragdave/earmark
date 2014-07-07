@@ -63,88 +63,90 @@ defmodule BlockTest do
 
   test "Basic UL" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"}
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
              ])
-    expected = [ %Block.List{ items: [
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 1"]}], spaced: true}
+    expected = [ %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true}
     ]}]
     assert result == expected
   end
 
   test "Multiline UL" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Text{content: "line 2"}
              ])
-    expected = [ %Block.List{ items: [
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
+    expected = [ %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{type: :ul, blocks: [
+                %Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
     ]}]
     assert result == expected
   end
 
   test "UL containing two paras" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
                %Line.Indent{content: "line 2", level: 1},
                %Line.Blank{}
              ])
-    expected = [ %Block.List{ items: [
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 1"]},
+    expected = [ %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["line 2"]}],
-                                spaced: true}
+                                spaced: true, type: :ul}
     ]}]
     assert result == expected
   end
 
   test "Multiline UL followed by a blank line" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
+               %Line.ListItem{bullet: "*", content: "line 1"},
                %Line.Text{content: "line 2"},
                %Line.Blank{}
              ])
-    expected = [ %Block.List{ items: [
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
+    expected = [ %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{type: :ul, blocks: [
+                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
     ]}]
     assert result == expected
   end
 
   test "Two adjacent UL items, the first is not spaced" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
-               %Line.UlItem{bullet: "*", content: "line 2"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ])
-    expected = [ %Block.List{ items: [
-       %Block.UlItem{blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-       %Block.UlItem{blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+    expected = [ %Block.List{ type: :ul, blocks: [
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
     ]}]
     assert result == expected
   end
 
   test "Two UL items with a blank line between are both spaced" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
-               %Line.UlItem{bullet: "*", content: "line 2"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ])
-    expected = [ %Block.List{ items: [
-       %Block.UlItem{blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
-       %Block.UlItem{blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+    expected = [ %Block.List{ type: :ul, blocks: [
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
     ]}]
     assert result == expected
   end
 
   test "Two UL items followed by a non-indented paragraph" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
-               %Line.UlItem{bullet: "*", content: "line 2"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
                %Line.Blank{},
                %Line.Text{content: "para"}
              ])
     expected = [ 
-       %Block.List{ items: [
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-         %Block.UlItem{blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+       %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
        ]},
        %Block.Para{lines: ["para"]},
     ]
@@ -153,7 +155,7 @@ defmodule BlockTest do
 
   test "Code nested in list" do
     result = Block.lines_to_blocks([
-               %Line.UlItem{bullet: "*", content: "line 1"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
                %Line.Indent{level: 2, content: "code 1"},
                %Line.Indent{level: 3, content: "code 2"},
@@ -161,13 +163,27 @@ defmodule BlockTest do
                %Line.Indent{level: 1, content: "line 2"},
              ])
 
-    expected = [ %Block.List{ items: [
-       %Block.UlItem{blocks: [
+    expected = [ %Block.List{ type: :ul, blocks: [
+       %Block.ListItem{type: :ul, blocks: [
                %Block.Para{lines: ["line 1"]},
                %Block.Code{language: nil, lines: ["code 1", "    code 2", ""]},
                %Block.Para{lines: ["line 2"]}], spaced: true}
     ]}]
     
+    assert result == expected
+  end
+
+  # OLs are handled by the same code as ULs, so to save time, we really just
+  # need a single smoke test. If this changes in future, we'll need to 
+  # relook at this
+
+  test "Basic OL" do
+    result = Block.lines_to_blocks([
+               %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
+             ])
+    expected = [ %Block.List{ type: :ol, blocks: [
+         %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true}
+    ]}]
     assert result == expected
   end
 
@@ -249,5 +265,38 @@ defmodule BlockTest do
                   "line 3"]}]   # stet—closing tag not needed
 
     assert result == expected
+  end
+
+  ##################
+  # ID definitions #
+  ##################
+
+  test "Basic ID definition" do
+    result = Block.lines_to_blocks([
+                  %Line.IdDef{id: "id1", url: "url1", title: "title1"}
+             ])
+
+    assert result == [%Block.IdDef{id: "id1", title: "title1", url: "url1"}]
+  end
+
+  test "ID definition with title on next line" do
+    result = Block.lines_to_blocks([
+                  %Line.IdDef{id: "id1", url: "url1"},
+                  %Line.Text{content: "  (title1)"}
+             ])
+
+    assert result == [%Block.IdDef{id: "id1", title: "title1", url: "url1"}]
+  end
+
+  test "ID definition with no title and no title on next line" do
+    result = Block.lines_to_blocks([
+                  %Line.IdDef{id: "id1", url: "url1"},
+                  %Line.Text{content: "  not title1"}
+             ])
+
+    assert result == [
+        %Block.IdDef{id: "id1", title: nil, url: "url1"},
+        %Block.Para{lines: [ "  not title1" ]} 
+    ]
   end
 end

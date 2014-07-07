@@ -13,12 +13,12 @@ defmodule LineTest do
      { "",         %Line.Blank{} },
      { "        ", %Line.Blank{} },
 
-     { "- -",   %Line.UlItem{bullet: "-", content: "-"} },
+     { "- -",   %Line.ListItem{type: :ul, bullet: "-", content: "-"} },
      { "- - -", %Line.Ruler{type: "-"} },
      { "--",    %Line.SetextUnderlineHeading{level: 2} },
      { "---",   %Line.Ruler{type: "-"} },
 
-     { "* *",   %Line.UlItem{bullet: "*", content: "*"} },
+     { "* *",   %Line.ListItem{type: :ul, bullet: "*", content: "*"} },
      { "* * *", %Line.Ruler{type: "*"} },
      { "**",    %Line.Text{content: "**"} },
      { "***",   %Line.Ruler{type: "*"} },
@@ -54,9 +54,9 @@ defmodule LineTest do
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
      { "~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "~~~java"} },
 
-     { "<pre>", %Line.HtmlOpenTag{tag: "pre", content: "<pre>"} },
+     { "<pre>",             %Line.HtmlOpenTag{tag: "pre", content: "<pre>"} },
      { "<pre class='123'>", %Line.HtmlOpenTag{tag: "pre", content: "<pre class='123'>"} },
-     { "</pre>", %Line.HtmlCloseTag{tag: "pre"} },
+     { "</pre>",            %Line.HtmlCloseTag{tag: "pre"} },
 
      { id1, %Line.IdDef{id: "ID1", url: "http://example.com", title: "The title"} },
      { id2, %Line.IdDef{id: "ID2", url: "http://example.com", title: "The title"} },
@@ -64,21 +64,23 @@ defmodule LineTest do
      { id4, %Line.IdDef{id: "ID4", url: "http://example.com", title: ""} },
      { id5, %Line.IdDef{id: "ID5", url: "http://example.com", title: "The title"} },
 
-     { "* ul1", %Line.UlItem{ bullet: "*", content: "ul1"} },
-     { "+ ul2", %Line.UlItem{ bullet: "+", content: "ul2"} },
-     { "- ul3", %Line.UlItem{ bullet: "-", content: "ul3"} },
+     { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
+     { "+ ul2", %Line.ListItem{ type: :ul, bullet: "+", content: "ul2"} },
+     { "- ul3", %Line.ListItem{ type: :ul, bullet: "-", content: "ul3"} },
 
-     { "*     ul1", %Line.UlItem{ bullet: "*", content: "ul1"} },
-     { "*ul1", %Line.Text{content: "*ul1"} },
+     { "*     ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
+     { "*ul1",      %Line.Text{content: "*ul1"} },
 
-     { "1. ol1", %Line.OlItem{ bullet: "1.", content: "ol1"} },
-     { "12345.      ol1", %Line.OlItem{ bullet: "12345.", content: "ol1"} },
+     { "1. ol1",          %Line.ListItem{ type: :ol, bullet: "1.", content: "ol1"} },
+     { "12345.      ol1", %Line.ListItem{ type: :ol, bullet: "12345.", content: "ol1"} },
      { "1.ol1", %Line.Text{ content: "1.ol1"} },
 
-     { "=", %Line.SetextUnderlineHeading{level: 1} },
+     { "=",        %Line.SetextUnderlineHeading{level: 1} },
      { "========", %Line.SetextUnderlineHeading{level: 1} },
-     { "-", %Line.SetextUnderlineHeading{level: 2} },
+     { "-",        %Line.SetextUnderlineHeading{level: 2} },
      { "= and so", %Line.Text{content: "= and so"} },
+
+     { "   (title)", %Line.Text{content: "   (title)"} },
     ]
     |> Enum.each(fn { text, type } -> 
          test("line: '" <> text <> "'") do
