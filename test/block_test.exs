@@ -267,6 +267,26 @@ defmodule BlockTest do
     assert result == expected
   end
 
+  test "HTML comment on one line" do
+    result = Block.lines_to_blocks([
+                  %Line.HtmlComment{line: "<!-- xx -->", complete: true}
+             ])
+    expected = [ %Block.HtmlComment{html: [ "<!-- xx -->" ]}]
+
+    assert result == expected
+  end
+
+  test "HTML comment on multiple lines" do
+    result = Block.lines_to_blocks([
+                  %Line.HtmlComment{line: "<!-- ", complete: false},
+                  %Line.Indent{level: 2, line: "xxx"},
+                  %Line.Text{line: "-->"}
+             ])
+    expected = [ %Block.HtmlComment{html: ["<!-- ", "xxx", "-->"]}]
+
+    assert result == expected
+  end
+
   ##################
   # ID definitions #
   ##################
@@ -299,4 +319,38 @@ defmodule BlockTest do
         %Block.Para{lines: [ "  not title1" ]} 
     ]
   end
+
+  ######################################################
+  # Test that we correctly accumulate the definitions  #
+  ######################################################
+
+  test "Accumulate basic ID definition" do
+    {blocks, refs } = Block.parse([
+                  %Line.IdDef{id: "id1", url: "url1", title: "title1"}
+             ])
+
+    defn = %Block.IdDef{id: "id1", title: "title1", url: "url1"}
+    assert blocks == [defn]
+    assert refs == ([{ "id1", defn}] |> Enum.into(HashDict.new))
+  end
+
+  test "ID definition nested in list" do
+    { blocks, refs } = Block.parse([
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
+               %Line.Blank{},
+               %Line.Indent{level: 1, content: "[id1]: url1  (title1)"},
+             ])
+
+    defn = %Block.IdDef{id: "id1", title: "title1", url: "url1"}
+
+    expected = [ %Block.List{ type: :ul, blocks: [
+       %Block.ListItem{type: :ul, blocks: [
+               %Block.Para{lines: ["line 1"]},
+               defn
+    ]}]}]
+    
+    assert blocks == expected
+    assert refs == ([{ "id1", defn}] |> Enum.into(HashDict.new))
+  end
+
 end

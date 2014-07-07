@@ -5,6 +5,7 @@ defmodule Earmark.Mixfile do
     [app: :earmark,
      version: "0.0.1",
      elixir: "~> 0.14",
+     escript: escript_config,
      deps: deps]
   end
 
@@ -15,4 +16,9 @@ defmodule Earmark.Mixfile do
   defp deps do
     []
   end
+
+  defp escript_config do
+    [ main_module: Earmark.CLI ]
+  end
+
 end

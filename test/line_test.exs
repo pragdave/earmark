@@ -13,6 +13,9 @@ defmodule LineTest do
      { "",         %Line.Blank{} },
      { "        ", %Line.Blank{} },
 
+     { "<!-- comment -->", %Line.HtmlComment{complete: true} },
+     { "<!-- comment",     %Line.HtmlComment{complete: false} },
+
      { "- -",   %Line.ListItem{type: :ul, bullet: "-", content: "-"} },
      { "- - -", %Line.Ruler{type: "-"} },
      { "--",    %Line.SetextUnderlineHeading{level: 2} },

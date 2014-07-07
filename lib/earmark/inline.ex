@@ -12,7 +12,6 @@ defmodule Earmark.Inline do
   end
 
   def convert(src, context) do
-    context = update_context(context) 
     convert_each(src, context, [])
   end
 
@@ -21,6 +20,8 @@ defmodule Earmark.Inline do
   end
 
   defp convert_each(src, context, result) do
+    renderer = context.options.renderer
+
     cond do
       # escape
       match = Regex.run(context.rules.escape, src) ->
@@ -31,14 +32,14 @@ defmodule Earmark.Inline do
       match = Regex.run(context.rules.autolink, src) ->
         [ match, link, protocol ] = match
         { href, text } = convert_autolink(link, protocol)
-        out = context.renderer.link(href, text)
+        out = renderer.link(href, text)
         convert_each(behead(src, match), context, [ out | result ])
 
       # url (gfm)
       match = Regex.run(context.rules.url, src) ->
         [ match, href ] = match
         text = escape(href)
-        out = context.renderer.link(href, text)
+        out = renderer.link(href, text)
         convert_each(behead(src, match), context, [ out | result ])
 
       # tag
@@ -76,7 +77,7 @@ defmodule Earmark.Inline do
       # strikethrough (gfm)
       match = Regex.run(context.rules.strikethrough, src) ->
         [ match, content ] = match                             
-        out = context.renderer.strikethrough(convert(content, context))
+        out = renderer.strikethrough(convert(content, context))
         convert_each(behead(src, match), context, [ out | result ])
 
 
@@ -86,7 +87,7 @@ defmodule Earmark.Inline do
           [ m, _, c ] -> {m, c}
           [ m, c ]    -> {m, c}
         end
-        out = context.renderer.strong(convert(content, context))
+        out = renderer.strong(convert(content, context))
         convert_each(behead(src, match), context, [ out | result ])
 
       # em
@@ -95,7 +96,7 @@ defmodule Earmark.Inline do
           [ m, _, c ] -> {m, c}
           [ m, c ]    -> {m, c}
         end
-        out = context.renderer.em(convert(content, context))
+        out = renderer.em(convert(content, context))
         convert_each(behead(src, match), context, [ out | result ])
 
 
@@ -103,12 +104,12 @@ defmodule Earmark.Inline do
       match = Regex.run(context.rules.code, src) ->
         [match, _, content] = match
         content = String.strip(content)  # this from Gruber
-        out = context.renderer.codespan(escape(content, true))
+        out = renderer.codespan(escape(content, true))
         convert_each(behead(src, match), context, [ out | result ])
 
       # br
       match = Regex.run(context.rules.br, src, return: :index) ->
-        out = context.renderer.br()
+        out = renderer.br()
         [ {0, match_len} ] = match
         convert_each(behead(src, match_len), context, [ out | result ])
 
@@ -161,7 +162,7 @@ defmodule Earmark.Inline do
 
 
   defp output_image_or_link(context, "!" <> _, text, href, title) do
-    output_image(context, text, href, title)
+    output_image(context.options.renderer, text, href, title)
   end
 
   defp output_image_or_link(context, _, text, href, title) do
@@ -171,13 +172,13 @@ defmodule Earmark.Inline do
   defp output_link(context, text, href, title) do
     href = escape(href)
     title = if title, do: escape(title), else: nil
-    context.renderer.link(href, convert_each(text, context, []), title)
+    context.options.renderer.link(href, convert_each(text, context, []), title)
   end
 
-  defp output_image(context, text, href, title) do
+  defp output_image(renderer, text, href, title) do
     href = escape(href)
     title = if title, do: escape(title), else: nil
-    context.renderer.image(href, escape(text), title)
+    renderer.image(href, escape(text), title)
   end
 
   defp reference_link(context, match, alt_text, id) do
@@ -196,8 +197,11 @@ IO.inspect id
   # Handle adding option specific rules and processors                         #
   ##############################################################################
 
-  def noop(text), do: text
+  defp noop(text), do: text
                         
+  @doc false
+  # this is called by the command line processor to update
+  # the inline-specific rules in light of any options
   def update_context(context =  %Context{options: options}) do
     context = %{ context | rules: rules_for(options) }
     context = if options.smartypants do
@@ -226,7 +230,7 @@ IO.inspect id
   }x
 
 
-  def basic_rules do
+  defp basic_rules do
    [
     escape:   ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
     autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},

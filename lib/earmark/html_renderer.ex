@@ -1,50 +1,60 @@
 defmodule Earmark.HtmlRenderer do
 
-  alias Earmark.Block
+  alias  Earmark.Block
+  import Earmark.Inline,  only: [ convert: 2 ]
+  import Earmark.Helpers, only: [ escape: 1 ]
 
-  def render(blocks) do
-    blocks
-    |> Enum.reduce([], &render_block/2)
-    |> Enum.reverse
+  def render(blocks, context) do
+    render_reduce(blocks, context, [], &render_block/3)
     |> Enum.join("\n")
   end
 
 
+  defp render_reduce([], _context, result, _func), do: Enum.reverse(result)
+  defp render_reduce([block|rest], context, result, func) do
+    render_reduce(rest, context, func.(block, context, result), func)
+  end
+
   #############
   # Paragraph #
   #############
-  def render_block(%Block.Para{lines: lines}, result) do
-    lines = Enum.join(lines, "\n")
+  def render_block(%Block.Para{lines: lines}, context, result) do
+    lines = convert(lines, context)
     [ "<p>#{lines}</p>" | result ]
   end
 
   ########
   # Html #
   ########
-  def render_block(%Block.Html{html: html, tag: tag}, result) do
+  def render_block(%Block.Html{html: html, tag: tag}, _context, result) do
     html = Enum.join(html, "\n")
     [ "#{html}\n</#{tag}>" | result ]
+  end
+
+  def render_block(%Block.HtmlComment{html: html}, _context, result) do
+    html = Enum.join(html, "\n")
+    [ "#{html}" | result ]
   end
 
   #########
   # Ruler #
   #########
-  def render_block(%Block.Ruler{type: "-"}, result) do
+  def render_block(%Block.Ruler{type: "-"}, _context, result) do
     [ ~S{<hr class="thin"/>} | result ]
   end
 
-  def render_block(%Block.Ruler{type: "_"}, result) do
+  def render_block(%Block.Ruler{type: "_"}, _context, result) do
     [ ~S{<hr class="medium"/>} | result ]
   end
 
-  def render_block(%Block.Ruler{type: "*"}, result) do
+  def render_block(%Block.Ruler{type: "*"}, _context, result) do
     [ ~S{<hr class="thick"/>} | result ]
   end
 
   ###########
   # Heading #
   ###########
-  def render_block(%Block.Heading{level: level, content: content}, result) do
+  def render_block(%Block.Heading{level: level, content: content}, _context, result) do
     html = "<h#{level}>#{content}</h#{level}>"
     [ html | result ]
   end
@@ -53,18 +63,18 @@ defmodule Earmark.HtmlRenderer do
   # Blockquote #
   ##############
 
-  def render_block(%Block.BlockQuote{blocks: blocks}, result) do
-    body = render(blocks)
+  def render_block(%Block.BlockQuote{blocks: blocks}, context, result) do
+    body = render(blocks, context)
     [ "<blockquote>#{body}</blockquote>" | result ]
   end
 
   ########
   # Code #
   ########
-  def render_block(%Block.Code{lines: lines, language: language}, result) do
+  def render_block(%Block.Code{lines: lines, language: language}, _context, result) do
     class = if language, do: ~s{ class="#{language}"}, else: ""
     tag = ~s[<pre><code#{class}>]
-    lines = Enum.join(lines, "\n")
+    lines = lines |> Enum.map(&escape/1) |> Enum.join("\n")
     [ ~s[#{tag}#{lines}</code></pre>] | result ]
   end
 
@@ -72,23 +82,23 @@ defmodule Earmark.HtmlRenderer do
   # Lists #
   #########
 
-  def render_block(%Block.List{type: type, blocks: items}, result) do
-    content = render(items)
+  def render_block(%Block.List{type: type, blocks: items}, context, result) do
+    content = render(items, context)
     [ "<#{type}>\n#{content}\n<\#{type}>" | result ]
   end
 
   # format a single paragraph, and remove the para tags
-  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, result) 
+  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, context, result) 
   when length(blocks) == 1 do
-    content = render(blocks)
+    content = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
-    [ "<li>#{content}</li>", result ]                             
+    [ "<li>#{content}</li>" | result ]                             
   end
 
   # format a spaced list
-  def render_block(%Block.ListItem{blocks: blocks}, result) do
-    content = render(blocks)
-    [ "<li>#{content}</li>", result ]                             
+  def render_block(%Block.ListItem{blocks: blocks}, context, result) do
+    content = render(blocks, context)
+    [ "<li>#{content}</li>" | result ]                             
   end
 
 

@@ -1,5 +1,6 @@
 defmodule Earmark.Line do
 
+  alias Earmark.Helpers
 
   @moduledoc """
   Give a line of text, return its context-free type.
@@ -42,6 +43,7 @@ defmodule Earmark.Line do
   defmodule Fence,        do: defstruct line: "", delimiter: "~ or `", language: nil 
   defmodule HtmlOpenTag,  do: defstruct line: "", tag: "", content: ""
   defmodule HtmlCloseTag, do: defstruct line: "", tag: "<... to eol"
+  defmodule HtmlComment,  do: defstruct line: "", complete: true
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
   defmodule ListItem,     do: defstruct type: :ul, line: "", 
                                         bullet: "* or -", content: "text"
@@ -49,7 +51,14 @@ defmodule Earmark.Line do
                           do: defstruct line: "", level: 1
   defmodule Text,         do: defstruct line: "", content: "text"
 
+
+  @doc false
+  # We want to add the original source line into every 
+  # line we generate. We also need to expand tabs before 
+  # proceeding
+
   def type_of(line) do
+    line = line |> Helpers.expand_tabs |> Helpers.remove_line_ending
     %{ _type_of(line) | line: line }
   end
 
@@ -64,6 +73,12 @@ defmodule Earmark.Line do
     cond do
       line =~ ~r/^\s*$/ ->
         %Blank{}
+
+      line =~ ~r/^ \s{0,3} ( <! (?: -- .*? -- \s* )+ > ) $/x ->
+        %HtmlComment{complete: true}
+
+      line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x ->
+        %HtmlComment{complete: false}
 
       line =~ ~r/^(?:- ?){3,}/ -> 
         %Ruler{type: "-" }

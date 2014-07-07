@@ -4,15 +4,16 @@ defmodule Earmark.Block do
   alias Earmark.Parser
 
 
-  defmodule Heading,    do: defstruct content: nil, level: nil
-  defmodule Ruler,      do: defstruct type: nil
-  defmodule BlockQuote, do: defstruct blocks: []
-  defmodule List,       do: defstruct type: :ul, blocks:  []
-  defmodule ListItem,   do: defstruct type: :ul, spaced: true, blocks: []
-  defmodule Para,       do: defstruct lines:  []
-  defmodule Code,       do: defstruct lines:  [], language: nil
-  defmodule Html,       do: defstruct html:   [], tag: nil
-  defmodule IdDef,      do: defstruct id: nil, url: nil, title: nil
+  defmodule Heading,     do: defstruct content: nil, level: nil
+  defmodule Ruler,       do: defstruct type: nil
+  defmodule BlockQuote,  do: defstruct blocks: []
+  defmodule List,        do: defstruct type: :ul, blocks:  []
+  defmodule ListItem,    do: defstruct type: :ul, spaced: true, blocks: []
+  defmodule Para,        do: defstruct lines:  []
+  defmodule Code,        do: defstruct lines:  [], language: nil
+  defmodule Html,        do: defstruct html:   [], tag: nil
+  defmodule HtmlComment, do: defstruct html:   []
+  defmodule IdDef,       do: defstruct id: nil, url: nil, title: nil
 
 
   @doc """
@@ -137,6 +138,26 @@ defmodule Earmark.Block do
     parse(rest, [ %Html{tag: tag, html: html} | result ])
   end
 
+  ################
+  # HTML Comment #
+  ################
+
+  defp parse([ line = %Line.HtmlComment{complete: true} | rest], result) do
+    parse(rest, [ %HtmlComment{html: [ line.line ]} | result ])
+  end
+
+  defp parse(lines = [ %Line.HtmlComment{complete: false} | _], result) do
+    {html_lines, rest} = Enum.split_while(lines, fn (line) ->
+      !(line.line =~ ~r/-->/)
+    end)
+    unless length(rest) == 0 do
+      html_lines = html_lines ++ [ hd(rest) ]
+      rest = tl(rest)
+    end
+    html = (for line <- html_lines, do: line.line)
+    parse(rest, [ %HtmlComment{html: html} | result ])
+  end
+  
   #################
   # ID definition #
   #################

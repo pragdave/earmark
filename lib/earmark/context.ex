@@ -1,15 +1,20 @@
-defmodule Earmark.Context.Options do
+defmodule Earmark.Options do
 
-  # inline style options
-  defstruct  gfm: true, breaks: true, pedantic: false,
+  
+             # what we use to render
+  defstruct  renderer: Earmark.HtmlRenderer,
+
+             # inline style options  
+             gfm: true, breaks: true, pedantic: false,
              smartypants: true, sanitize: false,
+
+             # Internal—only override if you're brave
              do_smartypants: nil, do_sanitize: nil
 end
 
 defmodule Earmark.Context do
-  defstruct options:  %Earmark.Context.Options{},
+  defstruct options:  %Earmark.Options{},
             links:    HashDict.new,
-            renderer: Earmark.HtmlRenderer,
             rules:    nil
 
 end
