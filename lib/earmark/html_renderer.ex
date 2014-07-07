@@ -91,4 +91,26 @@ defmodule Earmark.HtmlRenderer do
     [ "<li>#{content}</li>", result ]                             
   end
 
+
+  #####################################
+  # And here are the inline renderers #
+  #####################################
+
+  def br,             do: "<br/>"
+  def codespan(text), do: ~s[<code class="inline">#{text}</code>]
+  def em(text), do: "<em>#{text}</em>"
+  def strong(text), do: "<strong>#{text}</strong>"
+
+  def link(url, text), do: ~s[<a href="#{url}">#{text}</a>]
+  def link(url, text, nil),   do: ~s[<a href="#{url}">#{text}</a>]
+  def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
+
+  def image(path, alt, nil) do
+    ~s[<img src="#{path}" alt="#{alt}"/>]
+  end
+
+  def image(path, alt, title) do
+    ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
+  end
+
 end
