@@ -94,7 +94,7 @@ defmodule Earmark.Line do
         [ _, level, heading ] = match
         %Heading{level: String.length(level), content: String.strip(heading) }
 
-      match = Regex.run(~r/^>\s(.*)/, line) ->
+      match = Regex.run(~r/^>(?|(\s*)$|\s(.*))/, line) ->
         [ _, quote ] = match
         %BlockQuote{content: quote }
 

@@ -346,8 +346,23 @@ defmodule Earmark.Block do
   defp is_blank(%Line.Blank{}),   do: true
   defp is_blank(_),               do: false
 
+  # Gruber's tests have
+  #
+  #   para text...
+  #   * and more para text
+  #
+  # So list markers inside paragraphs are ignored. But he also has
+  #
+  #   *   line
+  #       * line
+  #
+  # And expects it to be a nested list. These seem to be in conflict
+  #
+  # I think the second is a better interpretation, so I commented
+  # out the 2nd match below.
+  
   defp is_text(%Line.Text{}),     do: true
-  defp is_text(%Line.ListItem{}), do: true
+#  defp is_text(%Line.ListItem{}), do: true
   defp is_text(_),                do: false
 
   defp is_blockquote_or_text(%Line.BlockQuote{}), do: true
