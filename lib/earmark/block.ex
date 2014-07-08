@@ -12,7 +12,7 @@ defmodule Earmark.Block do
   defmodule Para,        do: defstruct lines:  []
   defmodule Code,        do: defstruct lines:  [], language: nil
   defmodule Html,        do: defstruct html:   [], tag: nil
-  defmodule HtmlComment, do: defstruct html:   []
+  defmodule HtmlOther,   do: defstruct html:   []
   defmodule IdDef,       do: defstruct id: nil, url: nil, title: nil
 
 
@@ -76,7 +76,8 @@ defmodule Earmark.Block do
 
   defp parse( lines = [ %Line.BlockQuote{} | _ ], result) do
     {quote_lines, rest} = Enum.split_while(lines, &is_blockquote_or_text/1)
-    blocks = Parser.parse(for line <- quote_lines, do: line.content)
+    lines = for line <- quote_lines, do: line.content
+    {blocks, _} = Parser.parse(lines, true)
     parse(rest, [ %BlockQuote{blocks: blocks} | result ])
   end
 
@@ -86,7 +87,7 @@ defmodule Earmark.Block do
 
   defp parse( lines = [ %Line.Text{} | _ ], result) do
     {para_lines, rest} = Enum.split_while(lines, &is_text/1)
-    line_text = (for line <- para_lines, do: line.content)
+    line_text = (for line <- para_lines, do: line.line)
     parse(rest, [ %Para{lines: line_text} | result ])
   end
 
@@ -97,9 +98,11 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
-    {list_lines, rest} = read_list_lines(rest, [])
-    spaced = blank_line_in?(list_lines) || !peek(rest, Line.ListItem, type)
-    blocks = Parser.parse(for line <- [first | list_lines], do: properly_indent(line, 1))
+    {spaced, list_lines, rest} = read_list_lines(rest, [])
+    spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
+    lines = for line <- [first | list_lines], do: properly_indent(line, 1)
+    {blocks, _} = Parser.parse(lines, true)
+
     parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ])
   end
 
@@ -129,13 +132,18 @@ defmodule Earmark.Block do
   ##############
   # HTML block #
   ##############
-  defp parse(lines = [%Line.HtmlOpenTag{tag: tag} | _], result) do
-    {html_lines, rest} = Enum.split_while(lines, fn (line) ->
-      !match?(%Line.HtmlCloseTag{tag: ^tag}, line)
-    end)
-    unless length(rest) == 0, do: rest = tl(rest)
-    html = (for line <- html_lines, do: line.line)
+  defp parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result) do
+    {html_lines, rest} = html_match_to_closing(tag, rest, [opener])
+    html = (for line <- Enum.reverse(html_lines), do: line.line)
     parse(rest, [ %Html{tag: tag, html: html} | result ])
+  end
+
+  ####################
+  # HTML on one line #
+  ####################
+
+  defp parse([ %Line.HtmlOneLine{line: line} | rest], result) do
+    parse(rest, [ %HtmlOther{html: [ line ]} | result ])
   end
 
   ################
@@ -143,7 +151,7 @@ defmodule Earmark.Block do
   ################
 
   defp parse([ line = %Line.HtmlComment{complete: true} | rest], result) do
-    parse(rest, [ %HtmlComment{html: [ line.line ]} | result ])
+    parse(rest, [ %HtmlOther{html: [ line.line ]} | result ])
   end
 
   defp parse(lines = [ %Line.HtmlComment{complete: false} | _], result) do
@@ -155,7 +163,7 @@ defmodule Earmark.Block do
       rest = tl(rest)
     end
     html = (for line <- html_lines, do: line.line)
-    parse(rest, [ %HtmlComment{html: html} | result ])
+    parse(rest, [ %HtmlOther{html: html} | result ])
   end
   
   #################
@@ -240,17 +248,19 @@ defmodule Earmark.Block do
   end
 
   # Always allow blank lines and indents
-  defp read_list_lines([ line = %Line.Indent{} | rest ], result) do
+  defp read_list_lines([ line = %Line.Blank{} | rest ], result) do
     read_list_lines(rest, [ line | result ])
   end
 
-  defp read_list_lines([ line = %Line.Blank{} | rest ], result) do
+  defp read_list_lines([ line = %Line.Indent{} | rest ], result) do
     read_list_lines(rest, [ line | result ])
   end
 
   # no match, must be done
   defp read_list_lines(lines, result) do
-    { Enum.reverse(result), lines }
+    { trailing_blanks, rest } = Enum.split_while(result, &is_blank/1)
+    spaced = length(trailing_blanks) > 0
+    { spaced, Enum.reverse(rest), lines }
   end
 
   #####################################################
@@ -293,19 +303,55 @@ defmodule Earmark.Block do
     visit(rest, result, func)
   end
 
+  ###################################################################
+  # Consume HTML, taking care of nesting. Assumes one tag per line. #
+  ###################################################################
+
+  # run out of input
+  defp html_match_to_closing(tag, [], result) do
+    IO.puts(:stderr, "Failed to find closing <#{tag}>")
+    { result, [] }
+  end
+
+  # find closing tag
+  defp html_match_to_closing(tag, 
+                             [closer = %Line.HtmlCloseTag{tag: tag} | rest],
+                             result)
+  do
+    { [closer | result], rest }
+  end
+
+  # a nested open tag
+  defp html_match_to_closing(tag, 
+                             [opener = %Line.HtmlOpenTag{tag: new_tag} | rest],
+                             result)
+  do
+    { html_lines, rest } = html_match_to_closing(new_tag, rest, [opener])
+    html_match_to_closing(tag, rest, html_lines ++ result)
+  end
+  
+  # anything else
+  defp html_match_to_closing(tag, [ line | rest ], result) do
+    html_match_to_closing(tag, rest, [ line | result ])
+  end
+
+
   ###########
   # Helpers #
   ###########
 
-  defp is_text(%Line.Text{}), do: true
-  defp is_text(_),            do: false
+  defp is_blank(%Line.Blank{}),   do: true
+  defp is_blank(_),               do: false
+
+  defp is_text(%Line.Text{}),     do: true
+  defp is_text(%Line.ListItem{}), do: true
+  defp is_text(_),                do: false
 
   defp is_blockquote_or_text(%Line.BlockQuote{}), do: true
   defp is_blockquote_or_text(struct),             do: is_text(struct)
 
   defp is_indent_or_blank(%Line.Indent{}), do: true
-  defp is_indent_or_blank(%Line.Blank{}),  do: true
-  defp is_indent_or_blank(_),              do: false
+  defp is_indent_or_blank(line),           do: is_blank(line)
 
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do

@@ -4,8 +4,9 @@ defmodule Earmark.Parser do
   alias Earmark.Block
 
 
-  def parse(lines) do
-    lines |> Enum.map(&Line.type_of/1) |> Block.lines_to_blocks
+  def parse(text_lines, recursive \\ false) do
+    Enum.map(text_lines, fn (line) -> Line.type_of(line, recursive) end)
+    |> Block.parse
   end
   
 end

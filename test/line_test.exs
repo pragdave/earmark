@@ -61,6 +61,13 @@ defmodule LineTest do
      { "<pre class='123'>", %Line.HtmlOpenTag{tag: "pre", content: "<pre class='123'>"} },
      { "</pre>",            %Line.HtmlCloseTag{tag: "pre"} },
 
+     { "<pre>a</pre>",      %Line.HtmlOneLine{tag: "pre", content: "<pre>a</pre>"} },
+
+     { "<hr>",              %Line.HtmlOneLine{tag: "hr", content: "<hr>"} },
+     { "<hr/>",             %Line.HtmlOneLine{tag: "hr", content: "<hr/>"} },
+     { "<hr class='a'>",    %Line.HtmlOneLine{tag: "hr", content: "<hr class='a'>"} },
+
+
      { id1, %Line.IdDef{id: "ID1", url: "http://example.com", title: "The title"} },
      { id2, %Line.IdDef{id: "ID2", url: "http://example.com", title: "The title"} },
      { id3, %Line.IdDef{id: "ID3", url: "http://example.com", title: "The title"} },
@@ -89,7 +96,7 @@ defmodule LineTest do
          test("line: '" <> text <> "'") do
            struct = unquote(Macro.escape type)
            struct = %{ struct | line: unquote(text) }
-           assert Line.type_of(unquote(text)) == struct
+           assert Line.type_of(unquote(text), false) == struct
          end
        end)
 

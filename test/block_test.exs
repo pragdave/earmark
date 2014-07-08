@@ -66,7 +66,7 @@ defmodule BlockTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
              ])
     expected = [ %Block.List{ type: :ul, blocks: [
-         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true}
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
     ]}]
     assert result == expected
   end
@@ -78,7 +78,7 @@ defmodule BlockTest do
              ])
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
-                %Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
+                %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
     ]}]
     assert result == expected
   end
@@ -93,7 +93,7 @@ defmodule BlockTest do
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["line 2"]}],
-                                spaced: true, type: :ul}
+                                spaced: false, type: :ul}
     ]}]
     assert result == expected
   end
@@ -106,7 +106,7 @@ defmodule BlockTest do
              ])
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
-                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: true}
+                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
     ]}]
     assert result == expected
   end
@@ -118,7 +118,7 @@ defmodule BlockTest do
              ])
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
     ]}]
     assert result == expected
   end
@@ -131,7 +131,7 @@ defmodule BlockTest do
              ])
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
     ]}]
     assert result == expected
   end
@@ -141,12 +141,12 @@ defmodule BlockTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
                %Line.Blank{},
-               %Line.Text{content: "para"}
+               %Line.Text{content: "para", line: "para"}
              ])
     expected = [ 
        %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
        ]},
        %Block.Para{lines: ["para"]},
     ]
@@ -167,7 +167,7 @@ defmodule BlockTest do
        %Block.ListItem{type: :ul, blocks: [
                %Block.Para{lines: ["line 1"]},
                %Block.Code{language: nil, lines: ["code 1", "    code 2", ""]},
-               %Block.Para{lines: ["line 2"]}], spaced: true}
+               %Block.Para{lines: ["line 2"]}], spaced: false}
     ]}]
     
     assert result == expected
@@ -182,7 +182,7 @@ defmodule BlockTest do
                %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
              ])
     expected = [ %Block.List{ type: :ol, blocks: [
-         %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true}
+         %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
     ]}]
     assert result == expected
   end
@@ -262,16 +262,41 @@ defmodule BlockTest do
                   "<pre>", 
                   "line 2",
                   "</pre>", 
-                  "line 3"]}]   # stet—closing tag not needed
+                  "line 3",
+                  "</table>"]}]
 
     assert result == expected
   end
+
+  test "Nested HTML Block" do
+    result = Block.lines_to_blocks([
+                  %Line.HtmlOpenTag{tag: "table", line: "<table class='c'>"},
+                  %Line.Text{line: "line 1"},
+                  %Line.HtmlOpenTag{tag: "table", line: "<table>"},
+                  %Line.Ruler{line: "line 2"},
+                  %Line.HtmlCloseTag{tag: "table", line: "</table>"},
+                  %Line.Text{line: "line 3"},
+                  %Line.HtmlCloseTag{tag: "table", line: "</table>"},
+             ])
+
+    expected = [%Block.Html{tag: "table", html: 
+                 ["<table class='c'>", 
+                  "line 1", 
+                  "<table>", 
+                  "line 2",
+                  "</table>", 
+                  "line 3",
+                  "</table>"]}]
+
+    assert result == expected
+  end
+
 
   test "HTML comment on one line" do
     result = Block.lines_to_blocks([
                   %Line.HtmlComment{line: "<!-- xx -->", complete: true}
              ])
-    expected = [ %Block.HtmlComment{html: [ "<!-- xx -->" ]}]
+    expected = [ %Block.HtmlOther{html: [ "<!-- xx -->" ]}]
 
     assert result == expected
   end
@@ -282,7 +307,7 @@ defmodule BlockTest do
                   %Line.Indent{level: 2, line: "xxx"},
                   %Line.Text{line: "-->"}
              ])
-    expected = [ %Block.HtmlComment{html: ["<!-- ", "xxx", "-->"]}]
+    expected = [ %Block.HtmlOther{html: ["<!-- ", "xxx", "-->"]}]
 
     assert result == expected
   end
@@ -311,7 +336,7 @@ defmodule BlockTest do
   test "ID definition with no title and no title on next line" do
     result = Block.lines_to_blocks([
                   %Line.IdDef{id: "id1", url: "url1"},
-                  %Line.Text{content: "  not title1"}
+                  %Line.Text{content: "  not title1", line: "  not title1"}
              ])
 
     assert result == [
@@ -344,7 +369,7 @@ defmodule BlockTest do
     defn = %Block.IdDef{id: "id1", title: "title1", url: "url1"}
 
     expected = [ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, blocks: [
+       %Block.ListItem{type: :ul, spaced: false, blocks: [
                %Block.Para{lines: ["line 1"]},
                defn
     ]}]}]

@@ -26,12 +26,12 @@ defmodule Earmark.HtmlRenderer do
   ########
   # Html #
   ########
-  def render_block(%Block.Html{html: html, tag: tag}, _context, result) do
+  def render_block(%Block.Html{html: html}, _context, result) do
     html = Enum.join(html, "\n")
-    [ "#{html}\n</#{tag}>" | result ]
+    [ html | result ]
   end
 
-  def render_block(%Block.HtmlComment{html: html}, _context, result) do
+  def render_block(%Block.HtmlOther{html: html}, _context, result) do
     html = Enum.join(html, "\n")
     [ "#{html}" | result ]
   end
@@ -84,10 +84,10 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.List{type: type, blocks: items}, context, result) do
     content = render(items, context)
-    [ "<#{type}>\n#{content}\n<\#{type}>" | result ]
+    [ "<#{type}>\n#{content}\n</#{type}>" | result ]
   end
 
-  # format a single paragraph, and remove the para tags
+  # format a single paragraph list item, and remove the para tags
   def render_block(%Block.ListItem{blocks: blocks, spaced: false}, context, result) 
   when length(blocks) == 1 do
     content = render(blocks, context)
@@ -95,13 +95,20 @@ defmodule Earmark.HtmlRenderer do
     [ "<li>#{content}</li>" | result ]                             
   end
 
-  # format a spaced list
+  # format a spaced list item
   def render_block(%Block.ListItem{blocks: blocks}, context, result) do
     content = render(blocks, context)
     [ "<li>#{content}</li>" | result ]                             
   end
 
+  ####################
+  # IDDef is ignored #
+  ####################
 
+  def render_block(%Block.IdDef{}, _context, result) do
+    result
+  end
+  
   #####################################
   # And here are the inline renderers #
   #####################################

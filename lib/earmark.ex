@@ -3,8 +3,7 @@ defmodule Earmark do
   def to_html(lines, options = %Earmark.Options{renderer: renderer})
   when is_list(lines)
   do
-    typed_lines       = Enum.map(lines, &Earmark.Line.type_of/1)
-    { blocks, links } = Earmark.Block.parse(typed_lines)
+    { blocks, links } = Earmark.Parser.parse(lines)
 
     context = %Earmark.Context{options: options, links: links}
     context = Earmark.Inline.update_context(context)

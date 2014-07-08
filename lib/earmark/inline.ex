@@ -183,9 +183,6 @@ defmodule Earmark.Inline do
 
   defp reference_link(context, match, alt_text, id) do
     id = id |> replace(~r{\s+}, " ") |> String.downcase
-IO.inspect context.links
-IO.inspect id                        
-
     case Dict.fetch(context.links, id) do
       {:ok, link } -> output_image_or_link(context, match, alt_text, link.url, link.title)
       _            -> match

@@ -5,7 +5,7 @@ defmodule Earmark.Options do
   defstruct  renderer: Earmark.HtmlRenderer,
 
              # inline style options  
-             gfm: true, breaks: true, pedantic: false,
+             gfm: true, breaks: false, pedantic: false,
              smartypants: true, sanitize: false,
 
              # Internal—only override if you're brave

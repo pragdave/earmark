@@ -44,6 +44,7 @@ defmodule Earmark.Line do
   defmodule HtmlOpenTag,  do: defstruct line: "", tag: "", content: ""
   defmodule HtmlCloseTag, do: defstruct line: "", tag: "<... to eol"
   defmodule HtmlComment,  do: defstruct line: "", complete: true
+  defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: ""
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
   defmodule ListItem,     do: defstruct type: :ul, line: "", 
                                         bullet: "* or -", content: "text"
@@ -57,9 +58,9 @@ defmodule Earmark.Line do
   # line we generate. We also need to expand tabs before 
   # proceeding
 
-  def type_of(line) do
+  def type_of(line, recursive) do
     line = line |> Helpers.expand_tabs |> Helpers.remove_line_ending
-    %{ _type_of(line) | line: line }
+    %{ _type_of(line, recursive) | line: line }
   end
 
   def matches_id_title(content) do
@@ -69,24 +70,24 @@ defmodule Earmark.Line do
     end
   end
 
-  defp _type_of(line) do
+  defp _type_of(line, recursive) do
     cond do
       line =~ ~r/^\s*$/ ->
         %Blank{}
 
-      line =~ ~r/^ \s{0,3} ( <! (?: -- .*? -- \s* )+ > ) $/x ->
+      line =~ ~r/^ \s{0,3} ( <! (?: -- .*? -- \s* )+ > ) $/x && !recursive ->
         %HtmlComment{complete: true}
 
-      line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x ->
+      line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x && !recursive -> 
         %HtmlComment{complete: false}
 
-      line =~ ~r/^(?:- ?){3,}/ -> 
+      line =~ ~r/^ \s{0,3} (?:-\s?){3,}/x -> 
         %Ruler{type: "-" }
 
-      line =~ ~r/^(?:\* ?){3,}/ ->
+      line =~ ~r/^ \s{0,3} (?:\*\s?){3,}/x ->
         %Ruler{type: "*" }
 
-      line =~ ~r/^(?:_ ?){3,}/ ->
+      line =~ ~r/^ \s{0,3} (?:_\s?){3,}/x ->
         %Ruler{type: "_" }
 
       match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/, line) -> 
@@ -105,11 +106,18 @@ defmodule Earmark.Line do
         [ _, fence, language ] = match
         %Fence{delimiter: fence, language: language}
 
-      match = Regex.run(~r/^<([-\w]+)/, line) ->
+      (match = Regex.run(~r{^<hr(\s|>|/).*}, line)) && !recursive ->
+        %HtmlOneLine{tag: "hr", content: line}
+
+      (match = Regex.run(~r{^<([-\w]+).*</\1>}, line)) && !recursive ->
+        [ _, tag ] = match
+        %HtmlOneLine{tag: tag, content: line}
+
+      (match = Regex.run(~r/^<([-\w]+)/, line)) && !recursive ->
         [ _, tag ] = match
         %HtmlOpenTag{tag: tag, content: line}
 
-      match = Regex.run(~r/^<\/([-\w]+)/, line) ->
+      (match = Regex.run(~r/^<\/([-\w]+)/, line)) && !recursive ->
         [ _, tag ] = match
         %HtmlCloseTag{tag: tag }
 
