@@ -3,7 +3,7 @@ defmodule Earmark.Line do
   alias Earmark.Helpers
 
   @moduledoc """
-  Give a line of text, return its context-free type.
+  Give a line of text, return its context-free type. Not for external consumption
   """
 
   # This is the re that matches the ridiculous "[id]: url title" syntax
@@ -63,6 +63,9 @@ defmodule Earmark.Line do
     %{ _type_of(line, recursive) | line: line }
   end
 
+  @doc false
+  # Used by the block parser to test if a line following an IdDef
+  # is a possible title
   def matches_id_title(content) do
     case Regex.run(@id_title_part_re, content) do
       [ _, title ] -> title
@@ -81,13 +84,13 @@ defmodule Earmark.Line do
       line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x && !recursive -> 
         %HtmlComment{complete: false}
 
-      line =~ ~r/^ \s{0,3} (?:-\s?){3,}/x -> 
+      line =~ ~r/^ \s{0,3} (?:-\s?){3,} $/x -> 
         %Ruler{type: "-" }
 
-      line =~ ~r/^ \s{0,3} (?:\*\s?){3,}/x ->
+      line =~ ~r/^ \s{0,3} (?:\*\s?){3,} $/x ->
         %Ruler{type: "*" }
 
-      line =~ ~r/^ \s{0,3} (?:_\s?){3,}/x ->
+      line =~ ~r/^ \s{0,3} (?:_\s?){3,} $/x ->
         %Ruler{type: "_" }
 
       match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/, line) -> 

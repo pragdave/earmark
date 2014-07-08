@@ -1,5 +1,11 @@
 defmodule Earmark.Block do
 
+  @moduledoc """
+  Given a list of parsed blocks, convert them into blocks.
+  That list of blocks is the final representation of the 
+  document (in internal form).
+  """
+
   alias Earmark.Line
   alias Earmark.Parser
 
@@ -16,10 +22,10 @@ defmodule Earmark.Block do
   defmodule IdDef,       do: defstruct id: nil, url: nil, title: nil
 
 
-  @doc """
-  Given a list of `Line.xxx` structs, group them into related blocks. 
-  Then extract any id definitions, and build a hashdict from them.
-  """
+  @doc false
+  # Given a list of `Line.xxx` structs, group them into related blocks. 
+  # Then extract any id definitions, and build a hashdict from them. Not
+  # for external consumtion.
   def parse(lines) do
     blocks = lines_to_blocks(lines)
     links  = links_from_blocks(blocks)
