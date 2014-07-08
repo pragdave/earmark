@@ -10,9 +10,9 @@ defmodule Earmark.Line do
 
   @id_title_part ~S"""
         (?|
-             " ([^"]*)  "         # in quotes
-          |  ' ([^']*)  '         # 
-          | \( ([^)]*) \)         # in parens
+             " (.*)  "         # in quotes
+          |  ' (.*)  '         # 
+          | \( (.*) \)         # in parens
         )
   """
 

@@ -2,7 +2,7 @@ defmodule BlockTest do
   use ExUnit.Case
 
   alias Earmark.Inline
-  alias Earmark.Link
+  alias Earmark.Block.IdDef
 
   ###############
   # Helpers.... #
@@ -14,23 +14,24 @@ defmodule BlockTest do
 
   def test_links do
     [ 
-     {"id1", %Link{url: "url 1", title: "title 1"}},
-     {"id2", %Link{url: "url 2"}},
+     {"id1", %IdDef{url: "url 1", title: "title 1"}},
+     {"id2", %IdDef{url: "url 2"}},
 
-     {"img1", %Link{url: "img 1", title: "image 1"}},
-     {"img2", %Link{url: "img 2"}},
+     {"img1", %IdDef{url: "img 1", title: "image 1"}},
+     {"img2", %IdDef{url: "img 2"}},
     ]
     |> Enum.into(HashDict.new)
   end
 
   def pedantic_context do
     ctx = put_in(context.options.gfm, false)
+    ctx = put_in(ctx.options.pedantic, true)
     ctx = put_in(ctx.links, test_links)
-    put_in(ctx.options.pedantic, true)
+    Inline.update_context(ctx)
   end
 
   def gfm_context do
-    context
+    Inline.update_context(context)
   end
 
   def convert_pedantic(string) do
@@ -184,6 +185,11 @@ defmodule BlockTest do
     result = convert_pedantic(~s{a [my link][id1] link})
     assert result == ~s[a <a href=\"url 1\" title=\"title 1\">my link</a> link]
   end
+
+  test "case insensitive reference link" do
+    result = convert_pedantic(~s{a [my link][ID1] link})
+    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">my link</a> link]
+  end
                                
   test "basic reference link with no title" do
     result = convert_pedantic(~s{a [my link][id2] link})
@@ -194,6 +200,12 @@ defmodule BlockTest do
     result = convert_pedantic(~s{a [mylink]  [id1] link})
     assert result == ~s[a <a href=\"url 1\" title=\"title 1\">mylink</a> link]
   end
+
+  test "shorthand reference link" do
+    result = convert_pedantic(~s{a [id1][] link})
+    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">id1</a> link]
+  end
+
 
   #########################
   # Reference image links #

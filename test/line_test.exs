@@ -8,6 +8,12 @@ defmodule LineTest do
      id3 = ~S{[ID3]: http://example.com  (The title)}
      id4 = ~S{[ID4]: http://example.com}
      id5 = ~S{[ID5]: <http://example.com>  "The title"}
+     id6 = ~S{ [ID6]: http://example.com  "The title"}
+     id7 = ~S{  [ID7]: http://example.com  "The title"}
+     id8 = ~S{   [ID8]: http://example.com  "The title"}
+     id9 = ~S{    [ID9]: http://example.com  "The title"}
+     
+     id10 = ~S{[ID10]: /url/ "Title with "quotes" inside"}
      
     [ 
      { "",         %Line.Blank{} },
@@ -73,6 +79,14 @@ defmodule LineTest do
      { id3, %Line.IdDef{id: "ID3", url: "http://example.com", title: "The title"} },
      { id4, %Line.IdDef{id: "ID4", url: "http://example.com", title: ""} },
      { id5, %Line.IdDef{id: "ID5", url: "http://example.com", title: "The title"} },
+     { id6, %Line.IdDef{id: "ID6", url: "http://example.com", title: "The title"} },
+     { id7, %Line.IdDef{id: "ID7", url: "http://example.com", title: "The title"} },
+     { id8, %Line.IdDef{id: "ID8", url: "http://example.com", title: "The title"} },
+     { id9, %Line.Indent{content: "[ID9]: http://example.com  \"The title\"",
+            level: 1,       line: "    [ID9]: http://example.com  \"The title\""} },
+
+     {id10, %Line.IdDef{id: "ID10", url: "/url/", title: "Title with \"quotes\" inside"}},
+
 
      { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
      { "+ ul2", %Line.ListItem{ type: :ul, bullet: "+", content: "ul2"} },

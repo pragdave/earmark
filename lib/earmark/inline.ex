@@ -62,6 +62,7 @@ defmodule Earmark.Inline do
       match = Regex.run(context.rules.reflink, src) ->
         { match, alt_text, id } = case match do
           [ match, id ]           -> { match, nil, id }
+          [ match, id, "" ]       -> { match, id, id  }
           [ match, alt_text, id ] -> { match, alt_text, id }
         end
         out = reference_link(context, match, alt_text, id)

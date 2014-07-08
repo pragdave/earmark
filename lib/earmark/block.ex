@@ -271,7 +271,10 @@ defmodule Earmark.Block do
     visit(blocks, HashDict.new, &link_extractor/2)
   end
 
-  defp link_extractor(item = %IdDef{id: id}, result), do: Dict.put(result, id, item)
+  defp link_extractor(item = %IdDef{id: id}, result) do
+    Dict.put(result, String.downcase(id), item)
+  end
+
   defp link_extractor(_, result), do: result
 
   ##################################
