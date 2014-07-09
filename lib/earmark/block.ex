@@ -48,13 +48,13 @@ defmodule Earmark.Block do
   # setext headings #
   ###################
 
-  defp parse([ %Line.Blank{}, 
-              %Line.Text{content: heading},
-              %Line.SetextUnderlineHeading{level: level},
-              %Line.Blank{}
-            | 
-              rest
-            ], result) do
+  defp parse([  %Line.Blank{}, 
+                %Line.Text{content: heading},
+                %Line.SetextUnderlineHeading{level: level},
+                %Line.Blank{}
+             | 
+                rest
+             ], result) do
 
     parse(rest, [ %Heading{content: heading, level: level} | result ])
   end
