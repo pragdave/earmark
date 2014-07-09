@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Readme do
 
       # Typical calling sequence
 
-      <!-- doc: Earmark.to_html
+      <!-- doc: Earmark.to_html -->
 
   Run this task, and the README will be updated with the appropriate
   documentation. Markers are also added, so running it again
@@ -20,21 +20,25 @@ defmodule Mix.Tasks.Readme do
   """
 
   def run([]) do
+    Mix.Task.run "compile", []
     File.read!("README.md")
     |> remove_old_doc
     |> add_updated_doc
     |> write_back
   end
 
-  @new_doc ~R/\n (\s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n/x
+  @new_doc ~R/(\s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n/x
 
-  @existing_doc ~R/(\n \s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n
-                   (?: .*?\n )+?
-                   \s* <!-- \s end\2doc: \s+ \3 \s+ --> \s*?
+  @existing_doc ~R/
+     (?:^|\n+)(\s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n
+     (?: .*?\n )+?
+     \s* <!-- \s end(?:module)?doc: \s+ \3 \s+ --> \s*?
   /x
 
   defp remove_old_doc(readme) do
-    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) -> hdr end)
+    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) -> 
+        hdr 
+    end)
   end
 
   defp add_updated_doc(readme) do
@@ -92,12 +96,12 @@ defmodule Mix.Tasks.Readme do
 
                                                       
   defp write_back(readme) do
-    IO.puts :stderr,
-      (case File.write("README.md", readme) do
-        :ok -> "README.md updated"
-        {:error, reason} ->
-           "README.ms: #{:file.explain_error(reason)}"
-      end)
+    # IO.puts :stderr,
+    #   (case File.write("README.md", readme) do
+    #     :ok -> "README.md updated"
+    #     {:error, reason} ->
+    #        "README.ms: #{:file.explain_error(reason)}"
+    #   end)
   end
 end
 
