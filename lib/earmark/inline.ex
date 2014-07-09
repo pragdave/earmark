@@ -1,5 +1,9 @@
 defmodule Earmark.Inline do
 
+  @moduledoc """
+  Match and render inline sequences, passing each to the 
+  renderer.
+  """
   
   import Earmark.Helpers
 
