@@ -96,12 +96,12 @@ defmodule Mix.Tasks.Readme do
 
                                                       
   defp write_back(readme) do
-    # IO.puts :stderr,
-    #   (case File.write("README.md", readme) do
-    #     :ok -> "README.md updated"
-    #     {:error, reason} ->
-    #        "README.ms: #{:file.explain_error(reason)}"
-    #   end)
+    IO.puts :stderr,
+      (case File.write("README.md", readme) do
+        :ok -> "README.md updated"
+        {:error, reason} ->
+           "README.ms: #{:file.explain_error(reason)}"
+      end)
   end
 end
 

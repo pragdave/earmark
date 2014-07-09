@@ -1,3 +1,4 @@
+
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
@@ -40,7 +41,7 @@
       *   A list item
           * an another
 
-  And expects this to be a nested list. But, in reality, the second could just
+  and expects this to be a nested list. But, in reality, the second could just
   be the continuation of a paragraph.
 
   I've chosen always to use the second interpretation—a line that looks like
@@ -48,15 +49,13 @@
 
 ## Author
 
-Copyright © 2014 Dave Thomas, The Pragmatic Programmers
+Copyright © 2014 Dave Thomas, The Pragmatic Programmers  
 @/+pragdave,  dave@pragprog.com
 
 Licensed under the same terms as Elixir.
-
 <!-- endmoduledoc: Earmark -->
 
 # Details
-
 <!-- doc: Earmark.to_html -->
 Given a markdown document (as either a list of lines or 
 a string containing newlines), return an HTML representation.
@@ -89,6 +88,5 @@ you'd call
 
     alias Earmark.Options
     result = Earmark.to_html(original, %Options{smartypants: false})
-
 
 <!-- enddoc: Earmark.to_html -->
