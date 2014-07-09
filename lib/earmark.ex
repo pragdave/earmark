@@ -15,32 +15,32 @@ defmodule Earmark do
   * Nested block-level HTML is correctly handled only if each HTML
     tag appears on its own line. So
 
-        <div>
-        <div>
-        hello
-        </div>
-        </div>
+          <div>
+          <div>
+          hello
+          </div>
+          </div>
 
     will work. However. the following won't
 
-        <div><div>
-        hello
-        </div></div>
+          <div><div>
+          hello
+          </div></div>
 
   * John Gruber's tests contain an ambiguity when it comes to 
     lines that might be the start of a list inside paragraphs.
    
     One test says that
 
-        This is the text
-        * of a paragraph
-        that I wrote
+          This is the text
+          * of a paragraph
+          that I wrote
 
     is a single paragraph. The "*" is not significant. However, another
     test has
 
-        *   A list item
-            * an another
+          *   A list item
+              * an another
 
     and expects this to be a nested list. But, in reality, the second could just
     be the continuation of a paragraph.

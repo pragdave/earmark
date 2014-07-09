@@ -93,7 +93,7 @@ defmodule Earmark.Line do
       line =~ ~r/^ \s{0,3} (?:_\s?){3,} $/x ->
         %Ruler{type: "_" }
 
-      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/, line) -> 
+      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) -> 
         [ _, level, heading ] = match
         %Heading{level: String.length(level), content: String.strip(heading) }
 

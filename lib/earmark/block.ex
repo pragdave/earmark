@@ -253,12 +253,19 @@ defmodule Earmark.Block do
     read_list_lines(rest, [ line | result ])
   end
 
-  # Always allow blank lines and indents
+  # Always allow blank lines and indents, and text lines with at least
+  # two spaces
   defp read_list_lines([ line = %Line.Blank{} | rest ], result) do
     read_list_lines(rest, [ line | result ])
   end
 
   defp read_list_lines([ line = %Line.Indent{} | rest ], result) do
+    read_list_lines(rest, [ line | result ])
+  end
+
+  defp read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ], 
+                         result) 
+  do
     read_list_lines(rest, [ line | result ])
   end
 

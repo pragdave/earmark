@@ -40,7 +40,7 @@ defmodule Earmark.CLI do
 
 
 
-  defp open_file(filename), do: io_device(File.open(filename), filename)
+  defp open_file(filename), do: io_device(File.open(filename, [:utf8]), filename)
 
   defp io_device({:ok, io_device}, _), do: io_device
   defp io_device({:error, reason}, filename) do

@@ -98,6 +98,21 @@ defmodule BlockTest do
     assert result == expected
   end
 
+  test "UL containing two paras where the second is only indented 2 spaces" do
+    result = Block.lines_to_blocks([
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
+               %Line.Blank{},
+               %Line.Text{content: "  line 2", line: "  line 2"},
+               %Line.Blank{}
+             ])
+    expected = [ %Block.List{ type: :ul, blocks: [
+         %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
+                                %Block.Para{lines: ["  line 2"]}],
+                                spaced: false, type: :ul}
+    ]}]
+    assert result == expected
+  end
+
   test "Multiline UL followed by a blank line" do
     result = Block.lines_to_blocks([
                %Line.ListItem{bullet: "*", content: "line 1"},
