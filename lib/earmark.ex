@@ -10,8 +10,6 @@ defmodule Earmark do
 
       html_doc = Earmark.to_html(markdown, options)
 
-  See the documentation for `to_html` for details of the options.
-
   ## Limitations
 
   * Nested block-level HTML is correctly handled only if each HTML
@@ -44,7 +42,7 @@ defmodule Earmark do
         *   A list item
             * an another
 
-    And expects this to be a nested list. But, in reality, the second could just
+    and expects this to be a nested list. But, in reality, the second could just
     be the continuation of a paragraph.
 
     I've chosen always to use the second interpretation—a line that looks like
@@ -64,7 +62,7 @@ defmodule Earmark do
   Given a markdown document (as either a list of lines or 
   a string containing newlines), return an HTML representation.
 
-  The options are a %Earmark.Options{} structure:
+  The options are a `%Earmark.Options{}` structure:
 
   * `renderer`: ModuleName
 
@@ -83,7 +81,7 @@ defmodule Earmark do
 
   * `smartypants`: boolean
 
-    Turns on smartpants processing, so quotes become curly, two
+    Turns on smartypants processing, so quotes become curly, two
     or three hyphens become en and em dashes, and so on. True by
     default.
 
