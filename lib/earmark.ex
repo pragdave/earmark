@@ -93,7 +93,9 @@ defmodule Earmark do
 
   """
 
-  def to_html(lines, options = %Options{renderer: renderer} \\ %Options{})
+  def to_html(lines, options \\ %Options{})
+
+  def to_html(lines, options = %Options{renderer: renderer})
   when is_list(lines)
   do
     { blocks, links } = Earmark.Parser.parse(lines)
