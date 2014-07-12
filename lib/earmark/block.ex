@@ -25,7 +25,7 @@ defmodule Earmark.Block do
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks. 
   # Then extract any id definitions, and build a hashdict from them. Not
-  # for external consumtion.
+  # for external consumption.
   def parse(lines) do
     blocks = lines_to_blocks(lines)
     links  = links_from_blocks(blocks)

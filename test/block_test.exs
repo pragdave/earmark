@@ -3,7 +3,8 @@ defmodule BlockTest do
 
   alias Earmark.Line
   alias Earmark.Block
-  
+
+
   ############
   # Headings #
   ############

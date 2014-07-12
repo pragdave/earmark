@@ -1,5 +1,6 @@
 
 
+
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
@@ -54,6 +55,7 @@ Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 Licensed under the same terms as Elixir.
+
 
 <!-- endmoduledoc: Earmark -->
 

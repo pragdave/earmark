@@ -1,4 +1,4 @@
-defmodule BlockTest do
+defmodule InlineTest do
   use ExUnit.Case
 
   alias Earmark.Inline
