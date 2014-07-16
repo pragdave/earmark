@@ -6,11 +6,9 @@ defmodule Earmark.HtmlRenderer do
 
   def render(blocks, context) do
     render_reduce(blocks, context, [], &render_block/3)
-    |> Enum.join("\n")
   end
 
-
-  defp render_reduce([], _context, result, _func), do: Enum.reverse(result)
+  defp render_reduce([], _context, result, _func), do: IO.iodata_to_binary(result)
   defp render_reduce([block|rest], context, result, func) do
     render_reduce(rest, context, func.(block, context, result), func)
   end
@@ -20,52 +18,52 @@ defmodule Earmark.HtmlRenderer do
   #############
   def render_block(%Block.Para{lines: lines}, context, result) do
     lines = convert(lines, context)
-    [ "<p>#{lines}</p>" | result ]
+    [ result | "<p>#{lines}</p>\n" ]
   end
 
   ########
   # Html #
   ########
   def render_block(%Block.Html{html: html}, _context, result) do
-    html = Enum.join(html, "\n")
-    [ html | result ]
+    html = Enum.intersperse(html, ?\n)
+    [ result | html ]
   end
 
   def render_block(%Block.HtmlOther{html: html}, _context, result) do
-    html = Enum.join(html, "\n")
-    [ "#{html}" | result ]
+    html = Enum.intersperse(html, ?\n)
+    [ result | html ]
   end
 
   #########
   # Ruler #
   #########
   def render_block(%Block.Ruler{type: "-"}, _context, result) do
-    [ ~S{<hr class="thin"/>} | result ]
+    [ result | ~S{<hr class="thin"/>\n} ]
   end
 
   def render_block(%Block.Ruler{type: "_"}, _context, result) do
-    [ ~S{<hr class="medium"/>} | result ]
+    [ result | ~S{<hr class="medium"/>\n} ]
   end
 
   def render_block(%Block.Ruler{type: "*"}, _context, result) do
-    [ ~S{<hr class="thick"/>} | result ]
+    [ result | ~S{<hr class="thick"/>\n} ]
   end
 
   ###########
   # Heading #
   ###########
   def render_block(%Block.Heading{level: level, content: content}, _context, result) do
-    html = "<h#{level}>#{content}</h#{level}>"
-    [ html | result ]
+    html = "<h#{level}>#{content}</h#{level}>\n"
+    [ result | html ]
   end
-     
+
   ##############
   # Blockquote #
   ##############
 
   def render_block(%Block.BlockQuote{blocks: blocks}, context, result) do
     body = render(blocks, context)
-    [ "<blockquote>#{body}</blockquote>" | result ]
+    [ result | "<blockquote>#{body}</blockquote>\n" ]
   end
 
   #########
@@ -74,19 +72,16 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.Table{header: header, rows: rows, alignments: aligns}, context, result) do
     cols = for align <- aligns, do: "<col align=\"#{align}\">\n"
-    html = [ "</colgroup>", cols, "<colgroup>", "<table>" ]
+    html = [ "<table>\n", "<colgroup>\n", cols, "</colgroup>\n" ]
+
     if header do
-      html = [ "</thead>",
+      html = [ html, "<thead>\n",
                add_table_rows(context, [header], "th"),
-               "<thead>" 
-             | html ]
+               "</thead>\n" ]
     end
 
-    html = [ "</table>\n", add_table_rows(context, rows, "td") | html ]
-
-    html = html |> Enum.reverse |> Enum.join("\n")
-
-    [ html | result ]
+    html = [ html, add_table_rows(context, rows, "td"), "</table>\n" ]
+    [ result | html ]
   end
 
   ########
@@ -94,9 +89,9 @@ defmodule Earmark.HtmlRenderer do
   ########
   def render_block(%Block.Code{lines: lines, language: language}, _context, result) do
     class = if language, do: ~s{ class="#{language}"}, else: ""
-    tag = ~s[<pre><code#{class}>]
-    lines = lines |> Enum.map(&escape/1) |> Enum.join("\n")
-    [ ~s[#{tag}#{lines}</code></pre>] | result ]
+    tag = ~s[<pre><code#{class}>\n]
+    lines = lines |> Enum.map(&(escape(&1) <> "\n"))
+    [ result | ~s[#{tag}#{lines}</code></pre>\n] ]
   end
 
   #########
@@ -105,21 +100,21 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.List{type: type, blocks: items}, context, result) do
     content = render(items, context)
-    [ "<#{type}>\n#{content}\n</#{type}>\n" | result ]
+    [ result | "<#{type}>\n#{content}</#{type}>\n" ]
   end
 
   # format a single paragraph list item, and remove the para tags
-  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, context, result) 
+  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, context, result)
   when length(blocks) == 1 do
     content = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
-    [ "<li>#{content}</li>" | result ]                             
+    [ result | "<li>#{content}</li>\n" ]
   end
 
   # format a spaced list item
   def render_block(%Block.ListItem{blocks: blocks}, context, result) do
     content = render(blocks, context)
-    [ "<li>#{content}</li>" | result ]                             
+    [ result | "<li>#{content}</li>\n" ]
   end
 
   ####################
@@ -129,7 +124,7 @@ defmodule Earmark.HtmlRenderer do
   def render_block(%Block.IdDef{}, _context, result) do
     result
   end
-  
+
   #####################################
   # And here are the inline renderers #
   #####################################
@@ -151,11 +146,9 @@ defmodule Earmark.HtmlRenderer do
     ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
   end
 
-
   # Table rows
   def add_table_rows(context, rows, tag) do
-    ( for row <- rows, do: "<tr>\n#{add_tds(context, row, tag)}\n</tr>" )
-    |> Enum.join("\n")
+    for row <- rows, do: "<tr>\n#{add_tds(context, row, tag)}\n</tr>\n"
   end
 
   def add_tds(context, row, tag) do

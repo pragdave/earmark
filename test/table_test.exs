@@ -70,7 +70,6 @@ defmodule TableTest do
     <col align="left">
     <col align="left">
     <col align="left">
-
     </colgroup>
     <tr>
     <td>a</td><td>b</td><td>c</td>
@@ -91,7 +90,6 @@ defmodule TableTest do
     <col align="left">
     <col align="center">
     <col align="right">
-
     </colgroup>
     <thead>
     <tr>
@@ -114,7 +112,6 @@ defmodule TableTest do
     <col align="left">
     <col align="left">
     <col align="left">
-
     </colgroup>
     <tr>
     <td>a</td><td><em>b</em></td><td><code class="inline">c</code></td>

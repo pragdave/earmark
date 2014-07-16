@@ -20,7 +20,7 @@ defmodule Earmark.Inline do
   end
 
   defp convert_each("", _context, result) do
-    result |> Enum.reverse |> Enum.join
+    result |> IO.iodata_to_binary
   end
 
   defp convert_each(src, context, result) do
@@ -30,27 +30,27 @@ defmodule Earmark.Inline do
       # escape
       match = Regex.run(context.rules.escape, src) ->
         [ match, escaped ] = match
-        convert_each(behead(src, match), context, [escaped | result])
+        convert_each(behead(src, match), context, [ result | escaped ])
     
       # autolink
       match = Regex.run(context.rules.autolink, src) ->
         [ match, link, protocol ] = match
         { href, text } = convert_autolink(link, protocol)
         out = renderer.link(href, text)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # url (gfm)
       match = Regex.run(context.rules.url, src) ->
         [ match, href ] = match
         text = escape(href)
         out = renderer.link(href, text)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # tag
       match = Regex.run(context.rules.tag, src) ->
         [ match ] = match
         out = context.options.do_sanitize.(match)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # link
       match = Regex.run(context.rules.link, src) ->
@@ -59,7 +59,7 @@ defmodule Earmark.Inline do
           [ match, text, href, title ] -> { match, text, href, title }
         end
         out = output_image_or_link(context, match, text, href, title)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
 
       # reflink
@@ -70,20 +70,20 @@ defmodule Earmark.Inline do
           [ match, alt_text, id ] -> { match, alt_text, id }
         end
         out = reference_link(context, match, alt_text, id)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # nolink
       match = Regex.run(context.rules.nolink, src) ->
         [ match, id ] = match
         out = reference_link(context, match, id, id)
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
    
 
       # strikethrough (gfm)
       match = Regex.run(context.rules.strikethrough, src) ->
         [ match, content ] = match                             
         out = renderer.strikethrough(convert(content, context))
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
 
       # strong
@@ -93,7 +93,7 @@ defmodule Earmark.Inline do
           [ m, c ]    -> {m, c}
         end
         out = renderer.strong(convert(content, context))
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # em
       match = Regex.run(context.rules.em, src) ->
@@ -102,7 +102,7 @@ defmodule Earmark.Inline do
           [ m, c ]    -> {m, c}
         end
         out = renderer.em(convert(content, context))
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
 
       # code
@@ -110,20 +110,20 @@ defmodule Earmark.Inline do
         [match, _, content] = match
         content = String.strip(content)  # this from Gruber
         out = renderer.codespan(escape(content, true))
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # br
       match = Regex.run(context.rules.br, src, return: :index) ->
         out = renderer.br()
         [ {0, match_len} ] = match
-        convert_each(behead(src, match_len), context, [ out | result ])
+        convert_each(behead(src, match_len), context, [ result | out ])
 
 
       # text
       match = Regex.run(context.rules.text, src) ->
         [ match ] = match                             
         out = escape(context.options.do_smartypants.(match))
-        convert_each(behead(src, match), context, [ out | result ])
+        convert_each(behead(src, match), context, [ result | out ])
 
       # No match
       true ->

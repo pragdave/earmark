@@ -151,8 +151,8 @@ defmodule ListTest do
     result = Earmark.to_html(["* one", "* two"])
     expected = """
     <ul>
-    <li>one</li>
-    <li>two</li>
+    <li>one\n</li>
+    <li>two\n</li>
     </ul>
     """
     assert result == expected
@@ -163,8 +163,8 @@ defmodule ListTest do
     result = Earmark.to_html(["   * one", "   * two"])
     expected = """
     <ul>
-    <li>one</li>
-    <li>two</li>
+    <li>one\n</li>
+    <li>two\n</li>
     </ul>
     """
     assert result == expected
@@ -179,8 +179,8 @@ defmodule ListTest do
 
     expected = """
     <ul>
-    <li>one\n one.one</li>
-    <li>two</li>
+    <li>one\n one.one\n</li>
+    <li>two\n</li>
     </ul>
     """
     assert result == expected
