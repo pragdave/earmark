@@ -68,6 +68,27 @@ defmodule Earmark.HtmlRenderer do
     [ "<blockquote>#{body}</blockquote>" | result ]
   end
 
+  #########
+  # Table #
+  #########
+
+  def render_block(%Block.Table{header: header, rows: rows, alignments: aligns}, context, result) do
+    cols = for align <- aligns, do: "<col align=\"#{align}\">\n"
+    html = [ "</colgroup>", cols, "<colgroup>", "<table>" ]
+    if header do
+      html = [ "</thead>",
+               add_table_rows(context, [header], "th"),
+               "<thead>" 
+             | html ]
+    end
+
+    html = [ "</table>\n", add_table_rows(context, rows, "td") | html ]
+
+    html = html |> Enum.reverse |> Enum.join("\n")
+
+    [ html | result ]
+  end
+
   ########
   # Code #
   ########
@@ -130,4 +151,14 @@ defmodule Earmark.HtmlRenderer do
     ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
   end
 
+
+  # Table rows
+  def add_table_rows(context, rows, tag) do
+    ( for row <- rows, do: "<tr>\n#{add_tds(context, row, tag)}\n</tr>" )
+    |> Enum.join("\n")
+  end
+
+  def add_tds(context, row, tag) do
+    for col <- row, do: "<#{tag}>#{convert(col, context)}</#{tag}>"
+  end
 end

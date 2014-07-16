@@ -1,15 +1,63 @@
 
 
 
+
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
 
+## Dependency
+
+    { :earmark, "> x.y.z" }
+
 ## Usage
+
+### API
 
     html_doc = Earmark.to_html(markdown)
 
     html_doc = Earmark.to_html(markdown, options)
+
+(See the documentation for `to_html` for options)
+
+### Command line
+
+    $ mix escript.build
+    $ ./earmark file.ms
+
+## Supports
+
+Standard [Gruber markdown][gruber].
+
+[gruber]: <http://daringfireball.net/projects/markdown/syntax>
+
+## Extensions
+
+### Tables
+
+Github Flavored Markdown tables are supported
+
+        State | Abbrev | Capital
+        ----: | :----: | -------
+        Texas | TX     | Austin
+        Maine | MN     | Augusta
+
+Tables may have leading and trailing vertical bars on each line
+
+        | State | Abbrev | Capital |
+        | ----: | :----: | ------- |
+        | Texas | TX     | Austin  |
+        | Maine | MN     | Augusta |
+
+Tables need not have headers, in which case all column alignments
+default to left.
+
+        | Texas | TX     | Austin  |
+        | Maine | MN     | Augusta |
+
+Currently we assume there are always spaces around interior vertical
+bars. It isn't clear what the expectation is.
+
 
 ## Limitations
 
@@ -55,6 +103,7 @@ Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 Licensed under the same terms as Elixir.
+
 
 
 <!-- endmoduledoc: Earmark -->

@@ -50,7 +50,9 @@ defmodule Earmark.Line do
                                         bullet: "* or -", content: "text"
   defmodule SetextUnderlineHeading, 
                           do: defstruct line: "", level: 1
-  defmodule Text,         do: defstruct line: "", content: "text"
+
+  defmodule TableLine,    do: defstruct line: "", content: "", columns: 0
+  defmodule Text,         do: defstruct line: "", content: ""
 
 
   @doc false
@@ -97,6 +99,7 @@ defmodule Earmark.Line do
         [ _, level, heading ] = match
         %Heading{level: String.length(level), content: String.strip(heading) }
 
+
       match = Regex.run(~r/^>(?|(\s*)$|\s(.*))/, line) ->
         [ _, quote ] = match
         %BlockQuote{content: quote }
@@ -137,11 +140,24 @@ defmodule Earmark.Line do
         [ _, bullet, text ] = match
         %ListItem{type: :ol, bullet: bullet, content: text }
 
+      match = Regex.run(~r/^ \s{0,3} \| (?: [^|]+ \|)+ \s* $ /x, line) ->
+        [ body ] = match
+        body = body
+               |> String.strip
+               |> String.strip(?|)
+        columns = String.split(body, "|") |> Enum.map(&String.strip/1)
+        %TableLine{content: line, columns: columns}
+
+      line =~ ~r/ \s \| \s /x ->
+        columns = String.split(line, "|")  |> Enum.map(&String.strip/1)
+        %TableLine{content: line, columns: columns}
+
       match = Regex.run(~r/^(=|-)+\s*$/, line) ->
         [ _, type ] = match
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
         %SetextUnderlineHeading{level: level }
 
+                                  
       true ->  
         %Text{content: line }
     end

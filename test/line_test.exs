@@ -105,6 +105,20 @@ defmodule LineTest do
      { "= and so", %Line.Text{content: "= and so"} },
 
      { "   (title)", %Line.Text{content: "   (title)"} },
+
+     { "  | a | b | c | ", %Line.TableLine{content: "  | a | b | c | ", 
+                                           columns: ~w{a b c} } },
+     { "  | a         | ", %Line.TableLine{content: "  | a         | ", 
+                                           columns: ~w{a} } },
+     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
+                                           columns: ~w{a b c} } },
+
+     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
+                                           columns: ~w{a b c} } },
+
+     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
+                                           columns: ~w{a b c} } },
+
     ]
     |> Enum.each(fn { text, type } -> 
          test("line: '" <> text <> "'") do

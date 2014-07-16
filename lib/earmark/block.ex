@@ -21,6 +21,13 @@ defmodule Earmark.Block do
   defmodule HtmlOther,   do: defstruct html:   []
   defmodule IdDef,       do: defstruct id: nil, url: nil, title: nil
 
+  defmodule Table do
+    defstruct rows: [], header: nil, alignments: []
+
+    def new_for_columns(n) do
+      %__MODULE__{alignments: Elixir.List.duplicate(:left, n)}
+    end
+  end
 
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks. 
@@ -87,11 +94,28 @@ defmodule Earmark.Block do
     parse(rest, [ %BlockQuote{blocks: blocks} | result ])
   end
 
+  #########
+  # Table #
+  #########
+
+  defp parse( lines = [ %Line.TableLine{columns: cols1},
+                        %Line.TableLine{columns: cols2} 
+                      | rest
+                      ], result) 
+  when length(cols1) == length(cols2)
+  do
+    columns = length(cols1)
+    { table, rest } = read_table(lines, columns, Table.new_for_columns(columns))
+    parse(rest, [ table | result ])
+  end
+
   #############
   # Paragraph #
   #############
 
-  defp parse( lines = [ %Line.Text{} | _ ], result) do
+  defp parse( lines = [ %{__struct__: struct} | _ ], result) 
+  when struct == Line.Text or struct == Line.TableLine
+  do
     {para_lines, rest} = Enum.split_while(lines, &is_text/1)
     line_text = (for line <- para_lines, do: line.line)
     parse(rest, [ %Para{lines: line_text} | result ])
@@ -231,6 +255,47 @@ defmodule Earmark.Block do
   # Nothing to see here, move on
   defp consolidate_list_items([ head | rest ], result) do
     consolidate_list_items(rest, [ head | result ])
+  end
+
+  ##################################################
+  # Read in a table (consecutive TableLines with
+  # the same number of columns)
+
+  defp read_table([ row = %Line.TableLine{columns: cols} | rest ],
+                    col_count, 
+                    table = %Table{})
+  when length(cols) == col_count
+  do
+    read_table(rest, col_count, update_in(table.rows, &[ cols | &1 ]))
+  end
+
+  defp read_table( rest, col_count, %Table{rows: rows}) do
+    rows  = Enum.reverse(rows)
+    table = Table.new_for_columns(col_count)
+    table = case look_for_alignments(rows) do
+      nil    -> %Table{table | rows: rows }
+      aligns -> %Table{table | alignments: aligns, 
+                               header:     hd(rows), 
+                               rows:       tl(tl(rows)) }
+    end
+    { table , rest }
+  end
+
+
+  defp look_for_alignments([ _first, second | _rest ]) do
+    if Enum.all?(second, fn row -> row =~ ~r{^:?-+:?$} end) do
+      second
+      |> Enum.map(fn row -> Regex.replace(~r/-+/, row, "-") end)
+      |> Enum.map(fn row -> case row do
+           ":-:" -> :center
+           ":-"  -> :left
+           "-"   -> :left
+           "-:"  -> :right
+         end
+      end)
+    else
+      nil
+    end
   end
 
   ##################################################
@@ -374,9 +439,10 @@ defmodule Earmark.Block do
   # I think the second is a better interpretation, so I commented
   # out the 2nd match below.
   
-  defp is_text(%Line.Text{}),     do: true
+  defp is_text(%Line.Text{}),      do: true
+  defp is_text(%Line.TableLine{}), do: true
 #  defp is_text(%Line.ListItem{}), do: true
-  defp is_text(_),                do: false
+  defp is_text(_),                 do: false
 
   defp is_blockquote_or_text(%Line.BlockQuote{}), do: true
   defp is_blockquote_or_text(struct),             do: is_text(struct)
