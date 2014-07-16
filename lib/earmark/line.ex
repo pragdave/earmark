@@ -47,7 +47,8 @@ defmodule Earmark.Line do
   defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: ""
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
   defmodule ListItem,     do: defstruct type: :ul, line: "", 
-                                        bullet: "* or -", content: "text"
+                                        bullet: "* or -", content: "text",
+                                        initial_indent: 0
   defmodule SetextUnderlineHeading, 
                           do: defstruct line: "", level: 1
 
@@ -132,9 +133,12 @@ defmodule Earmark.Line do
         title = if(length(title) == 0, do: "", else: hd(title))
         %IdDef{id: id, url: url, title: title }
 
-      match = Regex.run(~r/^([-*+])\s+(.*)/, line) ->
-        [ _, bullet, text ] = match
-        %ListItem{type: :ul, bullet: bullet, content: text }
+      match = Regex.run(~r/^(\s{0,3})([-*+])\s+(.*)/, line) ->
+        [ _, leading, bullet, text ] = match
+        %ListItem{type:          :ul, 
+                  bullet:         bullet, 
+                  content:        text, 
+                  initial_indent: String.length(leading) }
 
       match = Regex.run(~r/^(\d+\.)\s+(.*)/, line) ->
         [ _, bullet, text ] = match

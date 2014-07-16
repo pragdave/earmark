@@ -1,3 +1,9 @@
+# 0.1.4 07/14/16
+
+* Allow list bullets to be indented, and deal with potential subsequent
+  additional indentation of the body of an item.
+  
+
 # 0.1.3 07/14/16
 
 * Added tasks to the Hex file list

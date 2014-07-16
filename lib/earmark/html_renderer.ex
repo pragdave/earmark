@@ -105,7 +105,7 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.List{type: type, blocks: items}, context, result) do
     content = render(items, context)
-    [ "<#{type}>\n#{content}\n</#{type}>" | result ]
+    [ "<#{type}>\n#{content}\n</#{type}>\n" | result ]
   end
 
   # format a single paragraph list item, and remove the para tags
