@@ -1,3 +1,7 @@
+# 0.1.3 07/14/16
+
+* Added tasks to the Hex file list
+
 # 0.1.2 07/14/14 
 
 * Add support for GFM tables

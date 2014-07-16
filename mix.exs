@@ -6,7 +6,7 @@ defmodule Earmark.Mixfile do
   def project do
     [
       app:         :earmark,
-      version:     "0.1.2",
+      version:     "0.1.3",
       elixir:      "~> 0.14.2",
       escript:     escript_config,
       deps:        deps,
@@ -31,13 +31,13 @@ defmodule Earmark.Mixfile do
     but can also be used as a command-line tool (just run mix escript.build
     first).
 
-    In theory, the output generation is pluggable.
+    Output generation is pluggable.
     """
   end
 
   defp package do
     [
-      files:        [ "lib", "priv", "mix.exs", "README.md" ],
+      files:        [ "lib", "tasks", "priv", "mix.exs", "README.md" ],
       contributors: [ "Dave Thomas <dave@pragprog.org>"],
       licenses:     [ "Same as Elixir" ],
       links:        %{
