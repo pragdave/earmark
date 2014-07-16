@@ -31,13 +31,12 @@ defmodule Earmark.Helpers do
   Remove the leading part of a string
   """
   def behead(str, ignore) when is_integer(ignore) do
-    String.slice(str, ignore, 9999999)
+    String.slice(str, ignore..-1)
   end
 
   def behead(str, leading_string) do
     behead(str, String.length(leading_string))
   end
-
 
   @doc """
   `Regex.replace` with the arguments in the correct order
@@ -73,7 +72,7 @@ defmodule Earmark.Helpers do
   def unescape(html), do: unescape(html, [])
 
   defp unescape("", result) do
-    result |> Enum.reverse  |> List.to_string
+    result |> Enum.reverse |> List.to_string
   end
 
   defp unescape("&colon;" <> rest, result) do
