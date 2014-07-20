@@ -119,6 +119,9 @@ defmodule LineTest do
      { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
                                            columns: ~w{a b c} } },
 
+     { "  a \\| b | c  ",  %Line.TableLine{content: "  a \\| b | c  ",   
+                                           columns: [ "a | b",  "c"] } },
+
     ]
     |> Enum.each(fn { text, type } -> 
          test("line: '" <> text <> "'") do

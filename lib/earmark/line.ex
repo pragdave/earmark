@@ -149,11 +149,11 @@ defmodule Earmark.Line do
         body = body
                |> String.strip
                |> String.strip(?|)
-        columns = String.split(body, "|") |> Enum.map(&String.strip/1)
+        columns = split_table_columns(body)
         %TableLine{content: line, columns: columns}
 
       line =~ ~r/ \s \| \s /x ->
-        columns = String.split(line, "|")  |> Enum.map(&String.strip/1)
+        columns = split_table_columns(line)
         %TableLine{content: line, columns: columns}
 
       match = Regex.run(~r/^(=|-)+\s*$/, line) ->
@@ -166,5 +166,12 @@ defmodule Earmark.Line do
         %Text{content: line }
     end
   end                                               
-  
+
+  defp split_table_columns(line) do
+    line 
+    |> String.split(~r{(?<!\\)\|}) 
+    |> Enum.map(&String.strip/1)
+    |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
+  end
+
 end

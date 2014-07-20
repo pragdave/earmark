@@ -100,7 +100,7 @@ defmodule Earmark.Block do
 
   defp parse( lines = [ %Line.TableLine{columns: cols1},
                         %Line.TableLine{columns: cols2} 
-                      | rest
+                      | _rest
                       ], result) 
   when length(cols1) == length(cols2)
   do
@@ -261,7 +261,7 @@ defmodule Earmark.Block do
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
-  defp read_table([ row = %Line.TableLine{columns: cols} | rest ],
+  defp read_table([ %Line.TableLine{columns: cols} | rest ],
                     col_count, 
                     table = %Table{})
   when length(cols) == col_count
