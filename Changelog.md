@@ -1,12 +1,31 @@
+# 0.1.6 07/25/16
+
+* Added support for Kramdown-style attribute annotators for all block
+  elements, so you can write
+
+        # Warning
+        {: .red}
+
+        Do not turn off the engine
+        if you are at altitude.
+        {: .boxed #warning spellcheck="true"}
+
+  and generate
+
+        <h1 class="red">Warning</h1>
+        <p spellcheck="true" id="warning" class="boxed">Do not turn 
+        off the engine if you are at altitude.</p>
+
+        
 # 0.1.5 07/20/16
 
 * Merged two performance improvements from José Valim
-* Support escaping of pipes in tables
+* Support escaping of pipes in tables, so
 
         a  |  b
         c  |  d \| e
 
-  Has two columns, not three.
+  has two columns, not three.
 
   
 # 0.1.4 07/14/16

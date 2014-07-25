@@ -106,6 +106,9 @@ defmodule LineTest do
 
      { "   (title)", %Line.Text{content: "   (title)"} },
 
+     { "{: .attr }",       %Line.Ial{attrs: ".attr"} },
+     { "{:.a1 .a2}",       %Line.Ial{attrs: ".a1 .a2"} },
+
      { "  | a | b | c | ", %Line.TableLine{content: "  | a | b | c | ", 
                                            columns: ~w{a b c} } },
      { "  | a         | ", %Line.TableLine{content: "  | a         | ", 

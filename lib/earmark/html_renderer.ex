@@ -2,7 +2,7 @@ defmodule Earmark.HtmlRenderer do
 
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
-  import Earmark.Helpers, only: [ escape: 1 ]
+  import Earmark.Helpers, only: [ escape: 1, behead: 2 ]
 
   def render(blocks, context) do
     render_reduce(blocks, context, [], &render_block/3)
@@ -16,9 +16,9 @@ defmodule Earmark.HtmlRenderer do
   #############
   # Paragraph #
   #############
-  def render_block(%Block.Para{lines: lines}, context, result) do
+  def render_block(%Block.Para{lines: lines, attrs: attrs}, context, result) do
     lines = convert(lines, context)
-    [ result | "<p>#{lines}</p>\n" ]
+    [ result | add_attrs("<p>#{lines}</p>\n", attrs) ]
   end
 
   ########
@@ -37,42 +37,43 @@ defmodule Earmark.HtmlRenderer do
   #########
   # Ruler #
   #########
-  def render_block(%Block.Ruler{type: "-"}, _context, result) do
-    [ result | ~S{<hr class="thin"/>\n} ]
+  def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, result) do
+    [ result | add_attrs(~S{<hr/>\n}, attrs, [{"class", ["thin"]}]) ]
   end
 
-  def render_block(%Block.Ruler{type: "_"}, _context, result) do
-    [ result | ~S{<hr class="medium"/>\n} ]
+  def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, result) do
+    [ result | add_attrs(~S{<hr/>\n}, attrs, [{"class", ["medium"]}]) ]
   end
 
-  def render_block(%Block.Ruler{type: "*"}, _context, result) do
-    [ result | ~S{<hr class="thick"/>\n} ]
+  def render_block(%Block.Ruler{type: "*", attrs: attrs}, _context, result) do
+    [ result | add_attrs(~S{<hr/>\n}, attrs, [{"class", ["thick"]}]) ]
   end
 
   ###########
   # Heading #
   ###########
-  def render_block(%Block.Heading{level: level, content: content}, _context, result) do
+  def render_block(%Block.Heading{level: level, content: content, attrs: attrs}, _context, result) do
     html = "<h#{level}>#{content}</h#{level}>\n"
-    [ result | html ]
+    [ result | add_attrs(html, attrs) ]
   end
 
   ##############
   # Blockquote #
   ##############
 
-  def render_block(%Block.BlockQuote{blocks: blocks}, context, result) do
+  def render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, result) do
     body = render(blocks, context)
-    [ result | "<blockquote>#{body}</blockquote>\n" ]
+    html = "<blockquote>#{body}</blockquote>\n" 
+    [ result | add_attrs(html, attrs) ]
   end
 
   #########
   # Table #
   #########
 
-  def render_block(%Block.Table{header: header, rows: rows, alignments: aligns}, context, result) do
+  def render_block(%Block.Table{header: header, rows: rows, alignments: aligns, attrs: attrs}, context, result) do
     cols = for align <- aligns, do: "<col align=\"#{align}\">\n"
-    html = [ "<table>\n", "<colgroup>\n", cols, "</colgroup>\n" ]
+    html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
     if header do
       html = [ html, "<thead>\n",
@@ -81,40 +82,45 @@ defmodule Earmark.HtmlRenderer do
     end
 
     html = [ html, add_table_rows(context, rows, "td"), "</table>\n" ]
+
     [ result | html ]
   end
 
   ########
   # Code #
   ########
-  def render_block(%Block.Code{lines: lines, language: language}, _context, result) do
+  def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, _context, result) do
     class = if language, do: ~s{ class="#{language}"}, else: ""
     tag = ~s[<pre><code#{class}>\n]
     lines = lines |> Enum.map(&(escape(&1) <> "\n"))
-    [ result | ~s[#{tag}#{lines}</code></pre>\n] ]
+    html = ~s[#{tag}#{lines}</code></pre>\n]
+    [ result | add_attrs(html, attrs) ]
   end
 
   #########
   # Lists #
   #########
 
-  def render_block(%Block.List{type: type, blocks: items}, context, result) do
+  def render_block(%Block.List{type: type, blocks: items, attrs: attrs}, context, result) do
     content = render(items, context)
-    [ result | "<#{type}>\n#{content}</#{type}>\n" ]
+    html = "<#{type}>\n#{content}</#{type}>\n"
+    [ result | add_attrs(html, attrs) ]
   end
 
   # format a single paragraph list item, and remove the para tags
-  def render_block(%Block.ListItem{blocks: blocks, spaced: false}, context, result)
+  def render_block(%Block.ListItem{blocks: blocks, spaced: false, attrs: attrs}, context, result)
   when length(blocks) == 1 do
     content = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
-    [ result | "<li>#{content}</li>\n" ]
+    html = "<li>#{content}</li>\n"
+    [ result |  add_attrs(html, attrs) ]
   end
 
   # format a spaced list item
-  def render_block(%Block.ListItem{blocks: blocks}, context, result) do
+  def render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context, result) do
     content = render(blocks, context)
-    [ result | "<li>#{content}</li>\n" ]
+    html = "<li>#{content}</li>\n"
+    [ result | add_attrs(html, attrs) ]
   end
 
   ####################
@@ -153,5 +159,62 @@ defmodule Earmark.HtmlRenderer do
 
   def add_tds(context, row, tag) do
     for col <- row, do: "<#{tag}>#{convert(col, context)}</#{tag}>"
+  end
+
+  ##############################################
+  # add attributes to the outer tag in a block #
+  ##############################################
+
+  def add_attrs(text, attrs_as_string, default_attrs \\ [])
+
+  def add_attrs(text, nil, []), do: text
+
+  def add_attrs(text, attrs, default) do
+    default
+    |> Enum.into(HashDict.new)
+    |> expand(attrs)
+    |> attrs_to_string
+    |> add_to(text)
+  end
+
+  def expand(dict, attrs) do
+    cond do
+      Regex.match?(~r{^\s*$}, attrs) -> dict
+
+      match = Regex.run(~r{^\.(\S+)\s*}, attrs) ->
+        [ leader, class ] = match
+        Dict.update(dict, "class", [ class ], &[ class | &1])
+        |> expand(behead(attrs, leader))
+
+      match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
+        [ leader, id ] = match
+        Dict.update(dict, "id", [ id ], &[ id | &1])
+        |> expand(behead(attrs, leader))
+
+      match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
+        [ leader, name, value ] = match
+        Dict.update(dict, name, [ value ], &[ value | &1])
+        |> expand(behead(attrs, leader))
+
+      match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
+        [ leader, name, value ] = match
+        Dict.update(dict, name, [ value ], &[ value | &1])
+        |> expand(behead(attrs, leader))
+
+      match = Regex.run(~r{^(\S+)=(\S+)\s*}, attrs) ->
+        [ leader, name, value ] = match
+        Dict.update(dict, name, [ value ], &[ value | &1])
+        |> expand(behead(attrs, leader))
+
+    end
+  end
+
+  def attrs_to_string(attrs) do
+    (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
+    |> Enum.join(" ")                                      
+  end                            
+
+  def add_to(attrs, text) do
+    Regex.replace(~r/>/, text, " #{attrs}>", global: false)
   end
 end

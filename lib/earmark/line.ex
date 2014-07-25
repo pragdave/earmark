@@ -53,6 +53,7 @@ defmodule Earmark.Line do
                           do: defstruct line: "", level: 1
 
   defmodule TableLine,    do: defstruct line: "", content: "", columns: 0
+  defmodule Ial,          do: defstruct line: "", attrs:   ""
   defmodule Text,         do: defstruct line: "", content: ""
 
 
@@ -161,6 +162,9 @@ defmodule Earmark.Line do
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
         %SetextUnderlineHeading{level: level }
 
+      match = Regex.run(~r<^\s{0,3}{:\s*([^}]+)}\s*$>, line) ->
+        [ _, ial ] = match
+        %Ial{attrs: String.strip(ial)}
                                   
       true ->  
         %Text{content: line }

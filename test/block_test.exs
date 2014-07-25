@@ -217,6 +217,23 @@ defmodule BlockTest do
     ]
   end
 
+  ################################################
+  # IALs get associated with the preceding block #
+  ################################################
+
+  test "IAL gets associated with previous block" do
+    result = Block.lines_to_blocks([
+                  %Line.Text{line: "line", content: "line"},
+                  %Line.Ial{attrs: ".a1 .a2"},
+                  %Line.Text{content: "another", line: "another"}
+             ])
+
+    assert result == [
+        %Block.Para{lines: [ "line" ], attrs: ".a1 .a2"},
+        %Block.Para{lines: [ "another" ], attrs: nil} 
+    ]
+  end
+
   ######################################################
   # Test that we correctly accumulate the definitions  #
   ######################################################

@@ -10,19 +10,20 @@ defmodule Earmark.Block do
   alias Earmark.Parser
 
 
-  defmodule Heading,     do: defstruct content: nil, level: nil
-  defmodule Ruler,       do: defstruct type: nil
-  defmodule BlockQuote,  do: defstruct blocks: []
-  defmodule List,        do: defstruct type: :ul, blocks:  []
-  defmodule ListItem,    do: defstruct type: :ul, spaced: true, blocks: []
-  defmodule Para,        do: defstruct lines:  []
-  defmodule Code,        do: defstruct lines:  [], language: nil
-  defmodule Html,        do: defstruct html:   [], tag: nil
-  defmodule HtmlOther,   do: defstruct html:   []
-  defmodule IdDef,       do: defstruct id: nil, url: nil, title: nil
+  defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
+  defmodule Ruler,       do: defstruct attrs: nil, type: nil
+  defmodule BlockQuote,  do: defstruct attrs: nil, blocks: []
+  defmodule List,        do: defstruct attrs: nil, type: :ul, blocks:  []
+  defmodule ListItem,    do: defstruct attrs: nil, type: :ul, spaced: true, blocks: []
+  defmodule Para,        do: defstruct attrs: nil, lines:  []
+  defmodule Code,        do: defstruct attrs: nil, lines:  [], language: nil
+  defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
+  defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
+  defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
+  defmodule Ial,         do: defstruct attrs: nil
 
   defmodule Table do
-    defstruct rows: [], header: nil, alignments: []
+    defstruct attrs: nil, rows: [], header: nil, alignments: []
 
     def new_for_columns(n) do
       %__MODULE__{alignments: Elixir.List.duplicate(:left, n)}
@@ -44,6 +45,7 @@ defmodule Earmark.Block do
   def lines_to_blocks(lines) do
     lines
     |> parse([])
+    |> assign_attributes_to_blocks([])
     |> consolidate_list_items([])
   end
 
@@ -222,6 +224,14 @@ defmodule Earmark.Block do
     parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result])
   end
 
+  ####################
+  # IAL (attributes) #
+  ####################
+
+  defp parse( [ %Line.Ial{attrs: attrs} | rest ], result) do
+    parse(rest, [ %Ial{attrs: attrs} | result ])
+  end
+
   ###############
   # Blank Lines #
   ###############
@@ -231,6 +241,19 @@ defmodule Earmark.Block do
     parse(rest, result)
   end
 
+  #######################################################
+  # Assign attributes that follow a block to that block #
+  #######################################################
+
+  def assign_attributes_to_blocks([], result), do: Enum.reverse(result)
+
+  def assign_attributes_to_blocks([ %Ial{attrs: attrs}, block | rest], result) do
+    assign_attributes_to_blocks(rest, [ %{block | attrs: attrs} | result ])
+  end
+
+  def assign_attributes_to_blocks([ block | rest], result) do
+    assign_attributes_to_blocks(rest, [ block | result ])
+  end
 
   ##################################################
   # Consolidate one or more list items into a list #

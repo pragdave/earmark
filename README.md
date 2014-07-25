@@ -2,6 +2,7 @@
 
 
 
+
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
@@ -58,6 +59,25 @@ default to left.
 Currently we assume there are always spaces around interior vertical
 bars. It isn't clear what the expectation is.
 
+### Adding HTML attributes
+
+HTML attributes can be added to any block-level element. We use
+the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
+
+_attrs_ can be one or more of:
+
+* `.className`
+* `#id`
+* name=value, name="value", or name='value'
+
+For example:
+
+        # Warning
+        {: .red}
+
+        Do not turn off the engine
+        if you are at altitude.
+        {: .boxed #warning spellcheck="true"}
 
 ## Limitations
 
@@ -103,6 +123,7 @@ Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 Licensed under the same terms as Elixir.
+
 
 
 
