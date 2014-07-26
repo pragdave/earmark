@@ -1,3 +1,8 @@
+# 0.1.7 07/26/16
+
+* Block rendering is now performed in parallel
+
+
 # 0.1.6 07/25/16
 
 * Added support for Kramdown-style attribute annotators for all block

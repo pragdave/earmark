@@ -167,9 +167,9 @@ defmodule Earmark do
     { blocks, links } = Earmark.Parser.parse(lines)
 
     context = %Earmark.Context{options: options, links: links}
-    context = Earmark.Inline.update_context(context)
+              |> Earmark.InCline.update_context
 
-    renderer.render(blocks, context)
+    renderer.render(blocks, context, &pmap/2)
   end
 
   def to_html(lines, options)
@@ -177,4 +177,11 @@ defmodule Earmark do
   do
     to_html(String.split(lines, ~r{\r\n?|\n}), options)
   end
+
+  defp pmap(collection, func) do
+    collection
+    |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
+    |> Enum.map(&Task.await/1)
+  end
+
 end
