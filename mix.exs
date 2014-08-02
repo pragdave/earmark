@@ -6,8 +6,8 @@ defmodule Earmark.Mixfile do
   def project do
     [
       app:         :earmark,
-      version:     "0.1.7",
-      elixir:      "~> 0.14.3",
+      version:     "0.1.8",
+      elixir:      ">= 0.14.3",
       escript:     escript_config,
       deps:        deps,
       description: description,

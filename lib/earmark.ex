@@ -167,7 +167,7 @@ defmodule Earmark do
     { blocks, links } = Earmark.Parser.parse(lines)
 
     context = %Earmark.Context{options: options, links: links}
-              |> Earmark.InCline.update_context
+              |> Earmark.Inline.update_context
 
     renderer.render(blocks, context, &pmap/2)
   end
