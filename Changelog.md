@@ -1,3 +1,8 @@
+# 0.1.9 05/05/14
+
+* Bug fix—extra blank lines could be appended to code blocks.
+* Tidied up code block HTML
+
 # 0.1.7 07/26/16
 
 * Block rendering is now performed in parallel

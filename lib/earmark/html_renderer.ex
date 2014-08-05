@@ -86,8 +86,8 @@ defmodule Earmark.HtmlRenderer do
   ########
   def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, _context, _mf) do
     class = if language, do: ~s{ class="#{language}"}, else: ""
-    tag = ~s[<pre><code#{class}>\n]
-    lines = lines |> Enum.map(&(escape(&1) <> "\n"))
+    tag = ~s[<pre><code#{class}>]
+    lines = lines |> Enum.map(&(escape(&1))) |> Enum.join("\n") |> String.strip
     html = ~s[#{tag}#{lines}</code></pre>\n]
     add_attrs(html, attrs)
   end

@@ -124,7 +124,7 @@ defmodule ListTest do
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [
                %Block.Para{lines: ["line 1"]},
-               %Block.Code{language: nil, lines: ["code 1", "    code 2", ""]},
+               %Block.Code{language: nil, lines: ["code 1", "    code 2"]},
                %Block.Para{lines: ["line 2"]}], spaced: false}
     ]}]
     

@@ -144,6 +144,7 @@ defmodule Earmark.Block do
 
   defp parse( list = [%Line.Indent{} | _], result) do
     {code_lines, rest} = Enum.split_while(list, &is_indent_or_blank/1)
+    code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
     parse(rest, [ %Code{lines: code} | result ])
   end
@@ -499,4 +500,10 @@ defmodule Earmark.Block do
     line.content
   end
 
+  defp remove_trailing_blank_lines(lines) do
+    lines
+    |> Enum.reverse
+    |> Enum.drop_while(&is_blank/1)
+    |> Enum.reverse
+  end
 end
