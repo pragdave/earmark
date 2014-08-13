@@ -1,4 +1,11 @@
-# 0.1.9 05/05/14
+# 0.1.10 08/13/14
+
+* The spec is ambiguous when it comes to setext headings. I assumed
+  that they needed a blank line after them, but common practice says
+  no. Changed the parser to treat them as headings if there's no
+  blank.
+
+# 0.1.9 08/05/14
 
 * Bug fix—extra blank lines could be appended to code blocks.
 * Tidied up code block HTML
