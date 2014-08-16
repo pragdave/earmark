@@ -135,6 +135,10 @@ defmodule Earmark.Line do
         title = if(length(title) == 0, do: "", else: hd(title))
         %IdDef{id: id, url: url, title: title }
 
+      match = Regex.run(~r/^\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
+        [ _, id, first_line ] = match
+        %FnDef{id: id, content: first_line }
+
       match = Regex.run(~r/^(\s{0,3})([-*+])\s+(.*)/, line) ->
         [ _, leading, bullet, text ] = match
         %ListItem{type:          :ul, 

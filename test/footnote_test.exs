@@ -1,6 +1,7 @@
 defmodule FootnoteTest do
   use ExUnit.Case
 
+  alias Earmark.Parser
   alias Earmark.Inline
   alias Earmark.Block
   alias Earmark.Line
@@ -21,14 +22,9 @@ defmodule FootnoteTest do
     Inline.convert(string, context)
   end
 
-  test "smoke" do
-    result = convert("hello")
-    assert result == "hello"
-  end
-
   test "basic footnote link" do
     result = convert(~s{a footnote[^fn-a] in text})
-    assert result == ~s[a footnote<a href=\"#fn:1\" id=\"fnref:1\" class="footnote" title="see footnote">1</a> in text]
+    assert result == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
   end
 
   test "missing footnote link" do
@@ -52,6 +48,17 @@ defmodule FootnoteTest do
                   %Block.Para{lines: ["This is a multi-line", "footnote example."]}
                 ]}]
     assert result == expected
+  end
+
+  test "parses footnote content" do
+    {result, _} = Parser.parse(["[^ref-id]: line 1", "line 2", "line 3", "", "para"])
+    expect = [ %Earmark.Block.FnDef{attrs: nil,
+                                    id: "ref-id",
+                                    blocks: [
+                                      %Earmark.Block.Para{attrs: nil, lines: ["line 1", "line 2", "line 3"]},
+                                           ]},
+               %Earmark.Block.Para{attrs: nil, lines: ["para"]}]
+    assert result == expect
   end
 
 end
