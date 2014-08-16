@@ -20,6 +20,7 @@ defmodule Earmark.Block do
   defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
   defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
   defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
+  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: 0, html: []
   defmodule Ial,         do: defstruct attrs: nil
 
   defmodule Table do

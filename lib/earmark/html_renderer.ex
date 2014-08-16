@@ -147,6 +147,8 @@ defmodule Earmark.HtmlRenderer do
     ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
   end
 
+  def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
+
   # Table rows
   def add_table_rows(context, rows, tag) do
     for row <- rows, do: "<tr>\n#{add_tds(context, row, tag)}\n</tr>\n"
