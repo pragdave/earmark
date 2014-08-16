@@ -20,7 +20,7 @@ defmodule Earmark.Block do
   defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
   defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
   defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
-  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: 0, html: []
+  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: 0, blocks: []
   defmodule Ial,         do: defstruct attrs: nil
 
   defmodule Table do
@@ -224,6 +224,17 @@ defmodule Earmark.Block do
   # or not
   defp parse( [ defn = %Line.IdDef{} | rest ], result) do
     parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result])
+  end
+
+  #######################
+  # Footnote Definition #
+  #######################
+
+  defp parse( [ defn = %Line.FnDef{id: id} | rest ], result ) do
+    {para_lines, rest} = Enum.split_while(rest, &is_text/1)
+    first_line = %Line.Text{line: defn.content}
+    para = parse([ first_line | para_lines ], [])
+    parse( rest, [ %FnDef{id: defn.id, blocks: para } | result ] )
   end
 
   ####################
@@ -484,7 +495,6 @@ defmodule Earmark.Block do
   defp blank_line_in?([ %Line.Blank{} | _ ]), do: true
   defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
   
-
   # Add additional spaces for any indentation past level 1
 
   defp properly_indent(%Line.Indent{level: level, content: content}, target_level) 

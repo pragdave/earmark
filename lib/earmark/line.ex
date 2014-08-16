@@ -46,6 +46,7 @@ defmodule Earmark.Line do
   defmodule HtmlComment,  do: defstruct line: "", complete: true
   defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: ""
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
+  defmodule FnDef,        do: defstruct line: "", id: nil, content: "text"
   defmodule ListItem,     do: defstruct type: :ul, line: "", 
                                         bullet: "* or -", content: "text",
                                         initial_indent: 0
