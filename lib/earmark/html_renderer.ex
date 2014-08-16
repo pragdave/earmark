@@ -4,7 +4,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 1, behead: 2 ]
 
-  def render(blocks, context, map_func) do
+  def render(blocks, context, map_func, do_footnotes \\ false) do
     map_func.(blocks, &(render_block(&1, context, map_func)))
     |> IO.iodata_to_binary
   end
@@ -118,6 +118,23 @@ defmodule Earmark.HtmlRenderer do
     add_attrs(html, attrs)
   end
 
+  ##################
+  # Footnote Block #
+  ##################
+
+  def render_block(%Block.FnList{blocks: footnotes, attrs: attrs}, context, mf) do
+    items = Enum.map(footnotes, fn(note) ->
+      [last_block | blocks] = Enum.reverse(note.blocks)
+      [last_line | lines] = Enum.reverse(last_block.lines)
+      last_line = ~s[#{last_line}&nbsp;<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+      last_block = put_in(last_block.lines, Enum.reverse([last_line | lines]))
+      blocks = Enum.reverse([last_block | blocks])
+      %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
+    end)
+    html = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
+    Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")
+  end
+
   ####################
   # IDDef is ignored #
   ####################
@@ -216,4 +233,5 @@ defmodule Earmark.HtmlRenderer do
   def add_to(attrs, text) do
     Regex.replace(~r/>/, text, " #{attrs}>", global: false)
   end
+
 end

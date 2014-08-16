@@ -164,12 +164,12 @@ defmodule Earmark do
   def to_html(lines, options = %Options{renderer: renderer})
   when is_list(lines)
   do
-    { blocks, links } = Earmark.Parser.parse(lines)
+    { blocks, links, footnotes } = Earmark.Parser.parse(lines)
 
-    context = %Earmark.Context{options: options, links: links}
+    context = %Earmark.Context{options: options, links: links, footnotes: footnotes }
               |> Earmark.Inline.update_context
 
-    renderer.render(blocks, context, &pmap/2)
+    renderer.render(blocks, context, &pmap/2, true)
   end
 
   def to_html(lines, options)

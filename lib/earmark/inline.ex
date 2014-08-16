@@ -74,7 +74,7 @@ defmodule Earmark.Inline do
       # footnotes
       match = Regex.run(context.rules.footnote, src) ->
         [match, id] = match
-        {out, context} = footnote_link(context, match, id)
+        out = footnote_link(context, match, id)
         convert_each(behead(src, match), context, [ result | out ])
 
 
@@ -207,14 +207,9 @@ defmodule Earmark.Inline do
 
   defp footnote_link(context, match, id) do
     case Dict.fetch(context.footnotes, id) do
-      {:ok, footnote} -> fn_number = context.footnote_next_number
-                         fn_ref = "fn:#{fn_number}"
-                         back_ref = "fnref:#{fn_number}"
-                         context = put_in(context.footnote_next_number, fn_number + 1)
-                         context = put_in(context.footnotes[id], ref: fn_ref, number: fn_number)
-                         out = output_footnote_link(context, fn_ref, back_ref, fn_number)
-                         {out, context}
-      _               -> {match, context}
+      {:ok, footnote} -> number = footnote.number
+                         output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
+      _               -> match
     end
   end
 

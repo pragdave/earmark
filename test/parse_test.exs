@@ -6,17 +6,17 @@ defmodule ParseTest do
 
 
   test "Heading at the start is interpreted correctly" do
-    {result, _} = Parser.parse(["Heading", "=====", ""])
+    {result, _, _} = Parser.parse(["Heading", "=====", ""])
     assert result == [%Block.Heading{content: "Heading", level: 1}]
   end
 
   test "Heading at the end is interpreted correctly" do
-    {result, _} = Parser.parse(["", "Heading", "====="])
+    {result, _, _} = Parser.parse(["", "Heading", "====="])
     assert result == [%Block.Heading{content: "Heading", level: 1}]
   end
 
   test "Whitespace before and after code is ignored" do
-    {result, _} = Parser.parse(["", 
+    {result, _, _} = Parser.parse(["", 
                                 "    line 1",
                                 "    line 2",
                                 "",

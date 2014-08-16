@@ -239,7 +239,7 @@ defmodule BlockTest do
   ######################################################
 
   test "Accumulate basic ID definition" do
-    {blocks, refs } = Block.parse([
+    {blocks, refs, _ } = Block.parse([
                   %Line.IdDef{id: "id1", url: "url1", title: "title1"}
              ])
 
@@ -249,7 +249,7 @@ defmodule BlockTest do
   end
 
   test "ID definition nested in list" do
-    { blocks, refs } = Block.parse([
+    { blocks, refs, _ } = Block.parse([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
                %Line.Indent{level: 1, content: "[id1]: url1  (title1)"},
