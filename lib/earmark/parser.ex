@@ -36,10 +36,10 @@ defmodule Earmark.Parser do
   end
   defp find_footnote_links(_), do: []
 
-  def get_footnote_numbers(refs, footnotes, _options) do
+  def get_footnote_numbers(refs, footnotes, options) do
     Enum.reduce(refs, [], fn(ref, list) ->
       case Enum.find(footnotes, &(&1.id == ref)) do
-        note = %Block.FnDef{} -> number = length(list) + 1
+        note = %Block.FnDef{} -> number = length(list) + options.footnote_offset
                                  note = %Block.FnDef{ note | number: number }
                                  [ note | list ]
         _                     -> list # TODO inline footnotes

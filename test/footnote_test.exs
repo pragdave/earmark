@@ -31,9 +31,7 @@ defmodule FootnoteTest do
   end
 
   test "pulls one-line footnote bodies" do
-    result = Block.lines_to_blocks([
-                %Line.FnDef{id: "some-fn", content: "This is a footnote."}
-             ])
+    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ])
     assert result == [%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}]
   end
 
@@ -46,6 +44,21 @@ defmodule FootnoteTest do
                   %Block.Para{lines: ["This is a multi-line", "footnote example."]}
                 ]}]
     assert result == expected
+  end
+
+  test "uses a starting footnote number" do
+    para = %Block.Para{lines: ["line 1[^ref-1] and", "line 2[^ref-2]."]}
+    text = [para,
+            %Block.FnDef{id: "ref-2", blocks: [%Block.Para{lines: ["ref 2"]}]},
+            %Block.FnDef{id: "ref-1", blocks: [%Block.Para{lines: ["ref 1"]}]}]
+    opts = put_in(options.footnote_offset, 3)
+    { blocks, footnotes } = Parser.handle_footnotes(text, opts, &Enum.map/2)
+    output_fnotes = [%Block.FnDef{id: "ref-1", number: 3, blocks: [%Block.Para{lines: ["ref 1"]}]},
+                     %Block.FnDef{id: "ref-2", number: 4, blocks: [%Block.Para{lines: ["ref 2"]}]}]
+    expected_blocks = [para, %Block.FnList{blocks: output_fnotes}]
+    assert blocks == expected_blocks
+    expected_fnotes = Enum.map(output_fnotes, &({&1.id, &1})) |> Enum.into(HashDict.new)
+    assert footnotes == expected_fnotes
   end
 
   test "parses footnote content" do
