@@ -122,7 +122,7 @@ defmodule Earmark.HtmlRenderer do
   # Footnote Block #
   ##################
 
-  def render_block(%Block.FnList{blocks: footnotes, attrs: attrs}, context, mf) do
+  def render_block(%Block.FnList{blocks: footnotes}, context, mf) do
     items = Enum.map(footnotes, fn(note) ->
       [last_block | blocks] = Enum.reverse(note.blocks)
       [last_line | lines] = Enum.reverse(last_block.lines)
