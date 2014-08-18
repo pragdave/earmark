@@ -11,8 +11,12 @@ defmodule FootnoteTest do
     |> Enum.into(HashDict.new)
   end
 
+  def options do
+    %Earmark.Options{footnotes: true}
+  end
+
   def context do
-    ctx = put_in(%Earmark.Context{}.options.footnotes, true)
+    ctx = put_in(%Earmark.Context{}.options, options)
     ctx = put_in(ctx.footnotes, test_footnotes)
     Inline.update_context(ctx)
   end
@@ -45,17 +49,15 @@ defmodule FootnoteTest do
   end
 
   test "parses footnote content" do
-    {blocks, _, footnotes} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"])
-    fn_def = %Earmark.Block.FnDef{attrs: nil,
-                                  id: "ref-id",
-                                  number: 1,
-                                  blocks: [%Earmark.Block.Para{attrs: nil, lines: ["line 1", "line 2", "line 3"]}]}
+    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"])
+    {blocks, footnotes} = Parser.handle_footnotes(blocks, options, &Enum.map/2)
+    fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
+    fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }
     assert blocks == [%Earmark.Block.Para{lines: ["para[^ref-id]"]},
                       %Earmark.Block.Para{lines: ["para"]},
                       %Earmark.Block.FnList{blocks: [fn_def]}
                      ]
-    expect = HashDict.new
-             |> HashDict.put("ref-id", fn_def)
+    expect = HashDict.new |> HashDict.put("ref-id", fn_def)
     assert footnotes == expect
   end
 

@@ -39,8 +39,7 @@ defmodule Earmark.Block do
   def parse(lines) do
     blocks = lines_to_blocks(lines)
     links  = links_from_blocks(blocks)
-    { footnotes, blocks } = footnotes_from_blocks(blocks)
-    { blocks, links, footnotes }
+    { blocks, links }
   end
 
   @doc false
@@ -95,7 +94,7 @@ defmodule Earmark.Block do
   defp parse( lines = [ %Line.BlockQuote{} | _ ], result) do
     {quote_lines, rest} = Enum.split_while(lines, &is_blockquote_or_text/1)
     lines = for line <- quote_lines, do: line.content
-    {blocks, _, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, true)
     parse(rest, [ %BlockQuote{blocks: blocks} | result ])
   end
 
@@ -136,7 +135,7 @@ defmodule Earmark.Block do
     {spaced, list_lines, rest} = read_list_lines(rest, [])
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, true)
 
     parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ])
   end
@@ -393,41 +392,6 @@ defmodule Earmark.Block do
 
   defp link_extractor(_, result), do: result
 
-  ################################################################
-  # Traverse the block list and extract the footnote definitions #
-  ################################################################
-
-  defp footnotes_from_blocks(blocks) do
-    { footnotes, blocks } = Enum.partition(blocks, &is_footnote_def/1)
-    footnotes = Enum.flat_map(blocks, &find_footnote_links/1)
-                |> Enum.reduce([], fn(ref, list) ->
-                     case Enum.find(footnotes, &(&1.id == ref)) do
-                       note = %FnDef{} -> [%FnDef{ note | number: length(list) + 1 } | list]
-                       _               -> list #TODO inline footnotes
-                     end
-                   end)
-                |> Enum.map(&({&1.id, &1}))
-                |> Enum.into(HashDict.new)
-    if Dict.size(footnotes) > 0 do
-      footnote_block = %FnList{blocks: Dict.values(footnotes) |> Enum.sort_by(&(&1.number)) }
-      blocks = Enum.concat(blocks, [footnote_block])
-    end
-    { footnotes, blocks }
-  end
-
-  defp is_footnote_def(%FnDef{}), do: true
-  defp is_footnote_def(_block), do: false
-
-  defp find_footnote_links(%Para{lines: lines}) do
-    Enum.flat_map(lines, &find_footnote_links/1)
-  end
-
-  defp find_footnote_links(line) when is_bitstring(line) do
-    Regex.scan(~r{\[\^([^\]]+)\]}, line)
-    |> Enum.map(&(tl(&1) |> hd))
-  end
-
-  defp find_footnote_links(_), do: []
 
   ##################################
   # Visitor pattern for each block #
