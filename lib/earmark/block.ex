@@ -20,6 +20,8 @@ defmodule Earmark.Block do
   defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
   defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
   defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
+  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: nil, blocks: []
+  defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
   defmodule Ial,         do: defstruct attrs: nil
 
   defmodule Table do
@@ -236,6 +238,17 @@ defmodule Earmark.Block do
     parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result])
   end
 
+  #######################
+  # Footnote Definition #
+  #######################
+
+  defp parse( [ defn = %Line.FnDef{id: id} | rest ], result ) do
+    {para_lines, rest} = Enum.split_while(rest, &is_text/1)
+    first_line = %Line.Text{line: defn.content}
+    para = parse([ first_line | para_lines ], [])
+    parse( rest, [ %FnDef{id: defn.id, blocks: para } | result ] )
+  end
+
   ####################
   # IAL (attributes) #
   ####################
@@ -389,6 +402,7 @@ defmodule Earmark.Block do
   end
 
   defp link_extractor(_, result), do: result
+
 
   ##################################
   # Visitor pattern for each block #

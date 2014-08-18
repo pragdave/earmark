@@ -166,8 +166,13 @@ defmodule Earmark do
   do
     { blocks, links } = Earmark.Parser.parse(lines)
 
-    context = %Earmark.Context{options: options, links: links}
+    context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
+
+    if options.footnotes do
+      { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, &pmap/2)
+      context = put_in(context.footnotes, footnotes)
+    end
 
     renderer.render(blocks, context, &pmap/2)
   end

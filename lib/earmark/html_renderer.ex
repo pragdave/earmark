@@ -118,6 +118,23 @@ defmodule Earmark.HtmlRenderer do
     add_attrs(html, attrs)
   end
 
+  ##################
+  # Footnote Block #
+  ##################
+
+  def render_block(%Block.FnList{blocks: footnotes}, context, mf) do
+    items = Enum.map(footnotes, fn(note) ->
+      [last_block | blocks] = Enum.reverse(note.blocks)
+      [last_line | lines] = Enum.reverse(last_block.lines)
+      last_line = ~s[#{last_line}&nbsp;<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+      last_block = put_in(last_block.lines, Enum.reverse([last_line | lines]))
+      blocks = Enum.reverse([last_block | blocks])
+      %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
+    end)
+    html = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
+    Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")
+  end
+
   ####################
   # IDDef is ignored #
   ####################
@@ -146,6 +163,8 @@ defmodule Earmark.HtmlRenderer do
   def image(path, alt, title) do
     ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
   end
+
+  def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
   def add_table_rows(context, rows, tag) do

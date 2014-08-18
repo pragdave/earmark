@@ -46,6 +46,7 @@ defmodule Earmark.Line do
   defmodule HtmlComment,  do: defstruct line: "", complete: true
   defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: ""
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
+  defmodule FnDef,        do: defstruct line: "", id: nil, content: "text"
   defmodule ListItem,     do: defstruct type: :ul, line: "", 
                                         bullet: "* or -", content: "text",
                                         initial_indent: 0
@@ -133,6 +134,10 @@ defmodule Earmark.Line do
         [ _, id, url | title ] = match
         title = if(length(title) == 0, do: "", else: hd(title))
         %IdDef{id: id, url: url, title: title }
+
+      match = Regex.run(~r/^\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
+        [ _, id, first_line ] = match
+        %FnDef{id: id, content: first_line }
 
       match = Regex.run(~r/^(\s{0,3})([-*+])\s+(.*)/, line) ->
         [ _, leading, bullet, text ] = match

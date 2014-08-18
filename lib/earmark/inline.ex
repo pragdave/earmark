@@ -72,6 +72,13 @@ defmodule Earmark.Inline do
         out = reference_link(context, match, alt_text, id)
         convert_each(behead(src, match), context, [ result | out ])
 
+      # footnotes
+      match = Regex.run(context.rules.footnote, src) ->
+        [match, id] = match
+        out = footnote_link(context, match, id)
+        convert_each(behead(src, match), context, [ result | out ])
+
+
       # nolink
       match = Regex.run(context.rules.nolink, src) ->
         [ match, id ] = match
@@ -180,6 +187,12 @@ defmodule Earmark.Inline do
     context.options.renderer.link(href, convert_each(text, context, []), title)
   end
 
+  defp output_footnote_link(context, ref, back_ref, number) do
+    ref = escape(ref)
+    back_ref = escape(back_ref)
+    context.options.renderer.footnote_link(ref, back_ref, number)
+  end
+
   defp output_image(renderer, text, href, title) do
     href = escape(href)
     title = if title, do: escape(title), else: nil
@@ -191,6 +204,14 @@ defmodule Earmark.Inline do
     case Dict.fetch(context.links, id) do
       {:ok, link } -> output_image_or_link(context, match, alt_text, link.url, link.title)
       _            -> match
+    end
+  end
+
+  defp footnote_link(context, match, id) do
+    case Dict.fetch(context.footnotes, id) do
+      {:ok, footnote} -> number = footnote.number
+                         output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
+      _               -> match
     end
   end
 
@@ -273,7 +294,12 @@ defmodule Earmark.Inline do
           em:     ~r{^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)}
         ]
       end
-    end  
+    end
+    if options.footnotes do
+      rule_updates = Keyword.merge(rule_updates, [footnote: ~r{^\[\^(#{@inside})\]}])
+    else
+      rule_updates = Keyword.merge(rule_updates, [footnote: ~r{\z\A}]) #noop
+    end
     Keyword.merge(basic_rules, rule_updates)
     |> Enum.into %{}
   end
