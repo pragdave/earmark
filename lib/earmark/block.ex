@@ -242,7 +242,7 @@ defmodule Earmark.Block do
   # Footnote Definition #
   #######################
 
-  defp parse( [ defn = %Line.FnDef{id: id} | rest ], result ) do
+  defp parse( [ defn = %Line.FnDef{id: _id} | rest ], result ) do
     {para_lines, rest} = Enum.split_while(rest, &is_text/1)
     first_line = %Line.Text{line: defn.content}
     para = parse([ first_line | para_lines ], [])

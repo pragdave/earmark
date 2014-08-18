@@ -1,3 +1,16 @@
+# 0.1.11 08/18/14
+
+* Matthew Lyon contributed footnote support.
+
+      the answer is clearly 42.[^fn-why] In this case
+      we need to…
+
+      [^fn-why]: 42 is the only two digit number with
+                 the digits 4 and 2 that starts with a 4.
+
+  For now, consider it experimental. For that reason, you have
+  to enable it by passing the `footnotes: true` option.
+  
 # 0.1.10 08/13/14
 
 * The spec is ambiguous when it comes to setext headings. I assumed
