@@ -533,6 +533,7 @@ defmodule Earmark.Block do
   defp blank_line_in?([ %Line.Blank{} | _ ]), do: true
   defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
   
+
   # Add additional spaces for any indentation past level 1
 
   defp properly_indent(%Line.Indent{level: level, content: content}, target_level) 

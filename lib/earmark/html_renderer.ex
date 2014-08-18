@@ -4,7 +4,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 1, behead: 2 ]
 
-  def render(blocks, context, map_func, do_footnotes \\ false) do
+  def render(blocks, context, map_func) do
     map_func.(blocks, &(render_block(&1, context, map_func)))
     |> IO.iodata_to_binary
   end
@@ -233,5 +233,4 @@ defmodule Earmark.HtmlRenderer do
   def add_to(attrs, text) do
     Regex.replace(~r/>/, text, " #{attrs}>", global: false)
   end
-
 end

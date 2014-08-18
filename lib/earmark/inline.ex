@@ -61,6 +61,7 @@ defmodule Earmark.Inline do
         out = output_image_or_link(context, match, text, href, title)
         convert_each(behead(src, match), context, [ result | out ])
 
+
       # reflink
       match = Regex.run(context.rules.reflink, src) ->
         { match, alt_text, id } = case match do
@@ -123,6 +124,7 @@ defmodule Earmark.Inline do
         out = renderer.br()
         [ {0, match_len} ] = match
         convert_each(behead(src, match_len), context, [ result | out ])
+
 
       # text
       match = Regex.run(context.rules.text, src) ->

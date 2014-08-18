@@ -17,7 +17,6 @@ defmodule Earmark.Context do
   defstruct options:  %Earmark.Options{},
             links:    HashDict.new,
             rules:    nil,
-            footnotes: HashDict.new,
-            footnote_next_number: 1
+            footnotes: HashDict.new
 
 end
