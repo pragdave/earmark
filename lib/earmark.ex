@@ -169,7 +169,7 @@ defmodule Earmark do
     context = %Earmark.Context{options: options, links: links, footnotes: footnotes }
               |> Earmark.Inline.update_context
 
-    renderer.render(blocks, context, &pmap/2, true)
+    renderer.render(blocks, context, &pmap/2)
   end
 
   def to_html(lines, options)
