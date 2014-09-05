@@ -246,7 +246,12 @@ defmodule Earmark.Block do
     {para_lines, rest} = Enum.split_while(rest, &is_text/1)
     first_line = %Line.Text{line: defn.content}
     para = parse([ first_line | para_lines ], [])
-    parse( rest, [ %FnDef{id: defn.id, blocks: para } | result ] )
+    {indent_lines, rest} = Enum.split_while(rest, &is_indent_or_blank/1)
+    {blocks, _ } = remove_trailing_blank_lines(indent_lines)
+                |> Enum.map(&(properly_indent(&1, 1)))
+                |> Parser.parse(true)
+    blocks = Enum.concat(para, blocks)
+    parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] )
   end
 
   ####################
