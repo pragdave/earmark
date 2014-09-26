@@ -33,15 +33,15 @@ defmodule Earmark.HtmlRenderer do
   # Ruler #
   #########
   def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, _mf) do
-    add_attrs(~S{<hr/>\n}, attrs, [{"class", ["thin"]}])
+    add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}])
   end
   
   def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, _mf) do
-    add_attrs(~S{<hr/>\n}, attrs, [{"class", ["medium"]}])
+    add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}])
   end
 
   def render_block(%Block.Ruler{type: "*", attrs: attrs}, _context, _mf) do
-    add_attrs(~S{<hr/>\n}, attrs, [{"class", ["thick"]}])
+    add_attrs("<hr/>\n", attrs, [{"class", ["thick"]}])
   end
 
   ###########
