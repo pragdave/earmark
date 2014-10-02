@@ -25,6 +25,17 @@ defmodule FootnoteTest do
     Inline.convert(string, context)
   end
 
+  test "handles FnDef blocks without Footnotes enabled" do
+    lines = ["This is a footnote[^1].", "", "[^1]: This is the content."]
+    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
+    # expected: not crashing
+  end
+
+  test "handles text without footntoes when Footnotes enabled" do
+    lines = ["This is some regular text"]
+    html = Earmark.to_html(lines, options)
+  end
+
   test "basic footnote link" do
     result = convert(~s{a footnote[^fn-a] in text})
     assert result == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
@@ -62,7 +73,7 @@ defmodule FootnoteTest do
   end
 
   test "parses footnote content" do
-    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"])
+    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options)
     {blocks, footnotes} = Parser.handle_footnotes(blocks, options, &Enum.map/2)
     fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
     fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }

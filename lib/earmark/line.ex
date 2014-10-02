@@ -63,9 +63,12 @@ defmodule Earmark.Line do
   # line we generate. We also need to expand tabs before 
   # proceeding
 
-  def type_of(line, recursive) do
+  def type_of(line, recursive)
+  when is_boolean(recursive), do: type_of(line, %Earmark.Options{}, recursive)
+
+  def type_of(line, options = %Earmark.Options{}, recursive) do
     line = line |> Helpers.expand_tabs |> Helpers.remove_line_ending
-    %{ _type_of(line, recursive) | line: line }
+    %{ _type_of(line, options, recursive) | line: line }
   end
 
   @doc false
@@ -78,7 +81,7 @@ defmodule Earmark.Line do
     end
   end
 
-  defp _type_of(line, recursive) do
+  defp _type_of(line, options=%Earmark.Options{}, recursive) do
     cond do
       line =~ ~r/^\s*$/ ->
         %Blank{}
@@ -135,7 +138,7 @@ defmodule Earmark.Line do
         title = if(length(title) == 0, do: "", else: hd(title))
         %IdDef{id: id, url: url, title: title }
 
-      match = Regex.run(~r/^\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
+      match = options.footnotes && Regex.run(~r/^\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
         [ _, id, first_line ] = match
         %FnDef{id: id, content: first_line }
 
