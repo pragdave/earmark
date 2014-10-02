@@ -51,7 +51,7 @@ defmodule Earmark.Parser do
     end)
   end
 
-  defp create_footnote_blocks(blocks, []), do: { blocks, HashDict.new }
+  defp create_footnote_blocks(blocks, []), do: blocks
 
   defp create_footnote_blocks(blocks, footnotes) do
     footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number))}
