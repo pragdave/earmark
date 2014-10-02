@@ -31,6 +31,11 @@ defmodule FootnoteTest do
     # expected: not crashing
   end
 
+  test "handles text without footntoes when Footnotes enabled" do
+    lines = ["This is some regular text"]
+    html = Earmark.to_html(lines, options)
+  end
+
   test "basic footnote link" do
     result = convert(~s{a footnote[^fn-a] in text})
     assert result == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
