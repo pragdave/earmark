@@ -25,6 +25,12 @@ defmodule FootnoteTest do
     Inline.convert(string, context)
   end
 
+  test "handles FnDef blocks without Footnotes enabled" do
+    lines = ["This is a footnote[^1].", "", "[^1]: This is the content."]
+    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
+    # expected: not crashing
+  end
+
   test "basic footnote link" do
     result = convert(~s{a footnote[^fn-a] in text})
     assert result == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
