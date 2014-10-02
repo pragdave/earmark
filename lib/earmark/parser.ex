@@ -4,10 +4,14 @@ defmodule Earmark.Parser do
   alias Earmark.Block
 
 
-  def parse(text_lines, recursive \\ false) do
+  def parse(text_lines), do: parse(text_lines, false)
+  def parse(text_lines, recursive)
+  when is_boolean(recursive), do: parse(text_lines, %Earmark.Options{}, recursive)
+
+  def parse(text_lines, options = %Earmark.Options{}, recursive \\ false) do
     # add blank lines before and after
     text_lines = [ "" | text_lines ++ [""] ]
-    Enum.map(text_lines, fn (line) -> Line.type_of(line, recursive) end)
+    Enum.map(text_lines, fn (line) -> Line.type_of(line, options, recursive) end)
     |> Block.parse
   end
 
