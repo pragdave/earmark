@@ -11,7 +11,7 @@ defmodule Earmark.Line do
   @id_title_part ~S"""
         (?|
              " (.*)  "         # in quotes
-          |  ' (.*)  '         # 
+          |  ' (.*)  '         #
           | \( (.*) \)         # in parens
         )
   """
@@ -22,7 +22,7 @@ defmodule Earmark.Line do
      ^\s{0,3}             # leading spaces
      \[([^\]]*)\]:        # [someid]:
      \s+
-     (?| 
+     (?|
          < (\S+) >          # url in <>s
        |   (\S+)            # or without
      )
@@ -40,17 +40,17 @@ defmodule Earmark.Line do
   defmodule Heading,      do: defstruct line: "", level: 1, content: "inline text"
   defmodule BlockQuote,   do: defstruct line: "", content: "text"
   defmodule Indent,       do: defstruct line: "", level: 0, content: "text"
-  defmodule Fence,        do: defstruct line: "", delimiter: "~ or `", language: nil 
+  defmodule Fence,        do: defstruct line: "", delimiter: "~ or `", language: nil
   defmodule HtmlOpenTag,  do: defstruct line: "", tag: "", content: ""
   defmodule HtmlCloseTag, do: defstruct line: "", tag: "<... to eol"
   defmodule HtmlComment,  do: defstruct line: "", complete: true
   defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: ""
   defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil
   defmodule FnDef,        do: defstruct line: "", id: nil, content: "text"
-  defmodule ListItem,     do: defstruct type: :ul, line: "", 
+  defmodule ListItem,     do: defstruct type: :ul, line: "",
                                         bullet: "* or -", content: "text",
                                         initial_indent: 0
-  defmodule SetextUnderlineHeading, 
+  defmodule SetextUnderlineHeading,
                           do: defstruct line: "", level: 1
 
   defmodule TableLine,    do: defstruct line: "", content: "", columns: 0
@@ -59,8 +59,8 @@ defmodule Earmark.Line do
 
 
   @doc false
-  # We want to add the original source line into every 
-  # line we generate. We also need to expand tabs before 
+  # We want to add the original source line into every
+  # line we generate. We also need to expand tabs before
   # proceeding
 
   def type_of(line, recursive)
@@ -89,10 +89,10 @@ defmodule Earmark.Line do
       line =~ ~r/^ \s{0,3} ( <! (?: -- .*? -- \s* )+ > ) $/x && !recursive ->
         %HtmlComment{complete: true}
 
-      line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x && !recursive -> 
+      line =~ ~r/^ \s{0,3} ( <!-- .*? ) $/x && !recursive ->
         %HtmlComment{complete: false}
 
-      line =~ ~r/^ \s{0,3} (?:-\s?){3,} $/x -> 
+      line =~ ~r/^ \s{0,3} (?:-\s?){3,} $/x ->
         %Ruler{type: "-" }
 
       line =~ ~r/^ \s{0,3} (?:\*\s?){3,} $/x ->
@@ -101,7 +101,7 @@ defmodule Earmark.Line do
       line =~ ~r/^ \s{0,3} (?:_\s?){3,} $/x ->
         %Ruler{type: "_" }
 
-      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) -> 
+      match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) ->
         [ _, level, heading ] = match
         %Heading{level: String.length(level), content: String.strip(heading) }
 
@@ -114,7 +114,7 @@ defmodule Earmark.Line do
         [ _, spaces, code ] = match
         %Indent{level: div(String.length(spaces), 4), content: code }
 
-      match = Regex.run(~r/^(```|~~~)\s*(\S*)/, line) ->
+      match = Regex.run(~r/^\s*(```|~~~)\s*(\S*)/, line) ->
         [ _, fence, language ] = match
         %Fence{delimiter: fence, language: language}
 
@@ -133,7 +133,7 @@ defmodule Earmark.Line do
         [ _, tag ] = match
         %HtmlCloseTag{tag: tag }
 
-      match = Regex.run(@id_re, line) -> 
+      match = Regex.run(@id_re, line) ->
         [ _, id, url | title ] = match
         title = if(length(title) == 0, do: "", else: hd(title))
         %IdDef{id: id, url: url, title: title }
@@ -144,9 +144,9 @@ defmodule Earmark.Line do
 
       match = Regex.run(~r/^(\s{0,3})([-*+])\s+(.*)/, line) ->
         [ _, leading, bullet, text ] = match
-        %ListItem{type:          :ul, 
-                  bullet:         bullet, 
-                  content:        text, 
+        %ListItem{type:          :ul,
+                  bullet:         bullet,
+                  content:        text,
                   initial_indent: String.length(leading) }
 
       match = Regex.run(~r/^(\d+\.)\s+(.*)/, line) ->
@@ -173,15 +173,15 @@ defmodule Earmark.Line do
       match = Regex.run(~r<^\s{0,3}{:\s*([^}]+)}\s*$>, line) ->
         [ _, ial ] = match
         %Ial{attrs: String.strip(ial)}
-                                  
-      true ->  
+
+      true ->
         %Text{content: line }
     end
-  end                                               
+  end
 
   defp split_table_columns(line) do
-    line 
-    |> String.split(~r{(?<!\\)\|}) 
+    line
+    |> String.split(~r{(?<!\\)\|})
     |> Enum.map(&String.strip/1)
     |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
   end
