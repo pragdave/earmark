@@ -10,7 +10,13 @@ defmodule Earmark.Options do
              footnotes: false, footnote_offset: 1,
 
              # Internal—only override if you're brave
-             do_smartypants: nil, do_sanitize: nil
+             do_smartypants: nil, do_sanitize: nil,
+
+             # Very internal—the callback used to perform
+             # parallel rendering. Set to &Enum.map/2
+             # to keep processing in process and
+             # serial
+             mapper: &Earmark.pmap/2
 end
 
 defmodule Earmark.Context do

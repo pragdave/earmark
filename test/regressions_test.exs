@@ -1,4 +1,4 @@
-defmodule CowboyTest do
+defmodule RegressionsTest do
   use ExUnit.Case
 
   @cowboy_readme """
@@ -56,5 +56,16 @@ defmodule CowboyTest do
 
   test "rendering the Cowboy webserver README" do
     Earmark.to_html @cowboy_readme
+  end
+
+  @issue_12 """
+    iex> {:ambiguous, am} = Kalends
+    {:error, :no_matches}
+  """  
+
+  test "Issue https://github.com/pragdave/earmark/issues/12" do
+    alias Earmark.Options
+    result = catch_error(Earmark.to_html @issue_12, %Options{mapper: &Enum.map/2})
+    assert result.message == "Invalid Markdown attributes: {error, :no_matches}"
   end
 end

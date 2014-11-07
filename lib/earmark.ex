@@ -161,7 +161,7 @@ defmodule Earmark do
 
   def to_html(lines, options \\ %Options{})
 
-  def to_html(lines, options = %Options{renderer: renderer})
+  def to_html(lines, options = %Options{renderer: renderer, mapper: mapper})
   when is_list(lines)
   do
     { blocks, links } = Earmark.Parser.parse(lines, options)
@@ -170,11 +170,11 @@ defmodule Earmark do
               |> Earmark.Inline.update_context
 
     if options.footnotes do
-      { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, &pmap/2)
+      { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
     end
 
-    renderer.render(blocks, context, &pmap/2)
+    renderer.render(blocks, context, mapper)
   end
 
   def to_html(lines, options)
@@ -183,7 +183,8 @@ defmodule Earmark do
     to_html(String.split(lines, ~r{\r\n?|\n}), options)
   end
 
-  defp pmap(collection, func) do
+  @doc false
+  def pmap(collection, func) do
     collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Enum.map(&Task.await/1)

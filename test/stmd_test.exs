@@ -53,14 +53,14 @@ defmodule StmdTest do
 
     use ExUnit.Case
 
-    for %{ md: md, html: html } <- StmdTest.Reader.tests do
-      @md   Enum.join(Enum.reverse(md))
-      @html Enum.join(Enum.reverse(html))
-      test "\n--- === ---\n" <> @md <> "--- === ---\n" do
-        result = Earmark.to_html(@md)
-        assert result == @html
-      end
-    end
+    # for %{ md: md, html: html } <- StmdTest.Reader.tests do
+    #   @md   Enum.join(Enum.reverse(md))
+    #   @html Enum.join(Enum.reverse(html))
+    #   test "\n--- === ---\n" <> @md <> "--- === ---\n" do
+    #     result = Earmark.to_html(@md)
+    #     assert result == @html
+    #   end
+    # end
 
   else
 

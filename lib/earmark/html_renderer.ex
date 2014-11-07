@@ -1,5 +1,11 @@
 defmodule Earmark.HtmlRenderer do
 
+  defmodule EarmarkError do
+    defexception [:message]
+
+    def exception(msg), do: %__MODULE__{message: msg}
+  end
+  
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 1, behead: 2 ]
@@ -222,6 +228,8 @@ defmodule Earmark.HtmlRenderer do
         Dict.update(dict, name, [ value ], &[ value | &1])
         |> expand(behead(attrs, leader))
 
+      :otherwise ->
+        raise EarmarkError, "Invalid Markdown attributes: {#{attrs}}"
     end
   end
 

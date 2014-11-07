@@ -27,13 +27,13 @@ defmodule FootnoteTest do
 
   test "handles FnDef blocks without Footnotes enabled" do
     lines = ["This is a footnote[^1].", "", "[^1]: This is the content."]
-    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
+    Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
     # expected: not crashing
   end
 
   test "handles text without footntoes when Footnotes enabled" do
     lines = ["This is some regular text"]
-    html = Earmark.to_html(lines, options)
+    Earmark.to_html(lines, options)
   end
 
   test "basic footnote link" do
