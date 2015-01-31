@@ -54,15 +54,15 @@ defmodule Earmark.Helpers do
 
   def escape(html, encode \\ false)
 
-  def escape(html, false), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "\\&amp;"))
-  def escape(html, _), do: _escape(Regex.replace(~r{&}, html, "\\&amp;"))
+  def escape(html, false), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
+  def escape(html, _), do: _escape(String.replace(html, "&", "&amp;"))
                                                   
   defp _escape(html) do
     html
-    |> replace(~r/</,  "\\&lt;")
-    |> replace(~r/>/,  "\\&gt;")
-    |> replace(~r/\"/, "\\&quot;")
-    |> replace(~r/"/,  "\\&#39;")
+    |> String.replace("<",  "&lt;")
+    |> String.replace(">",  "&gt;")
+    |> String.replace("\"", "&quot;")
+    |> String.replace("'",  "&#39;")
   end
 
   @doc """
