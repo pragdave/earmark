@@ -1,3 +1,9 @@
+# 0.1.13 01/31/15
+
+* José fixed a bug in Regex that revealed a problem with some
+  Earmark replacement strings. As he's a true gentleman, he then
+  fixed Earmark.
+  
 # 0.1.11 08/18/14
 
 * Matthew Lyon contributed footnote support.
