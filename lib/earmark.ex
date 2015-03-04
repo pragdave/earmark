@@ -21,7 +21,7 @@ defmodule Earmark do
   ### Command line
 
       $ mix escript.build
-      $ ./earmark file.ms
+      $ ./earmark file.md
 
   ## Supports
 

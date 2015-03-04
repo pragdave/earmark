@@ -100,7 +100,7 @@ defmodule Mix.Tasks.Readme do
       (case File.write("README.md", readme) do
         :ok -> "README.md updated"
         {:error, reason} ->
-           "README.ms: #{:file.explain_error(reason)}"
+           "README.md: #{:file.explain_error(reason)}"
       end)
   end
 end

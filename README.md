@@ -3,6 +3,7 @@
 
 
 
+
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
@@ -24,7 +25,7 @@
 ### Command line
 
     $ mix escript.build
-    $ ./earmark file.ms
+    $ ./earmark file.md
 
 ## Supports
 
@@ -123,6 +124,7 @@ Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 Licensed under the same terms as Elixir.
+
 
 
 
