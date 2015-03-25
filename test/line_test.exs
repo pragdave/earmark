@@ -57,11 +57,13 @@ defmodule LineTest do
      { "          e", %Line.Indent{level: 2, content: "  e"} },
 
      { "```",      %Line.Fence{delimiter: "```", language: "",     line: "```"} },
-     { "``` java", %Line.Fence{delimiter: "```", language: "java", line: "``` jave"} },
+     { "``` java", %Line.Fence{delimiter: "```", language: "java", line: "``` java"} },
+     { " ``` java", %Line.Fence{delimiter: "```", language: "java", line: " ``` java"} },
      { "```java",  %Line.Fence{delimiter: "```", language: "java", line: "```java"} },
      { "~~~",      %Line.Fence{delimiter: "~~~", language: "",     line: "~~~"} },
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
-     { "~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "~~~java"} },
+     { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
+     { "  ~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "  ~~~java"} },
 
      { "<pre>",             %Line.HtmlOpenTag{tag: "pre", content: "<pre>"} },
      { "<pre class='123'>", %Line.HtmlOpenTag{tag: "pre", content: "<pre class='123'>"} },

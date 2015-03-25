@@ -113,7 +113,7 @@ defmodule Earmark.Line do
         [ _, spaces, code ] = match
         %Indent{level: div(String.length(spaces), 4), content: code }
 
-      match = Regex.run(~r/^(```|~~~)\s*(\S*)/, line) ->
+      match = Regex.run(~r/^\s*(```|~~~)\s*(\S*)/, line) ->
         [ _, fence, language ] = match
         %Fence{delimiter: fence, language: language}
 
