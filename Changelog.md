@@ -1,3 +1,13 @@
+# 0.1.14 3/25/15
+
+* Fixed a problem where a malformed sext heading caused a crash.
+  We now report what appears to be malformed Markdown and
+  continue, processing the line as text.
+
+* José fixed a bug in Regex that revealed a problem with some
+  Earmark replacement strings. As he's a true gentleman, he then
+  fixed Earmark.
+
 # 0.1.13 01/31/15
 
 * José fixed a bug in Regex that revealed a problem with some
