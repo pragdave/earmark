@@ -130,11 +130,7 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.FnList{blocks: footnotes}, context, mf) do
     items = Enum.map(footnotes, fn(note) ->
-      [last_block | blocks] = Enum.reverse(note.blocks)
-      [last_line | lines] = Enum.reverse(last_block.lines)
-      last_line = ~s[#{last_line}&nbsp;<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
-      last_block = put_in(last_block.lines, Enum.reverse([last_line | lines]))
-      blocks = Enum.reverse([last_block | blocks])
+      blocks = append_footnote_link(note)
       %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
     end)
     html = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
@@ -241,4 +237,27 @@ defmodule Earmark.HtmlRenderer do
   def add_to(attrs, text) do
     String.replace(text, ">", " #{attrs}>", global: false)
   end
+
+  ###############################
+  # Append Footnote Return Link #
+  ###############################
+
+  def append_footnote_link(note=%Block.FnDef{}) do
+    fnlink = ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+    [ last_block | blocks ] = Enum.reverse(note.blocks)
+    last_block = append_footnote_link(last_block, fnlink)
+    Enum.reverse([last_block | blocks])
+    |> List.flatten
+  end
+
+  def append_footnote_link(block=%Block.Para{lines: lines}, fnlink) do
+    [ last_line | lines ] = Enum.reverse(lines)
+    last_line = "#{last_line}&nbsp;#{fnlink}"
+    [put_in(block.lines, Enum.reverse([last_line | lines]))]
+  end
+
+  def append_footnote_link(block, fnlink) do
+    [block, %Block.Para{lines: fnlink}]
+  end
+
 end

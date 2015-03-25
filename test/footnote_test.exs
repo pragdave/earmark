@@ -57,6 +57,55 @@ defmodule FootnoteTest do
     assert result == expected
   end
 
+  test "handles multi-paragraph footnote bodies" do
+    lines = ["This is a footnote[^fn-1]",
+             "",
+             "[^fn-1]: line 1",
+             "line 2",
+             "",
+             "    Para 2 line 1",
+             "    Para 2 line 2",
+             "",
+             "    * List Item 1",
+             "      List Item 1 Cont",
+             "    * List Item 2"
+             ]
+    {result, _} = Parser.parse(lines)
+    expected = [%Block.Para{lines: ["This is a footnote[^fn-1]"]},
+                %Block.FnDef{id: "fn-1", blocks: [%Block.Para{lines: ["line 1", "line 2"]},
+                                                  %Block.Para{lines: ["Para 2 line 1", "Para 2 line 2"]},
+                                                  %Block.List{blocks: [
+                                                      %Block.ListItem{blocks: [%Block.Para{lines: ["List Item 1", "  List Item 1 Cont"]}], spaced: false},
+                                                      %Block.ListItem{blocks: [%Block.Para{lines: ["List Item 2"]}], spaced: false}
+                                                      ]}
+                                                  ]}]
+    assert result == expected
+    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, true))
+    expected_html = """
+    <p>This is a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>
+    <div class="footnotes">
+    <hr>
+    <ol>
+    <li id="fn:1"><p>line 1
+    line 2</p>
+    <p>Para 2 line 1
+    Para 2 line 2</p>
+    <ul>
+    <li>List Item 1
+      List Item 1 Cont
+    </li>
+    <li>List Item 2
+    </li>
+    </ul>
+    <p><a href="#fnref:1" title="return to article" class="reversefootnote">&#x21A9;</a></p>
+    </li>
+    </ol>
+
+    </div>
+    """
+    assert "#{html}\n" == expected_html
+  end
+
   test "uses a starting footnote number" do
     para = %Block.Para{lines: ["line 1[^ref-1] and", "line 2[^ref-2]."]}
     text = [para,
