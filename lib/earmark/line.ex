@@ -148,9 +148,12 @@ defmodule Earmark.Line do
                   content:        text, 
                   initial_indent: String.length(leading) }
 
-      match = Regex.run(~r/^(\d+\.)\s+(.*)/, line) ->
-        [ _, bullet, text ] = match
-        %ListItem{type: :ol, bullet: bullet, content: text }
+      match = Regex.run(~r/^(\s{0,3})(\d+\.)\s+(.*)/, line) ->
+        [ _, leading, bullet, text ] = match
+        %ListItem{type: :ol,
+                  bullet: bullet,
+                  content: text,
+                  initial_indent: String.length(leading) }
 
       match = Regex.run(~r/^ \s{0,3} \| (?: [^|]+ \|)+ \s* $ /x, line) ->
         [ body ] = match

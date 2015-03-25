@@ -1,8 +1,13 @@
+# 0.1.15 3/25/15
+
+* Allow numbered lists to start anywhere in the first four columns.
+  (This was previously allowed for unnumbered lists). Fixes #13.
+
 # 0.1.14 3/25/15
 
 * Fixed a problem where a malformed sext heading caused a crash.
   We now report what appears to be malformed Markdown and
-  continue, processing the line as text.
+  continue, processing the line as text. Fixes #17.
 
 # 0.1.13 01/31/15
 

@@ -72,4 +72,26 @@ defmodule RegressionsTest do
   test "Issue https://github.com/pragdave/earmark/issues/17" do
     Earmark.to_html "A\nB\n="
   end
+
+  @indented_list  """
+    Para
+
+    1. l1
+
+    2. l2
+  """
+
+  test "https://github.com/pragdave/earmark/issues/13" do
+    result = Earmark.to_html @indented_list
+    assert result == """
+                     <p>  Para</p>
+                     <ol>
+                     <li><p>l1</p>
+                     </li>
+                     <li>l2
+                     </li>
+                     </ol>
+                     """
+  end
+
 end
