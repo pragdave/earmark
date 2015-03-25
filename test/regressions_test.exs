@@ -68,4 +68,8 @@ defmodule RegressionsTest do
     result = catch_error(Earmark.to_html @issue_12, %Options{mapper: &Enum.map/2})
     assert result.message == "Invalid Markdown attributes: {error, :no_matches}"
   end
+
+  test "Issue https://github.com/pragdave/earmark/issues/17" do
+    Earmark.to_html "A\nB\n="
+  end
 end

@@ -70,7 +70,7 @@ defmodule Earmark.Block do
     parse(rest, [ %Heading{content: heading, level: level} | result ])
   end
 
-  defp parse([  %Line.Blank{}, 
+  defp parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
 
@@ -264,6 +264,15 @@ defmodule Earmark.Block do
 
   defp parse( [ %Line.Blank{} | rest ], result) do
     parse(rest, result)
+  end
+
+  ##############################################################
+  # Anything else... we warn, then treat it as if it were text #
+  ##############################################################
+
+  defp parse( [ anything | rest ], result) do
+    IO.puts(:stderr, "Unexpected line #{anything.line}")
+    parse( [ %Line.Text{content: anything.line} | rest], result)
   end
 
   #######################################################
