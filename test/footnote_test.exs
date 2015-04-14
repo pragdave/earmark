@@ -71,9 +71,9 @@ defmodule FootnoteTest do
              "    * List Item 2"
              ]
     {result, _} = Parser.parse(lines)
-    expected = [%Earmark.Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]}, 
-		%Earmark.Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
-            	%Earmark.Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "", 
+    expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]}, 
+		%Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
+            	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "", 
 								       "* List Item 1", "  List Item 1 Cont", "* List Item 2"]
 		}]    
     assert result == expected
