@@ -70,16 +70,7 @@ defmodule FootnoteTest do
              "      List Item 1 Cont",
              "    * List Item 2"
              ]
-    {result, _} = Parser.parse(lines)
-    expected = [%Block.Para{lines: ["This is a footnote[^fn-1]"]},
-                %Block.FnDef{id: "fn-1", blocks: [%Block.Para{lines: ["line 1", "line 2"]},
-                                                  %Block.Para{lines: ["Para 2 line 1", "Para 2 line 2"]},
-                                                  %Block.List{blocks: [
-                                                      %Block.ListItem{blocks: [%Block.Para{lines: ["List Item 1", "  List Item 1 Cont"]}], spaced: false},
-                                                      %Block.ListItem{blocks: [%Block.Para{lines: ["List Item 2"]}], spaced: false}
-                                                      ]}
-                                                  ]}]
-    assert result == expected
+
     html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, true))
     expected_html = """
     <p>This is a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>
