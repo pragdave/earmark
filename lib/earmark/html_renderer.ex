@@ -8,7 +8,7 @@ defmodule Earmark.HtmlRenderer do
   
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
-  import Earmark.Helpers, only: [ escape: 1, behead: 2 ]
+  import Earmark.Helpers, only: [ escape: 2, behead: 2 ]
 
   def render(blocks, context, map_func) do
     map_func.(blocks, &(render_block(&1, context, map_func)))
@@ -93,7 +93,7 @@ defmodule Earmark.HtmlRenderer do
   def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, _context, _mf) do
     class = if language, do: ~s{ class="#{language}"}, else: ""
     tag = ~s[<pre><code#{class}>]
-    lines = lines |> Enum.map(&(escape(&1))) |> Enum.join("\n") |> String.strip
+    lines = lines |> Enum.map(&(escape(&1, true))) |> Enum.join("\n") |> String.strip
     html = ~s[#{tag}#{lines}</code></pre>\n]
     add_attrs(html, attrs)
   end
