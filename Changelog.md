@@ -1,5 +1,13 @@
+# 0.1.17 5/18/15
+
+* Add strikethrough support to the HTML renderer. Thanks to
+  Michael Schaefermeyer (mschae)
+
+
 # 0.1.16 5/8/15
+
 * Another fix from José, this time for & in code blocks.
+
 
 # 0.1.13 01/31/15
 
@@ -7,6 +15,7 @@
   Earmark replacement strings. As he's a true gentleman, he then
   fixed Earmark.
   
+
 # 0.1.11 08/18/14
 
 * Matthew Lyon contributed footnote support.
