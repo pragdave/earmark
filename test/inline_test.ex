@@ -99,6 +99,11 @@ defmodule InlineTest do
     result = convert_pedantic("hello \\*world\\*")
     assert result == "hello *world*"
   end
+  
+  test "tilde mean strikethrough" do
+    result = convert_gfm("this ~~not this~~")
+    assert result == "this <del>not this</del>"
+  end
 
   ########
   # Code #
