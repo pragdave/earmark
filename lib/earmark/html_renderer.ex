@@ -153,7 +153,7 @@ defmodule Earmark.HtmlRenderer do
   def codespan(text),      do: ~s[<code class="inline">#{text}</code>]
   def em(text),            do: "<em>#{text}</em>"
   def strong(text),        do: "<strong>#{text}</strong>"
-  def strikethrough(text), do: "<del>#{text}</del>
+  def strikethrough(text), do: "<del>#{text}</del>"
 
   def link(url, text),        do: ~s[<a href="#{url}">#{text}</a>]
   def link(url, text, nil),   do: ~s[<a href="#{url}">#{text}</a>]
