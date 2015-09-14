@@ -1,9 +1,3 @@
-
-
-
-
-
-
 <!-- moduledoc: Earmark -->
 
 # Earmark—A Pure Elixir Markdown Processor
