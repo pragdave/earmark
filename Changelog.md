@@ -1,12 +1,25 @@
-# 0.1.17 5/18/15
+# 0.1.17 05/18/15
 
 * Add strikethrough support to the HTML renderer. Thanks to
   Michael Schaefermeyer (mschae)
 
 
-# 0.1.16 5/8/15
+# 0.1.16 05/08/15
 
 * Another fix from José, this time for & in code blocks.
+
+
+# 0.1.15 03/25/15
+
+* Allow numbered lists to start anywhere in the first four columns.
+  (This was previously allowed for unnumbered lists). Fixes #13.
+
+
+# 0.1.14 03/25/15
+
+* Fixed a problem where a malformed text heading caused a crash.
+  We now report what appears to be malformed Markdown and
+  continue, processing the line as text. Fixes #17.
 
 
 # 0.1.13 01/31/15
@@ -14,7 +27,7 @@
 * José fixed a bug in Regex that revealed a problem with some
   Earmark replacement strings. As he's a true gentleman, he then
   fixed Earmark.
-  
+
 
 # 0.1.11 08/18/14
 
@@ -28,6 +41,7 @@
 
   For now, consider it experimental. For that reason, you have
   to enable it by passing the `footnotes: true` option.
+
   
 # 0.1.10 08/13/14
 
@@ -36,10 +50,12 @@
   no. Changed the parser to treat them as headings if there's no
   blank.
 
+
 # 0.1.9 08/05/14
 
 * Bug fix—extra blank lines could be appended to code blocks.
 * Tidied up code block HTML
+
 
 # 0.1.7 07/26/16
 
@@ -64,7 +80,7 @@
         <p spellcheck="true" id="warning" class="boxed">Do not turn 
         off the engine if you are at altitude.</p>
 
-        
+
 # 0.1.5 07/20/16
 
 * Merged two performance improvements from José Valim
@@ -98,4 +114,6 @@
 * Fix bug if setext heading started on first line
 
 
-# 0.1.0 07/09/14 Initial Release
+# 0.1.0 07/09/14
+
+* Initial Release
