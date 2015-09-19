@@ -133,9 +133,9 @@ defmodule RegressionsTest do
     <pre><code class="elixir">term &lt; term :: boolean</code></pre>
     """
 
-    result = Earmark.to_html @code_inline_to_validate
+    result = Earmark.to_html "[&expr/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1)"
     assert result == """
-    <p><code class="inline">term &lt; term :: boolean</code></p>
+    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&amp;expr/1">&amp;expr/1</a></p>
     """
   end
 end

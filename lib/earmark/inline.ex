@@ -141,11 +141,11 @@ defmodule Earmark.Inline do
     link = (if String.at(link, 6) == ":", do: behead(link, 7), else: link)
     text = mangle_link(link)
     href = mangle_link("mailto:") <> text
-    { URI.encode(href), escape(text) }
+    { encode(href), escape(text) }
   end
 
   defp convert_autolink(link, _separator) do
-    link = URI.encode(link)
+    link = encode(link)
     { link, link }
   end
 
@@ -180,19 +180,19 @@ defmodule Earmark.Inline do
   end
 
   defp output_link(context, text, href, title) do
-    href = URI.encode(href)
+    href = encode(href)
     title = if title, do: escape(title), else: nil
     context.options.renderer.link(href, convert_each(text, context, []), title)
   end
 
   defp output_footnote_link(context, ref, back_ref, number) do
-    ref = URI.encode(ref)
-    back_ref = URI.encode(back_ref)
+    ref = encode(ref)
+    back_ref = encode(back_ref)
     context.options.renderer.footnote_link(ref, back_ref, number)
   end
 
   defp output_image(renderer, text, href, title) do
-    href = URI.encode(href)
+    href = encode(href)
     title = if title, do: escape(title), else: nil
     renderer.image(href, escape(text), title)
   end
