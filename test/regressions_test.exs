@@ -1,5 +1,6 @@
 defmodule RegressionsTest do
   use ExUnit.Case
+  import ExUnit.CaptureIO
 
   @cowboy_readme """
   Cowboy
@@ -70,7 +71,9 @@ defmodule RegressionsTest do
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/17" do
-    Earmark.to_html "A\nB\n="
+    assert capture_io( :stderr, fn->
+      Earmark.to_html "A\nB\n="
+    end) == "Unexpected line =\n"
   end
 
   @indented_list """
