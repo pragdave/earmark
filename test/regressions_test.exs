@@ -106,4 +106,36 @@ defmodule RegressionsTest do
                      &quot;Hello &amp;lt;world&amp;gt;&quot;</code></pre>
                      """
   end
+
+
+  @url_to_validate """
+  [<<>>/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1)
+  """
+
+  @code_block_to_validate """
+  ```elixir
+  term < term :: boolean
+  ```
+  """
+
+  @code_inline_to_validate """
+  `term < term :: boolean`
+  """
+
+  test"Escape html in text different than in url" do
+    result = Earmark.to_html @url_to_validate
+    assert result == """
+    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#%3C%3C%3E%3E/1">&lt;&lt;&gt;&gt;/1</a></p>
+    """
+
+    result = Earmark.to_html @code_block_to_validate
+    assert result == """
+    <pre><code class="elixir">term &lt; term :: boolean</code></pre>
+    """
+
+    result = Earmark.to_html @code_inline_to_validate
+    assert result == """
+    <p><code class="inline">term &lt; term :: boolean</code></p>
+    """
+  end
 end

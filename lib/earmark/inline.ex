@@ -6,9 +6,7 @@ defmodule Earmark.Inline do
   """
   
   import Earmark.Helpers
-
   alias Earmark.Context
-
 
   @doc false
   def convert(src, context) when is_list(src) do  
@@ -143,11 +141,11 @@ defmodule Earmark.Inline do
     link = (if String.at(link, 6) == ":", do: behead(link, 7), else: link)
     text = mangle_link(link)
     href = mangle_link("mailto:") <> text
-    { href, text }
+    { URI.encode(href), escape(text) }
   end
 
   defp convert_autolink(link, _separator) do
-    link = escape(link)
+    link = URI.encode(link)
     { link, link }
   end
 
@@ -182,19 +180,19 @@ defmodule Earmark.Inline do
   end
 
   defp output_link(context, text, href, title) do
-    href = escape(href)
+    href = URI.encode(href)
     title = if title, do: escape(title), else: nil
     context.options.renderer.link(href, convert_each(text, context, []), title)
   end
 
   defp output_footnote_link(context, ref, back_ref, number) do
-    ref = escape(ref)
-    back_ref = escape(back_ref)
+    ref = URI.encode(ref)
+    back_ref = URI.encode(back_ref)
     context.options.renderer.footnote_link(ref, back_ref, number)
   end
 
   defp output_image(renderer, text, href, title) do
-    href = escape(href)
+    href = URI.encode(href)
     title = if title, do: escape(title), else: nil
     renderer.image(href, escape(text), title)
   end
