@@ -73,4 +73,9 @@ defmodule SmartyTest do
     result = convert_pedantic ~s(a '**test**')
     assert result == "a ‘<strong>test</strong>’"
   end
+
+  test "another closing single quotes after tag" do
+    result = convert_pedantic "for `key` in `app`'s environment"
+    assert result == ~s(for <code class="inline">key</code> in <code class="inline">app</code>’s environment)
+  end
 end
