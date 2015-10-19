@@ -1,17 +1,17 @@
 defmodule Earmark.Inline do
 
   @moduledoc """
-  Match and render inline sequences, passing each to the 
+  Match and render inline sequences, passing each to the
   renderer.
   """
-  
+
   import Earmark.Helpers
 
   alias Earmark.Context
 
 
   @doc false
-  def convert(src, context) when is_list(src) do  
+  def convert(src, context) when is_list(src) do
     convert(Enum.join(src, "\n"), context)
   end
 
@@ -20,7 +20,10 @@ defmodule Earmark.Inline do
   end
 
   defp convert_each("", _context, result) do
-    result |> IO.iodata_to_binary
+    result
+    |> IO.iodata_to_binary
+    |> replace(~r{>‘}, ">’")
+    |> replace(~r{>“}, ">”")
   end
 
   defp convert_each(src, context, result) do
@@ -31,7 +34,7 @@ defmodule Earmark.Inline do
       match = Regex.run(context.rules.escape, src) ->
         [ match, escaped ] = match
         convert_each(behead(src, match), context, [ result | escaped ])
-    
+
       # autolink
       match = Regex.run(context.rules.autolink, src) ->
         [ match, link, protocol ] = match
@@ -84,11 +87,11 @@ defmodule Earmark.Inline do
         [ match, id ] = match
         out = reference_link(context, match, id, id)
         convert_each(behead(src, match), context, [ result | out ])
-   
+
 
       # strikethrough (gfm)
       match = Regex.run(context.rules.strikethrough, src) ->
-        [ match, content ] = match                             
+        [ match, content ] = match
         out = renderer.strikethrough(convert(content, context))
         convert_each(behead(src, match), context, [ result | out ])
 
@@ -128,7 +131,7 @@ defmodule Earmark.Inline do
 
       # text
       match = Regex.run(context.rules.text, src) ->
-        [ match ] = match                             
+        [ match ] = match
         out = escape(context.options.do_smartypants.(match))
         convert_each(behead(src, match), context, [ result | out ])
 
@@ -170,7 +173,7 @@ defmodule Earmark.Inline do
   @doc false
   def mangle_link(link) do
     link
-  end                
+  end
 
 
   defp output_image_or_link(context, "!" <> _, text, href, title) do
@@ -221,7 +224,7 @@ defmodule Earmark.Inline do
   ##############################################################################
 
   defp noop(text), do: text
-                        
+
   @doc false
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
@@ -231,11 +234,11 @@ defmodule Earmark.Inline do
       put_in(context.options.do_smartypants, &smartypants/1)
     else
       put_in(context.options.do_smartypants, &noop/1)
-    end      
+    end
 
     if options.sanitize do
       put_in(context.options.do_sanitize, &escape/1)
-    else 
+    else
       put_in(context.options.do_sanitize, &noop/1)
     end
   end
@@ -269,7 +272,7 @@ defmodule Earmark.Inline do
     text:     ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
     strikethrough: ~r{\z\A}   # noop
     ]
-  end 
+  end
 
   defp rules_for(options) do
     rule_updates = []
@@ -285,7 +288,7 @@ defmodule Earmark.Inline do
           br:    ~r{^ *\n(?!\s*$)},
           text:  ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| *\n|$)}
         ]
-        rule_updates = Keyword.merge(rule_updates, break_updates)  
+        rule_updates = Keyword.merge(rule_updates, break_updates)
       end
     else
       if options.pedantic do

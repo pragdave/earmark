@@ -66,7 +66,11 @@ defmodule SmartyTest do
 
   test "closing quotes after tag" do
     result = convert_pedantic ~s(a "**test**")
-    assert result == "a “<strong>test</strong>”\n"
+    assert result == "a “<strong>test</strong>”"
   end
 
+  test "closing single quotes after tag" do
+    result = convert_pedantic ~s(a '**test**')
+    assert result == "a ‘<strong>test</strong>’"
+  end
 end
