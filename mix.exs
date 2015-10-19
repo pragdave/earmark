@@ -37,12 +37,12 @@ defmodule Earmark.Mixfile do
 
   defp package do
     [
-      files:        [ "lib", "tasks", "priv", "mix.exs", "README.md" ],
-      contributors: [ "Dave Thomas <dave@pragprog.org>"],
-      licenses:     [ "Same as Elixir" ],
-      links:        %{
+      files:       [ "lib", "tasks", "mix.exs", "README.md" ],
+      maintainers: [ "Dave Thomas <dave@pragprog.org>"],
+      licenses:    [ "Same as Elixir" ],
+      links:       %{
                        "GitHub" => "https://github.com/pragdave/earmark",
-                    }
+                   }
     ]
   end
 
