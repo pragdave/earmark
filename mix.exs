@@ -6,7 +6,7 @@ defmodule Earmark.Mixfile do
   def project do
     [
       app:         :earmark,
-      version:     "0.1.17",
+      version:     "0.1.18",
       elixir:      ">= 1.0.0",
       escript:     escript_config,
       deps:        deps,
@@ -25,7 +25,7 @@ defmodule Earmark.Mixfile do
 
   defp description do
     """
-    Earmark is a pure-Elixir Markdown converter. 
+    Earmark is a pure-Elixir Markdown converter.
 
     It is intended to be used as a library (just call Earmark.to_html),
     but can also be used as a command-line tool (just run mix escript.build
