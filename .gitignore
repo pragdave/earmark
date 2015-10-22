@@ -3,3 +3,4 @@ earmark
 /deps
 erl_crash.dump
 *.ez
+.tmux.rb
