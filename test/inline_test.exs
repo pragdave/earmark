@@ -1,46 +1,7 @@
 defmodule InlineTest do
   use ExUnit.Case
 
-  alias Earmark.Inline
-  alias Earmark.Block.IdDef
-
-  ###############
-  # Helpers.... #
-  ###############
-
-  def context do
-    %Earmark.Context{}
-  end
-
-  def test_links do
-    [ 
-     {"id1", %IdDef{url: "url 1", title: "title 1"}},
-     {"id2", %IdDef{url: "url 2"}},
-
-     {"img1", %IdDef{url: "img 1", title: "image 1"}},
-     {"img2", %IdDef{url: "img 2"}},
-    ]
-    |> Enum.into(HashDict.new)
-  end
-
-  def pedantic_context do
-    ctx = put_in(context.options.gfm, false)
-    ctx = put_in(ctx.options.pedantic, true)
-    ctx = put_in(ctx.links, test_links)
-    Inline.update_context(ctx)
-  end
-
-  def gfm_context do
-    Inline.update_context(context)
-  end
-
-  def convert_pedantic(string) do
-    Inline.convert(string, pedantic_context)
-  end
-    
-  def convert_gfm(string) do
-    Inline.convert(string, gfm_context)
-  end
+  import Support.Helpers
 
   ############################################################
   # Tests                                                    #
@@ -103,37 +64,6 @@ defmodule InlineTest do
   test "tilde mean strikethrough" do
     result = convert_gfm("this ~~not this~~")
     assert result == "this <del>not this</del>"
-  end
-
-  ########
-  # Code #
-  ########
-
-  test "backticks mean code" do
-    result = convert_pedantic("the `printf` function")
-    assert result == ~s[the <code class="inline">printf</code> function]
-  end
-
-  test "literal backticks can be included within doubled backticks" do
-    result = convert_pedantic("``the ` character``")
-    assert result == ~s[<code class="inline">the ` character</code>]
-  end
-
-  test "a space after the opening and before the closing doubled backticks are ignored" do
-    result = convert_pedantic("`` the ` character``")
-    assert result == ~s[<code class="inline">the ` character</code>]
-  end
-
-  test "single backtick with spaces inside doubled backticks" do
-    result = convert_pedantic("`` ` ``")
-    assert result == ~s[<code class="inline">`</code>]
-  end
-
-  test "ampersands and angle brackets are escaped in code" do
-    result = convert_pedantic("the `<a> &123;` function")
-    expect = 
-      ~s[the <code class="inline">&lt;a&gt; &amp;123;</code> function]    
-    assert result == expect
   end
 
   #################

@@ -53,8 +53,8 @@ defmodule Earmark.HtmlRenderer do
   ###########
   # Heading #
   ###########
-  def render_block(%Block.Heading{level: level, content: content, attrs: attrs}, _context, _mf) do
-    html = "<h#{level}>#{content}</h#{level}>\n"
+  def render_block(%Block.Heading{level: level, content: content, attrs: attrs}, context, _mf) do
+    html = "<h#{level}>#{convert(content,context)}</h#{level}>\n"
     add_attrs(html, attrs)
   end
 
