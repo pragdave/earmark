@@ -1,0 +1,83 @@
+defmodule ListAndTablesTest do
+  use ExUnit.Case
+
+  defp ul lines do
+    """
+    <ul>
+    #{Enum.map( lines, &("<li>#{&1}\n</li>\n") )}</ul>
+    """
+  end
+  
+  test "Simple list render with |" do
+    result = Earmark.to_html(["* one | half", "* two | third"])
+    expected = ul([ "one | half", "two | third" ])
+    assert result == expected
+  end
+
+  test "Simple list render one implicit item with |" do
+    result = Earmark.to_html([ "- a", "b | c"])
+    expected = ul(["a\nb | c"])
+    assert result == expected
+  end
+
+  test "Simple list render two implicit items with |" do
+    result = Earmark.to_html( ["- a", "b | c", "d | e"] )
+    expected = ul(["a\nb | c\nd | e"])
+    assert result == expected
+  end
+
+  test "Alternating text and table lines" do
+    result = Earmark.to_html( ["- a", "b | c", "d", "e | f"] )
+    expected = ul(["a\nb | c\nd\ne | f"])
+    assert result == expected
+  end
+
+  test "Alternating table lines and text" do
+    result = Earmark.to_html( ["- a | b", "c", "d", "e | f"] )
+    expected = ul(["a | b\nc\nd\ne | f"])
+    assert result == expected
+  end
+
+  test "Alternating table and indented text lines" do
+    result = Earmark.to_html( ["- a", "  b", "e | f"] )
+    expected = ul(["a\n  b\ne | f"])
+    assert result == expected
+  end
+  
+  test "Alternating text and indented table lines" do
+    result = Earmark.to_html( ["- a", "   b | c", "e | f"] )
+    expected = ul(["a\n   b | c\ne | f"])
+    assert result == expected
+  end
+
+  test "Same as above but at end of list" do
+    result = Earmark.to_html( ["- 0", "- a", "   b | c", "e | f"] )
+    expected = ul(["0", "a\n   b | c\ne | f"])
+    assert result == expected
+  end
+
+  test "Same as above but in middle of list" do
+    result = Earmark.to_html( ["- 0", "- a", "   b | c", "e | f", "- Ω"] ) 
+    expected = ul(["0", "a\n   b | c\ne | f", "Ω"])
+    assert result == expected
+  end
+
+  test "Still tables in lists" do
+    result = Earmark.to_html( ["- | a | b |", "| c | d |"] )
+    expected = ul([ """
+                    <table>
+                    <colgroup>
+                    <col align=\"left\">
+                    <col align=\"left\">
+                    </colgroup>
+                    <tr>
+                    <td>a</td><td>b</td>
+                    </tr>
+                    <tr>
+                    <td>c</td><td>d</td>
+                    </tr>
+                    """ <> "</table>"
+                    ])
+    assert result == expected
+  end
+end
