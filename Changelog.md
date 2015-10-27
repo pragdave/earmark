@@ -1,3 +1,8 @@
+# 0.1.19 10/27/15
+
+* Fix | in implicit lists, and restructur the parse a little.
+  Many thanks to Robert Dober
+  
 # 0.1.17 05/18/15
 
 * Add strikethrough support to the HTML renderer. Thanks to
@@ -42,7 +47,7 @@
   For now, consider it experimental. For that reason, you have
   to enable it by passing the `footnotes: true` option.
 
-  
+
 # 0.1.10 08/13/14
 
 * The spec is ambiguous when it comes to setext headings. I assumed
@@ -77,7 +82,7 @@
   and generate
 
         <h1 class="red">Warning</h1>
-        <p spellcheck="true" id="warning" class="boxed">Do not turn 
+        <p spellcheck="true" id="warning" class="boxed">Do not turn
         off the engine if you are at altitude.</p>
 
 
@@ -91,24 +96,24 @@
 
   has two columns, not three.
 
-  
+
 # 0.1.4 07/14/16
 
 * Allow list bullets to be indented, and deal with potential subsequent
   additional indentation of the body of an item.
-  
+
 
 # 0.1.3 07/14/16
 
 * Added tasks to the Hex file list
 
 
-# 0.1.2 07/14/14 
+# 0.1.2 07/14/14
 
 * Add support for GFM tables
 
 
-# 0.1.1 07/09/14 
+# 0.1.1 07/09/14
 
 * Move readme generation task out of mix.exs and into tasks/
 * Fix bug if setext heading started on first line
