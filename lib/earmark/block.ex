@@ -365,22 +365,43 @@ defmodule Earmark.Block do
   # basically, we allow indents and blank lines, and
   # we allow text lines only after an indent (and initially)
 
-  # immediately after the start
+  # text immediately after the start
   defp read_list_lines([ line = %Line.Text{} | rest ], []) do
     read_list_lines(rest, [ line ])
   end
+  # table line immediately after the start
+  defp read_list_lines([ line = %Line.TableLine{} | rest ], []) do
+    read_list_lines(rest, [ line ])
+  end
 
-  # Immediately after another text line
+  # text immediately after another text line
   defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Text{} | _]) do
     read_list_lines(rest, [ line | result ])
   end
-
-  # Immediately after an indent
-  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _]) do
+  # table line immediately after another text line
+  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Text{} | _]) do
     read_list_lines(rest, [ line | result ])
   end
 
-  # Always allow blank lines and indents, and text lines with at least
+  # text immediately after a table line
+  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.TableLine{} | _]) do
+    read_list_lines(rest, [ line | result ])
+  end
+  # table line immediately after another table line
+  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.TableLine{} | _]) do
+    read_list_lines(rest, [ line | result ])
+  end
+
+  # text immediately after an indent
+  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _]) do
+    read_list_lines(rest, [ line | result ])
+  end
+  # table line immediately after an indent
+  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Indent{} | _]) do
+    read_list_lines(rest, [ line | result ])
+  end
+
+  # Always allow blank lines and indents, and text or table lines with at least
   # two spaces
   defp read_list_lines([ line = %Line.Blank{} | rest ], result) do
     read_list_lines(rest, [ line | result ])
@@ -391,6 +412,12 @@ defmodule Earmark.Block do
   end
 
   defp read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ], 
+                         result) 
+  do
+    read_list_lines(rest, [ line | result ])
+  end
+
+  defp read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ], 
                          result) 
   do
     read_list_lines(rest, [ line | result ])
