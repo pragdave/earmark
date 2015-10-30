@@ -1,8 +1,6 @@
 defmodule AcceptanceTestCreator do
   use ExUnit.Case
 
-  alias Support.Acceptance
-
   {:ok, test_case_data } =
     Path.join([__DIR__,"../assets/tests.json"])
     |> File.stream!( [], :line )

@@ -65,114 +65,66 @@
     "example": 22,
     "markdown": "- foo\n***\n- bar\n"
   },
-#  {
-#    "section": "Horizontal rules",
-#    "html": "<p>Foo</p>\n<hr />\n<p>bar</p>\n",
-#    "example": 23,
-#    "markdown": "Foo\n***\nbar\n"
-#  },
-#  {
-#    "section": "Horizontal rules",
-#    "html": "<h2>Foo</h2>\n<p>bar</p>\n",
-#    "example": 24,
-#    "markdown": "Foo\n---\nbar\n"
-#  },
-#  {
-#    "section": "Horizontal rules",
-#    "html": "<ul>\n<li>Foo</li>\n</ul>\n<hr />\n<ul>\n<li>Bar</li>\n</ul>\n",
-#    "example": 25,
-#    "markdown": "* Foo\n* * *\n* Bar\n"
-#  },
-#  {
-#    "section": "Horizontal rules",
-#    "html": "<ul>\n<li>Foo</li>\n<li>\n<hr />\n</li>\n</ul>\n",
-#    "example": 26,
-#    "markdown": "- Foo\n- * * *\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n",
-#    "example": 27,
-#    "markdown": "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<p>####### foo</p>\n",
-#    "example": 28,
-#    "markdown": "####### foo\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<p>#5 bolt</p>\n<p>#foobar</p>\n",
-#    "example": 29,
-#    "markdown": "#5 bolt\n\n#foobar\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<p>## foo</p>\n",
-#    "example": 30,
-#    "markdown": "\\## foo\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h1>foo <em>bar</em> *baz*</h1>\n",
-#    "example": 31,
-#    "markdown": "# foo *bar* \\*baz\\*\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h1>foo</h1>\n",
-#    "example": 32,
-#    "markdown": "#                  foo                     \n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h3>foo</h3>\n<h2>foo</h2>\n<h1>foo</h1>\n",
-#    "example": 33,
-#    "markdown": " ### foo\n  ## foo\n   # foo\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<pre><code># foo\n</code></pre>\n",
-#    "example": 34,
-#    "markdown": "    # foo\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<p>foo\n# bar</p>\n",
-#    "example": 35,
-#    "markdown": "foo\n    # bar\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h2>foo</h2>\n<h3>bar</h3>\n",
-#    "example": 36,
-#    "markdown": "## foo ##\n  ###   bar    ###\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h1>foo</h1>\n<h5>foo</h5>\n",
-#    "example": 37,
-#    "markdown": "# foo ##################################\n##### foo ##\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h3>foo</h3>\n",
-#    "example": 38,
-#    "markdown": "### foo ###     \n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h3>foo ### b</h3>\n",
-#    "example": 39,
-#    "markdown": "### foo ### b\n"
-#  },
-#  {
-#    "section": "ATX headers",
-#    "html": "<h1>foo#</h1>\n",
-#    "example": 40,
-#    "markdown": "# foo#\n"
-#  },
+  {
+    "section": "Horizontal rules",
+    "html": "<h2>Foo</h2>\n<p>bar</p>\n",
+    "example": 24,
+    "markdown": "Foo\n---\nbar\n"
+  },
+  {
+    "section": "Horizontal rules",
+    "html": "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar\n</li>\n</ul>\n",
+    "example": 25,
+    "markdown": "* Foo\n* * *\n* Bar\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n",
+    "example": 27,
+    "markdown": "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<p>####### foo</p>\n",
+    "example": 28,
+    "markdown": "####### foo\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<p>#5 bolt</p>\n<p>#foobar</p>\n",
+    "example": 29,
+    "markdown": "#5 bolt\n\n#foobar\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<p>## foo</p>\n",
+    "example": 30,
+    "markdown": "\\## foo\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<h1>foo <em>bar</em> *baz*</h1>\n",
+    "example": 31,
+    "markdown": "# foo *bar* \\*baz\\*\n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<h1>foo</h1>\n",
+    "example": 32,
+    "markdown": "#                  foo                     \n"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<pre><code># foo</code></pre>\n<p>next</p>\n",
+    "example": 34,
+    "markdown": "    # foo\nnext"
+  },
+  {
+    "section": "ATX headers",
+    "html": "<h1>foo</h1>\n",
+    "example": 40,
+    "markdown": "# foo#\n"
+  },
 #  {
 #    "section": "ATX headers",
 #    "html": "<h3>foo ###</h3>\n<h2>foo ###</h2>\n<h1>foo #</h1>\n",
