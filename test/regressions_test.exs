@@ -133,4 +133,10 @@ defmodule RegressionsTest do
                      </ul>
                      """
   end
+
+  @not_the_first_you_see "<alpha<beta></beta>"
+  test "Issue https://github.com/pragdave/earmark/issues/40" do
+    result = Earmark.to_html @not_the_first_you_see
+    assert result == "&lt;alpha<beta></beta>"
+  end
 end

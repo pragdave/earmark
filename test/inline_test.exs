@@ -167,5 +167,4 @@ defmodule InlineTest do
     result = convert_pedantic(~s[a <span class="red">a&b</span> color])
     assert result == ~s[a <span class="red">a&amp;b</span> color]
   end                               
-                               
 end
