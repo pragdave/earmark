@@ -139,4 +139,20 @@ defmodule RegressionsTest do
     result = Earmark.to_html @not_the_first_you_see
     assert result == "&lt;alpha<beta></beta>"
   end
+
+
+  test "https://github.com/pragdave/earmark/issues/41" do
+    result = Earmark.to_html "****"
+    assert result == ~s[<hr class="thick"/>\n]
+  end
+
+  @indented_code_block """
+                  alpha
+              beta
+          """
+  test "https://github.com/pragdave/earmark/issues/43" do
+    result = Earmark.to_html @indented_code_block
+    assert result == ~s[<pre><code class="">    alpha\nbeta</code></pre>]
+  end
+
 end

@@ -236,7 +236,7 @@ defmodule Earmark.HtmlRenderer do
   end                            
 
   def add_to(attrs, text) do
-    String.replace(text, ">", " #{attrs}>", global: false)
+    String.replace(text, ~r{\s?/?>}, " #{attrs}\\0", global: false)
   end
 
   ###############################
