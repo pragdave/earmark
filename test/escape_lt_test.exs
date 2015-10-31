@@ -9,7 +9,6 @@ defmodule EscapeLtTest do
   # Plain Text #
   ##############
 
-  @tag :xxx
   test "< is escaped" do
     result = Earmark.to_html "<"
     assert result == para( "&lt;" )

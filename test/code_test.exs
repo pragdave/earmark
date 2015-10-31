@@ -3,9 +3,9 @@ defmodule CodeTest do
 
   import Support.Helpers
 
-  ########
-  # Code #
-  ########
+  ##########
+  # Inline #
+  ##########
 
   test "backticks mean code" do
     result = convert_pedantic("the `printf` function")
@@ -75,5 +75,32 @@ defmodule CodeTest do
   test "another closing single quotes after tag" do
     result = convert_pedantic "for `key` in `app`'s environment"
     assert result == ~s(for <code class="inline">key</code> in <code class="inline">app</code>’s environment)
+  end
+
+  ##########
+  # Blocks #
+  ##########
+
+  test "simple code block" do
+    result = Earmark.to_html "```\ndefmodule\n```"
+    assert result == ~s(<pre><code class="">defmodule</code></pre>\n)
+  end
+  test "indented code block" do
+    result = Earmark.to_html "    defmodule\n    end"
+    assert result == ~s(<pre><code>defmodule\nend</code></pre>\n)
+  end
+  test "indented code block (increasing indent)" do
+    result = Earmark.to_html "    defmodule\n      defstruct"
+    assert result == ~s(<pre><code>defmodule\n  defstruct</code></pre>\n)
+  end
+  test "indented code block (decreasing indent)" do
+    result = Earmark.to_html "      # Hello\n    end"
+    assert result == ~s(<pre><code>  # Hello\nend</code></pre>\n)
+  end
+  test "code block (decreasing indent)" do
+    result = Earmark.to_html "```elixir\n # Hello\nend\n```"
+    assert result == ~s(<pre><code class="elixir">  #Hello\nend</code></pre>\n)
+    assert result == ~s(<pre><code>  # Hello\nend</code></pre>\n)
+
   end
 end
