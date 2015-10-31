@@ -124,7 +124,7 @@ defmodule Earmark.Line do
         [ _, tag ] = match
         %HtmlOneLine{tag: tag, content: line}
 
-      (match = Regex.run(~r/^<([-\w]+?)>/, line)) && !recursive ->
+      (match = Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line)) && !recursive ->
         [ _, tag ] = match
         %HtmlOpenTag{tag: tag, content: line}
 

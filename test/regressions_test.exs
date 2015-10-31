@@ -152,7 +152,7 @@ defmodule RegressionsTest do
           """
   test "https://github.com/pragdave/earmark/issues/43" do
     result = Earmark.to_html @indented_code_block
-    assert result == ~s[<pre><code class="">    alpha\nbeta</code></pre>]
+    assert result == ~s[<pre><code>    alpha\nbeta</code></pre>\n]
   end
 
 end

@@ -98,9 +98,7 @@ defmodule CodeTest do
     assert result == ~s(<pre><code>  # Hello\nend</code></pre>\n)
   end
   test "code block (decreasing indent)" do
-    result = Earmark.to_html "```elixir\n # Hello\nend\n```"
-    assert result == ~s(<pre><code class="elixir">  #Hello\nend</code></pre>\n)
-    assert result == ~s(<pre><code>  # Hello\nend</code></pre>\n)
-
+    result = Earmark.to_html "```elixir\n  # Hello\nend\n```"
+    assert result == ~s(<pre><code class="elixir">  # Hello\nend</code></pre>\n)
   end
 end
