@@ -261,7 +261,11 @@ defmodule Earmark.Inline do
     escape:   ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
     autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},
     url:      ~r{\z\A},  # noop
-    tag:      ~r{^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>},
+    tag:      ~r{
+      ^<!--[\s\S]*?--> | 
+      ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
+                  '[^'<]*' |
+                   [^'"<>])*?>}x,
     link:     ~r{^!?\[(#{@inside})\]\(#{@href}\)},
     reflink:  ~r{^!?\[(#{@inside})\]\s*\[([^\]]*)\]},
     nolink:   ~r{^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]},

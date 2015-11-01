@@ -205,9 +205,9 @@
   },
   {
     "section": "HTML blocks",
-    "html": "<div>\n  *hello*\n         <foo><a>\n\n",
+    "html": "<div>\n  *hello*\n         <foo><a>\n</div>",
     "example": 105,
-    "markdown": "<div>\n  *hello*\n         <foo><a>\n"
+    "markdown": "<div>\n  *hello*\n         <foo><a>\n</div>\n"
   },
 # Issue #44, not sure it justifies a fix
 #  {
