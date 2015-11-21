@@ -73,16 +73,16 @@ defmodule Earmark.HtmlRenderer do
   #########
 
   def render_block(%Block.Table{header: header, rows: rows, alignments: aligns, attrs: attrs}, context, _mf) do
-    cols = for align <- aligns, do: "<col align=\"#{align}\">\n"
+    cols = for _align <- aligns, do: "<col>\n"
     html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
     if header do
       html = [ html, "<thead>\n",
-               add_table_rows(context, [header], "th"),
+               add_table_rows(context, [header], "th", aligns),
                "</thead>\n" ]
     end
 
-    html = [ html, add_table_rows(context, rows, "td"), "</table>\n" ]
+    html = [ html, add_table_rows(context, rows, "td", aligns), "</table>\n" ]
 
     html
   end
@@ -170,12 +170,23 @@ defmodule Earmark.HtmlRenderer do
   def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
-  def add_table_rows(context, rows, tag) do
-    for row <- rows, do: "<tr>\n#{add_tds(context, row, tag)}\n</tr>\n"
+  def add_table_rows(context, rows, tag, aligns \\ []) do
+    for row <- rows, do: "<tr>\n#{add_tds(context, row, tag, aligns)}\n</tr>\n"
   end
 
-  def add_tds(context, row, tag) do
-    for col <- row, do: "<#{tag}>#{convert(col, context)}</#{tag}>"
+  def add_tds(context, row, tag, aligns \\ []) do
+    Enum.reduce(1..length(row), {[], row}, fn(n, {acc, row}) ->
+      style = cond do
+        align = Enum.at(aligns, n - 1) ->
+          " style=\"text-align: #{align}\""
+        true ->
+          ""
+      end
+      col = Enum.at(row, n - 1)
+      {["<#{tag}#{style}>#{convert(col, context)}</#{tag}>" | acc], row}
+    end)
+    |> elem(0)
+    |> Enum.reverse
   end
 
   ##############################################
