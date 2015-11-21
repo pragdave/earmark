@@ -155,4 +155,12 @@ defmodule RegressionsTest do
     assert result == ~s[<pre><code>    alpha\nbeta</code></pre>\n]
   end
 
+  @multiline_inline_code """
+  `a
+  * b`
+  """
+  test "https://github.com/pragdave/earmark/issues/48" do
+    result = Earmark.to_html @multiline_inline_code
+    assert result == ~s[<p><code class="inline">a\n* b</code></p>]
+  end
 end
