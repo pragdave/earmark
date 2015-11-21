@@ -67,15 +67,15 @@ defmodule TableTest do
     expected = """
     <table>
     <colgroup>
-    <col align="left">
-    <col align="left">
-    <col align="left">
+    <col>
+    <col>
+    <col>
     </colgroup>
     <tr>
-    <td>a</td><td>b</td><td>c</td>
+    <td style="text-align: left">a</td><td style="text-align: left">b</td><td style="text-align: left">c</td>
     </tr>
     <tr>
-    <td>d</td><td>e</td><td>f</td>
+    <td style="text-align: left">d</td><td style="text-align: left">e</td><td style="text-align: left">f</td>
     </tr>
     </table>
     """
@@ -87,17 +87,17 @@ defmodule TableTest do
     expected = """
     <table>
     <colgroup>
-    <col align="left">
-    <col align="center">
-    <col align="right">
+    <col>
+    <col>
+    <col>
     </colgroup>
     <thead>
     <tr>
-    <th>a</th><th>b</th><th>c</th>
+    <th style="text-align: left">a</th><th style="text-align: center">b</th><th style="text-align: right">c</th>
     </tr>
     </thead>
     <tr>
-    <td>d</td><td>e</td><td>f</td>
+    <td style="text-align: left">d</td><td style="text-align: center">e</td><td style="text-align: right">f</td>
     </tr>
     </table>
     """
@@ -109,15 +109,15 @@ defmodule TableTest do
     expected = """
     <table>
     <colgroup>
-    <col align="left">
-    <col align="left">
-    <col align="left">
+    <col>
+    <col>
+    <col>
     </colgroup>
     <tr>
-    <td>a</td><td><em>b</em></td><td><code class="inline">c</code></td>
+    <td style="text-align: left">a</td><td style="text-align: left"><em>b</em></td><td style="text-align: left"><code class="inline">c</code></td>
     </tr>
     <tr>
-    <td><xx>d</xx></td><td><strong>e</strong></td><td><strong>f</strong></td>
+    <td style="text-align: left"><xx>d</xx></td><td style="text-align: left"><strong>e</strong></td><td style="text-align: left"><strong>f</strong></td>
     </tr>
     </table>
     """

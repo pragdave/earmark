@@ -47,6 +47,16 @@ defmodule Earmark.Helpers do
   end
 
   @doc """
+  Encode URIs to be included in the `<a>` elements.
+
+  Percent-escapes a URI, and after that escapes any
+  `&`, `<`, `>`, `"`, `'`.
+  """
+  def encode(html) do
+    URI.encode(html) |> escape(true)
+  end
+
+  @doc """
   Replace <, >, and quotes with the corresponding entities. If
   `encode` is true, convert ampersands, too, otherwise only
    convert non-entity ampersands. 
