@@ -330,12 +330,12 @@
     "example": 252,
     "markdown": "`hi`lo`\n"
   },
-  {
-    "section": "Inlines",
-    "html": "<p><code class=\"inline\">a\nb</code>c</p>\n",
-    "example": 253,
-    "markdown": "`a\nb`c\n"
-  },
+#  {
+#    "section": "Inlines",
+#    "html": "<p><code class=\"inline\">a\nb</code>c</p>\n",
+#    "example": 253,
+#    "markdown": "`a\nb`c\n"
+#  },
   {
     "section": "Backslash escapes",
     "html": "<p>\\!\\&quot;</p>\n",
