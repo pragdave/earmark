@@ -133,4 +133,34 @@ defmodule RegressionsTest do
                      </ul>
                      """
   end
+
+  @not_the_first_you_see "<alpha<beta></beta>"
+  test "Issue https://github.com/pragdave/earmark/issues/40" do
+    result = Earmark.to_html @not_the_first_you_see
+    assert result == "<p>&lt;alpha<beta></beta></p>\n"
+  end
+
+
+  test "https://github.com/pragdave/earmark/issues/41" do
+    result = Earmark.to_html "****"
+    assert result == ~s[<hr class="thick"/>\n]
+  end
+
+  @indented_code_block """
+                  alpha
+              beta
+          """
+  test "https://github.com/pragdave/earmark/issues/43" do
+    result = Earmark.to_html @indented_code_block
+    assert result == ~s[<pre><code>    alpha\nbeta</code></pre>\n]
+  end
+
+  # @multiline_inline_code """
+  # `a
+  # * b`
+  # """
+  # test "https://github.com/pragdave/earmark/issues/48" do
+  #   result = Earmark.to_html @multiline_inline_code
+  #   assert result == ~s[<p><code class="inline">a\n* b</code></p>]
+  # end
 end

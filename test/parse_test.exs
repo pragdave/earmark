@@ -24,13 +24,26 @@ defmodule ParseTest do
       "para"])
 
     expect = [
-      %Earmark.Block.Code{attrs: nil, 
+      %Block.Code{attrs: nil, 
         language: nil,
         lines: ["line 1", "line 2"]},
-      %Earmark.Block.Para{attrs: nil, lines: ["para"]}
+      %Block.Para{attrs: nil, lines: ["para"]}
     ]
     assert result == expect
   end
+
+  # test "Multiline inline code is parsed correctly" do
+  #   {result, _} = Parser.parse([
+  #     "prefix`first", 
+  #     "* second",
+  #     " third`suffix"])
+  #   expect = [
+  #     %Block.Para{attrs: nil, lines: ["prefix"]},
+  #     %Block.Code{attrs: nil, lines: ["first", "* second", " third`"]},
+  #     %Block.Para{attrs: nil, lines: ["suffix"]}
+  #   ]
+  #   assert result == expect
+  # end
 
   test "Implicit List continuation" do
     {result, _} = Parser.parse( ["- alpha", "beta"] )

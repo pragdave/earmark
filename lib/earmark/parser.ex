@@ -11,7 +11,7 @@ defmodule Earmark.Parser do
   def parse(text_lines, options = %Earmark.Options{}, recursive \\ false) do
     # add blank lines before and after
     [ "" | text_lines ++ [""] ] 
-    |> Enum.map(fn (line) -> Line.type_of(line, options, recursive) end)
+    |> Earmark.pmap(fn (line) -> Line.type_of(line, options, recursive) end)
     |> Block.parse
   end
 

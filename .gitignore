@@ -4,3 +4,4 @@ earmark
 erl_crash.dump
 *.ez
 .tmux.rb
+tmp/*
