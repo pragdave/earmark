@@ -118,27 +118,27 @@ defmodule InlineTest do
 
   test "basic reference link" do
     result = convert_pedantic(~s{a [my link][id1] link})
-    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">my link</a> link]
+    assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
 
   test "case insensitive reference link" do
     result = convert_pedantic(~s{a [my link][ID1] link})
-    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">my link</a> link]
+    assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
                                
   test "basic reference link with no title" do
     result = convert_pedantic(~s{a [my link][id2] link})
-    assert result == ~s[a <a href=\"url 2\">my link</a> link]
+    assert result == ~s[a <a href="url%202">my link</a> link]
   end
                                
   test "basic reference link with a space inside" do
     result = convert_pedantic(~s{a [mylink]  [id1] link})
-    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">mylink</a> link]
+    assert result == ~s[a <a href=\"url%201\" title=\"title 1\">mylink</a> link]
   end
 
   test "shorthand reference link" do
     result = convert_pedantic(~s{a [id1][] link})
-    assert result == ~s[a <a href=\"url 1\" title=\"title 1\">id1</a> link]
+    assert result == ~s[a <a href="url%201" title="title 1">id1</a> link]
   end
 
 
@@ -149,13 +149,13 @@ defmodule InlineTest do
   test "basic reference image link" do
     result = convert_pedantic(~s{a ![my image][img1] link})
     assert result == 
-      ~s[a <img src="img 1" alt="my image" title="image 1"/> link]
+      ~s[a <img src="img%201" alt="my image" title="image 1"/> link]
   end
                                
   test "basic reference image link with no title" do
     result = convert_pedantic(~s{a ![my image][img2] link})
     assert result == 
-      ~s[a <img src="img 2" alt="my image"/> link]
+      ~s[a <img src="img%202" alt="my image"/> link]
   end
                                
                                

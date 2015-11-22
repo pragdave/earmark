@@ -67,14 +67,14 @@ defmodule ListAndTablesTest do
     expected = ul([ """
                     <table>
                     <colgroup>
-                    <col align=\"left\">
-                    <col align=\"left\">
+                    <col>
+                    <col>
                     </colgroup>
                     <tr>
-                    <td>a</td><td>b</td>
+                    <td style="text-align: left">a</td><td style="text-align: left">b</td>
                     </tr>
                     <tr>
-                    <td>c</td><td>d</td>
+                    <td style="text-align: left">c</td><td style="text-align: left">d</td>
                     </tr>
                     """ <> "</table>"
                     ])
