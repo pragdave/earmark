@@ -123,6 +123,7 @@ defmodule Earmark do
   """
 
   alias Earmark.Options
+  alias Earmark.Context
 
   @doc """
   Given a markdown document (as either a list of lines or 
@@ -160,10 +161,27 @@ defmodule Earmark do
   """
 
   def to_html(lines, options \\ %Options{})
+  def to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
+    renderer.render(blocks, context, mapper)
+  end
+  def to_html(lines, options = %Options{}) when is_list(lines) do
+    lines |> parse(options) |> to_html(options)
+  end
+  def to_html(lines, options) when is_binary(lines) do
+    lines |> string_to_list |> to_html(options)
+  end
 
-  def to_html(lines, options = %Options{renderer: renderer, mapper: mapper})
-  when is_list(lines)
-  do
+  @doc """
+  Given a markdown document (as either a list of lines or
+  a string containing newlines), return a parse tree and
+  the context necessary to render the tree.
+
+  The options are a `%Earmark.Options{}` structure. See `to_html`
+  for more details.
+  """
+
+  def parse(lines, options \\ %Options{})
+  def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
     { blocks, links } = Earmark.Parser.parse(lines, options)
 
     context = %Earmark.Context{options: options, links: links }
@@ -174,13 +192,15 @@ defmodule Earmark do
       context = put_in(context.footnotes, footnotes)
     end
 
-    renderer.render(blocks, context, mapper)
+    { blocks, context }
+  end
+  def parse(lines, options) when is_binary(lines) do
+    lines |> string_to_list |> parse(options)
   end
 
-  def to_html(lines, options)
-  when is_binary(lines)
-  do
-    to_html(String.split(lines, ~r{\r\n?|\n}), options)
+  @doc false
+  defp string_to_list(document) do
+    document |> String.split(~r{\r\n?|\n})
   end
 
   @doc false
