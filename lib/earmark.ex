@@ -15,7 +15,7 @@ defmodule Earmark do
       html_doc = Earmark.to_html(markdown)
 
       html_doc = Earmark.to_html(markdown, options)
-  
+
   (See the documentation for `to_html` for options)
 
   ### Command line
@@ -93,9 +93,9 @@ defmodule Earmark do
           hello
           </div></div>
 
-  * John Gruber's tests contain an ambiguity when it comes to 
+  * John Gruber's tests contain an ambiguity when it comes to
     lines that might be the start of a list inside paragraphs.
-   
+
     One test says that
 
           This is the text
@@ -116,7 +116,7 @@ defmodule Earmark do
 
   ## Author
 
-  Copyright © 2014 Dave Thomas, The Pragmatic Programmers  
+  Copyright © 2014 Dave Thomas, The Pragmatic Programmers
   @/+pragdave,  dave@pragprog.com
 
   Licensed under the same terms as Elixir.
@@ -126,14 +126,14 @@ defmodule Earmark do
   alias Earmark.Context
 
   @doc """
-  Given a markdown document (as either a list of lines or 
+  Given a markdown document (as either a list of lines or
   a string containing newlines), return an HTML representation.
 
   The options are a `%Earmark.Options{}` structure:
 
   * `renderer`: ModuleName
 
-    The module used to render the final document. Defaults to 
+    The module used to render the final document. Defaults to
     `Earmark.HtmlRenderer`
 
   * `gfm`: boolean
@@ -141,7 +141,7 @@ defmodule Earmark do
     True by default. Turns on Github Flavored Markdown extensions
 
   * `breaks`: boolean
-  
+
     Only applicable if `gfm` is enabled. Makes all line breaks
     significant (so every line in the input is a new line in the
     output.
