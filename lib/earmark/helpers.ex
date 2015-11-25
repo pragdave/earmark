@@ -141,17 +141,21 @@ defmodule Earmark.Helpers do
   """
   @spec pending_inline_code(String.t()) :: String.t() | :false
   def pending_inline_code( line ) do
+    line
+    |> behead_unopening_text
+    |> has_opening_backquotes
+  end
+
+  @spec behead_unopening_text(String.t()) : String.t()
+  defp behead_unopening_text( line ) do 
     if match = Regex.run @inline_pairs, line do
       behead( line, hd( match ) )
     else
       line
     end 
-    |>
-    has_opening_backquotes?
   end
-
-  @spec has_opening_backquotes?(String.t()) :: String.t() | :false
-  defp has_opening_backquotes? line do
+  @spec has_opening_backquotes(String.t()) :: String.t() | :false
+  defp has_opening_backquotes line do
     if match = Regex.run( @first_opening_backquotes, line ) do 
        match |> List.to_tuple |> elem(1)  
      else
@@ -168,6 +172,18 @@ defmodule Earmark.Helpers do
   """
   @spec closes_pending_inline_code(String.t(), String.t()) :: String.t() | :true
   def closes_pending_inline_code( line, opening_backquotes ) do
-    false
+    line
+    |> behead_unopening_text
+    |> closes_with_backquotes( opening_backquotes )
+  end
+
+  @spec closes_with_backquotes(String.t(), String.t()) :: String.t() | :true
+  defp closes_with_backquotes( line, opening_backquotes ) do
+    match = ( ~r'''
+       ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
+       (?<!\\)#{opening_backquotes)(?!`)        # unescaped `, assuring longest match of `
+      '''x |> Regex.run( line ) )
+
+    if match, do: true, else: (pending_inline_code( line ) || opening_backquotes )
   end
 end

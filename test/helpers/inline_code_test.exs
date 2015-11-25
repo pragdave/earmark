@@ -22,4 +22,23 @@ defmodule Helpers.InlineCodeTest do
            end
          end)
   
+  # closes_pending_inline_code
+  [
+    # description                                        opener line    result
+    { "empty line -> not closing for single backquote" , "`"  , ""    , "`" },
+    { "empty line -> not closing for double backquote" , "``" , ""    , "``" },
+    { "single backquote closes single backquote"       , "`"  , "`"   , true },
+    { "double backquote closes double backquote"       , "``" , " ``" , true },
+    { "pair of single backquotes does not close single backquote", "`", "alpha ` beta`", "`"},
+    { "odd number of single backquotes closes single backquote", "`", "` ` `", true},
+    { "escapes do not close",                            "`", "`  ` \\`", "`"},
+    { "single backquote in quotes does not close single backquote", "`", "`` ` ``", "`"},
+    { "triple backqoute is closed but double is opened", "```", "``` `` ``", "``"},
+    { "triple backqoute is closed but single is opened", "```", "``` `` ``` ``` `", "`"},
+    ] |> Enum.each( fn { description, opener, line, result } ->
+           test(description) do
+             assert closes_pending_inline_code(unquote(line), unquote(opener)) == unquote(result)
+           end
+         end)
+         
 end
