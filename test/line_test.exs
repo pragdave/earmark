@@ -65,6 +65,9 @@ defmodule LineTest do
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
      { "  ~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "  ~~~java"} },
 
+     { "``` hello ```", %Line.Text{content: "``` hello ```"} },
+     { "```hello world", %Line.Text{content: "```hello world"} },
+
      { "<pre>",             %Line.HtmlOpenTag{tag: "pre", content: "<pre>"} },
      { "<pre class='123'>", %Line.HtmlOpenTag{tag: "pre", content: "<pre class='123'>"} },
      { "</pre>",            %Line.HtmlCloseTag{tag: "pre"} },

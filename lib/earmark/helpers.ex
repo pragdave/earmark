@@ -118,5 +118,56 @@ defmodule Earmark.Helpers do
   defp parse_decimal_entity(<< ch :: utf8, rest :: binary>>, entity) do
     parse_decimal_entity(rest, [ ch | entity ])
   end
+
+  @first_opening_backquotes ~r'''
+       ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
+       (?<!\\)(`++)        # unescaped `, assuring longest match of `
+  '''x
   
+  @inline_pairs ~r'''
+   ^(?:
+       (?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
+       (?<!\\)(`++)       # unescaped `, assuring longest match of `
+       .+?                # shortest match before...
+       (?<![\\`])\1(?!`)  # closing same length ` sequence
+    )+
+  '''x
+  ################################################
+  # Detection and Rendering of InlineCode Blocks #
+  ################################################
+  @doc """
+  returns false unless the line leaves a code block open,
+  in which case the opening backquotes are returned as a string
+  """
+  @spec pending_inline_code(String.t()) :: String.t() | :false
+  def pending_inline_code( line ) do
+    if match = Regex.run @inline_pairs, line do
+      behead( line, hd( match ) )
+    else
+      line
+    end 
+    |>
+    has_opening_backquotes?
+  end
+
+  @spec has_opening_backquotes?(String.t()) :: String.t() | :false
+  defp has_opening_backquotes? line do
+    if match = Regex.run( @first_opening_backquotes, line ) do 
+       match |> List.to_tuple |> elem(1)  
+     else
+       false
+    end
+  end
+
+  @doc """
+  returns true if and only if the line closes a pending inline code
+  *without* opening a new one.
+  The opening backquotes are passed in as second parameter.
+  If the function does not return true it returns the (new or original)
+  opening backquotes 
+  """
+  @spec closes_pending_inline_code(String.t(), String.t()) :: String.t() | :true
+  def closes_pending_inline_code( line, opening_backquotes ) do
+    false
+  end
 end

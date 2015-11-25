@@ -155,14 +155,31 @@ defmodule RegressionsTest do
     assert result == ~s[<pre><code>    alpha\nbeta</code></pre>\n]
   end
 
-  # @multiline_inline_code """
-  # `a
-  # * b`
-  # """
-  # test "https://github.com/pragdave/earmark/issues/48" do
-  #   result = Earmark.to_html @multiline_inline_code
-  #   assert result == ~s[<p><code class="inline">a\n* b</code></p>]
-  # end
+  @i48_multiline_inline_code """
+  `a
+  * b`
+  """
+  test "https://github.com/pragdave/earmark/issues/48" do
+    result = Earmark.to_html @i48_multiline_inline_code
+    assert result == ~s[<p><code class="inline">a\n* b</code></p>]
+  end
+
+  @i50_inline_code_in_list_item """
+  + ```escape```
+  """
+  test "https://github.com/pragdave/earmark/issues/50" do
+    result = Earmark.to_html @i50_inline_code_in_list_item
+    assert result == ~s[<ul>\n<li><code class="inline">escape</code>\n</li>\n</ul>\n]
+  end
+
+  @i51_not_a_fenced_block """
+  ```elixir ```
+  """
+  test "https://github.com/pragdave/earmark/issues/51" do
+    result = Earmark.to_html @i51_not_a_fenced_block
+    assert result == ~s[<p><code class=\"inline\">elixir</code></p>\n]
+  end
+
 
   @url_to_validate """
   [<<>>/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1)
@@ -194,4 +211,5 @@ defmodule RegressionsTest do
     <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&amp;expr/1">&amp;expr/1</a></p>
     """
   end
+
 end
