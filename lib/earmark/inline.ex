@@ -251,7 +251,7 @@ defmodule Earmark.Inline do
 			(?<!`)
 			\1			# Matching closer
 			(?!`)
-  }x
+  }xs
 
 
   defp basic_rules do

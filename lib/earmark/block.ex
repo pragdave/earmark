@@ -304,6 +304,9 @@ defmodule Earmark.Block do
     assign_attributes_to_blocks(rest, [ block | result ])
   end
 
+  ############################################################
+  # Consolidate multiline inline code blocks into an element #
+  ############################################################
   defp consolidate_para( lines ), do: consolidate_para( lines, [], false )
   defp consolidate_para( [], result, false ), do: {result, []}
   defp consolidate_para( [], result, pending ) do
@@ -311,9 +314,6 @@ defmodule Earmark.Block do
     {result, []}
   end
 
-  ############################################################
-  # Consolidate multiline inline code blocks into an element #
-  ############################################################
   defp consolidate_para( [line | rest] = lines, result, pending ) do
     case is_inline_or_text( line, pending ) do
       %{pending: still_pending, continue: true} -> consolidate_para( rest, [line | result], still_pending )

@@ -4,7 +4,6 @@ defmodule Parser.InlineCodeTest do
   alias Earmark.Parser
   alias Earmark.Block
 
-  @tag :wip
   test "Multiline inline code is parsed correctly (getting rid of list items inside code)" do
     lines = [
       "\\`prefix`first", 
@@ -59,4 +58,5 @@ defmodule Parser.InlineCodeTest do
     ]
     assert result == expect
   end
+
 end

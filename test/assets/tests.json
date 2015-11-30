@@ -131,12 +131,15 @@
     "example": 53,
     "markdown": "Foo\\\n----\n"
   },
-  {
-    "section": "Setext headers",
-    "html": "<h2>`Foo</h2>\n<p>`</p>\n<h2>&lt;a title=&quot;a lot</h2>\n<p>of dashes&quot;/&gt;</p>\n",
-    "example": 54,
-    "markdown": "`Foo\n----\n`\n\n<a title=\"a lot\n---\nof dashes\"/>\n"
-  },
+
+  # There is no consensus on this one, I prefer to not define the behavior of this unless
+  # threr is a real use case
+#  {
+#    "section": "Setext headers",
+#    "html": "<h2>`Foo</h2>\n<p>`</p>\n<h2>&lt;a title=&quot;a lot</h2>\n<p>of dashes&quot;/&gt;</p>\n",
+#    "example": 54,
+#    "markdown": "`Foo\n----\n`\n\n<a title=\"a lot\n---\nof dashes\"/>\n"
+#  },
   {
     "section": "Blockquote",
     "html": "<blockquote><p>Foo</p>\n</blockquote>\n",
@@ -338,7 +341,7 @@
   },
   {
     "section": "Inlines",
-    "html": "<ul><li>\n<code class=\"inline\">a `\n` b</code>c\n</li>\n</ul>\n",
+    "html": "<ul>\n<li>\n<code class=\"inline\">a `\n` b</code>c\n</li>\n</ul>\n",
     "example": 254,
     "markdown": "+ ``a `\n`\n b``c"
   },
@@ -371,12 +374,6 @@
     "html": "<p><code class=\"inline\">foo</code></p>\n",
     "example": 298,
     "markdown": "`foo`\n"
-  },
-  {
-    "section": "Code spans",
-    "html": "<p>`foo\nbar`</p>\n",
-    "example": 302,
-    "markdown": "`foo\nbar`\n"
   },
   {
     "section": "Emphasis and strong emphasis",
