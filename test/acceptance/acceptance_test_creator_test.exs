@@ -14,7 +14,7 @@ defmodule AcceptanceTestCreatorTest do
   for acceptance_test <- test_case_data do
     @tag :acceptance 
     @tag :"example_#{acceptance_test.example}"
-    test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})" do
+    test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
       result = Earmark.to_html unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false}
       assert result == unquote(acceptance_test.html)
     end

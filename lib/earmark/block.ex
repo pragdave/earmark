@@ -1,8 +1,10 @@
 defmodule Earmark.Block do
 
+  import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2]
+
   @moduledoc """
   Given a list of parsed blocks, convert them into blocks.
-  That list of blocks is the final representation of the 
+  That list of blocks is the final representation of the
   document (in internal form).
   """
 
@@ -33,7 +35,7 @@ defmodule Earmark.Block do
   end
 
   @doc false
-  # Given a list of `Line.xxx` structs, group them into related blocks. 
+  # Given a list of `Line.xxx` structs, group them into related blocks.
   # Then extract any id definitions, and build a hashdict from them. Not
   # for external consumption.
   def parse(lines) do
@@ -59,11 +61,11 @@ defmodule Earmark.Block do
   # setext headings #
   ###################
 
-  defp parse([  %Line.Blank{}, 
+  defp parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.SetextUnderlineHeading{level: level}
 
-             | 
+             |
                 rest
              ], result) do
 
@@ -74,7 +76,7 @@ defmodule Earmark.Block do
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
 
-             | 
+             |
                 rest
              ], result) do
 
@@ -114,9 +116,9 @@ defmodule Earmark.Block do
   #########
 
   defp parse( lines = [ %Line.TableLine{columns: cols1},
-                        %Line.TableLine{columns: cols2} 
+                        %Line.TableLine{columns: cols2}
                       | _rest
-                      ], result) 
+                      ], result)
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
@@ -128,11 +130,18 @@ defmodule Earmark.Block do
   # Paragraph #
   #############
 
-  defp parse( lines = [ %{__struct__: struct} | _ ], result) 
-  when struct == Line.Text or struct == Line.TableLine
-  do
+  defp parse( lines = [ %Line.TableLine{} | _ ], result) do
     {para_lines, rest} = Enum.split_while(lines, &is_text/1)
     line_text = (for line <- para_lines, do: line.line)
+    parse(rest, [ %Para{lines: line_text} | result ])
+  end
+
+  defp parse( lines = [ %Line.Text{} | _ ], result)
+  do
+
+    {reversed_para_lines, rest} = consolidate_para( lines )
+
+    line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     parse(rest, [ %Para{lines: line_text} | result ])
   end
 
@@ -144,6 +153,7 @@ defmodule Earmark.Block do
 
   defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
     {spaced, list_lines, rest} = read_list_lines(rest, [])
+
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
     {blocks, _} = Parser.parse(lines, true)
@@ -211,13 +221,13 @@ defmodule Earmark.Block do
     html = (for line <- html_lines, do: line.line)
     parse(rest, [ %HtmlOther{html: html} | result ])
   end
-  
+
   #################
   # ID definition #
   #################
 
   # the title may be on the line following the iddef
-  defp parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result) 
+  defp parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result)
   when title == nil
   do
     title = case maybe_title do
@@ -265,7 +275,7 @@ defmodule Earmark.Block do
   ###############
   # Blank Lines #
   ###############
-  # We've reached the point where empty lines are no longer significant 
+  # We've reached the point where empty lines are no longer significant
 
   defp parse( [ %Line.Blank{} | rest ], result) do
     parse(rest, result)
@@ -294,6 +304,24 @@ defmodule Earmark.Block do
     assign_attributes_to_blocks(rest, [ block | result ])
   end
 
+  defp consolidate_para( lines ), do: consolidate_para( lines, [], false )
+  defp consolidate_para( [], result, false ), do: {result, []}
+  defp consolidate_para( [], result, pending ) do
+    IO.puts( :stderr, "Closing unclosed backquotes #{pending} at end of input" )
+    {result, []}
+  end
+
+  ############################################################
+  # Consolidate multiline inline code blocks into an element #
+  ############################################################
+  defp consolidate_para( [line | rest] = lines, result, pending ) do
+    case is_inline_or_text( line, pending ) do
+      %{pending: still_pending, continue: true} -> consolidate_para( rest, [line | result], still_pending )
+      _                                         -> {result, lines}
+    end
+
+  end
+
   ##################################################
   # Consolidate one or more list items into a list #
   ##################################################
@@ -302,8 +330,8 @@ defmodule Earmark.Block do
 
   # We have a list, and the next element is an item of the same type
   defp consolidate_list_items(
-    [list = %List{type: type, blocks: items}, 
-     item = %ListItem{type: type} | rest], result) 
+    [list = %List{type: type, blocks: items},
+     item = %ListItem{type: type} | rest], result)
   do
     items = [ item | items ]   # original list is reversed
     consolidate_list_items([ %{ list | blocks: items } | rest ], result)
@@ -324,7 +352,7 @@ defmodule Earmark.Block do
   # the same number of columns)
 
   defp read_table([ %Line.TableLine{columns: cols} | rest ],
-                    col_count, 
+                    col_count,
                     table = %Table{})
   when length(cols) == col_count
   do
@@ -336,8 +364,8 @@ defmodule Earmark.Block do
     table = Table.new_for_columns(col_count)
     table = case look_for_alignments(rows) do
       nil    -> %Table{table | rows: rows }
-      aligns -> %Table{table | alignments: aligns, 
-                               header:     hd(rows), 
+      aligns -> %Table{table | alignments: aligns,
+                               header:     hd(rows),
                                rows:       tl(tl(rows)) }
     end
     { table , rest }
@@ -361,7 +389,7 @@ defmodule Earmark.Block do
   end
 
   ##################################################
-  # Called to slurp in the lines for a list item. 
+  # Called to slurp in the lines for a list item.
   # basically, we allow indents and blank lines, and
   # we allow text lines only after an indent (and initially)
 
@@ -411,14 +439,14 @@ defmodule Earmark.Block do
     read_list_lines(rest, [ line | result ])
   end
 
-  defp read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ], 
-                         result) 
+  defp read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
+                         result)
   do
     read_list_lines(rest, [ line | result ])
   end
 
-  defp read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ], 
-                         result) 
+  defp read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ],
+                         result)
   do
     read_list_lines(rest, [ line | result ])
   end
@@ -485,7 +513,7 @@ defmodule Earmark.Block do
   end
 
   # find closing tag
-  defp html_match_to_closing(tag, 
+  defp html_match_to_closing(tag,
                              [closer = %Line.HtmlCloseTag{tag: tag} | rest],
                              result)
   do
@@ -493,14 +521,14 @@ defmodule Earmark.Block do
   end
 
   # a nested open tag
-  defp html_match_to_closing(tag, 
+  defp html_match_to_closing(tag,
                              [opener = %Line.HtmlOpenTag{tag: new_tag} | rest],
                              result)
   do
     { html_lines, rest } = html_match_to_closing(new_tag, rest, [opener])
     html_match_to_closing(tag, rest, html_lines ++ result)
   end
-  
+
   # anything else
   defp html_match_to_closing(tag, [ line | rest ], result) do
     html_match_to_closing(tag, rest, [ line | result ])
@@ -528,7 +556,7 @@ defmodule Earmark.Block do
   #
   # I think the second is a better interpretation, so I commented
   # out the 2nd match below.
-  
+
   defp is_text(%Line.Text{}),      do: true
   defp is_text(%Line.TableLine{}), do: true
 #  defp is_text(%Line.ListItem{}), do: true
@@ -540,6 +568,19 @@ defmodule Earmark.Block do
   defp is_indent_or_blank(%Line.Indent{}), do: true
   defp is_indent_or_blank(line),           do: is_blank(line)
 
+  defp is_inline_or_text(line, pending \\ false)
+  defp is_inline_or_text(line = %Line.Text{}, false) do
+    %{pending: pending_inline_code(line.line), continue: true}
+  end
+  defp is_inline_or_text(line = %Line.TableLine{}, false) do
+    %{pending: pending_inline_code(line.line), continue: true}
+  end
+  defp is_inline_or_text( _line, false), do: %{pending: false, continue: false}
+  defp is_inline_or_text( line, pending ) do
+    %{pending: still_pending_inline_code( line.line, pending ), continue: true}
+  end
+
+
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
@@ -548,16 +589,16 @@ defmodule Earmark.Block do
   defp blank_line_in?([]),                    do: false
   defp blank_line_in?([ %Line.Blank{} | _ ]), do: true
   defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
-  
+
 
   # Add additional spaces for any indentation past level 1
 
-  defp properly_indent(%Line.Indent{level: level, content: content}, target_level) 
+  defp properly_indent(%Line.Indent{level: level, content: content}, target_level)
   when level == target_level do
     content
   end
 
-  defp properly_indent(%Line.Indent{level: level, content: content}, target_level) 
+  defp properly_indent(%Line.Indent{level: level, content: content}, target_level)
   when level > target_level do
     String.duplicate("    ", level-target_level) <> content
   end

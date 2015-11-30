@@ -164,6 +164,9 @@ defmodule Earmark do
   def to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
     renderer.render(blocks, context, mapper)
   end
+  # TODO: parse implements the same guarded discrimination
+  #       we shall eliminate the guard of this function body
+  #       and eliminate the second one.
   def to_html(lines, options = %Options{}) when is_list(lines) do
     lines |> parse(options) |> to_html(options)
   end

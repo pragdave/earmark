@@ -326,7 +326,7 @@
   },
   {
     "section": "Inlines",
-    "html": "<p><code class=\"inline\">hi</code>lo`</p>\n",
+    "html": "<p><code class=\"inline\">hi</code>lo`\n\n</p>\n",
     "example": 252,
     "markdown": "`hi`lo`\n"
   },
@@ -350,7 +350,7 @@
   },
   {
     "section": "Backslash escapes",
-    "html": "<p>*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url &quot;not a reference&quot;</p>\n",
+    "html": "<p>*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url &quot;not a reference&quot;\n\n</p>\n",
     "example": 275,
     "markdown": "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n"
   },
