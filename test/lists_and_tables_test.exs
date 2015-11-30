@@ -26,7 +26,7 @@ defmodule ListAndTablesTest do
     assert result == expected
   end
 
-  test "Alternating text and table lines" do
+  test "Alternating list and table lines" do
     result = Earmark.to_html( ["- a", "b | c", "d", "e | f"] )
     expected = ul(["a\nb | c\nd\ne | f"])
     assert result == expected
@@ -44,11 +44,6 @@ defmodule ListAndTablesTest do
     assert result == expected
   end
   
-  test "Alternating text and table lines" do
-    result = Earmark.to_html( ["a", "   b | c", "e | f"] )
-    expected = ul(["a\n   b | c\ne | f"])
-    assert result == expected
-  end
   test "Alternating text and indented table lines" do
     result = Earmark.to_html( ["- a", "   b | c", "e | f"] )
     expected = ul(["a\n   b | c\ne | f"])
