@@ -1,11 +1,5 @@
 [
   {
-    "section": "Precedence",
-    "html": "<ul>\n<li>`one\n</li>\n<li>two`\n</li>\n</ul>\n",
-    "example": 7,
-    "markdown": "- `one\n- two`\n"
-  },
-  {
     "section": "Horizontal rules",
     "html": "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n",
     "example": 8,
@@ -133,7 +127,8 @@
   },
 
   # There is no consensus on this one, I prefer to not define the behavior of this unless
-  # threr is a real use case
+  # there is a real use case
+  # c.f. http://johnmacfarlane.net/babelmark2/?text=%60Foo%0A----%0A%60%0A%0A%3Ca+title%3D%22a+lot%0A---%0Aof+dashes%22%2F%3E%0A
 #  {
 #    "section": "Setext headers",
 #    "html": "<h2>`Foo</h2>\n<p>`</p>\n<h2>&lt;a title=&quot;a lot</h2>\n<p>of dashes&quot;/&gt;</p>\n",
@@ -341,7 +336,7 @@
   },
   {
     "section": "Inlines",
-    "html": "<ul>\n<li>\n<code class=\"inline\">a `\n` b</code>c\n</li>\n</ul>\n",
+    "html": "<ul>\n<li><code class=\"inline\">a `\n`\n b</code>c\n</li>\n</ul>\n",
     "example": 254,
     "markdown": "+ ``a `\n`\n b``c"
   },

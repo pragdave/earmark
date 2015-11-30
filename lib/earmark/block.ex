@@ -138,9 +138,7 @@ defmodule Earmark.Block do
 
   defp parse( lines = [ %Line.Text{} | _ ], result)
   do
-
     {reversed_para_lines, rest} = consolidate_para( lines )
-
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     parse(rest, [ %Para{lines: line_text} | result ])
   end
@@ -152,7 +150,7 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
-    {spaced, list_lines, rest} = read_list_lines(rest, [])
+    {spaced, list_lines, rest} = read_list_lines(rest, [], pending_inline_code(first.line))
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
@@ -392,70 +390,85 @@ defmodule Earmark.Block do
   # Called to slurp in the lines for a list item.
   # basically, we allow indents and blank lines, and
   # we allow text lines only after an indent (and initially)
+  # We also slurp in lines that are inside a multiline inline
+  # code block as indicated by the third param
 
   # text immediately after the start
-  defp read_list_lines([ line = %Line.Text{} | rest ], []) do
-    read_list_lines(rest, [ line ])
+  defp read_list_lines([ line = %Line.Text{line: text} | rest ], [], false) do
+    read_list_lines(rest, [ line ], pending_inline_code(text))
   end
   # table line immediately after the start
-  defp read_list_lines([ line = %Line.TableLine{} | rest ], []) do
-    read_list_lines(rest, [ line ])
+  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
+    read_list_lines(rest, [ line ], pending_inline_code(text))
+  end
+  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
+    read_list_lines(rest, [ line ], pending_inline_code(text))
   end
 
   # text immediately after another text line
-  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Text{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
   # table line immediately after another text line
-  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Text{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Text{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
   # text immediately after a table line
-  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.TableLine{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
   # table line immediately after another table line
-  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.TableLine{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
   # text immediately after an indent
-  defp read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
   # table line immediately after an indent
-  defp read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Indent{} | _]) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
   # Always allow blank lines and indents, and text or table lines with at least
   # two spaces
-  defp read_list_lines([ line = %Line.Blank{} | rest ], result) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.Blank{} | rest ], result, false) do
+    read_list_lines(rest, [ line | result ], false)
   end
 
-  defp read_list_lines([ line = %Line.Indent{} | rest ], result) do
-    read_list_lines(rest, [ line | result ])
+  defp read_list_lines([ line = %Line.Indent{line: text} | rest ], result, false) do
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
-  defp read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
-                         result)
+  defp read_list_lines([ line = %Line.Text{line: ( text = <<"  ", _ :: binary>> )} | rest ],
+                         result, false)
   do
-    read_list_lines(rest, [ line | result ])
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
-  defp read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ],
-                         result)
+  defp read_list_lines([ line = %Line.TableLine{content: ( text = <<"  ", _ :: binary>> )} | rest ],
+                         result, false)
   do
-    read_list_lines(rest, [ line | result ])
+    read_list_lines(rest, [ line | result ], pending_inline_code(text))
   end
 
   # no match, must be done
-  defp read_list_lines(lines, result) do
+  defp read_list_lines(lines, result, false) do
     { trailing_blanks, rest } = Enum.split_while(result, &is_blank/1)
     spaced = length(trailing_blanks) > 0
     { spaced, Enum.reverse(rest), lines }
+  end
+
+  # Only now we match for list lines inside an open multiline inline code block
+  defp read_list_lines([line|rest], result, opening_backquotes) do
+    read_list_lines(rest, [%{line|inside_code: true} | result], still_pending_inline_code(line.line, opening_backquotes))
+  end
+  # Running into EOI insise an open multiline inline code block
+  defp read_list_lines([], result, opening_backquotes) do
+    IO.puts( :stderr, "Closing unclosed backquotes #{opening_backquotes} at end of input" )
+    read_list_lines( [], result, false )
   end
 
   #####################################################
@@ -591,8 +604,11 @@ defmodule Earmark.Block do
   defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
 
 
+  # In case we are inside a code block we return the verbatim text
+  defp properly_indent(%{inside_code: true, line: line}, _level) do
+    line
+  end
   # Add additional spaces for any indentation past level 1
-
   defp properly_indent(%Line.Indent{level: level, content: content}, target_level)
   when level == target_level do
     content
