@@ -5,7 +5,7 @@ defmodule Earmark.HtmlRenderer do
 
     def exception(msg), do: %__MODULE__{message: msg}
   end
-  
+
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2, behead: 2 ]
@@ -41,7 +41,7 @@ defmodule Earmark.HtmlRenderer do
   def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}])
   end
-  
+
   def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}])
   end
@@ -64,7 +64,7 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, mf) do
     body = render(blocks, context, mf)
-    html = "<blockquote>#{body}</blockquote>\n" 
+    html = "<blockquote>#{body}</blockquote>\n"
     add_attrs(html, attrs)
   end
 
@@ -243,8 +243,8 @@ defmodule Earmark.HtmlRenderer do
 
   def attrs_to_string(attrs) do
     (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-    |> Enum.join(" ")                                      
-  end                            
+    |> Enum.join(" ")
+  end
 
   def add_to(attrs, text) do
     String.replace(text, ~r{\s?/?>}, " #{attrs}\\0", global: false)
