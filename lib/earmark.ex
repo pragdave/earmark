@@ -119,7 +119,7 @@ defmodule Earmark do
   Copyright © 2014 Dave Thomas, The Pragmatic Programmers
   @/+pragdave,  dave@pragprog.com
 
-  Licensed under the same terms as Elixir.
+  Licensed under the same terms as Elixir, which is Apache 2.0.
   """
 
   alias Earmark.Options
