@@ -1,1 +1,2 @@
-%{"poison": {:hex, :poison, "1.5.0"}}
+%{"kwfuns": {:hex, :kwfuns, "0.0.1"},
+  "poison": {:hex, :poison, "1.5.0"}}

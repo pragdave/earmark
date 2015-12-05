@@ -1,6 +1,8 @@
 defmodule Parser.InlineCodeTest do
   use ExUnit.Case
 
+  use Kwfuns
+
   alias Earmark.Parser
   alias Earmark.Block
 
@@ -66,11 +68,7 @@ defmodule Parser.InlineCodeTest do
   #  Lists
   ##########################################################################################
   # Need better macro skills to get default kw params
-  defp assert_list_with result, text_lines, options \\ [] do
-    %{spaced: spaced, type: type} =
-      Keyword.merge( [spaced: false, type: :ul], options )
-      |> Enum.into( %{} )  
-
+  defkwp assert_list_with result, text_lines, spaced: false, type: :ul do
     assert result == [
       %Block.List{
         attrs: nil,
