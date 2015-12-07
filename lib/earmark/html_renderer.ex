@@ -1,14 +1,107 @@
 defmodule Earmark.HtmlRenderer do
 
+  @overridable [add_attrs: 2, add_attrs: 3, add_table_rows: 3, add_table_rows: 4, add_tds: 3,
+                add_tds: 4, add_to: 2, append_footnote_link: 1, append_footnote_link: 2,
+                attrs_to_string: 1, br: 0, codespan: 1, em: 1, expand: 2, footnote_link: 3,
+                image: 3, link: 2, link: 3, render: 3, render_block: 3, strikethrough: 1,
+                strong: 1]
+
   defmodule EarmarkError do
     defexception [:message]
 
     def exception(msg), do: %__MODULE__{message: msg}
   end
-  
+
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2, behead: 2 ]
+
+  defmacro __using__(_) do
+    quote do
+      def render(blocks, context, map_func) do
+        Earmark.HtmlRenderer.render(blocks, context, map_func)
+      end
+
+      def render_block(block, context, map_func) do
+        Earmark.HtmlRenderer.render_block(block, context, map_func)
+      end
+
+      def br do
+        Earmark.HtmlRenderer.br
+      end
+
+      def codespan(text) do
+        Earmark.HtmlRenderer.codespan(text)
+      end
+
+      def em(text) do
+        Earmark.HtmlRenderer.em(text)
+      end
+
+      def strong(text) do
+        Earmark.HtmlRenderer.strong(text)
+      end
+
+      def strikethrough(text) do
+        Earmark.HtmlRenderer.strikethrough(text)
+      end
+
+      def link(url, text) do
+        Earmark.HtmlRenderer.link(url, text)
+      end
+
+      def link(url, text, title) do
+        Earmark.HtmlRenderer.link(url, text, title)
+      end
+
+      def image(path, alt, title) do
+        Earmark.HtmlRenderer.image(path, alt, title)
+      end
+
+      def footnote_link(ref, backref, number) do
+        Earmark.HtmlRenderer.footnote_link(ref, backref, number)
+      end
+
+      def add_table_rows(context, rows, tag, aligns \\ []) do
+        Earmark.HtmlRenderer.add_table_rows(context, rows, tag, aligns)
+      end
+
+      def add_tds(context, row, tag, aligns \\ []) do
+        Earmark.HtmlRenderer.add_tds(context, row, tag, aligns)
+      end
+
+      def add_attrs(text, attrs) do
+        Earmark.HtmlRenderer.add_attrs(text, attrs)
+      end
+
+      def add_attrs(text, attrs, default) do
+        Earmark.HtmlRenderer.add_attrs(text, attrs, default)
+      end
+
+      def expand(dict, attrs) do
+        Earmark.HtmlRenderer.expand(dict, attrs)
+      end
+
+      def attrs_to_string(attrs) do
+        Earmark.HtmlRenderer.attrs_to_string(attrs)
+      end
+
+      def add_to(attrs, text) do
+        Earmark.HtmlRenderer.add_to(attrs, text)
+      end
+
+
+      def append_footnote_link(block) do
+        Earmark.HtmlRenderer.append_footnote_link(block)
+      end
+
+      def append_footnote_link(block, fnlink) do
+        Earmark.HtmlRenderer.append_footnote_link(block, fnlink)
+      end
+
+      defoverridable unquote(@overridable)
+    end
+  end
 
   def render(blocks, context, map_func) do
     map_func.(blocks, &(render_block(&1, context, map_func)))
@@ -41,7 +134,7 @@ defmodule Earmark.HtmlRenderer do
   def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}])
   end
-  
+
   def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}])
   end
@@ -64,7 +157,7 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, mf) do
     body = render(blocks, context, mf)
-    html = "<blockquote>#{body}</blockquote>\n" 
+    html = "<blockquote>#{body}</blockquote>\n"
     add_attrs(html, attrs)
   end
 
@@ -243,8 +336,8 @@ defmodule Earmark.HtmlRenderer do
 
   def attrs_to_string(attrs) do
     (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-    |> Enum.join(" ")                                      
-  end                            
+    |> Enum.join(" ")
+  end
 
   def add_to(attrs, text) do
     String.replace(text, ~r{\s?/?>}, " #{attrs}\\0", global: false)
