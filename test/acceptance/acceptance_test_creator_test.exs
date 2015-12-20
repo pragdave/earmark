@@ -2,6 +2,7 @@ defmodule AcceptanceTestCreatorTest do
   use ExUnit.Case
 
   alias Support.AcceptanceTestStruct
+  import IgnoreOutput
 
   {:ok, test_case_data } =
   Path.join([__DIR__,"../assets/tests.json"])
@@ -16,7 +17,7 @@ defmodule AcceptanceTestCreatorTest do
     @tag :"example_#{acceptance_test.example}"
     test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
 
-      result = IgnoreStderr.in_fun fn ->
+      result = ignore_stderr do 
         Earmark.to_html unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false}
       end
 
