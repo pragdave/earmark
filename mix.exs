@@ -5,13 +5,14 @@ defmodule Earmark.Mixfile do
 
   def project do
     [
-      app:         :earmark,
-      version:     "0.1.19",
-      elixir:      ">= 1.0.0",
-      escript:     escript_config,
-      deps:        deps,
-      description: description,
-      package:     package,
+      app:          :earmark,
+      version:      "0.1.19",
+      elixir:       ">= 1.0.0",
+      elixirc_paths: elixirc_paths(Mix.env),
+      escript:       escript_config,
+      deps:          deps,
+      description:   description,
+      package:       package,
     ]
   end
 
@@ -49,4 +50,7 @@ defmodule Earmark.Mixfile do
   defp escript_config do
     [ main_module: Earmark.CLI ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
