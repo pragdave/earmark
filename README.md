@@ -160,3 +160,7 @@ you'd call
     result = Earmark.to_html(original, %Options{smartypants: false})
 
 <!-- enddoc: Earmark.to_html -->
+
+# LICENSE
+
+Same as Elixir, which is Apache License v2.0. Please refer to [LICENSE](LICENSE) for details.
