@@ -2,6 +2,7 @@ defmodule AcceptanceTestCreatorTest do
   use ExUnit.Case
 
   alias Support.AcceptanceTestStruct
+  import IgnoreOutput
 
   {:ok, test_case_data } =
   Path.join([__DIR__,"../assets/tests.json"])
@@ -20,7 +21,7 @@ defmodule AcceptanceTestCreatorTest do
         if Regex.match?( ~r/\A1\.0/, System.version ) do
           Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
         else
-          IgnoreOutput.in_fun :standard_error, fn ->
+          ignore_stderr do 
             Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
           end
         end
