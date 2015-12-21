@@ -16,9 +16,14 @@ defmodule AcceptanceTestCreatorTest do
     @tag :"example_#{acceptance_test.example}"
     test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
 
-      result = IgnoreOutput.in_fun :standard_error, fn ->
-        Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
-      end
+      result =
+        if Regex.match?( ~r/\A1\.0/, System.version ) do
+          Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
+        else
+          IgnoreOutput.in_fun :standard_error, fn ->
+            Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
+          end
+        end
 
       assert result == unquote(acceptance_test.html)
     end
