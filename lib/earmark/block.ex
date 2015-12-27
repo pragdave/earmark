@@ -401,9 +401,6 @@ defmodule Earmark.Block do
   defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
     read_list_lines(rest, [ line ], pending_inline_code(text))
   end
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
-    read_list_lines(rest, [ line ], pending_inline_code(text))
-  end
 
   # text immediately after another text line
   defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
@@ -581,7 +578,7 @@ defmodule Earmark.Block do
   defp is_indent_or_blank(%Line.Indent{}), do: true
   defp is_indent_or_blank(line),           do: is_blank(line)
 
-  defp is_inline_or_text(line, pending \\ false)
+  defp is_inline_or_text(line, pending)
   defp is_inline_or_text(line = %Line.Text{}, false) do
     %{pending: pending_inline_code(line.line), continue: true}
   end

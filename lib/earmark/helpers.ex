@@ -144,10 +144,8 @@ defmodule Earmark.Helpers do
     )+
   '''x
   @spec behead_unopening_text(String.t()) :: String.t()
-  @doc """
-  All pairs of sequences of backquotes and text in front and in between
-  are removed from line.
-  """
+  # All pairs of sequences of backquotes and text in front and in between
+  # are removed from line.
   defp behead_unopening_text( line ) do 
     case Regex.run( @inline_pairs, line, return: :index ) do
       [match_index_tuple | _rest] -> behead( line, match_index_tuple )
