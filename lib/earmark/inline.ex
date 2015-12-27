@@ -306,6 +306,6 @@ defmodule Earmark.Inline do
       rule_updates = Keyword.merge(rule_updates, [footnote: ~r{\z\A}]) #noop
     end
     Keyword.merge(basic_rules, rule_updates)
-    |> Enum.into %{}
+    |> Enum.into(%{})
   end
 end
