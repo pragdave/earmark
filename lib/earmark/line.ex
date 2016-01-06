@@ -119,7 +119,7 @@ defmodule Earmark.Line do
       (match = Regex.run(~r{^<hr(\s|>|/).*}, line)) && !recursive ->
         %HtmlOneLine{tag: "hr", content: line}
 
-      (match = Regex.run(~r{^<([-\w]+?)>.*</\1>}, line)) && !recursive ->
+      (match = Regex.run(~r{^<([-\w]+?)(?:\s.*)?>.*</\1>}, line)) && !recursive ->
         [ _, tag ] = match
         %HtmlOneLine{tag: tag, content: line}
 
