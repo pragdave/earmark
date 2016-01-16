@@ -79,6 +79,8 @@ defmodule LineTest do
      { "<hr/>",             %Line.HtmlOneLine{tag: "hr", content: "<hr/>"} },
      { "<hr class='a'>",    %Line.HtmlOneLine{tag: "hr", content: "<hr class='a'>"} },
 
+     { "<h2>Headline</h2>",               %Line.HtmlOneLine{tag: "h2", content: "<h2>Headline</h2>"} },
+     { "<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"} },
 
      { id1, %Line.IdDef{id: "ID1", url: "http://example.com", title: "The title"} },
      { id2, %Line.IdDef{id: "ID2", url: "http://example.com", title: "The title"} },
