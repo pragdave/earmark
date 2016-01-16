@@ -15,11 +15,19 @@ defmodule Earmark.CLI do
   """
 
   defp parse_args(argv) do
-    parse = OptionParser.parse(argv, switches: [ help: :boolean],
-                                     aliases:  [ h:    :help   ])
+    switches = [
+      help: :boolean,
+      version: :boolean,
+      ]
+    aliases = [
+      h: :help,
+      v: :version
+    ]
+
+    parse = OptionParser.parse(argv, switches: switches, aliases: aliases)
     case  parse  do
 
-    { [ help: true ],  _,  _ } -> :help
+    { [ {switch, true } ],  _,  _ } -> switch
     { _, [ filename ], _     } -> open_file(filename)
     { _, [ ],          _ }     -> :stdio
     _                          -> :help
@@ -30,6 +38,11 @@ defmodule Earmark.CLI do
   defp process(:help) do
     IO.puts(:stderr, @args)
     exit(2)
+  end
+
+  defp process(:version) do
+    {:ok, version} = :application.get_key(:earmark, :vsn)
+    IO.puts( version )
   end
 
   defp process(io_device) do
