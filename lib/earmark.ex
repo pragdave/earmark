@@ -114,6 +114,12 @@ defmodule Earmark do
     I've chosen always to use the second interpretation—a line that looks like
     a list item will always be a list item.
 
+  ## Security
+
+    Please be aware that Markdown is not a secure format. It produces HTML from Markdown
+    and HTML. It is your job to sanitize and or filter the output of `Markdown.html` if
+    you cannot trust the input and are to serve the produced HTML on the Web.
+
   ## Author
 
   Copyright © 2014 Dave Thomas, The Pragmatic Programmers
