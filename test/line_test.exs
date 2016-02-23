@@ -60,10 +60,13 @@ defmodule LineTest do
      { "``` java", %Line.Fence{delimiter: "```", language: "java", line: "``` java"} },
      { " ``` java", %Line.Fence{delimiter: "```", language: "java", line: " ``` java"} },
      { "```java",  %Line.Fence{delimiter: "```", language: "java", line: "```java"} },
+     { "```language-java",  %Line.Fence{delimiter: "```", language: "language-java"} },
+
      { "~~~",      %Line.Fence{delimiter: "~~~", language: "",     line: "~~~"} },
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
      { "  ~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "  ~~~java"} },
+     { "~~~ language-java", %Line.Fence{delimiter: "~~~", language: "language-java"} },
 
      { "``` hello ```", %Line.Text{content: "``` hello ```"} },
      { "```hello```", %Line.Text{content: "```hello```"} },
