@@ -12,11 +12,23 @@ defmodule Earmark do
 
   ### API
 
-      html_doc = Earmark.to_html(markdown)
+  #### Use as_html! if you do not care to catch errors
 
-      html_doc = Earmark.to_html(markdown, options)
+      html_doc = Earmark.as_html!(markdown)
 
-  (See the documentation for `to_html` for options)
+      html_doc = Earmark.as_html!(markdown, options)
+
+  (See the documentation for `as_html` for options)
+
+  #### Or do pattern matching on the result of as_html
+
+      case Earmark.as_html( markdown )
+        {:ok, html}              -> ...
+        {:error, reasons, html}  -> ...
+      end
+
+  In the `:error` case the content of html is a best try representation of the erroneous markdown passed into `as_html`, identical to what
+  `as_html!` would have returned with the same input. And the content of the reasons list is the output `as_html!` would have spat to standard error.
 
   ### Command line
 
@@ -170,14 +182,8 @@ defmodule Earmark do
   def to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
     renderer.render(blocks, context, mapper)
   end
-  # TODO: parse implements the same guarded discrimination
-  #       we shall eliminate the guard of this function body
-  #       and eliminate the second one.
-  def to_html(lines, options = %Options{}) when is_list(lines) do
+  def to_html(lines, options = %Options{}) do
     lines |> parse(options) |> to_html(options)
-  end
-  def to_html(lines, options) when is_binary(lines) do
-    lines |> string_to_list |> to_html(options)
   end
 
   @doc """
