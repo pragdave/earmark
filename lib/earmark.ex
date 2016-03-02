@@ -12,23 +12,11 @@ defmodule Earmark do
 
   ### API
 
-  #### Use as_html! if you do not care to catch errors
+    html_doc = Earmark.to_html(markdown)
 
-      html_doc = Earmark.as_html!(markdown)
+    html_doc = Earmark.to_html(markdown, options)
 
-      html_doc = Earmark.as_html!(markdown, options)
-
-  (See the documentation for `as_html` for options)
-
-  #### Or do pattern matching on the result of as_html
-
-      case Earmark.as_html( markdown )
-        {:ok, html}              -> ...
-        {:error, reasons, html}  -> ...
-      end
-
-  In the `:error` case the content of html is a best try representation of the erroneous markdown passed into `as_html`, identical to what
-  `as_html!` would have returned with the same input. And the content of the reasons list is the output `as_html!` would have spat to standard error.
+  (See the documentation for `to_html` for options)
 
   ### Command line
 
@@ -139,6 +127,19 @@ defmodule Earmark do
 
   Licensed under the same terms as Elixir, which is Apache 2.0.
   """
+
+  # #### Use as_html! if you do not care to catch errors
+
+  #     html_doc = Earmark.as_html!(markdown)
+
+  #     html_doc = Earmark.as_html!(markdown, options)
+
+  # (See the documentation for `as_html` for options)
+  #### Or do pattern matching on the result of as_html
+
+#       case Earmark.as_html( markdown )
+#         {:ok, html} -> html
+#         {:error, reason}  -> ...
 
   alias Earmark.Options
   alias Earmark.Context
