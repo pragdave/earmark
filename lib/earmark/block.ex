@@ -1,5 +1,6 @@
 defmodule Earmark.Block do
 
+
   import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2]
 
   @moduledoc """
@@ -33,6 +34,10 @@ defmodule Earmark.Block do
       %__MODULE__{alignments: Elixir.List.duplicate(:left, n)}
     end
   end
+
+  # We do not support void tags that do not make sense in Markdown documents like
+  # <link> <embed> and friends
+  @void_html_elements MapSet.new(~W[area br hr img wbr])
 
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks.
@@ -518,7 +523,7 @@ defmodule Earmark.Block do
 
   # run out of input
   defp html_match_to_closing(tag, [], result) do
-    IO.puts(:stderr, "Failed to find closing <#{tag}>")
+    unless void_element?(tag), do: IO.puts(:stderr, "Failed to find closing <#{tag}>")
     { result, [] }
   end
 
@@ -625,5 +630,9 @@ defmodule Earmark.Block do
     |> Enum.reverse
     |> Enum.drop_while(&is_blank/1)
     |> Enum.reverse
+  end
+
+  defp void_element?(tag) do
+    MapSet.member?( @void_html_elements, tag )
   end
 end
