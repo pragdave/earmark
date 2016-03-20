@@ -3,6 +3,8 @@ defmodule Support.Helpers do
   alias Earmark.Inline
   alias Earmark.Block.IdDef
 
+  import ExUnit.CaptureIO
+
   ###############
   # Helpers.... #
   ###############
