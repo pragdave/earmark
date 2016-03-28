@@ -7,3 +7,4 @@ erl_crash.dump
 tmp/*
 .tool-versions
 .mix_tasks
+notes/*
