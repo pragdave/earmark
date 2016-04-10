@@ -33,6 +33,12 @@ defmodule Earmark.Line do
   $
   '''x
 
+  @void_tags ~w{area br hr img wbr}
+  @void_tag_rgx ~r'''
+      ^<( #{Enum.join(@void_tags, "|")} )
+        .*?
+        >
+  '''x
 #'
 
   defmodule Blank,        do: defstruct line: "", content: "", inside_code: false
@@ -116,8 +122,11 @@ defmodule Earmark.Line do
         [ _, fence, language ] = match
         %Fence{delimiter: fence, language: language}
 
-      (match = Regex.run(~r{^<hr(\s|>|/).*}, line)) && !recursive ->
-        %HtmlOneLine{tag: "hr", content: line}
+      # (match = Regex.run(~r{^<hr(\s|>|/).*}, line)) && !recursive ->
+      #   %HtmlOneLine{tag: "hr", content: line}
+      (match = Regex.run(@void_tag_rgx, line)) && !recursive ->
+        [ _, tag ] = match
+        %HtmlOneLine{tag: tag, content: line}
 
       (match = Regex.run(~r{^<([-\w]+?)(?:\s.*)?>.*</\1>}, line)) && !recursive ->
         [ _, tag ] = match

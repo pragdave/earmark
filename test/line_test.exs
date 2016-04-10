@@ -80,9 +80,25 @@ defmodule LineTest do
 
      { "<pre>a</pre>",      %Line.HtmlOneLine{tag: "pre", content: "<pre>a</pre>"} },
 
+     { "<area>",              %Line.HtmlOneLine{tag: "area", content: "<area>"} },
+     { "<area/>",             %Line.HtmlOneLine{tag: "area", content: "<area/>"} },
+     { "<area class='a'>",    %Line.HtmlOneLine{tag: "area", content: "<area class='a'>"} },
+
+     { "<br>",              %Line.HtmlOneLine{tag: "br", content: "<br>"} },
+     { "<br/>",             %Line.HtmlOneLine{tag: "br", content: "<br/>"} },
+     { "<br class='a'>",    %Line.HtmlOneLine{tag: "br", content: "<br class='a'>"} },
+
      { "<hr>",              %Line.HtmlOneLine{tag: "hr", content: "<hr>"} },
      { "<hr/>",             %Line.HtmlOneLine{tag: "hr", content: "<hr/>"} },
      { "<hr class='a'>",    %Line.HtmlOneLine{tag: "hr", content: "<hr class='a'>"} },
+
+     { "<img>",              %Line.HtmlOneLine{tag: "img", content: "<img>"} },
+     { "<img/>",             %Line.HtmlOneLine{tag: "img", content: "<img/>"} },
+     { "<img class='a'>",    %Line.HtmlOneLine{tag: "img", content: "<img class='a'>"} },
+
+     { "<wbr>",              %Line.HtmlOneLine{tag: "wbr", content: "<wbr>"} },
+     { "<wbr/>",             %Line.HtmlOneLine{tag: "wbr", content: "<wbr/>"} },
+     { "<wbr class='a'>",    %Line.HtmlOneLine{tag: "wbr", content: "<wbr class='a'>"} },
 
      { "<h2>Headline</h2>",               %Line.HtmlOneLine{tag: "h2", content: "<h2>Headline</h2>"} },
      { "<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"} },

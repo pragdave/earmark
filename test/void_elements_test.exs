@@ -14,7 +14,7 @@ defmodule VoidElementsTest do
       test "#{inp} is transformed to #{out} without errors" do
         stderr_out  = capture_io(:stderr, fn ->
           result = Earmark.to_html(unquote(inp))
-          assert result == (unquote(out) || "#{unquote(inp)}\n")
+          assert result == (unquote(out) || "#{unquote(inp)}")
         end)
         assert stderr_out == ""
       end

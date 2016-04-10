@@ -222,31 +222,31 @@
   },
   {
     "section": "HTML void elements",
-    "html": "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n<strong>emphasized</strong> text",
+    "html": "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n",
     "example": 37,
     "markdown": "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
   },
   {
     "section": "HTML void elements",
-    "html": "<br>\n<strong>emphasized</strong> text",
+    "html": "<br><p><strong>emphasized</strong> text</p>\n",
     "example": 38,
     "markdown": "<br>\n**emphasized** text"
   },
   {
     "section": "HTML void elements",
-    "html": "<hr>\n<strong>emphasized</strong> text",
+    "html": "<hr><p><strong>emphasized</strong> text</p>\n",
     "example": 39,
     "markdown": "<hr>\n**emphasized** text"
   },
   {
     "section": "HTML void elements",
-    "html": "<img src=\"hello\">\n<strong>emphasized</strong> text",
+    "html": "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n",
     "example": 40,
     "markdown": "<img src=\"hello\">\n**emphasized** text"
   },
   {
     "section": "HTML void elements",
-    "html": "<wbr>\n<strong>emphasized</strong> text",
+    "html": "<wbr><p><strong>emphasized</strong> text</p>\n",
     "example": 41,
     "markdown": "<wbr>\n**emphasized** text"
   },
