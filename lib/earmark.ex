@@ -206,9 +206,10 @@ defmodule Earmark do
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
+      { blocks, context }
+    else
+      { blocks, context }
     end
-
-    { blocks, context }
   end
   def parse(lines, options) when is_binary(lines) do
     lines |> string_to_list |> parse(options)

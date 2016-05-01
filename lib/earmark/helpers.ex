@@ -5,9 +5,10 @@ defmodule Earmark.Helpers do
   """
   def expand_tabs(line) do
     if String.contains?(line, "\t") do
-      line = Regex.replace(~r{(.*?)\t}, line, &expander/2)
+      Regex.replace(~r{(.*?)\t}, line, &expander/2)
+    else
+      line
     end
-    line
   end
 
   defp expander(_, leader) do
