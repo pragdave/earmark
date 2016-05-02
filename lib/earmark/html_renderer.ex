@@ -76,10 +76,12 @@ defmodule Earmark.HtmlRenderer do
     cols = for _align <- aligns, do: "<col>\n"
     html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
-    if header do
+    html = if header do
       html = [ html, "<thead>\n",
                add_table_rows(context, [header], "th", aligns),
                "</thead>\n" ]
+    else
+      html
     end
 
     html = [ html, add_table_rows(context, rows, "td", aligns), "</table>\n" ]

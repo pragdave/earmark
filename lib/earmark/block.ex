@@ -178,7 +178,7 @@ defmodule Earmark.Block do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
-    unless length(rest) == 0, do: rest = tl(rest)
+    rest = if length(rest) == 0, do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
     parse(rest, [ %Code{lines: code, language: language} | result ])
   end
@@ -212,9 +212,10 @@ defmodule Earmark.Block do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
-    unless length(rest) == 0 do
-      html_lines = html_lines ++ [ hd(rest) ]
-      rest = tl(rest)
+    {html_lines, rest} = if length(rest) == 0 do
+      {html_lines, rest}
+    else
+      {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
     parse(rest, [ %HtmlOther{html: html} | result ])

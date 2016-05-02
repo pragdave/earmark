@@ -277,9 +277,8 @@ defmodule Earmark.Inline do
   end
 
   defp rules_for(options) do
-    rule_updates = []
-    if options.gfm do
-      rule_updates = [
+    rule_updates = if options.gfm do
+      rules = [
         escape:        ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>~|])},
         url:           ~r{^(https?:\/\/[^\s<]+[^<.,:;\"\')\]\s])},
         strikethrough: ~r{^~~(?=\S)([\s\S]*?\S)~~},
@@ -290,20 +289,24 @@ defmodule Earmark.Inline do
           br:    ~r{^ *\n(?!\s*$)},
           text:  ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| *\n|$)}
         ]
-        rule_updates = Keyword.merge(rule_updates, break_updates)
+        Keyword.merge(rules, break_updates)
+      else
+        rules
       end
     else
       if options.pedantic do
-        rule_updates = [
+        [
           strong: ~r{^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)},
           em:     ~r{^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)}
         ]
+      else
+        []
       end
     end
-    if options.footnotes do
-      rule_updates = Keyword.merge(rule_updates, [footnote: ~r{^\[\^(#{@inside})\]}])
+    rule_updates = if options.footnotes do
+      Keyword.merge(rule_updates, [footnote: ~r{^\[\^(#{@inside})\]}])
     else
-      rule_updates = Keyword.merge(rule_updates, [footnote: ~r{\z\A}]) #noop
+      Keyword.merge(rule_updates, [footnote: ~r{\z\A}]) #noop
     end
     Keyword.merge(basic_rules, rule_updates)
     |> Enum.into(%{})
