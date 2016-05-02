@@ -1,6 +1,5 @@
 defmodule VoidElementsTest do
   use ExUnit.Case
-  # import Support.Helpers
 
   import ExUnit.CaptureIO
 
@@ -14,7 +13,8 @@ defmodule VoidElementsTest do
       test "#{inp} is transformed to #{out} without errors" do
         stderr_out  = capture_io(:stderr, fn ->
           result = Earmark.to_html(unquote(inp))
-          assert result == (unquote(out) || "#{unquote(inp)}")
+          expected = unquote(out||inp)
+          assert result == expected
         end)
         assert stderr_out == ""
       end

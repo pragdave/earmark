@@ -5,7 +5,7 @@ defmodule Earmark.HtmlRenderer do
 
     def exception(msg), do: %__MODULE__{message: msg}
   end
-  
+
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2, behead: 2 ]
@@ -41,7 +41,7 @@ defmodule Earmark.HtmlRenderer do
   def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}])
   end
-  
+
   def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, _mf) do
     add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}])
   end
@@ -77,9 +77,9 @@ defmodule Earmark.HtmlRenderer do
     html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
     html = if header do
-      html = [ html, "<thead>\n",
-               add_table_rows(context, [header], "th", aligns),
-               "</thead>\n" ]
+      [ html, "<thead>\n",
+        add_table_rows(context, [header], "th", aligns),
+        "</thead>\n" ]
     else
       html
     end
@@ -215,37 +215,37 @@ defmodule Earmark.HtmlRenderer do
 
       match = Regex.run(~r{^\.(\S+)\s*}, attrs) ->
         [ leader, class ] = match
-        Dict.update(dict, "class", [ class ], &[ class | &1])
-        |> expand(behead(attrs, leader))
+          Dict.update(dict, "class", [ class ], &[ class | &1])
+          |> expand(behead(attrs, leader))
 
-      match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
-        [ leader, id ] = match
-        Dict.update(dict, "id", [ id ], &[ id | &1])
-        |> expand(behead(attrs, leader))
+          match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
+            [ leader, id ] = match
+              Dict.update(dict, "id", [ id ], &[ id | &1])
+              |> expand(behead(attrs, leader))
 
-      match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
-        [ leader, name, value ] = match
-        Dict.update(dict, name, [ value ], &[ value | &1])
-        |> expand(behead(attrs, leader))
+            match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
+            [ leader, name, value ] = match
+              Dict.update(dict, name, [ value ], &[ value | &1])
+              |> expand(behead(attrs, leader))
 
-      match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
-        [ leader, name, value ] = match
-        Dict.update(dict, name, [ value ], &[ value | &1])
-        |> expand(behead(attrs, leader))
+            match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
+            [ leader, name, value ] = match
+              Dict.update(dict, name, [ value ], &[ value | &1])
+              |> expand(behead(attrs, leader))
 
-      match = Regex.run(~r{^(\S+)=(\S+)\s*}, attrs) ->
-        [ leader, name, value ] = match
-        Dict.update(dict, name, [ value ], &[ value | &1])
-        |> expand(behead(attrs, leader))
+              match = Regex.run(~r{^(\S+)=(\S+)\s*}, attrs) ->
+                [ leader, name, value ] = match
+                  Dict.update(dict, name, [ value ], &[ value | &1])
+                  |> expand(behead(attrs, leader))
 
-      :otherwise ->
-        raise EarmarkError, "Invalid Markdown attributes: {#{attrs}}"
-    end
+                  :otherwise ->
+                    raise EarmarkError, "Invalid Markdown attributes: {#{attrs}}"
+                end
   end
 
   def attrs_to_string(attrs) do
     (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-    |> Enum.join(" ")                                      
+                                                  |> Enum.join(" ")                                      
   end                            
 
   def add_to(attrs, text) do

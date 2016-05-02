@@ -4,11 +4,7 @@ defmodule Earmark.Helpers do
   Expand tabs to multiples of 4 columns
   """
   def expand_tabs(line) do
-    if String.contains?(line, "\t") do
-      Regex.replace(~r{(.*?)\t}, line, &expander/2)
-    else
-      line
-    end
+    Regex.replace(~r{(.*?)\t}, line, &expander/2)
   end
 
   defp expander(_, leader) do
