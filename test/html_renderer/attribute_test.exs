@@ -5,7 +5,7 @@ defmodule HtmlRenderer.AttributeTest do
 
   # This is just for the internals...
 
-  def h(enum), do: Enum.into(enum, HashDict.new)
+  def h(enum), do: Enum.into(enum, Map.new)
 
   def newh, do: h([])
 
@@ -66,29 +66,32 @@ defmodule HtmlRenderer.AttributeTest do
   end
 
   test "multiple attributes added" do
-    assert add_attrs("<p>xxx</p>", "#one .two name=value") == 
-      "<p name=\"value\" id=\"one\" class=\"two\">xxx</p>"
+    assert add_attrs("<p>xxx</p>", "#one .two name=value") ==
+      "<p class=\"two\" id=\"one\" name=\"value\">xxx</p>"
   end
 
   test "multiple attributes added to empty tag" do
-    assert add_attrs("<br/>", "#one .two name=value") == 
-      ~s[<br name="value" id="one" class="two"/>]
+    assert add_attrs("<br/>", "#one .two name=value") ==
+      ~s[<br class="two" id="one" name="value"/>]
   end
+
   test "merges additional attributes" do
     assert add_attrs("<p>xxx</p>", ".one", [{"class", ["two"]}]) ==
       "<p class=\"one two\">xxx</p>"
   end
+
   test "merges additional attributes in empty tag" do
     assert add_attrs("<hr />", ".one", [{"class", ["two"]}]) ==
       "<hr class=\"one two\" />"
   end
+
   test "merges additional different attributes" do
     assert add_attrs("<p>xxx</p>", ".one", [{"id", ["two"]}]) ==
-      "<p id=\"two\" class=\"one\">xxx</p>"
-  end
-  test "merges additional different attributes in empty tag" do
-    assert add_attrs("<hr />", ".one", [{"id", ["two"]}]) ==
-      "<hr id=\"two\" class=\"one\" />"
+      "<p class=\"one\" id=\"two\">xxx</p>"
   end
 
+  test "merges additional different attributes in empty tag" do
+    assert add_attrs("<hr />", ".one", [{"id", ["two"]}]) ==
+      "<hr class=\"one\" id=\"two\" />"
+  end
 end

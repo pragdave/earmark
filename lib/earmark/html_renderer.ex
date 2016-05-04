@@ -64,7 +64,7 @@ defmodule Earmark.HtmlRenderer do
 
   def render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, mf) do
     body = render(blocks, context, mf)
-    html = "<blockquote>#{body}</blockquote>\n" 
+    html = "<blockquote>#{body}</blockquote>\n"
     add_attrs(html, attrs)
   end
 
@@ -203,7 +203,7 @@ defmodule Earmark.HtmlRenderer do
 
   def add_attrs(text, attrs, default) do
     default
-    |> Enum.into(HashDict.new)
+    |> Enum.into(Map.new)
     |> expand(attrs)
     |> attrs_to_string
     |> add_to(text)
@@ -215,27 +215,27 @@ defmodule Earmark.HtmlRenderer do
 
       match = Regex.run(~r{^\.(\S+)\s*}, attrs) ->
         [ leader, class ] = match
-          Dict.update(dict, "class", [ class ], &[ class | &1])
+          Map.update(dict, "class", [ class ], &[ class | &1])
           |> expand(behead(attrs, leader))
 
           match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
             [ leader, id ] = match
-              Dict.update(dict, "id", [ id ], &[ id | &1])
+              Map.update(dict, "id", [ id ], &[ id | &1])
               |> expand(behead(attrs, leader))
 
             match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
             [ leader, name, value ] = match
-              Dict.update(dict, name, [ value ], &[ value | &1])
+              Map.update(dict, name, [ value ], &[ value | &1])
               |> expand(behead(attrs, leader))
 
             match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
             [ leader, name, value ] = match
-              Dict.update(dict, name, [ value ], &[ value | &1])
+              Map.update(dict, name, [ value ], &[ value | &1])
               |> expand(behead(attrs, leader))
 
               match = Regex.run(~r{^(\S+)=(\S+)\s*}, attrs) ->
                 [ leader, name, value ] = match
-                  Dict.update(dict, name, [ value ], &[ value | &1])
+                  Map.update(dict, name, [ value ], &[ value | &1])
                   |> expand(behead(attrs, leader))
 
                   :otherwise ->
@@ -245,8 +245,8 @@ defmodule Earmark.HtmlRenderer do
 
   def attrs_to_string(attrs) do
     (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-                                                  |> Enum.join(" ")                                      
-  end                            
+                                                  |> Enum.join(" ")
+  end
 
   def add_to(attrs, text) do
     String.replace(text, ~r{\s?/?>}, " #{attrs}\\0", global: false)

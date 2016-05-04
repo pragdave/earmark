@@ -8,7 +8,7 @@ defmodule FootnoteTest do
 
   def test_footnotes do
     [ {"fn-a", %Block.FnDef{id: "fn-a", number: 1}} ]
-    |> Enum.into(HashDict.new)
+    |> Enum.into(Map.new)
   end
 
   def options do
@@ -72,11 +72,11 @@ defmodule FootnoteTest do
              ]
 
     {result, _} = Parser.parse(lines)
-    expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]}, 
+    expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]},
 		%Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
-            	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "", 
+            	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "",
 								       "* List Item 1", "  List Item 1 Cont", "* List Item 2"]
-		}]    
+		}]
     assert result == expected
 
     html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, true))
@@ -116,7 +116,7 @@ defmodule FootnoteTest do
                      %Block.FnDef{id: "ref-2", number: 4, blocks: [%Block.Para{lines: ["ref 2"]}]}]
     expected_blocks = [para, %Block.FnList{blocks: output_fnotes}]
     assert blocks == expected_blocks
-    expected_fnotes = Enum.map(output_fnotes, &({&1.id, &1})) |> Enum.into(HashDict.new)
+    expected_fnotes = Enum.map(output_fnotes, &({&1.id, &1})) |> Enum.into(Map.new)
     assert footnotes == expected_fnotes
   end
 
@@ -129,7 +129,7 @@ defmodule FootnoteTest do
                       %Earmark.Block.Para{lines: ["para"]},
                       %Earmark.Block.FnList{blocks: [fn_def]}
                      ]
-    expect = HashDict.new |> HashDict.put("ref-id", fn_def)
+    expect = Map.new |> Map.put("ref-id", fn_def)
     assert footnotes == expect
   end
 

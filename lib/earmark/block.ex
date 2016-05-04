@@ -474,11 +474,11 @@ defmodule Earmark.Block do
   #####################################################
 
   defp links_from_blocks(blocks) do
-    visit(blocks, HashDict.new, &link_extractor/2)
+    visit(blocks, Map.new, &link_extractor/2)
   end
 
   defp link_extractor(item = %IdDef{id: id}, result) do
-    Dict.put(result, String.downcase(id), item)
+    Map.put(result, String.downcase(id), item)
   end
 
   defp link_extractor(_, result), do: result

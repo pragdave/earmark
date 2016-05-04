@@ -1,10 +1,7 @@
 defmodule Earmark.Options do
-
-  
-             # what we use to render
+             # What we use to render
   defstruct  renderer: Earmark.HtmlRenderer,
-
-             # inline style options  
+             # Inline style options
              gfm: true, breaks: false, pedantic: false,
              smartypants: true, sanitize: false,
              footnotes: false, footnote_offset: 1,
@@ -21,8 +18,7 @@ end
 
 defmodule Earmark.Context do
   defstruct options:  %Earmark.Options{},
-            links:    HashDict.new,
+            links:    Map.new,
             rules:    nil,
-            footnotes: HashDict.new
-
+            footnotes: Map.new
 end

@@ -60,7 +60,7 @@ defmodule InlineTest do
     result = convert_pedantic("hello \\*world\\*")
     assert result == "hello *world*"
   end
-  
+
   test "tilde mean strikethrough" do
     result = convert_gfm("this ~~not this~~")
     assert result == "this <del>not this</del>"
@@ -99,17 +99,17 @@ defmodule InlineTest do
 
   test "basic inline link" do
     result = convert_pedantic(~s{a [an example](http://example.com/ "Title") link})
-    assert result == ~s[a <a href="http://example.com/" title="Title">an example</a> link]  
+    assert result == ~s[a <a href="http://example.com/" title="Title">an example</a> link]
   end
 
   test "basic inline link with title in single quotes" do
     result = convert_pedantic(~s{a [an example](http://example.com/ 'Title') link})
-    assert result == ~s[a <a href="http://example.com/" title="Title">an example</a> link]  
+    assert result == ~s[a <a href="http://example.com/" title="Title">an example</a> link]
   end
 
   test "link with no title" do
     result = convert_pedantic(~s{a [an example](http://example.com/) link})
-    assert result == ~s[a <a href="http://example.com/">an example</a> link]  
+    assert result == ~s[a <a href="http://example.com/">an example</a> link]
   end
 
   ###################
@@ -125,12 +125,12 @@ defmodule InlineTest do
     result = convert_pedantic(~s{a [my link][ID1] link})
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
-                               
+
   test "basic reference link with no title" do
     result = convert_pedantic(~s{a [my link][id2] link})
     assert result == ~s[a <a href="url%202">my link</a> link]
   end
-                               
+
   test "basic reference link with a space inside" do
     result = convert_pedantic(~s{a [mylink]  [id1] link})
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">mylink</a> link]
@@ -148,17 +148,18 @@ defmodule InlineTest do
 
   test "basic reference image link" do
     result = convert_pedantic(~s{a ![my image][img1] link})
-    assert result == 
+
+    assert result ==
       ~s[a <img src="img%201" alt="my image" title="image 1"/> link]
   end
-                               
+
   test "basic reference image link with no title" do
     result = convert_pedantic(~s{a ![my image][img2] link})
-    assert result == 
+    assert result ==
       ~s[a <img src="img%202" alt="my image"/> link]
   end
-                               
-                               
+
+
   ###############
   # Inline HTML #
   ###############
@@ -166,5 +167,5 @@ defmodule InlineTest do
   test "inline HTML" do
     result = convert_pedantic(~s[a <span class="red">a&b</span> color])
     assert result == ~s[a <span class="red">a&amp;b</span> color]
-  end                               
+  end
 end
