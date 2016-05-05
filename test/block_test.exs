@@ -11,7 +11,7 @@ defmodule BlockTest do
 
   test "Setext Heading" do
     result = Block.lines_to_blocks([
-                %Line.Blank{}, 
+                %Line.Blank{},
                 %Line.Text{content: "Heading"},
                 %Line.SetextUnderlineHeading{level: 1},
                 %Line.Blank{}
@@ -128,12 +128,12 @@ defmodule BlockTest do
                   %Line.HtmlCloseTag{tag: "table", line: "</table>"},
              ])
 
-    expected = [%Block.Html{tag: "table", html: 
-                 ["<table class='c'>", 
-                  "line 1", 
-                  "<pre>", 
+    expected = [%Block.Html{tag: "table", html:
+                 ["<table class='c'>",
+                  "line 1",
+                  "<pre>",
                   "line 2",
-                  "</pre>", 
+                  "</pre>",
                   "line 3",
                   "</table>"]}]
 
@@ -151,12 +151,12 @@ defmodule BlockTest do
                   %Line.HtmlCloseTag{tag: "table", line: "</table>"},
              ])
 
-    expected = [%Block.Html{tag: "table", html: 
-                 ["<table class='c'>", 
-                  "line 1", 
-                  "<table>", 
+    expected = [%Block.Html{tag: "table", html:
+                 ["<table class='c'>",
+                  "line 1",
+                  "<table>",
                   "line 2",
-                  "</table>", 
+                  "</table>",
                   "line 3",
                   "</table>"]}]
 
@@ -213,7 +213,7 @@ defmodule BlockTest do
 
     assert result == [
         %Block.IdDef{id: "id1", title: nil, url: "url1"},
-        %Block.Para{lines: [ "  not title1" ]} 
+        %Block.Para{lines: [ "  not title1" ]}
     ]
   end
 
@@ -230,7 +230,7 @@ defmodule BlockTest do
 
     assert result == [
         %Block.Para{lines: [ "line" ], attrs: ".a1 .a2"},
-        %Block.Para{lines: [ "another" ], attrs: nil} 
+        %Block.Para{lines: [ "another" ], attrs: nil}
     ]
   end
 
@@ -245,7 +245,7 @@ defmodule BlockTest do
 
     defn = %Block.IdDef{id: "id1", title: "title1", url: "url1"}
     assert blocks == [defn]
-    assert refs == ([{ "id1", defn}] |> Enum.into(HashDict.new))
+    assert refs == ([{ "id1", defn}] |> Enum.into(Map.new))
   end
 
   test "ID definition nested in list" do
@@ -262,9 +262,8 @@ defmodule BlockTest do
                %Block.Para{lines: ["line 1"]},
                defn
     ]}]}]
-    
-    assert blocks == expected
-    assert refs == ([{ "id1", defn}] |> Enum.into(HashDict.new))
-  end
 
+    assert blocks == expected
+    assert refs == ([{ "id1", defn}] |> Enum.into(Map.new))
+  end
 end

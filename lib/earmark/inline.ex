@@ -202,14 +202,15 @@ defmodule Earmark.Inline do
 
   defp reference_link(context, match, alt_text, id) do
     id = id |> replace(~r{\s+}, " ") |> String.downcase
-    case Dict.fetch(context.links, id) do
+
+    case Map.fetch(context.links, id) do
       {:ok, link } -> output_image_or_link(context, match, alt_text, link.url, link.title)
       _            -> match
     end
   end
 
   defp footnote_link(context, match, id) do
-    case Dict.fetch(context.footnotes, id) do
+    case Map.fetch(context.footnotes, id) do
       {:ok, footnote} -> number = footnote.number
                          output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
       _               -> match
@@ -260,7 +261,7 @@ defmodule Earmark.Inline do
     autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},
     url:      ~r{\z\A},  # noop
     tag:      ~r{
-      ^<!--[\s\S]*?--> | 
+      ^<!--[\s\S]*?--> |
       ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
                   '[^'<]*' |
                    [^'"<>])*?>}x,

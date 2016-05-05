@@ -10,7 +10,7 @@ defmodule Earmark.Parser do
 
   def parse(text_lines, options = %Earmark.Options{}, recursive \\ false) do
     # add blank lines before and after
-    [ "" | text_lines ++ [""] ] 
+    [ "" | text_lines ++ [""] ]
     |> Earmark.pmap(fn (line) -> Line.type_of(line, options, recursive) end)
     |> Block.parse
   end
@@ -25,7 +25,7 @@ defmodule Earmark.Parser do
                 |> List.flatten
                 |> get_footnote_numbers(footnotes, options)
     blocks = create_footnote_blocks(blocks, footnotes)
-    footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(HashDict.new)
+    footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(Map.new)
     { blocks, footnotes }
   end
 
@@ -57,5 +57,5 @@ defmodule Earmark.Parser do
     footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number))}
     Enum.concat(blocks, [footnote_block])
   end
-  
+
 end

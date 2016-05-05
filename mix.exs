@@ -7,7 +7,7 @@ defmodule Earmark.Mixfile do
     [
       app:          :earmark,
       version:      "0.2.2",
-      elixir:       ">= 1.0.0",
+      elixir:       "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
       escript:       escript_config,
       deps:          deps,
