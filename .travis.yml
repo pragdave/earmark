@@ -21,3 +21,7 @@ matrix:
       otp_release: 18.1
     - elixir: 1.2.3
       otp_release: 18.1
+    - elixir: 1.2.4
+      otp_release: 18.1
+    - elixir: 1.2.5
+      otp_release: 18.1
