@@ -1,6 +1,7 @@
 defmodule Earmark.Block do
 
-  import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2]
+  import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2, emit_error: 4]
+  import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
 
   @moduledoc """
   Given a list of parsed blocks, convert them into blocks.
@@ -396,38 +397,70 @@ defmodule Earmark.Block do
 
   # text immediately after the start
   defp read_list_lines([ line = %Line.Text{line: text} | rest ], [], false) do
-    read_list_lines(rest, [ line ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line ], inline_code)
   end
   # table line immediately after the start
   defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
-    read_list_lines(rest, [ line ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line ], inline_code)
   end
 
   # text immediately after another text line
   defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after another text line
   defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   # text immediately after a table line
   defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after another table line
   defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   # text immediately after an indent
   defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after an indent
   defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   # Always allow blank lines and indents, and text or table lines with at least
@@ -437,19 +470,31 @@ defmodule Earmark.Block do
   end
 
   defp read_list_lines([ line = %Line.Indent{line: text} | rest ], result, false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   defp read_list_lines([ line = %Line.Text{line: ( text = <<"  ", _ :: binary>> )} | rest ],
                          result, false)
   do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   defp read_list_lines([ line = %Line.TableLine{content: ( text = <<"  ", _ :: binary>> )} | rest ],
                          result, false)
   do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
+    inline_code = case opens_inline_code(text) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [ line | result ], inline_code)
   end
 
   # no match, must be done
@@ -461,7 +506,11 @@ defmodule Earmark.Block do
 
   # Only now we match for list lines inside an open multiline inline code block
   defp read_list_lines([line|rest], result, opening_backquotes) do
-    read_list_lines(rest, [%{line|inside_code: true} | result], still_pending_inline_code(line.line, opening_backquotes))
+    still_inline = case still_inline_code(line.line, opening_backquotes) do
+      {nil, _} -> false
+      {btx, _} -> btx
+    end
+    read_list_lines(rest, [%{line|inside_code: true} | result], still_inline)
   end
   # Running into EOI insise an open multiline inline code block
   defp read_list_lines([], result, opening_backquotes) do

@@ -1,4 +1,3 @@
-earmark
 /_build
 /deps
 erl_crash.dump
@@ -8,3 +7,4 @@ tmp/*
 .tool-versions
 .mix_tasks
 notes/*
+/earmark
