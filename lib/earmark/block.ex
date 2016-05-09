@@ -2,6 +2,9 @@ defmodule Earmark.Block do
 
   import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2, emit_error: 4]
   import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+  import Earmark.Helpers.LookaheadHelpers, only: [read_list_lines: 2]
+  import Earmark.Helpers.StringHelpers
+  import Earmark.Helpers.LineHelpers
 
   @moduledoc """
   Given a list of parsed blocks, convert them into blocks.
@@ -151,7 +154,7 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
-    {spaced, list_lines, rest} = read_list_lines(rest, [], pending_inline_code(first.line))
+    {spaced, list_lines, rest} = read_list_lines(rest, pending_inline_code(first.line))
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
@@ -388,135 +391,6 @@ defmodule Earmark.Block do
     end
   end
 
-  ##################################################
-  # Called to slurp in the lines for a list item.
-  # basically, we allow indents and blank lines, and
-  # we allow text lines only after an indent (and initially)
-  # We also slurp in lines that are inside a multiline inline
-  # code block as indicated by the third param
-
-  # text immediately after the start
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], [], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line ], inline_code)
-  end
-  # table line immediately after the start
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line ], inline_code)
-  end
-
-  # text immediately after another text line
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-  # table line immediately after another text line
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  # text immediately after a table line
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-  # table line immediately after another table line
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  # text immediately after an indent
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-  # table line immediately after an indent
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  # Always allow blank lines and indents, and text or table lines with at least
-  # two spaces
-  defp read_list_lines([ line = %Line.Blank{} | rest ], result, false) do
-    read_list_lines(rest, [ line | result ], false)
-  end
-
-  defp read_list_lines([ line = %Line.Indent{line: text} | rest ], result, false) do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  defp read_list_lines([ line = %Line.Text{line: ( text = <<"  ", _ :: binary>> )} | rest ],
-                         result, false)
-  do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  defp read_list_lines([ line = %Line.TableLine{content: ( text = <<"  ", _ :: binary>> )} | rest ],
-                         result, false)
-  do
-    inline_code = case opens_inline_code(text) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [ line | result ], inline_code)
-  end
-
-  # no match, must be done
-  defp read_list_lines(lines, result, false) do
-    { trailing_blanks, rest } = Enum.split_while(result, &is_blank/1)
-    spaced = length(trailing_blanks) > 0
-    { spaced, Enum.reverse(rest), lines }
-  end
-
-  # Only now we match for list lines inside an open multiline inline code block
-  defp read_list_lines([line|rest], result, opening_backquotes) do
-    still_inline = case still_inline_code(line.line, opening_backquotes) do
-      {nil, _} -> false
-      {btx, _} -> btx
-    end
-    read_list_lines(rest, [%{line|inside_code: true} | result], still_inline)
-  end
-  # Running into EOI insise an open multiline inline code block
-  defp read_list_lines([], result, opening_backquotes) do
-    IO.puts( :stderr, "Closing unclosed backquotes #{opening_backquotes} at end of input" )
-    read_list_lines( [], result, false )
-  end
 
   #####################################################
   # Traverse the block list and build a list of links #
@@ -599,9 +473,6 @@ defmodule Earmark.Block do
   # Helpers #
   ###########
 
-  defp is_blank(%Line.Blank{}),   do: true
-  defp is_blank(_),               do: false
-
   # Gruber's tests have
   #
   #   para text...
@@ -626,7 +497,7 @@ defmodule Earmark.Block do
   defp is_blockquote_or_text(struct),             do: is_text(struct)
 
   defp is_indent_or_blank(%Line.Indent{}), do: true
-  defp is_indent_or_blank(line),           do: is_blank(line)
+  defp is_indent_or_blank(line),           do: blank?(line)
 
   defp is_inline_or_text(line, pending)
   defp is_inline_or_text(line = %Line.Text{}, false) do
@@ -673,7 +544,7 @@ defmodule Earmark.Block do
   defp remove_trailing_blank_lines(lines) do
     lines
     |> Enum.reverse
-    |> Enum.drop_while(&is_blank/1)
+    |> Enum.drop_while(&blank?/1)
     |> Enum.reverse
   end
 end
