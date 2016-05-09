@@ -109,7 +109,7 @@ defmodule Earmark.Block do
   ###############
 
   defp parse( lines = [ %Line.BlockQuote{} | _ ], result) do
-    {quote_lines, rest} = Enum.split_while(lines, &is_blockquote_or_text/1)
+    {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _} = Parser.parse(lines, true)
     parse(rest, [ %BlockQuote{blocks: blocks} | result ])
@@ -135,7 +135,7 @@ defmodule Earmark.Block do
   #############
 
   defp parse( lines = [ %Line.TableLine{} | _ ], result) do
-    {para_lines, rest} = Enum.split_while(lines, &is_text/1)
+    {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
     parse(rest, [ %Para{lines: line_text} | result ])
   end
@@ -168,7 +168,7 @@ defmodule Earmark.Block do
   #################
 
   defp parse( list = [%Line.Indent{} | _], result) do
-    {code_lines, rest} = Enum.split_while(list, &is_indent_or_blank/1)
+    {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
     parse(rest, [ %Code{lines: code} | result ])
@@ -256,10 +256,10 @@ defmodule Earmark.Block do
   #######################
 
   defp parse( [ defn = %Line.FnDef{id: _id} | rest ], result ) do
-    {para_lines, rest} = Enum.split_while(rest, &is_text/1)
+    {para_lines, rest} = Enum.split_while(rest, &text?/1)
     first_line = %Line.Text{line: defn.content}
     para = parse([ first_line | para_lines ], [])
-    {indent_lines, rest} = Enum.split_while(rest, &is_indent_or_blank/1)
+    {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _ } = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
                 |> Parser.parse(true)
@@ -473,31 +473,6 @@ defmodule Earmark.Block do
   # Helpers #
   ###########
 
-  # Gruber's tests have
-  #
-  #   para text...
-  #   * and more para text
-  #
-  # So list markers inside paragraphs are ignored. But he also has
-  #
-  #   *   line
-  #       * line
-  #
-  # And expects it to be a nested list. These seem to be in conflict
-  #
-  # I think the second is a better interpretation, so I commented
-  # out the 2nd match below.
-
-  defp is_text(%Line.Text{}),      do: true
-  defp is_text(%Line.TableLine{}), do: true
-#  defp is_text(%Line.ListItem{}), do: true
-  defp is_text(_),                 do: false
-
-  defp is_blockquote_or_text(%Line.BlockQuote{}), do: true
-  defp is_blockquote_or_text(struct),             do: is_text(struct)
-
-  defp is_indent_or_blank(%Line.Indent{}), do: true
-  defp is_indent_or_blank(line),           do: blank?(line)
 
   defp is_inline_or_text(line, pending)
   defp is_inline_or_text(line = %Line.Text{}, false) do
@@ -516,11 +491,6 @@ defmodule Earmark.Block do
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
   end
-
-  defp blank_line_in?([]),                    do: false
-  defp blank_line_in?([ %Line.Blank{} | _ ]), do: true
-  defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
-
 
   # In case we are inside a code block we return the verbatim text
   defp properly_indent(%{inside_code: true, line: line}, _level) do

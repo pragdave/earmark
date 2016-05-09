@@ -8,3 +8,4 @@ tmp/*
 .mix_tasks
 notes/*
 /earmark
+*.beam
