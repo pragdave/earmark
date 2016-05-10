@@ -158,8 +158,8 @@ defmodule LineTest do
     |> Enum.each(fn { text, type } -> 
          test("line: '" <> text <> "'") do
            struct = unquote(Macro.escape type)
-           struct = %{ struct | line: unquote(text) }
-           assert Line.type_of(unquote(text), false) == struct
+           struct = %{ struct | line: unquote(text), lnb: 42 }
+           assert Line.type_of({unquote(text), 42}, false) == struct
          end
        end)
 

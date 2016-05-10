@@ -44,39 +44,46 @@ defmodule Earmark.Line do
   @type t :: Blank.t | Ruler.t | Heading.t | BlockQuote.t | Indent.t | Fence.t | HtmlOpenTag.t | HtmlCloseTag.t | HtmlComment.t | HtmlOneLine.t |
     IdDef.t | FnDef.t | ListItem.t | SetextUnderlineHeading.t | TableLine.t | Ial.t | Text.t
 
-  defmodule Blank,        do: defstruct line: "", content: "", inside_code: false
-  defmodule Ruler,        do: defstruct line: "", type: "- or * or _", inside_code: false
-  defmodule Heading,      do: defstruct line: "", level: 1, content: "inline text", inside_code: false
-  defmodule BlockQuote,   do: defstruct line: "", content: "text", inside_code: false
-  defmodule Indent,       do: defstruct line: "", level: 0, content: "text", inside_code: false
-  defmodule Fence,        do: defstruct line: "", delimiter: "~ or `", language: nil , inside_code: false
-  defmodule HtmlOpenTag,  do: defstruct line: "", tag: "", content: "", inside_code: false
-  defmodule HtmlCloseTag, do: defstruct line: "", tag: "<... to eol", inside_code: false
-  defmodule HtmlComment,  do: defstruct line: "", complete: true, inside_code: false
-  defmodule HtmlOneLine,  do: defstruct line: "", tag: "", content: "", inside_code: false
-  defmodule IdDef,        do: defstruct line: "", id: nil, url: nil, title: nil, inside_code: false
-  defmodule FnDef,        do: defstruct line: "", id: nil, content: "text", inside_code: false
-  defmodule ListItem,     do: defstruct type: :ul, line: "",
+  defmodule Blank,        do: defstruct lnb: 0, line: "", content: "", inside_code: false
+  defmodule Ruler,        do: defstruct lnb: 0, line: "", type: "- or * or _", inside_code: false
+  defmodule Heading,      do: defstruct lnb: 0, line: "", level: 1, content: "inline text", inside_code: false
+  defmodule BlockQuote,   do: defstruct lnb: 0, line: "", content: "text", inside_code: false
+  defmodule Indent,       do: defstruct lnb: 0, line: "", level: 0, content: "text", inside_code: false
+  defmodule Fence,        do: defstruct lnb: 0, line: "", delimiter: "~ or `", language: nil , inside_code: false
+  defmodule HtmlOpenTag,  do: defstruct lnb: 0, line: "", tag: "", content: "", inside_code: false
+  defmodule HtmlCloseTag, do: defstruct lnb: 0, line: "", tag: "<... to eol", inside_code: false
+  defmodule HtmlComment,  do: defstruct lnb: 0, line: "", complete: true, inside_code: false
+  defmodule HtmlOneLine,  do: defstruct lnb: 0, line: "", tag: "", content: "", inside_code: false
+  defmodule IdDef,        do: defstruct lnb: 0, line: "", id: nil, url: nil, title: nil, inside_code: false
+  defmodule FnDef,        do: defstruct lnb: 0, line: "", id: nil, content: "text", inside_code: false
+  defmodule ListItem,     do: defstruct lnb: 0, type: :ul, line: "",
                                         bullet: "* or -", content: "text",
                                         initial_indent: 0, inside_code: false
   defmodule SetextUnderlineHeading,
-                          do: defstruct line: "", level: 1, inside_code: false, inside_code: false
-  defmodule TableLine,    do: defstruct line: "", content: "", columns: 0, inside_code: false
-  defmodule Ial,          do: defstruct line: "", attrs:   "", inside_code: false
-  defmodule Text,         do: defstruct line: "", content: "", inside_code: false
-
-
+                          do: defstruct lnb: 0, line: "", level: 1, inside_code: false, inside_code: false
+  defmodule TableLine,    do: defstruct lnb: 0, line: "", content: "", columns: 0, inside_code: false
+  defmodule Ial,          do: defstruct lnb: 0, line: "", attrs:   "", inside_code: false
+  defmodule Text,         do: defstruct lnb: 0, line: "", content: "", inside_code: false
   @doc false
   # We want to add the original source line into every
   # line we generate. We also need to expand tabs before
   # proceeding
 
+  def scan_lines lines, options, recursive do
+    lines_with_count( lines )
+    |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end)
+  end
+
+  defp lines_with_count lines do
+    Enum.zip lines, 0..Enum.count(lines)
+  end
+
   def type_of(line, recursive)
   when is_boolean(recursive), do: type_of(line, %Earmark.Options{}, recursive)
 
-  def type_of(line, options = %Earmark.Options{}, recursive) do
+  def type_of({line, lnb}, options = %Earmark.Options{}, recursive) do
     line = line |> Helpers.expand_tabs |> Helpers.remove_line_ending
-    %{ _type_of(line, options, recursive) | line: line }
+    %{ _type_of(line, options, recursive) | line: line, lnb: lnb }
   end
 
   @doc false

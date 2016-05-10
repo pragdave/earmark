@@ -7,7 +7,7 @@ defmodule Earmark.Block do
   import Earmark.Helpers.LineHelpers
 
   @moduledoc """
-  Given a list of parsed blocks, convert them into blocks.
+  Given a list of _parsed blocks, convert them into blocks.
   That list of blocks is the final representation of the
   document (in internal form).
   """
@@ -42,109 +42,109 @@ defmodule Earmark.Block do
   # Given a list of `Line.xxx` structs, group them into related blocks.
   # Then extract any id definitions, and build a hashdict from them. Not
   # for external consumption.
-  def parse(lines) do
-    blocks = lines_to_blocks(lines)
+  def parse(lines, filename) do
+    lines = remove_trailing_blank_lines( lines )
+    blocks = lines_to_blocks(lines,filename)
     links  = links_from_blocks(blocks)
     { blocks, links }
   end
 
   @doc false
   # Public to allow easier testing
-  def lines_to_blocks(lines) do
+  def lines_to_blocks(lines,filename) do
     lines
-    |> parse([])
+    |> _parse([], filename)
     |> assign_attributes_to_blocks([])
     |> consolidate_list_items([])
   end
 
 
 
-  defp parse([], result), do: result     # consolidate also reverses, so no need
+  defp _parse([], result, filename), do: result     # consolidate also reverses, so no need
 
   ###################
   # setext headings #
   ###################
 
-  defp parse([  %Line.Blank{},
+  defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.SetextUnderlineHeading{level: level}
 
              |
                 rest
-             ], result) do
+             ], result, filename) do
 
-    parse(rest, [ %Heading{content: heading, level: level} | result ])
+    _parse(rest, [ %Heading{content: heading, level: level} | result ], filename)
   end
 
-  defp parse([  %Line.Blank{},
+  defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
 
              |
                 rest
-             ], result) do
+             ], result, filename) do
 
-    parse(rest, [ %Heading{content: heading, level: 2} | result ])
+    _parse(rest, [ %Heading{content: heading, level: 2} | result ], filename)
   end
-
 
   #################
   # Other heading #
   #################
 
-  defp parse([ %Line.Heading{content: content, level: level} | rest ], result) do
-    parse(rest, [ %Heading{content: content, level: level} | result ])
+  defp _parse([ %Line.Heading{content: content, level: level} | rest ], result, filename) do
+    _parse(rest, [ %Heading{content: content, level: level} | result ], filename)
   end
 
   #########
   # Ruler #
   #########
 
-  defp parse([ %Line.Ruler{type: type} | rest], result) do
-    parse(rest, [ %Ruler{type: type} | result ])
+  defp _parse([ %Line.Ruler{type: type} | rest], result, filename) do
+    _parse(rest, [ %Ruler{type: type} | result ], filename)
   end
 
   ###############
   # Block Quote #
   ###############
 
-  defp parse( lines = [ %Line.BlockQuote{} | _ ], result) do
+  defp _parse( lines = [ %Line.BlockQuote{} | _ ], result, filename) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _} = Parser.parse(lines, true)
-    parse(rest, [ %BlockQuote{blocks: blocks} | result ])
+    _parse(rest, [ %BlockQuote{blocks: blocks} | result ], filename)
   end
 
   #########
   # Table #
   #########
 
-  defp parse( lines = [ %Line.TableLine{columns: cols1},
+  defp _parse( lines = [ %Line.TableLine{columns: cols1},
                         %Line.TableLine{columns: cols2}
                       | _rest
-                      ], result)
+                      ], result, filename)
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
     { table, rest } = read_table(lines, columns, Table.new_for_columns(columns))
-    parse(rest, [ table | result ])
+    _parse(rest, [ table | result ], filename)
   end
 
   #############
   # Paragraph #
   #############
 
-  defp parse( lines = [ %Line.TableLine{} | _ ], result) do
+  defp _parse( lines = [ %Line.TableLine{} | _ ], result, filename) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
-    parse(rest, [ %Para{lines: line_text} | result ])
+    _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
 
-  defp parse( lines = [ %Line.Text{} | _ ], result)
+  defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
     {reversed_para_lines, rest} = consolidate_para( lines )
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
-    parse(rest, [ %Para{lines: line_text} | result ])
+    _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
 
   #########
@@ -153,66 +153,66 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
+  defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
     {spaced, list_lines, rest} = read_list_lines(rest, pending_inline_code(first.line))
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
     {blocks, _} = Parser.parse(lines, true)
 
-    parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ])
+    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end
 
   #################
   # Indented code #
   #################
 
-  defp parse( list = [%Line.Indent{} | _], result) do
+  defp _parse( list = [%Line.Indent{} | _], result, filename) do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
-    parse(rest, [ %Code{lines: code} | result ])
+    _parse(rest, [ %Code{lines: code} | result ], filename)
   end
 
   ###############
   # Fenced code #
   ###############
 
-  defp parse([%Line.Fence{delimiter: delimiter, language: language} | rest], result) do
+  defp _parse([%Line.Fence{delimiter: delimiter, language: language} | rest], result, filename) do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
     rest = if length(rest) == 0, do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
-    parse(rest, [ %Code{lines: code, language: language} | result ])
+    _parse(rest, [ %Code{lines: code, language: language} | result ], filename)
   end
 
   ##############
   # HTML block #
   ##############
-  defp parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result) do
+  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, filename) do
     {html_lines, rest} = html_match_to_closing(tag, rest, [opener])
     html = (for line <- Enum.reverse(html_lines), do: line.line)
-    parse(rest, [ %Html{tag: tag, html: html} | result ])
+    _parse(rest, [ %Html{tag: tag, html: html} | result ], filename)
   end
 
   ####################
   # HTML on one line #
   ####################
 
-  defp parse([ %Line.HtmlOneLine{line: line} | rest], result) do
-    parse(rest, [ %HtmlOther{html: [ line ]} | result ])
+  defp _parse([ %Line.HtmlOneLine{line: line} | rest], result, filename) do
+    _parse(rest, [ %HtmlOther{html: [ line ]} | result ], filename)
   end
 
   ################
   # HTML Comment #
   ################
 
-  defp parse([ line = %Line.HtmlComment{complete: true} | rest], result) do
-    parse(rest, [ %HtmlOther{html: [ line.line ]} | result ])
+  defp _parse([ line = %Line.HtmlComment{complete: true} | rest], result, filename) do
+    _parse(rest, [ %HtmlOther{html: [ line.line ]} | result ], filename)
   end
 
-  defp parse(lines = [ %Line.HtmlComment{complete: false} | _], result) do
+  defp _parse(lines = [ %Line.HtmlComment{complete: false} | _], result, filename) do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
@@ -222,7 +222,7 @@ defmodule Earmark.Block do
       {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
-    parse(rest, [ %HtmlOther{html: html} | result ])
+    _parse(rest, [ %HtmlOther{html: html} | result ], filename)
   end
 
   #################
@@ -230,7 +230,7 @@ defmodule Earmark.Block do
   #################
 
   # the title may be on the line following the iddef
-  defp parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result)
+  defp _parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result, filename)
   when title == nil
   do
     title = case maybe_title do
@@ -240,39 +240,39 @@ defmodule Earmark.Block do
     end
 
     if title do
-      parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title} | result])
+      _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title} | result], filename)
     else
-      parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url} | result])
+      _parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url} | result], filename)
     end
   end
 
   # or not
-  defp parse( [ defn = %Line.IdDef{} | rest ], result) do
-    parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result])
+  defp _parse( [ defn = %Line.IdDef{} | rest ], result, filename) do
+    _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result], filename)
   end
 
   #######################
   # Footnote Definition #
   #######################
 
-  defp parse( [ defn = %Line.FnDef{id: _id} | rest ], result ) do
+  defp _parse( [ defn = %Line.FnDef{id: _id} | rest ], result , filename) do
     {para_lines, rest} = Enum.split_while(rest, &text?/1)
     first_line = %Line.Text{line: defn.content}
-    para = parse([ first_line | para_lines ], [])
+    para = _parse([ first_line | para_lines ], [], filename)
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _ } = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
                 |> Parser.parse(true)
     blocks = Enum.concat(para, blocks)
-    parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] )
+    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] , filename)
   end
 
   ####################
   # IAL (attributes) #
   ####################
 
-  defp parse( [ %Line.Ial{attrs: attrs} | rest ], result) do
-    parse(rest, [ %Ial{attrs: attrs} | result ])
+  defp _parse( [ %Line.Ial{attrs: attrs} | rest ], result, filename) do
+    _parse(rest, [ %Ial{attrs: attrs} | result ], filename)
   end
 
   ###############
@@ -280,17 +280,17 @@ defmodule Earmark.Block do
   ###############
   # We've reached the point where empty lines are no longer significant
 
-  defp parse( [ %Line.Blank{} | rest ], result) do
-    parse(rest, result)
+  defp _parse( [ %Line.Blank{} | rest ], result, filename) do
+    _parse(rest, result, filename)
   end
 
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
 
-  defp parse( [ anything | rest ], result) do
+  defp _parse( [ anything | rest ], result, filename) do
     IO.puts(:stderr, "Unexpected line #{anything.line}")
-    parse( [ %Line.Text{content: anything.line} | rest], result)
+    _parse( [ %Line.Text{content: anything.line} | rest], result, filename)
   end
 
   #######################################################
