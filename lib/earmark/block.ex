@@ -191,7 +191,10 @@ defmodule Earmark.Block do
   # HTML block #
   ##############
   defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, filename) do
-    {html_lines, rest} = html_match_to_closing(tag, rest, [opener])
+    {status, {html_lines, rest}} = html_match_to_closing(tag, rest, [opener])
+    unless status == :ok do
+      emit_error filename, opener, :warning, "Failed to find closing <#{tag}>"
+    end
     html = (for line <- Enum.reverse(html_lines), do: line.line)
     _parse(rest, [ %Html{tag: tag, html: html} | result ], filename)
   end
@@ -442,8 +445,7 @@ defmodule Earmark.Block do
 
   # run out of input
   defp html_match_to_closing(tag, [], result) do
-    IO.puts(:stderr, "Failed to find closing <#{tag}>")
-    { result, [] }
+    {:error, { result, [] }}
   end
 
   # find closing tag
@@ -451,7 +453,7 @@ defmodule Earmark.Block do
                              [closer = %Line.HtmlCloseTag{tag: tag} | rest],
                              result)
   do
-    { [closer | result], rest }
+    {:ok, { [closer | result], rest }}
   end
 
   # a nested open tag
@@ -459,8 +461,10 @@ defmodule Earmark.Block do
                              [opener = %Line.HtmlOpenTag{tag: new_tag} | rest],
                              result)
   do
-    { html_lines, rest } = html_match_to_closing(new_tag, rest, [opener])
-    html_match_to_closing(tag, rest, html_lines ++ result)
+    case html_match_to_closing(new_tag, rest, [opener]) do
+      {:ok, { html_lines, rest }} ->  html_match_to_closing(tag, rest, html_lines ++ result)
+      error                       ->  error
+    end
   end
 
   # anything else
