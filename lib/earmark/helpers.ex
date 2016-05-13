@@ -175,7 +175,7 @@ defmodule Earmark.Helpers do
        ^.*?                                 # shortest possible prefix
        (?<!\\)#{opening_backquotes}(?!`)    # unescaped ` with exactly the length of opening_backquotes
       """x |> Regex.run( line, return: :index ) ) do
-        [match_index_tuple | _] ->  behead(line, match_index_tuple) |> pending_inline_code
+        [match_index_tuple | _] ->  behead(line, match_index_tuple)
         nil                     ->  opening_backquotes
     end
   end

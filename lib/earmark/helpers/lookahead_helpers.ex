@@ -16,16 +16,16 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   # text immediately after the start
-  defp _read_list_lines([ line = %Line.Text{line: text} | rest ], [], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.Text{} | rest ], [], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line ], inline_code)
   end
   # table line immediately after the start
-  defp _read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.TableLine{} | rest ], [], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
@@ -33,16 +33,16 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   # text immediately after another text line
-  defp _read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Text{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after another text line
-  defp _read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Text{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
@@ -50,16 +50,16 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   # text immediately after a table line
-  defp _read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.TableLine{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after another table line
-  defp _read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.TableLine{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
@@ -67,16 +67,16 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   # text immediately after an indent
-  defp _read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line | result ], inline_code)
   end
   # table line immediately after an indent
-  defp _read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Indent{} | _], false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
@@ -89,28 +89,28 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     _read_list_lines(rest, [ line | result ], false)
   end
 
-  defp _read_list_lines([ line = %Line.Indent{line: text} | rest ], result, false) do
-    inline_code = case opens_inline_code(text) do
+  defp _read_list_lines([ line = %Line.Indent{} | rest ], result, false) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line | result ], inline_code)
   end
 
-  defp _read_list_lines([ line = %Line.Text{line: ( text = <<"  ", _ :: binary>> )} | rest ],
+  defp _read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
   result, false)
   do
-    inline_code = case opens_inline_code(text) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
     _read_list_lines(rest, [ line | result ], inline_code)
   end
 
-  defp _read_list_lines([ line = %Line.TableLine{content: ( text = <<"  ", _ :: binary>> )} | rest ],
+  defp _read_list_lines([ line = %Line.TableLine{content: text = <<"  ", _ :: binary>>} | rest ],
   result, false)
   do
-    inline_code = case opens_inline_code(text) do
+    inline_code = case opens_inline_code(line) do
       {nil, _} -> false
       {btx, _} -> btx
     end
