@@ -63,7 +63,7 @@ defmodule Earmark.Helpers.InlineCodeHelpers do
     ^.*?                                 # shortest possible prefix
     (?<![\\`])#{pending}(?!`)    # unescaped ` with exactly the length of opening_backquotes
     """x |> Regex.run( line, return: :index ) ) do
-      [match_index_tuple | _] ->  behead(line, match_index_tuple) |> opens_inline_code
+      [match_index_tuple | _] ->  behead(line, match_index_tuple)
       nil                     ->  nil
     end
 
