@@ -4,7 +4,6 @@ defmodule Parser.ErrorTest do
 
   alias Earmark.Options
 
-  @moduletag :wip
   test "Unexpected line" do 
     assert capture_io( :stderr, fn->
       Earmark.to_html "A\nB\n="

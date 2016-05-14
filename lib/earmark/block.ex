@@ -154,7 +154,8 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
-    {spaced, list_lines, rest} = read_list_lines(rest, pending_inline_code(first.line))
+    {pending, lnb} = opens_inline_code(first)
+    {spaced, list_lines, rest} = read_list_lines(rest, pending || false)
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
@@ -292,7 +293,7 @@ defmodule Earmark.Block do
   ##############################################################
 
   defp _parse( [ anything | rest ], result, filename) do
-    IO.puts(:stderr, "Unexpected line #{anything.line}")
+    emit_error filename, anything, :warning, "Unexpected line #{anything.line}"
     _parse( [ %Line.Text{content: anything.line} | rest], result, filename)
   end
 

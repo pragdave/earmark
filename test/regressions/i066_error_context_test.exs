@@ -2,7 +2,6 @@ defmodule Regressions.I066ErrorContextTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
 
-  @moduletag :wip
   test "Issue https://github.com/pragdave/earmark/issues/66 1" do
     assert capture_io( :stderr, fn->
       Earmark.to_html ~s(`Hello\nWorld), %Earmark.Options{filename: "fn"}
