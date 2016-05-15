@@ -1,6 +1,6 @@
 defmodule Earmark.Block do
 
-  import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2, emit_error: 4]
+  import Earmark.Helpers, only: [emit_error: 4]
   import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import Earmark.Helpers.LookaheadHelpers, only: [read_list_lines: 2]
   import Earmark.Helpers.StringHelpers
@@ -481,14 +481,17 @@ defmodule Earmark.Block do
 
   defp is_inline_or_text(line, pending)
   defp is_inline_or_text(line = %Line.Text{}, false) do
-    %{pending: pending_inline_code(line.line), continue: true}
+    {pending, lnb} = opens_inline_code(line)
+    %{pending: (pending||false), continue: true}
   end
   defp is_inline_or_text(line = %Line.TableLine{}, false) do
-    %{pending: pending_inline_code(line.line), continue: true}
+    {pending, lnb} = opens_inline_code(line)
+    %{pending: (pending||false), continue: true}
   end
   defp is_inline_or_text( _line, false), do: %{pending: false, continue: false}
   defp is_inline_or_text( line, pending ) do
-    %{pending: still_pending_inline_code( line.line, pending ), continue: true}
+    {pending, lnb} = still_inline_code(line, pending)
+    %{pending: (pending||false), continue: true}
   end
 
 
