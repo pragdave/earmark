@@ -8,7 +8,7 @@ defmodule TableTest do
     result = Block.lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"}, 
                 %Line.Blank{}
-             ])
+             ], filename)
 
     assert result == [ %Block.Para{lines: ["a | b | c"]} ]
   end
@@ -18,7 +18,7 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"}, 
                 %Line.TableLine{columns: ~w{d e f}, line: "d | e | f"}, 
                 %Line.Blank{}
-             ])
+             ], filename)
 
     expected = %Block.Table{
       rows:       [ ~w{a b c}, ~w{d e f} ], 
@@ -34,7 +34,7 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{ --- --- ---}, line: "--|---|--"}, 
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"}, 
                 %Line.Blank{}
-             ])
+             ], filename)
 
     expected = %Block.Table{
       header:     ~w{a b c}, 
@@ -50,7 +50,7 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{ --: :--: :---}, line: "--|---|--"}, 
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"}, 
                 %Line.Blank{}
-             ])
+             ], filename)
 
     expected = %Block.Table{
       header:     ~w{a b c}, 
@@ -122,6 +122,10 @@ defmodule TableTest do
     </table>
     """
     assert result == expected
+  end
+
+  defp filename do 
+    "file name" 
   end
 
 end
