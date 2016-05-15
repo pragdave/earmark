@@ -2,9 +2,7 @@ defmodule Earmark.Block do
 
   use Earmark.Types
   import Earmark.Helpers, only: [emit_error: 4]
-  import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
-  import Earmark.Helpers.LookaheadHelpers, only: [read_list_lines: 2]
-  import Earmark.Helpers.StringHelpers
+  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
 
   @moduledoc """
@@ -61,7 +59,7 @@ defmodule Earmark.Block do
 
 
 
-  defp _parse([], result, filename), do: result     # consolidate also reverses, so no need
+  defp _parse([], result, _filename), do: result     # consolidate also reverses, so no need
 
   ###################
   # setext headings #
@@ -162,7 +160,7 @@ defmodule Earmark.Block do
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
     {spaced, list_lines, rest, offset} = 
       case read_list_lines(rest, opens_inline_code(first)) do
-        {s, ll, r, {pending_btx, lnb}} ->
+        {s, ll, r, {_btx, lnb}} ->
           # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
           {s, ll, r, lnb}
         {s, ll, r} -> {s, ll, r, 0}
@@ -333,7 +331,7 @@ defmodule Earmark.Block do
   end
 
   defp _consolidate_para( [line | rest] = lines, result, pending ) do
-    case is_inline_or_text( line, pending ) do
+    case inline_or_text?( line, pending ) do
       %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
       _                                         -> {result, lines, @not_pending}
     end
@@ -456,7 +454,7 @@ defmodule Earmark.Block do
   ###################################################################
 
   # run out of input
-  defp html_match_to_closing(tag, [], result) do
+  defp html_match_to_closing(_tag, [], result) do
     {:error, { result, [] }}
   end
 
@@ -490,17 +488,17 @@ defmodule Earmark.Block do
   ###########
 
 
-  defp is_inline_or_text(line, pending)
-  defp is_inline_or_text(line = %Line.Text{}, @not_pending) do
+  defp inline_or_text?(line, pending)
+  defp inline_or_text?(line = %Line.Text{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
-  defp is_inline_or_text(line = %Line.TableLine{}, @not_pending) do
+  defp inline_or_text?(line = %Line.TableLine{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
-  defp is_inline_or_text( _line, @not_pending), do: %{pending: @not_pending, continue: false}
-  defp is_inline_or_text( line, pending ) do
+  defp inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
+  defp inline_or_text?( line, pending ) do
     pending = still_inline_code(line, pending)
     %{pending: pending, continue: true}
   end
