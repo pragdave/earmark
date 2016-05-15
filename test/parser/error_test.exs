@@ -22,10 +22,11 @@ defmodule Parser.ErrorTest do
     end) == "<no file>:3: warning: Closing unclosed backquotes ``` at end of input\n"
   end
 
+  @tag :debug
   test "Closing Backtick in list" do
     assert capture_io( :stderr, fn ->
       Earmark.to_html "* one\n* two\n* `three\nfour", %Options{filename: "list.md"}
-    end) == "list.md:3: warning: Closing unclosed backquotes ``` at end of input\n"
+    end) == "list.md:3: warning: Closing unclosed backquotes ` at end of input\n"
   end
 
   test "Closing Backtick before list" do

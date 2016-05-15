@@ -72,12 +72,12 @@ defmodule Earmark.Line do
   # proceeding
 
   def scan_lines lines, options, recursive do
-    lines_with_count( lines )
+    lines_with_count( lines, options.offset )
     |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end)
   end
 
-  defp lines_with_count lines do
-    Enum.zip lines, 0..Enum.count(lines)
+  defp lines_with_count lines, offset do
+    Enum.zip lines, offset..(offset+Enum.count(lines))
   end
 
   def type_of(line, recursive)

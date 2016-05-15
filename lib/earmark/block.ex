@@ -160,12 +160,17 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
-    {pending, lnb} = opens_inline_code(first)
-    {spaced, list_lines, rest} = read_list_lines(rest, pending || false)
+    {spaced, list_lines, rest, offset} = 
+      case read_list_lines(rest, opens_inline_code(first)) do
+        {s, ll, r, {pending_btx, lnb}} ->
+          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
+          {s, ll, r, lnb}
+        {s, ll, r} -> {s, ll, r, 0}
+      end
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{filename: filename, offset: offset - 1}, true)
 
     _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end

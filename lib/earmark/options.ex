@@ -16,6 +16,7 @@ defmodule Earmark.Options do
              mapper: &Earmark.pmap/2,
 
              # Filename for meaningfull error messages
-             filename: "<no file>"
+             filename: "<no file>",
+             offset: 0
 end
 

@@ -113,12 +113,12 @@ defmodule ListTest do
 
   test "Code nested in list" do
     result = Block.lines_to_blocks([
-               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
-               %Line.Blank{},
-               %Line.Indent{level: 2, content: "code 1"},
-               %Line.Indent{level: 3, content: "code 2"},
-               %Line.Blank{},
-               %Line.Indent{level: 1, content: "line 2"},
+               %Line.ListItem{type: :ul, bullet: "*", content: "line 1", lnb: 1},
+               %Line.Blank{ lnb: 1},
+               %Line.Indent{level: 2, content: "code 1", lnb: 1},
+               %Line.Indent{level: 3, content: "code 2", lnb: 1},
+               %Line.Blank{ lnb: 1},
+               %Line.Indent{level: 1, content: "line 2", lnb: 1},
              ], filename)
 
     expected = [ %Block.List{ type: :ul, blocks: [
