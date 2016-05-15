@@ -1,10 +1,7 @@
 defmodule Earmark.Helpers.InlineCodeHelpers do
 
+  use Earmark.Types
   import Earmark.Helpers.StringHelpers
-
-  @type numbered_line :: %{line: String.t, lnb: number}
-  @type maybe(t) :: t | :nil
-  @type inline_code_continuation :: {maybe(String.t), number}
 
   @doc """
   returns false unless the line leaves a code block open,
@@ -58,7 +55,7 @@ defmodule Earmark.Helpers.InlineCodeHelpers do
   opening backquotes 
   """
   @spec still_inline_code(numbered_line, String.t) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, pending ) do
+  def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
     new_line = case ( ~r"""
     ^.*?                                 # shortest possible prefix
     (?<![\\`])#{pending}(?!`)    # unescaped ` with exactly the length of opening_backquotes
@@ -68,7 +65,7 @@ defmodule Earmark.Helpers.InlineCodeHelpers do
     end
 
     case new_line do
-      nil -> {pending, lnb}
+      nil -> {pending, pending_lnb}
       _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
     end
   end

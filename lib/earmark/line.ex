@@ -44,6 +44,8 @@ defmodule Earmark.Line do
   @type t :: Blank.t | Ruler.t | Heading.t | BlockQuote.t | Indent.t | Fence.t | HtmlOpenTag.t | HtmlCloseTag.t | HtmlComment.t | HtmlOneLine.t |
     IdDef.t | FnDef.t | ListItem.t | SetextUnderlineHeading.t | TableLine.t | Ial.t | Text.t
 
+  @type ts :: list(t)
+    
   defmodule Blank,        do: defstruct lnb: 0, line: "", content: "", inside_code: false
   defmodule Ruler,        do: defstruct lnb: 0, line: "", type: "- or * or _", inside_code: false
   defmodule Heading,      do: defstruct lnb: 0, line: "", level: 1, content: "inline text", inside_code: false

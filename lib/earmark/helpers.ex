@@ -121,6 +121,9 @@ defmodule Earmark.Helpers do
   Formats an error message and puts it to stderr
   """
   def emit_error filename, %{lnb: lnb}, error_type, error_message do
+    emit_error filename, lnb, error_type, error_message
+  end
+  def emit_error filename, lnb, error_type, error_message do
     IO.puts(:stderr, "#{filename}:#{lnb}: #{error_type}: #{error_message}")
   end
 end

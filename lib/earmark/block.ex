@@ -1,5 +1,6 @@
 defmodule Earmark.Block do
 
+  use Earmark.Types
   import Earmark.Helpers, only: [emit_error: 4]
   import Earmark.Helpers.InlineCodeHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import Earmark.Helpers.LookaheadHelpers, only: [read_list_lines: 2]
@@ -142,7 +143,12 @@ defmodule Earmark.Block do
 
   defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
-    {reversed_para_lines, rest} = consolidate_para( lines )
+    {reversed_para_lines, rest, pending} = consolidate_para(lines) 
+    case pending do
+      {nil, _} -> true
+      {pending, lnb} ->
+        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
+    end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
@@ -314,17 +320,17 @@ defmodule Earmark.Block do
   ############################################################
   # Consolidate multiline inline code blocks into an element #
   ############################################################
-  defp consolidate_para( lines ), do: consolidate_para( lines, [], false )
-  defp consolidate_para( [], result, false ), do: {result, []}
-  defp consolidate_para( [], result, pending ) do
-    IO.puts( :stderr, "Closing unclosed backquotes #{pending} at end of input" )
-    {result, []}
+  @not_pending {nil, 0}
+  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
+
+  defp _consolidate_para( [], result, pending ) do
+    {result, [], pending}
   end
 
-  defp consolidate_para( [line | rest] = lines, result, pending ) do
+  defp _consolidate_para( [line | rest] = lines, result, pending ) do
     case is_inline_or_text( line, pending ) do
-      %{pending: still_pending, continue: true} -> consolidate_para( rest, [line | result], still_pending )
-      _                                         -> {result, lines}
+      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
+      _                                         -> {result, lines, @not_pending}
     end
 
   end
@@ -480,18 +486,18 @@ defmodule Earmark.Block do
 
 
   defp is_inline_or_text(line, pending)
-  defp is_inline_or_text(line = %Line.Text{}, false) do
-    {pending, lnb} = opens_inline_code(line)
-    %{pending: (pending||false), continue: true}
+  defp is_inline_or_text(line = %Line.Text{}, @not_pending) do
+    pending = opens_inline_code(line)
+    %{pending: pending, continue: true}
   end
-  defp is_inline_or_text(line = %Line.TableLine{}, false) do
-    {pending, lnb} = opens_inline_code(line)
-    %{pending: (pending||false), continue: true}
+  defp is_inline_or_text(line = %Line.TableLine{}, @not_pending) do
+    pending = opens_inline_code(line)
+    %{pending: pending, continue: true}
   end
-  defp is_inline_or_text( _line, false), do: %{pending: false, continue: false}
+  defp is_inline_or_text( _line, @not_pending), do: %{pending: @not_pending, continue: false}
   defp is_inline_or_text( line, pending ) do
-    {pending, lnb} = still_inline_code(line, pending)
-    %{pending: (pending||false), continue: true}
+    pending = still_inline_code(line, pending)
+    %{pending: pending, continue: true}
   end
 
 

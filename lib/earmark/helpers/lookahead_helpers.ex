@@ -126,7 +126,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   # Only now we match for list lines inside an open multiline inline code block
   defp _read_list_lines([line|rest], result, opening_backquotes) do
-    still_inline = case still_inline_code(line, opening_backquotes) do
+    still_inline = case still_inline_code(line, {opening_backquotes, line.lnb}) do
       {nil, _} -> false
       {btx, _} -> btx
     end
