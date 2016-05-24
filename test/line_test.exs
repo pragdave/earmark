@@ -65,7 +65,6 @@ defmodule LineTest do
 
      { "~~~",      %Line.Fence{delimiter: "~~~", language: "",     line: "~~~"} },
      { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
-     { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
      { "  ~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "  ~~~java"} },
      { "~~~ language-java", %Line.Fence{delimiter: "~~~", language: "language-java"} },
      { "~~~ language-élixir",  %Line.Fence{delimiter: "~~~", language: "language-élixir"} },
@@ -144,13 +143,6 @@ defmodule LineTest do
                                            columns: ~w{a} } },
      { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
                                            columns: ~w{a b c} } },
-
-     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
-                                           columns: ~w{a b c} } },
-
-     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
-                                           columns: ~w{a b c} } },
-
      { "  a \\| b | c  ",  %Line.TableLine{content: "  a \\| b | c  ",   
                                            columns: [ "a | b",  "c"] } },
 
