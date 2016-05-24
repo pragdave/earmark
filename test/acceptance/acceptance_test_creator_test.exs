@@ -9,7 +9,7 @@ defmodule AcceptanceTestCreatorTest do
   |> File.stream!( [], :line )
   |> Enum.reject( &(String.match?(&1, ~r{^\s*#})) )
   |> Enum.join( "\n" )
-  |> Poison.decode( as: [AcceptanceTestStruct] )
+  |> Poison.decode( as: [%AcceptanceTestStruct{}] )
 
 
   for acceptance_test <- test_case_data do
