@@ -8,3 +8,4 @@ tmp/*
 .tool-versions
 .mix_tasks
 notes/*
+*.beam
