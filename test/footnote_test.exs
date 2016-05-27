@@ -42,7 +42,7 @@ defmodule FootnoteTest do
   end
 
   test "pulls one-line footnote bodies" do
-    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ])
+    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], filename)
     assert result == [%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}]
   end
 
@@ -50,7 +50,7 @@ defmodule FootnoteTest do
     result = Block.lines_to_blocks([
                 %Line.FnDef{id: "some-fn", content: "This is a multi-line"},
                 %Line.Text{content: "footnote example.", line: "footnote example."}
-             ])
+             ], filename)
     expected = [%Block.FnDef{id: "some-fn", blocks: [
                   %Block.Para{lines: ["This is a multi-line", "footnote example."]}
                 ]}]
@@ -157,4 +157,7 @@ defmodule FootnoteTest do
     assert "#{result}\n" == expected
   end
 
+  defp filename do 
+    "file name"
+  end
 end

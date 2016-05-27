@@ -1,9 +1,12 @@
 defmodule Earmark.Block do
 
-  import Earmark.Helpers, only: [pending_inline_code: 1, still_pending_inline_code: 2]
+  use Earmark.Types
+  import Earmark.Helpers, only: [emit_error: 4]
+  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
+  import Earmark.Helpers.LineHelpers
 
   @moduledoc """
-  Given a list of parsed blocks, convert them into blocks.
+  Given a list of _parsed blocks, convert them into blocks.
   That list of blocks is the final representation of the
   document (in internal form).
   """
@@ -38,109 +41,114 @@ defmodule Earmark.Block do
   # Given a list of `Line.xxx` structs, group them into related blocks.
   # Then extract any id definitions, and build a hashdict from them. Not
   # for external consumption.
-  def parse(lines) do
-    blocks = lines_to_blocks(lines)
+  def parse(lines, filename) do
+    lines = remove_trailing_blank_lines( lines )
+    blocks = lines_to_blocks(lines,filename)
     links  = links_from_blocks(blocks)
     { blocks, links }
   end
 
   @doc false
   # Public to allow easier testing
-  def lines_to_blocks(lines) do
+  def lines_to_blocks(lines,filename) do
     lines
-    |> parse([])
+    |> _parse([], filename)
     |> assign_attributes_to_blocks([])
     |> consolidate_list_items([])
   end
 
 
 
-  defp parse([], result), do: result     # consolidate also reverses, so no need
+  defp _parse([], result, _filename), do: result     # consolidate also reverses, so no need
 
   ###################
   # setext headings #
   ###################
 
-  defp parse([  %Line.Blank{},
+  defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.SetextUnderlineHeading{level: level}
 
              |
                 rest
-             ], result) do
+             ], result, filename) do
 
-    parse(rest, [ %Heading{content: heading, level: level} | result ])
+    _parse(rest, [ %Heading{content: heading, level: level} | result ], filename)
   end
 
-  defp parse([  %Line.Blank{},
+  defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
 
              |
                 rest
-             ], result) do
+             ], result, filename) do
 
-    parse(rest, [ %Heading{content: heading, level: 2} | result ])
+    _parse(rest, [ %Heading{content: heading, level: 2} | result ], filename)
   end
-
 
   #################
   # Other heading #
   #################
 
-  defp parse([ %Line.Heading{content: content, level: level} | rest ], result) do
-    parse(rest, [ %Heading{content: content, level: level} | result ])
+  defp _parse([ %Line.Heading{content: content, level: level} | rest ], result, filename) do
+    _parse(rest, [ %Heading{content: content, level: level} | result ], filename)
   end
 
   #########
   # Ruler #
   #########
 
-  defp parse([ %Line.Ruler{type: type} | rest], result) do
-    parse(rest, [ %Ruler{type: type} | result ])
+  defp _parse([ %Line.Ruler{type: type} | rest], result, filename) do
+    _parse(rest, [ %Ruler{type: type} | result ], filename)
   end
 
   ###############
   # Block Quote #
   ###############
 
-  defp parse( lines = [ %Line.BlockQuote{} | _ ], result) do
-    {quote_lines, rest} = Enum.split_while(lines, &is_blockquote_or_text/1)
+  defp _parse( lines = [ %Line.BlockQuote{} | _ ], result, filename) do
+    {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _} = Parser.parse(lines, true)
-    parse(rest, [ %BlockQuote{blocks: blocks} | result ])
+    _parse(rest, [ %BlockQuote{blocks: blocks} | result ], filename)
   end
 
   #########
   # Table #
   #########
 
-  defp parse( lines = [ %Line.TableLine{columns: cols1},
+  defp _parse( lines = [ %Line.TableLine{columns: cols1},
                         %Line.TableLine{columns: cols2}
                       | _rest
-                      ], result)
+                      ], result, filename)
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
     { table, rest } = read_table(lines, columns, Table.new_for_columns(columns))
-    parse(rest, [ table | result ])
+    _parse(rest, [ table | result ], filename)
   end
 
   #############
   # Paragraph #
   #############
 
-  defp parse( lines = [ %Line.TableLine{} | _ ], result) do
-    {para_lines, rest} = Enum.split_while(lines, &is_text/1)
+  defp _parse( lines = [ %Line.TableLine{} | _ ], result, filename) do
+    {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
-    parse(rest, [ %Para{lines: line_text} | result ])
+    _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
 
-  defp parse( lines = [ %Line.Text{} | _ ], result)
+  defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
-    {reversed_para_lines, rest} = consolidate_para( lines )
+    {reversed_para_lines, rest, pending} = consolidate_para(lines) 
+    case pending do
+      {nil, _} -> true
+      {pending, lnb} ->
+        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
+    end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
-    parse(rest, [ %Para{lines: line_text} | result ])
+    _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
 
   #########
@@ -149,66 +157,75 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp parse( [first = %Line.ListItem{type: type} | rest ], result) do
-    {spaced, list_lines, rest} = read_list_lines(rest, [], pending_inline_code(first.line))
+  defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
+    {spaced, list_lines, rest, offset} = 
+      case read_list_lines(rest, opens_inline_code(first)) do
+        {s, ll, r, {_btx, lnb}} ->
+          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
+          {s, ll, r, lnb}
+        {s, ll, r} -> {s, ll, r, 0}
+      end
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{filename: filename, offset: offset - 1}, true)
 
-    parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ])
+    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end
 
   #################
   # Indented code #
   #################
 
-  defp parse( list = [%Line.Indent{} | _], result) do
-    {code_lines, rest} = Enum.split_while(list, &is_indent_or_blank/1)
+  defp _parse( list = [%Line.Indent{} | _], result, filename) do
+    {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
-    parse(rest, [ %Code{lines: code} | result ])
+    _parse(rest, [ %Code{lines: code} | result ], filename)
   end
 
   ###############
   # Fenced code #
   ###############
 
-  defp parse([%Line.Fence{delimiter: delimiter, language: language} | rest], result) do
+  defp _parse([%Line.Fence{delimiter: delimiter, language: language} | rest], result, filename) do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
     rest = if length(rest) == 0, do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
-    parse(rest, [ %Code{lines: code, language: language} | result ])
+    _parse(rest, [ %Code{lines: code, language: language} | result ], filename)
   end
 
   ##############
   # HTML block #
   ##############
-  defp parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result) do
-    {html_lines, rest} = html_match_to_closing(tag, rest, [opener])
+  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, filename) do
+    {status, {html_lines, rest}} = html_match_to_closing(tag, rest, [opener])
+    unless status == :ok do
+      emit_error filename, opener, :warning, "Failed to find closing <#{tag}>"
+    end
     html = (for line <- Enum.reverse(html_lines), do: line.line)
-    parse(rest, [ %Html{tag: tag, html: html} | result ])
+    _parse(rest, [ %Html{tag: tag, html: html} | result ], filename)
   end
 
   ####################
   # HTML on one line #
   ####################
 
-  defp parse([ %Line.HtmlOneLine{line: line} | rest], result) do
-    parse(rest, [ %HtmlOther{html: [ line ]} | result ])
+  defp _parse([ %Line.HtmlOneLine{line: line} | rest], result, filename) do
+    _parse(rest, [ %HtmlOther{html: [ line ]} | result ], filename)
   end
 
   ################
   # HTML Comment #
   ################
 
-  defp parse([ line = %Line.HtmlComment{complete: true} | rest], result) do
-    parse(rest, [ %HtmlOther{html: [ line.line ]} | result ])
+  defp _parse([ line = %Line.HtmlComment{complete: true} | rest], result, filename) do
+    _parse(rest, [ %HtmlOther{html: [ line.line ]} | result ], filename)
   end
 
-  defp parse(lines = [ %Line.HtmlComment{complete: false} | _], result) do
+  defp _parse(lines = [ %Line.HtmlComment{complete: false} | _], result, filename) do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
@@ -218,7 +235,7 @@ defmodule Earmark.Block do
       {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
-    parse(rest, [ %HtmlOther{html: html} | result ])
+    _parse(rest, [ %HtmlOther{html: html} | result ], filename)
   end
 
   #################
@@ -226,7 +243,7 @@ defmodule Earmark.Block do
   #################
 
   # the title may be on the line following the iddef
-  defp parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result)
+  defp _parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result, filename)
   when title == nil
   do
     title = case maybe_title do
@@ -236,39 +253,39 @@ defmodule Earmark.Block do
     end
 
     if title do
-      parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title} | result])
+      _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title} | result], filename)
     else
-      parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url} | result])
+      _parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url} | result], filename)
     end
   end
 
   # or not
-  defp parse( [ defn = %Line.IdDef{} | rest ], result) do
-    parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result])
+  defp _parse( [ defn = %Line.IdDef{} | rest ], result, filename) do
+    _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result], filename)
   end
 
   #######################
   # Footnote Definition #
   #######################
 
-  defp parse( [ defn = %Line.FnDef{id: _id} | rest ], result ) do
-    {para_lines, rest} = Enum.split_while(rest, &is_text/1)
+  defp _parse( [ defn = %Line.FnDef{id: _id} | rest ], result , filename) do
+    {para_lines, rest} = Enum.split_while(rest, &text?/1)
     first_line = %Line.Text{line: defn.content}
-    para = parse([ first_line | para_lines ], [])
-    {indent_lines, rest} = Enum.split_while(rest, &is_indent_or_blank/1)
+    para = _parse([ first_line | para_lines ], [], filename)
+    {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _ } = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
                 |> Parser.parse(true)
     blocks = Enum.concat(para, blocks)
-    parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] )
+    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] , filename)
   end
 
   ####################
   # IAL (attributes) #
   ####################
 
-  defp parse( [ %Line.Ial{attrs: attrs} | rest ], result) do
-    parse(rest, [ %Ial{attrs: attrs} | result ])
+  defp _parse( [ %Line.Ial{attrs: attrs} | rest ], result, filename) do
+    _parse(rest, [ %Ial{attrs: attrs} | result ], filename)
   end
 
   ###############
@@ -276,17 +293,17 @@ defmodule Earmark.Block do
   ###############
   # We've reached the point where empty lines are no longer significant
 
-  defp parse( [ %Line.Blank{} | rest ], result) do
-    parse(rest, result)
+  defp _parse( [ %Line.Blank{} | rest ], result, filename) do
+    _parse(rest, result, filename)
   end
 
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
 
-  defp parse( [ anything | rest ], result) do
-    IO.puts(:stderr, "Unexpected line #{anything.line}")
-    parse( [ %Line.Text{content: anything.line} | rest], result)
+  defp _parse( [ anything | rest ], result, filename) do
+    emit_error filename, anything, :warning, "Unexpected line #{anything.line}"
+    _parse( [ %Line.Text{content: anything.line} | rest], result, filename)
   end
 
   #######################################################
@@ -306,17 +323,17 @@ defmodule Earmark.Block do
   ############################################################
   # Consolidate multiline inline code blocks into an element #
   ############################################################
-  defp consolidate_para( lines ), do: consolidate_para( lines, [], false )
-  defp consolidate_para( [], result, false ), do: {result, []}
-  defp consolidate_para( [], result, pending ) do
-    IO.puts( :stderr, "Closing unclosed backquotes #{pending} at end of input" )
-    {result, []}
+  @not_pending {nil, 0}
+  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
+
+  defp _consolidate_para( [], result, pending ) do
+    {result, [], pending}
   end
 
-  defp consolidate_para( [line | rest] = lines, result, pending ) do
-    case is_inline_or_text( line, pending ) do
-      %{pending: still_pending, continue: true} -> consolidate_para( rest, [line | result], still_pending )
-      _                                         -> {result, lines}
+  defp _consolidate_para( [line | rest] = lines, result, pending ) do
+    case inline_or_text?( line, pending ) do
+      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
+      _                                         -> {result, lines, @not_pending}
     end
 
   end
@@ -387,87 +404,6 @@ defmodule Earmark.Block do
     end
   end
 
-  ##################################################
-  # Called to slurp in the lines for a list item.
-  # basically, we allow indents and blank lines, and
-  # we allow text lines only after an indent (and initially)
-  # We also slurp in lines that are inside a multiline inline
-  # code block as indicated by the third param
-
-  # text immediately after the start
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], [], false) do
-    read_list_lines(rest, [ line ], pending_inline_code(text))
-  end
-  # table line immediately after the start
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], [], false) do
-    read_list_lines(rest, [ line ], pending_inline_code(text))
-  end
-
-  # text immediately after another text line
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-  # table line immediately after another text line
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Text{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  # text immediately after a table line
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-  # table line immediately after another table line
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.TableLine{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  # text immediately after an indent
-  defp read_list_lines([ line = %Line.Text{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-  # table line immediately after an indent
-  defp read_list_lines([ line = %Line.TableLine{line: text} | rest ], result =[ %Line.Indent{} | _], false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  # Always allow blank lines and indents, and text or table lines with at least
-  # two spaces
-  defp read_list_lines([ line = %Line.Blank{} | rest ], result, false) do
-    read_list_lines(rest, [ line | result ], false)
-  end
-
-  defp read_list_lines([ line = %Line.Indent{line: text} | rest ], result, false) do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  defp read_list_lines([ line = %Line.Text{line: ( text = <<"  ", _ :: binary>> )} | rest ],
-                         result, false)
-  do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  defp read_list_lines([ line = %Line.TableLine{content: ( text = <<"  ", _ :: binary>> )} | rest ],
-                         result, false)
-  do
-    read_list_lines(rest, [ line | result ], pending_inline_code(text))
-  end
-
-  # no match, must be done
-  defp read_list_lines(lines, result, false) do
-    { trailing_blanks, rest } = Enum.split_while(result, &is_blank/1)
-    spaced = length(trailing_blanks) > 0
-    { spaced, Enum.reverse(rest), lines }
-  end
-
-  # Only now we match for list lines inside an open multiline inline code block
-  defp read_list_lines([line|rest], result, opening_backquotes) do
-    read_list_lines(rest, [%{line|inside_code: true} | result], still_pending_inline_code(line.line, opening_backquotes))
-  end
-  # Running into EOI insise an open multiline inline code block
-  defp read_list_lines([], result, opening_backquotes) do
-    IO.puts( :stderr, "Closing unclosed backquotes #{opening_backquotes} at end of input" )
-    read_list_lines( [], result, false )
-  end
 
   #####################################################
   # Traverse the block list and build a list of links #
@@ -518,9 +454,8 @@ defmodule Earmark.Block do
   ###################################################################
 
   # run out of input
-  defp html_match_to_closing(tag, [], result) do
-    IO.puts(:stderr, "Failed to find closing <#{tag}>")
-    { result, [] }
+  defp html_match_to_closing(_tag, [], result) do
+    {:error, { result, [] }}
   end
 
   # find closing tag
@@ -528,7 +463,7 @@ defmodule Earmark.Block do
                              [closer = %Line.HtmlCloseTag{tag: tag} | rest],
                              result)
   do
-    { [closer | result], rest }
+    {:ok, { [closer | result], rest }}
   end
 
   # a nested open tag
@@ -536,8 +471,10 @@ defmodule Earmark.Block do
                              [opener = %Line.HtmlOpenTag{tag: new_tag} | rest],
                              result)
   do
-    { html_lines, rest } = html_match_to_closing(new_tag, rest, [opener])
-    html_match_to_closing(tag, rest, html_lines ++ result)
+    case html_match_to_closing(new_tag, rest, [opener]) do
+      {:ok, { html_lines, rest }} ->  html_match_to_closing(tag, rest, html_lines ++ result)
+      error                       ->  error
+    end
   end
 
   # anything else
@@ -550,45 +487,20 @@ defmodule Earmark.Block do
   # Helpers #
   ###########
 
-  defp is_blank(%Line.Blank{}),   do: true
-  defp is_blank(_),               do: false
 
-  # Gruber's tests have
-  #
-  #   para text...
-  #   * and more para text
-  #
-  # So list markers inside paragraphs are ignored. But he also has
-  #
-  #   *   line
-  #       * line
-  #
-  # And expects it to be a nested list. These seem to be in conflict
-  #
-  # I think the second is a better interpretation, so I commented
-  # out the 2nd match below.
-
-  defp is_text(%Line.Text{}),      do: true
-  defp is_text(%Line.TableLine{}), do: true
-#  defp is_text(%Line.ListItem{}), do: true
-  defp is_text(_),                 do: false
-
-  defp is_blockquote_or_text(%Line.BlockQuote{}), do: true
-  defp is_blockquote_or_text(struct),             do: is_text(struct)
-
-  defp is_indent_or_blank(%Line.Indent{}), do: true
-  defp is_indent_or_blank(line),           do: is_blank(line)
-
-  defp is_inline_or_text(line, pending)
-  defp is_inline_or_text(line = %Line.Text{}, false) do
-    %{pending: pending_inline_code(line.line), continue: true}
+  defp inline_or_text?(line, pending)
+  defp inline_or_text?(line = %Line.Text{}, @not_pending) do
+    pending = opens_inline_code(line)
+    %{pending: pending, continue: true}
   end
-  defp is_inline_or_text(line = %Line.TableLine{}, false) do
-    %{pending: pending_inline_code(line.line), continue: true}
+  defp inline_or_text?(line = %Line.TableLine{}, @not_pending) do
+    pending = opens_inline_code(line)
+    %{pending: pending, continue: true}
   end
-  defp is_inline_or_text( _line, false), do: %{pending: false, continue: false}
-  defp is_inline_or_text( line, pending ) do
-    %{pending: still_pending_inline_code( line.line, pending ), continue: true}
+  defp inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
+  defp inline_or_text?( line, pending ) do
+    pending = still_inline_code(line, pending)
+    %{pending: pending, continue: true}
   end
 
 
@@ -596,11 +508,6 @@ defmodule Earmark.Block do
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
   end
-
-  defp blank_line_in?([]),                    do: false
-  defp blank_line_in?([ %Line.Blank{} | _ ]), do: true
-  defp blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
-
 
   # In case we are inside a code block we return the verbatim text
   defp properly_indent(%{inside_code: true, line: line}, _level) do
@@ -624,7 +531,7 @@ defmodule Earmark.Block do
   defp remove_trailing_blank_lines(lines) do
     lines
     |> Enum.reverse
-    |> Enum.drop_while(&is_blank/1)
+    |> Enum.drop_while(&blank?/1)
     |> Enum.reverse
   end
 end
