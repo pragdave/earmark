@@ -1,2 +1,2 @@
-%{"kwfuns": {:hex, :kwfuns, "0.0.1"},
-  "poison": {:hex, :poison, "1.5.0"}}
+%{"kwfuns": {:hex, :kwfuns, "0.0.1", "ef863f0d2e44c5c3041f74d87b571a9feeaee197e4eec4ec31e2ee82dd9b3ed1", [:mix], []},
+  "poison": {:hex, :poison, "2.1.0", "f583218ced822675e484648fa26c933d621373f01c6c76bd00005d7bd4b82e27", [:mix], []}}
