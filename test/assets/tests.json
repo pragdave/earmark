@@ -487,9 +487,9 @@
   },
   {
     "section": "Links",
-    "html": "<p><a href=\"/uri\">link</a></p>\n",
+    "html": "<p><a href=\"/uri)\">link</a></p>\n",
     "example": 81,
-    "markdown": "[link](/uri)\n"
+    "markdown": "[link](/uri))\n"
   },
   {
     "section": "Links",

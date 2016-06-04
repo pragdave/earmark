@@ -265,7 +265,7 @@ defmodule Earmark.Inline do
       ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
                   '[^'<]*' |
                    [^'"<>])*?>}x,
-    link:     ~r{^!?\[(#{@inside})\]\(#{@href}\)},
+    link:     ~r{^!?\[(#{@inside})\]\(#{@href}\)(?!\))},
     reflink:  ~r{^!?\[(#{@inside})\]\s*\[([^\]]*)\]},
     nolink:   ~r{^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]},
     strong:   ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
