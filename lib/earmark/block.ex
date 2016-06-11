@@ -59,7 +59,7 @@ defmodule Earmark.Block do
 
 
 
-  defp _parse([], result, _filename), do: result     # consolidate also reverses, so no need
+  defp _parse([], result, _filename), do: result
 
   ###################
   # setext headings #

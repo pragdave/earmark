@@ -24,6 +24,7 @@ defmodule Earmark.Mixfile do
     [{:poison, "~> 2.1", only: [:dev, :test]},
      {:credo, "~> 0.4.1", only: [:dev, :test]},
      {:dialyxir, "~> 0.3.3", only: [:dev, :test]},
+     {:ex_doc, ">= 0.0.0", only: :dev},
      {:kwfuns, "~> 0.0", only: :test}]
   end
 

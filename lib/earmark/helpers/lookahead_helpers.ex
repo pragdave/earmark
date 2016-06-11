@@ -42,7 +42,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
   (?<!\\)(`++)        # unescaped `, assuring longest match of `
   '''x
-  @spec has_opening_backquotes(String.t()) :: nil | String.t | {integer, integer}
+  @spec has_opening_backquotes(String.t()) :: maybe( String.t )
   defp has_opening_backquotes line do
     case Regex.run( @first_opening_backquotes, line ) do 
     [_total, opening_backquotes | _rest] -> opening_backquotes
@@ -58,7 +58,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   opening backquotes 
   """
   # (#{},{_,_}) -> {_,_}
-  @spec still_inline_code(numbered_line, {any, any}) :: {any, any}
+  @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
   def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
     new_line = case ( ~r"""
     ^.*?                                 # shortest possible prefix
@@ -80,12 +80,13 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
-  @spec read_list_lines( Line.ts, inline_code_continuation )::{any, Line.ts, Line.ts}
+  @spec read_list_lines( Line.ts, inline_code_continuation )::{boolean, Line.ts, Line.ts}
   def read_list_lines( lines, pending ) do 
     _read_list_lines(lines, [], pending)
   end
 
   @not_pending {nil, 0}
+  @spec _read_list_lines(Line.ts, Line.ts, inline_code_continuation) :: {boolean, Line.ts, Line.ts}
   # text immediately after the start
   defp _read_list_lines([ line = %Line.Text{} | rest ], [], @not_pending) do
     _read_list_lines(rest, [ line ], opens_inline_code(line))

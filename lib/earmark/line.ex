@@ -71,7 +71,8 @@ defmodule Earmark.Line do
   # line we generate. We also need to expand tabs before
   # proceeding
 
-  def scan_lines lines, options, recursive do
+  @spec scan_lines( list(String.t), %Earmark.Options{}, boolean ) :: ts
+  def scan_lines lines, options, recursive do lines
     lines_with_count( lines, options.offset )
     |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end)
   end
