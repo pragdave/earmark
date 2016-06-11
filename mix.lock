@@ -1,2 +1,5 @@
-%{"kwfuns": {:hex, :kwfuns, "0.0.1", "ef863f0d2e44c5c3041f74d87b571a9feeaee197e4eec4ec31e2ee82dd9b3ed1", [:mix], []},
+%{"bunt": {:hex, :bunt, "0.1.6", "5d95a6882f73f3b9969fdfd1953798046664e6f77ec4e486e6fafc7caad97c6f", [:mix], []},
+  "credo": {:hex, :credo, "0.4.1", "e67c65b89662675e7278b45c9dc4633e18797cf4481ebc5b47340ccbcfe721c9", [:mix], [{:bunt, "~> 0.1.6", [hex: :bunt, optional: false]}]},
+  "dialyxir": {:hex, :dialyxir, "0.3.3", "2f8bb8ab4e17acf4086cae847bd385c0f89296d3e3448dc304c26bfbe4b46cb4", [:mix], []},
+  "kwfuns": {:hex, :kwfuns, "0.0.1", "ef863f0d2e44c5c3041f74d87b571a9feeaee197e4eec4ec31e2ee82dd9b3ed1", [:mix], []},
   "poison": {:hex, :poison, "2.1.0", "f583218ced822675e484648fa26c933d621373f01c6c76bd00005d7bd4b82e27", [:mix], []}}

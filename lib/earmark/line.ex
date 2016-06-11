@@ -41,10 +41,6 @@ defmodule Earmark.Line do
   '''x
 #'
 
-  @type t :: Blank.t | Ruler.t | Heading.t | BlockQuote.t | Indent.t | Fence.t | HtmlOpenTag.t | HtmlCloseTag.t | HtmlComment.t | HtmlOneLine.t |
-    IdDef.t | FnDef.t | ListItem.t | SetextUnderlineHeading.t | TableLine.t | Ial.t | Text.t
-
-  @type ts :: list(t)
     
   defmodule Blank,        do: defstruct lnb: 0, line: "", content: "", inside_code: false
   defmodule Ruler,        do: defstruct lnb: 0, line: "", type: "- or * or _", inside_code: false
@@ -66,6 +62,10 @@ defmodule Earmark.Line do
   defmodule TableLine,    do: defstruct lnb: 0, line: "", content: "", columns: 0, inside_code: false
   defmodule Ial,          do: defstruct lnb: 0, line: "", attrs:   "", inside_code: false
   defmodule Text,         do: defstruct lnb: 0, line: "", content: "", inside_code: false
+
+  @type t :: %Blank{} | %Ruler{} | %Heading{} | %BlockQuote{} | %Indent{} | %Fence{} | %HtmlOpenTag{} | %HtmlCloseTag{} | %HtmlComment{} | %HtmlOneLine{} | %IdDef{} | %FnDef{} | %ListItem{} | %SetextUnderlineHeading{} | %TableLine{} | %Ial{} | %Text{}
+
+  @type ts :: list(t)
   @doc false
   # We want to add the original source line into every
   # line we generate. We also need to expand tabs before

@@ -42,7 +42,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
   (?<!\\)(`++)        # unescaped `, assuring longest match of `
   '''x
-  @spec has_opening_backquotes(String.t()) :: inline_code_continuation
+  @spec has_opening_backquotes(String.t()) :: nil | String.t | {integer, integer}
   defp has_opening_backquotes line do
     case Regex.run( @first_opening_backquotes, line ) do 
     [_total, opening_backquotes | _rest] -> opening_backquotes
@@ -57,7 +57,8 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   If the function does not return false it returns the (new or original)
   opening backquotes 
   """
-  @spec still_inline_code(numbered_line, String.t) :: inline_code_continuation
+  # (#{},{_,_}) -> {_,_}
+  @spec still_inline_code(numbered_line, {any, any}) :: {any, any}
   def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
     new_line = case ( ~r"""
     ^.*?                                 # shortest possible prefix
