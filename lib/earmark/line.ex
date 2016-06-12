@@ -71,6 +71,7 @@ defmodule Earmark.Line do
   # line we generate. We also need to expand tabs before
   # proceeding
 
+  # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
   @spec scan_lines( list(String.t), %Earmark.Options{}, boolean ) :: ts
   def scan_lines lines, options, recursive do lines
     lines_with_count( lines, options.offset )

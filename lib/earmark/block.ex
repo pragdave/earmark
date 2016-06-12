@@ -37,10 +37,15 @@ defmodule Earmark.Block do
     end
   end
 
+  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOther{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{} 
+  @type ts :: list(t)
+
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks.
   # Then extract any id definitions, and build a hashdict from them. Not
   # for external consumption.
+
+  @spec parse( Line.ts, String.t ) :: {ts, %{}}
   def parse(lines, filename) do
     lines = remove_trailing_blank_lines( lines )
     blocks = lines_to_blocks(lines,filename)
@@ -58,7 +63,7 @@ defmodule Earmark.Block do
   end
 
 
-
+  @spec _parse(Line.ts, ts, String.t) :: ts
   defp _parse([], result, _filename), do: result
 
   ###################
@@ -110,7 +115,7 @@ defmodule Earmark.Block do
   defp _parse( lines = [ %Line.BlockQuote{} | _ ], result, filename) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
-    {blocks, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{}, true)
     _parse(rest, [ %BlockQuote{blocks: blocks} | result ], filename)
   end
 
@@ -275,7 +280,7 @@ defmodule Earmark.Block do
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _ } = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
-                |> Parser.parse(true)
+                |> Parser.parse(%Earmark.Options{}, true)
     blocks = Enum.concat(para, blocks)
     _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] , filename)
   end
@@ -413,6 +418,7 @@ defmodule Earmark.Block do
     visit(blocks, Map.new, &link_extractor/2)
   end
 
+  @spec link_extractor(t, %{}) :: %{}
   defp link_extractor(item = %IdDef{id: id}, result) do
     Map.put(result, String.downcase(id), item)
   end
@@ -424,27 +430,28 @@ defmodule Earmark.Block do
   # Visitor pattern for each block #
   ##################################
 
-  def visit([], result, _func), do: result
+  @spec visit(ts, %{}, (t, %{} -> %{})) :: %{} 
+  defp visit([], result, _func), do: result
 
-  def visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item = %List{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %List{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item = %ListItem{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %ListItem{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item | rest], result, func) do
+  defp visit([ item | rest], result, func) do
     result = func.(item, result)
     visit(rest, result, func)
   end

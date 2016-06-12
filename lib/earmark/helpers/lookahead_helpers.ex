@@ -7,8 +7,12 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   import Earmark.Helpers.StringHelpers
 
   @doc """
-  returns false unless the line leaves a code block open,
-  in which case the opening backquotes are returned as a string
+  Indicates if the _numbered_line_ passed in leaves an inline code block open.
+
+  If so returns a tuple whre the first element is the opening sequence of backticks,
+  and the second the linenumber of the _numbered_line_
+
+  Otherwise `{nil, 0}` is returned 
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
@@ -73,6 +77,11 @@ defmodule Earmark.Helpers.LookaheadHelpers do
       _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
     end
   end
+
+  #######################################################################################
+  # read_list_lines
+  #######################################################################################
+  @spec read_list_lines( Line.ts, inline_code_continuation )::{boolean, Line.ts, Line.ts}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
@@ -80,7 +89,6 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
-  @spec read_list_lines( Line.ts, inline_code_continuation )::{boolean, Line.ts, Line.ts}
   def read_list_lines( lines, pending ) do 
     _read_list_lines(lines, [], pending)
   end
