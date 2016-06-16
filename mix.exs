@@ -9,10 +9,10 @@ defmodule Earmark.Mixfile do
       version:      "0.2.2",
       elixir:       "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
-      escript:       escript_config,
-      deps:          deps,
-      description:   description,
-      package:       package,
+      escript:       escript_config(),
+      deps:          deps(),
+      description:   description(),
+      package:       package(),
     ]
   end
 

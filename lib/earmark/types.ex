@@ -1,6 +1,6 @@
 defmodule Earmark.Types do
 
-  defmacro __using__(options \\ []) do
+  defmacro __using__(_options \\ []) do
     quote do
       @type numbered_line :: %{line: String.t, lnb: number}
       @type maybe(t) :: t | :nil

@@ -6,22 +6,22 @@ defmodule TableTest do
 
   test "test one table line is just a paragraph" do
     result = Block.lines_to_blocks([
-                %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"}, 
+                %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
                 %Line.Blank{}
-             ], filename)
+             ], filename())
 
     assert result == [ %Block.Para{lines: ["a | b | c"]} ]
   end
 
   test "test two table lines make a table" do
     result = Block.lines_to_blocks([
-                %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"}, 
-                %Line.TableLine{columns: ~w{d e f}, line: "d | e | f"}, 
+                %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
+                %Line.TableLine{columns: ~w{d e f}, line: "d | e | f"},
                 %Line.Blank{}
-             ], filename)
+             ], filename())
 
     expected = %Block.Table{
-      rows:       [ ~w{a b c}, ~w{d e f} ], 
+      rows:       [ ~w{a b c}, ~w{d e f} ],
       alignments: [ :left, :left, :left ],
       header:     nil}
 
@@ -30,15 +30,15 @@ defmodule TableTest do
 
   test "test heading" do
     result = Block.lines_to_blocks([
-                %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"}, 
-                %Line.TableLine{columns: ~w{ --- --- ---}, line: "--|---|--"}, 
-                %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"}, 
+                %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"},
+                %Line.TableLine{columns: ~w{ --- --- ---}, line: "--|---|--"},
+                %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
                 %Line.Blank{}
-             ], filename)
+             ], filename())
 
     expected = %Block.Table{
-      header:     ~w{a b c}, 
-      rows:       [ ~w{d e f} ], 
+      header:     ~w{a b c},
+      rows:       [ ~w{d e f} ],
       alignments: [ :left, :left, :left ]}
 
     assert result == [ expected ]
@@ -46,22 +46,22 @@ defmodule TableTest do
 
   test "test alignment" do
     result = Block.lines_to_blocks([
-                %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"}, 
-                %Line.TableLine{columns: ~w{ --: :--: :---}, line: "--|---|--"}, 
-                %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"}, 
+                %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"},
+                %Line.TableLine{columns: ~w{ --: :--: :---}, line: "--|---|--"},
+                %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
                 %Line.Blank{}
-             ], filename)
+             ], filename())
 
     expected = %Block.Table{
-      header:     ~w{a b c}, 
-      rows:       [ ~w{d e f} ], 
+      header:     ~w{a b c},
+      rows:       [ ~w{d e f} ],
       alignments: [ :right, :center, :left ]}
 
     assert result == [ expected ]
   end
 
 
-  
+
   test "Simple table render" do
     result = Earmark.to_html(["a | b | c", "d | e | f"])
     expected = """
@@ -124,8 +124,8 @@ defmodule TableTest do
     assert result == expected
   end
 
-  defp filename do 
-    "file name" 
+  defp filename do
+    "file name"
   end
 
 end
