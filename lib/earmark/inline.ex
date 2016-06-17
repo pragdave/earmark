@@ -308,7 +308,7 @@ defmodule Earmark.Inline do
     end
     footnote = if options.footnotes, do: ~r{^\[\^(#{@inside})\]}, else: ~r{\z\A}
     rule_updates = Keyword.merge(rule_updates, [footnote: footnote])
-    Keyword.merge(basic_rules, rule_updates)
+    Keyword.merge(basic_rules(), rule_updates)
     |> Enum.into(%{})
   end
   end
