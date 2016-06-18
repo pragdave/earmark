@@ -1,8 +1,8 @@
 defmodule Earmark.Block do
 
   use Earmark.Types
-  import Earmark.Helpers, only: [emit_error: 4]
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
+  import Earmark.Helpers.Errors, only: [emit_error: 2, emit_error: 4]
+  import Earmark.Helpers.LookaheadHelpers, only: [has_opening_backquotes: 1, opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
 
   @moduledoc """
@@ -13,6 +13,7 @@ defmodule Earmark.Block do
 
   alias Earmark.Line
   alias Earmark.Parser
+  alias Earmark.Helpers.Errors.Location
 
 
   defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
@@ -146,12 +147,8 @@ defmodule Earmark.Block do
 
   defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
-    {reversed_para_lines, rest, pending} = consolidate_para(lines) 
-    case pending do
-      {nil, _} -> true
-      {pending, lnb} ->
-        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
-    end
+    {reversed_para_lines, rest, errors} = consolidate_para(lines) 
+    emit_errors( errors, filename )
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text} | result ], filename)
   end
@@ -166,14 +163,13 @@ defmodule Earmark.Block do
     {spaced, list_lines, rest, offset} = 
       case read_list_lines(rest, opens_inline_code(first)) do
         {s, ll, r, {_btx, lnb}} ->
-          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
           {s, ll, r, lnb}
         {s, ll, r} -> {s, ll, r, 0}
       end
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _} = Parser.parse(lines, %Earmark.Options{filename: filename, offset: offset - 1}, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{filename: filename, offset: first.lnb - 1}, true)
 
     _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end
@@ -330,19 +326,19 @@ defmodule Earmark.Block do
   # Consolidate multiline inline code blocks into an element #
   ############################################################
   @not_pending {nil, 0}
-  # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
-  # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} } 
-  defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
+  @spec consolidate_para( ts ) :: { ts, ts, Errors.ts}  
+  defp consolidate_para( lines ), do: _consolidate_para( lines, [], [], @not_pending ) |> Tuple.delete_at(3)
 
-  @spec _consolidate_para( ts, ts, inline_code_continuation ) :: { ts, ts, inline_code_continuation }
-  defp _consolidate_para( [], result, pending ) do
-    {result, [], pending}
+  @spec _consolidate_para( ts, ts, Errors.ts, inline_code_continuation ) :: { ts, ts, Errors.ts, inline_code_continuation }
+  defp _consolidate_para( [], result, errors, pending ) do
+    {result, [], errors, pending}
   end
 
-  defp _consolidate_para( [line | rest] = lines, result, pending ) do
+  defp _consolidate_para( [line | rest] = lines, result, errors, pending ) do
+    errors = add_deprecation( line, errors )
     case inline_or_text?( line, pending ) do
-      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
-      _                                         -> {result, lines, @not_pending}
+      %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], errors, still_pending )
+      _                                         -> {result, lines, errors, @not_pending}
     end
 
   end
@@ -502,7 +498,6 @@ defmodule Earmark.Block do
   ###########
 
 
-  # (_,{'nil' | binary(),number()}) -> #{}jj
   @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
   defp inline_or_text?(line, pending)
   defp inline_or_text?(line = %Line.Text{}, @not_pending) do
@@ -550,4 +545,25 @@ defmodule Earmark.Block do
     |> Enum.drop_while(&blank?/1)
     |> Enum.reverse
   end
+
+  defp add_deprecation( %{line: line, lnb: lnb}, errors ) do 
+    case has_opening_backquotes(line) do 
+      nil -> errors
+      btx -> [ 
+        %Location{message: ~s{close pending "#{btx}", multiline inline code blocks are deprecated},
+                         lnb: lnb, 
+                         type: :warning} | errors ]
+    end
+  end
+
+  defp emit_errors(errors, filename) do 
+    errors 
+    |> Enum.reverse
+    |> Enum.each( &(emit_one_error(&1,filename)) )
+  end
+
+  defp emit_one_error( error_location, filename ) do 
+    emit_error(filename, error_location)
+  end
+
 end

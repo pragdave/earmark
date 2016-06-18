@@ -47,7 +47,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   (?<!\\)(`++)        # unescaped `, assuring longest match of `
   '''x
   @spec has_opening_backquotes(String.t()) :: maybe( String.t )
-  defp has_opening_backquotes line do
+  def has_opening_backquotes line do
     case Regex.run( @first_opening_backquotes, line ) do 
     [_total, opening_backquotes | _rest] -> opening_backquotes
     _no_match                            -> nil
