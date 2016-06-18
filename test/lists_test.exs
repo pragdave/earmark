@@ -7,7 +7,7 @@ defmodule ListTest do
   test "Basic UL" do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
     ]}]
@@ -18,7 +18,7 @@ defmodule ListTest do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Text{content: "line 2"}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
@@ -32,7 +32,7 @@ defmodule ListTest do
                %Line.Blank{},
                %Line.Indent{content: "line 2", level: 1},
                %Line.Blank{}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["line 2"]}],
@@ -47,7 +47,7 @@ defmodule ListTest do
                %Line.Blank{},
                %Line.Text{content: "  line 2", line: "  line 2"},
                %Line.Blank{}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["  line 2"]}],
@@ -61,7 +61,7 @@ defmodule ListTest do
                %Line.ListItem{bullet: "*", content: "line 1"},
                %Line.Text{content: "line 2"},
                %Line.Blank{}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
                  %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
@@ -73,7 +73,7 @@ defmodule ListTest do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
@@ -86,7 +86,7 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
@@ -100,8 +100,8 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
                %Line.Blank{},
                %Line.Text{content: "para", line: "para"}
-             ], filename)
-    expected = [ 
+             ], filename())
+    expected = [
        %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
@@ -119,7 +119,7 @@ defmodule ListTest do
                %Line.Indent{level: 3, content: "code 2", lnb: 1},
                %Line.Blank{ lnb: 1},
                %Line.Indent{level: 1, content: "line 2", lnb: 1},
-             ], filename)
+             ], filename())
 
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [
@@ -127,18 +127,18 @@ defmodule ListTest do
                %Block.Code{language: nil, lines: ["code 1", "    code 2"]},
                %Block.Para{lines: ["line 2"]}], spaced: false}
     ]}]
-    
+
     assert result == expected
   end
 
   # OLs are handled by the same code as ULs, so to save time, we really just
-  # need a single smoke test. If this changes in future, we'll need to 
+  # need a single smoke test. If this changes in future, we'll need to
   # relook at this
 
   test "Basic OL" do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
-             ], filename)
+             ], filename())
     expected = [ %Block.List{ type: :ol, blocks: [
          %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
     ]}]
@@ -146,7 +146,7 @@ defmodule ListTest do
   end
 
 
-  
+
   test "Simple list render" do
     result = Earmark.to_html(["* one", "* two"])
     expected = """
@@ -172,7 +172,7 @@ defmodule ListTest do
 
   test "Initial indentation of * taken into account when looking at body" do
     result = Earmark.to_html([
-    "   * one", 
+    "   * one",
     "     one.one",
     "   * two"
     ])
@@ -186,7 +186,7 @@ defmodule ListTest do
     assert result == expected
   end
 
-  defp filename do 
+  defp filename do
     "some file"
   end
 end
