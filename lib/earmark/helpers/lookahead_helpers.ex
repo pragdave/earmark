@@ -81,7 +81,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   #######################################################################################
   # read_list_lines
   #######################################################################################
-  @spec read_list_lines( Line.ts, inline_code_continuation )::{boolean, Line.ts, Line.ts}
+  @spec read_list_lines( Line.ts, inline_code_continuation ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts, {String.t, number}}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
