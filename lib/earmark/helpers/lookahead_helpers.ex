@@ -64,6 +64,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     end
   end
 
+  @spec behead_pending_inline_code( String.t, String.t ) :: maybe(String.t)
   defp behead_pending_inline_code( line, pending_btx ) do 
     case ( ~r"""
     ^.*?                             # shortest possible prefix
@@ -76,7 +77,6 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   #######################################################################################
   # read_list_lines
   #######################################################################################
-  @spec read_list_lines( Line.ts, maybe(String) ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts, {String.t, number}}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
@@ -84,6 +84,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
+  @spec read_list_lines( Line.ts, maybe(String) ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts}
   def read_list_lines( lines, pending ) do 
     case result = _read_list_lines(lines, [], pending ) do
       {spaced, list_lines, rest, _} -> {spaced, list_lines, rest}
@@ -163,8 +164,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
   # Running into EOI insise an open multiline inline code block
   defp _read_list_lines([], result, pending) do
-    { spaced, rest, lines } =_read_list_lines( [], result, nil )
-    { spaced, rest, lines, pending }
+    _read_list_lines( [], result, nil )
   end
 
 end

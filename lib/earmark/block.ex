@@ -14,7 +14,7 @@ defmodule Earmark.Block do
 
   alias Earmark.Line
   alias Earmark.Parser
-  alias Earmark.Helpers.Errors.Location
+  alias Earmark.Helpers.Errors
 
 
   defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
@@ -322,11 +322,10 @@ defmodule Earmark.Block do
   ############################################################
   # Consolidate multiline inline code blocks into an element #
   ############################################################
-  @not_pending {nil, 0}
   @spec consolidate_para( ts ) :: { ts, ts, Errors.ts}  
   defp consolidate_para( lines ), do: _consolidate_para( lines, [], [], nil ) |> Tuple.delete_at(3)
 
-  @spec _consolidate_para( ts, ts, Errors.ts, inline_code_continuation ) :: { ts, ts, Errors.ts, inline_code_continuation }
+  @spec _consolidate_para( ts, ts, Errors.ts, maybe(String.t) ) :: { ts, ts, Errors.ts, maybe(String.t) }
   defp _consolidate_para( [], result, errors, pending ) do
     {result, [], errors, pending}
   end
@@ -547,7 +546,7 @@ defmodule Earmark.Block do
     case has_opening_backquotes(line) do 
       nil -> errors
       btx -> [ 
-        %Location{message: ~s{close pending "#{btx}", multiline inline code blocks are deprecated},
+        %Errors.Location{message: ~s{close pending "#{btx}", multiline inline code blocks are deprecated},
                          lnb: lnb, 
                          type: :warning} | errors ]
     end
