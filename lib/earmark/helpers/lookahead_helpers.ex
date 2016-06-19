@@ -70,37 +70,33 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
-    new_line = case ( ~r"""
-    ^.*?                                 # shortest possible prefix
-    (?<![\\`])#{pending}(?!`)    # unescaped ` with exactly the length of opening_backquotes
-    """x |> Regex.run( line, return: :index ) ) do
-      [match_index_tuple | _] ->  behead(line, match_index_tuple)
-      nil                     ->  nil
-    end
-
+  def still_inline_code( %{line: line, lnb: lnb}, {pending_btx, pending_lnb} ) do
+    new_line = behead_pending_inline_code( line, pending_btx )
     case new_line do
-      nil -> {pending, pending_lnb}
+      nil -> {pending_btx, pending_lnb}
       _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
     end
   end
 
   @spec inline_code_continues?( String.t, String.t ) :: maybe(String.t)
   def inline_code_continues?( line, pending_btx ) do
-    new_line = case ( ~r"""
-    ^.*?                                 # shortest possible prefix
+    new_line = behead_pending_inline_code( line, pending_btx )
+
+    case new_line do
+      nil -> pending_btx
+      _   -> inline_code_opened?(new_line) 
+    end
+  end
+
+  defp behead_pending_inline_code( line, pending_btx ) do 
+    case ( ~r"""
+    ^.*?                             # shortest possible prefix
     (?<![\\`])#{pending_btx}(?!`)    # unescaped ` with exactly the length of opening_backquotes
     """x |> Regex.run( line, return: :index ) ) do
       [match_index_tuple | _] ->  behead(line, match_index_tuple)
       nil                     ->  nil
     end
-
-    case new_line do
-      nil -> pending_btx
-      _   -> inline_code_opened?(line) 
-    end
   end
-
   #######################################################################################
   # read_list_lines
   #######################################################################################

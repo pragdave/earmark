@@ -17,7 +17,7 @@ defmodule Helpers.InlineCodeTest.StillInlineCodeTest do
     { "backquotes before closing do not matter (reopening case)", "``", "` `` ```", {"```", 42}},
     { "backquotes before closing and after opening do not matter", "``", "` `` ``` ````", {"```", 42}},
   ] |> Enum.each( fn { description, opener, line, result } ->
-         test(description) do
+         test("still_inline_code: #{description}") do
            assert still_inline_code(%{line: unquote(line), lnb: 42}, {unquote(opener), 24}) == unquote(result)
          end
        end)
