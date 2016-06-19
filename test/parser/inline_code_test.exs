@@ -3,8 +3,10 @@ defmodule Parser.InlineCodeTest do
 
   use Kwfuns
 
+  import Test.Support.SilenceIo, only: [with_silent_io: 2]
   alias Earmark.Parser
   alias Earmark.Block
+
 
   ##########################################################################################
   #  Paragraphs
@@ -14,7 +16,7 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first", 
       "* second \\`",
       " third` `suffix`"]
-    {result, _} = Parser.parse(lines)
+    result = with_silent_io( :stderr, fn -> {result, _ } = Parser.parse(lines); result end)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -25,7 +27,7 @@ defmodule Parser.InlineCodeTest do
     lines = [ "\\`prefix`first", 
       "     second \\`",
       " third` `suffix`"]
-    {result, _} = Parser.parse(lines)
+    result = with_silent_io( :stderr, fn -> {result, _ } = Parser.parse(lines); result end)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -37,7 +39,7 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _} = Parser.parse(lines)
+    result = with_silent_io( :stderr, fn -> {result, _ } = Parser.parse(lines); result end)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -49,7 +51,7 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]
-    {result, _} = Parser.parse(lines)
+    result = with_silent_io( :stderr, fn -> {result, _ } = Parser.parse(lines); result end)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -57,7 +59,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Even number of inline code" do
-    {result, _} = Parser.parse([ "third` suffix`"])
+    result = with_silent_io(:stderr, fn -> {result, _} = Parser.parse([ "third` suffix`"]); result end)
     expect = [
       %Block.Para{attrs: nil, lines: ["third` suffix`"]}
     ]
@@ -88,7 +90,7 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first", 
       "* second \\`",
       " third` `suffix`"]
-    {result, _} = parse_as_list(lines)
+    result = with_silent_io(:stderr, fn -> {result, _} = parse_as_list(lines); result end)
     assert_list_with result, lines
   end
 
@@ -96,7 +98,7 @@ defmodule Parser.InlineCodeTest do
     lines = [ "\\`prefix`first", 
       "     second \\`",
       " third` `suffix`"]
-    {result, _} = parse_as_list( lines )
+    result = with_silent_io(:stderr, fn -> {result, _} = parse_as_list( lines ); result end)
     assert_list_with result, lines
   end
 
@@ -105,7 +107,7 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _} = parse_as_list( lines )
+    result = with_silent_io(:stderr, fn -> {result, _} = parse_as_list( lines ); result end)
     assert_list_with result, lines
   end
 
@@ -114,13 +116,13 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]
-    {result, _} = parse_as_list( lines, "1." )
+    result = with_silent_io(:stderr, fn -> {result, _} = parse_as_list( lines, "1." ); result end)
     assert_list_with result, lines, type: :ol
   end
 
   test "Even number of inline code in list" do
     lines = [ "third` suffix`"]
-    {result, _} = parse_as_list( lines, "1." )
+    result = with_silent_io(:stderr, fn -> {result, _} = parse_as_list( lines, "1." ); result end)
     assert_list_with result, lines, type: :ol
   end
 end

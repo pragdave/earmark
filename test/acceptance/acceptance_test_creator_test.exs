@@ -2,7 +2,7 @@ defmodule AcceptanceTestCreatorTest do
   use ExUnit.Case
 
   alias Support.AcceptanceTestStruct
-  import ExUnit.CaptureIO
+  import Test.Support.SilenceIo, only: [with_silent_io: 2]
 
   {:ok, test_case_data } =
   Path.join([__DIR__,"../assets/tests.json"])
@@ -17,11 +17,10 @@ defmodule AcceptanceTestCreatorTest do
     @tag :"example_#{acceptance_test.example}"
     test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
 
-      capture_io :stderr, fn ->
-        result =
-            Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
-        assert result == unquote(acceptance_test.html)
-      end
+      result = with_silent_io(:stderr, fn ->
+        Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
+      end)
+      assert result == unquote(acceptance_test.html)
     end
   end
 

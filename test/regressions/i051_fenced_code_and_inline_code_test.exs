@@ -1,11 +1,14 @@
 defmodule Regressions.I051FencedCodeAndInlineCodeTest do
   use ExUnit.Case
+  import Test.Support.SilenceIo, only: [with_silent_io: 2]
 
   @i51_not_a_fenced_block """
   ```elixir ```
   """
   test "https://github.com/pragdave/earmark/issues/51" do
-    result = Earmark.to_html @i51_not_a_fenced_block
+    result = with_silent_io(:stderr, fn ->
+      Earmark.to_html @i51_not_a_fenced_block
+    end)
     assert result == ~s[<p><code class=\"inline\">elixir</code></p>\n]
   end
 

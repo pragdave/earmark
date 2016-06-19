@@ -1,6 +1,8 @@
 defmodule Regressions.I004CowboyReadmeTest do
   use ExUnit.Case
 
+  import Test.Support.SilenceIo, only: [with_silent_io: 2]
+
   @cowboy_readme """
   Cowboy
   ======
@@ -55,7 +57,9 @@ defmodule Regressions.I004CowboyReadmeTest do
   """
 
   test "rendering the Cowboy webserver README" do
-    Earmark.to_html @cowboy_readme
+    with_silent_io( :stderr, fn ->
+      Earmark.to_html @cowboy_readme
+    end)
   end
 
 
