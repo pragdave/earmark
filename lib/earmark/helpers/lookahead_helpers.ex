@@ -7,23 +7,9 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   import Earmark.Helpers.StringHelpers
 
   @doc """
-  Indicates if the _numbered_line_ passed in leaves an inline code block open.
-
-  If so returns a tuple whre the first element is the opening sequence of backticks,
-  and the second the linenumber of the _numbered_line_
-
-  Otherwise `{nil, 0}` is returned 
+  Returns maybe string, where some string is an opening and not closed sequence of backticks.
+  `nil` is returned if no inline code is left open.
   """
-  @spec opens_inline_code(numbered_line) :: inline_code_continuation
-  defp opens_inline_code( %{line: line, lnb: lnb} ) do
-    case ( line
-    |> behead_unopening_text
-    |> has_opening_backquotes ) do
-      nil -> {nil, 0}
-      btx -> {btx, lnb}
-    end
-  end
-
   @spec inline_code_opened?(String.t) :: maybe(String.t)
   def inline_code_opened?( line ) do
     line
@@ -62,22 +48,12 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   @doc """
-  returns false if and only if the line closes a pending inline code
-  *without* opening a new one.
-  The opening backquotes are passed in as second parameter.
-  If the function does not return false it returns the (new or original)
-  opening backquotes 
+  Tests if `line` leaves an opened inline code block open.
+  `pending_btx` indicates the opening backticks sequence of the pending inline block.
+  Returns some string when the pending or a new inline code block remains open, where
+  the string indicats the (new) pending backticks sequence.
+  Nil indicates that no inline code block is left open by `line`
   """
-  # (#{},{_,_}) -> {_,_}
-  @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
-  defp still_inline_code( %{line: line, lnb: lnb}, {pending_btx, pending_lnb} ) do
-    new_line = behead_pending_inline_code( line, pending_btx )
-    case new_line do
-      nil -> {pending_btx, pending_lnb}
-      _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
-    end
-  end
-
   @spec inline_code_continues?( String.t, String.t ) :: maybe(String.t)
   def inline_code_continues?( line, pending_btx ) do
     new_line = behead_pending_inline_code( line, pending_btx )
@@ -109,86 +85,85 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   code block as indicated by `pending`.
   """
   def read_list_lines( lines, pending ) do 
-    case result = _read_list_lines(lines, [], {pending, 0} ) do
+    case result = _read_list_lines(lines, [], pending ) do
       {spaced, list_lines, rest, _} -> {spaced, list_lines, rest}
       _                             -> result
     end
   end
 
-  @not_pending {nil, 0}
-  @spec _read_list_lines(Line.ts, Line.ts, inline_code_continuation) :: {boolean, Line.ts, Line.ts}
+  @spec _read_list_lines(Line.ts, Line.ts, maybe(String.t)) :: {boolean, Line.ts, Line.ts}
   # text immediately after the start
-  defp _read_list_lines([ line = %Line.Text{} | rest ], [], @not_pending) do
-    _read_list_lines(rest, [ line ], opens_inline_code(line))
+  defp _read_list_lines([ line = %Line.Text{line: line_text} | rest ], [], nil) do
+    _read_list_lines(rest, [ line ], inline_code_opened?(line_text))
   end
   # table line immediately after the start
-  defp _read_list_lines([ line = %Line.TableLine{} | rest ], [], @not_pending) do
-    _read_list_lines(rest, [ line ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.TableLine{line: line_text} | rest ], [], nil) do
+    _read_list_lines(rest, [ line ], inline_code_opened?(line_text)) 
   end
 
   # text immediately after another text line
-  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Text{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.Text{line: line_text} | rest ], result =[ %Line.Text{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
   # table line immediately after another text line
-  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Text{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.TableLine{line: line_text} | rest ], result =[ %Line.Text{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
   # text immediately after a table line
-  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.TableLine{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.Text{line: line_text} | rest ], result =[ %Line.TableLine{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
   # table line immediately after another table line
-  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.TableLine{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.TableLine{line: line_text} | rest ], result =[ %Line.TableLine{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
   # text immediately after an indent
-  defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.Text{line: line_text} | rest ], result =[ %Line.Indent{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
   # table line immediately after an indent
-  defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Indent{} | _], @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.TableLine{line: line_text} | rest ], result =[ %Line.Indent{} | _], nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
   # Always allow blank lines and indents, and text or table lines with at least
   # two spaces
-  defp _read_list_lines([ line = %Line.Blank{} | rest ], result, @not_pending) do
-    _read_list_lines(rest, [ line | result ], @not_pending)
+  defp _read_list_lines([ line = %Line.Blank{} | rest ], result, nil) do
+    _read_list_lines(rest, [ line | result ], nil)
   end
 
-  defp _read_list_lines([ line = %Line.Indent{} | rest ], result, @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+  defp _read_list_lines([ line = %Line.Indent{line: line_text} | rest ], result, nil) do
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
-  defp _read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
-  result, @not_pending)
+  defp _read_list_lines([ line = %Line.Text{line: (line_text = <<"  ", _ :: binary>>)} | rest ],
+  result, nil)
   do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
-  defp _read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ],
-  result, @not_pending)
+  defp _read_list_lines([ line = %Line.TableLine{content: (line_text = <<"  ", _ :: binary>>)} | rest ],
+  result, nil)
   do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+    _read_list_lines(rest, [ line | result ], inline_code_opened?(line_text)) 
   end
 
   # no match, must be done
-  defp _read_list_lines(lines, result, @not_pending) do
+  defp _read_list_lines(lines, result, nil) do
     { trailing_blanks, rest } = Enum.split_while(result, &blank?/1)
     spaced = length(trailing_blanks) > 0
     { spaced, Enum.reverse(rest), lines }
   end
 
   # Only now we match for list lines inside an open multiline inline code block
-  defp _read_list_lines([line|rest], result, pending) do
-    _read_list_lines(rest, [%{line|inside_code: true} | result], still_inline_code(line, pending))
+  defp _read_list_lines([line=%{line: line_text}|rest], result, pending) do
+    _read_list_lines(rest, [%{line|inside_code: true} | result], inline_code_continues?(line_text, pending))
   end
   # Running into EOI insise an open multiline inline code block
   defp _read_list_lines([], result, pending) do
-    { spaced, rest, lines } =_read_list_lines( [], result, @not_pending )
+    { spaced, rest, lines } =_read_list_lines( [], result, nil )
     { spaced, rest, lines, pending }
   end
 
