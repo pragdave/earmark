@@ -3,7 +3,7 @@ defmodule Earmark.Block do
   use Earmark.Types
   import Earmark.Helpers.Errors, only: [emit_error: 2, emit_error: 4]
   import Earmark.Helpers.LookaheadHelpers,
-    only: [has_opening_backquotes: 1, inline_code_continues?: 2, inline_code_opened?: 1, opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
+    only: [has_opening_backquotes: 1, inline_code_continues?: 2, inline_code_opened?: 1, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
 
   @moduledoc """
@@ -160,13 +160,9 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
-    {spaced, list_lines, rest, offset} = 
-      case read_list_lines(rest, opens_inline_code(first)) do
-        {s, ll, r, {_btx, lnb}} ->
-          {s, ll, r, lnb}
-        {s, ll, r} -> {s, ll, r, 0}
-      end
+  defp _parse( [first = %Line.ListItem{type: type, line: line} | rest ], result, filename) do
+    {spaced, list_lines, rest} = 
+       read_list_lines(rest, inline_code_opened?(line))
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)

@@ -15,7 +15,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   Otherwise `{nil, 0}` is returned 
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
-  def opens_inline_code( %{line: line, lnb: lnb} ) do
+  defp opens_inline_code( %{line: line, lnb: lnb} ) do
     case ( line
     |> behead_unopening_text
     |> has_opening_backquotes ) do
@@ -70,7 +70,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, {pending_btx, pending_lnb} ) do
+  defp still_inline_code( %{line: line, lnb: lnb}, {pending_btx, pending_lnb} ) do
     new_line = behead_pending_inline_code( line, pending_btx )
     case new_line do
       nil -> {pending_btx, pending_lnb}
@@ -100,7 +100,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   #######################################################################################
   # read_list_lines
   #######################################################################################
-  @spec read_list_lines( Line.ts, inline_code_continuation ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts, {String.t, number}}
+  @spec read_list_lines( Line.ts, maybe(String) ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts, {String.t, number}}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
@@ -109,7 +109,10 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   code block as indicated by `pending`.
   """
   def read_list_lines( lines, pending ) do 
-    _read_list_lines(lines, [], pending)
+    case result = _read_list_lines(lines, [], {pending, 0} ) do
+      {spaced, list_lines, rest, _} -> {spaced, list_lines, rest}
+      _                             -> result
+    end
   end
 
   @not_pending {nil, 0}
