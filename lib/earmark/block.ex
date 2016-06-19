@@ -2,7 +2,8 @@ defmodule Earmark.Block do
 
   use Earmark.Types
   import Earmark.Helpers.Errors, only: [emit_error: 2, emit_error: 4]
-  import Earmark.Helpers.LookaheadHelpers, only: [has_opening_backquotes: 1, opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
+  import Earmark.Helpers.LookaheadHelpers,
+    only: [has_opening_backquotes: 1, inline_code_continues?: 2, inline_code_opened?: 1, opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
 
   @moduledoc """
@@ -500,17 +501,17 @@ defmodule Earmark.Block do
 
   @spec inline_or_text?( Line.t, maybe(String.t) ) :: %{pending: String.t, continue: boolean}
   defp inline_or_text?(line, pending)
-  defp inline_or_text?(line = %Line.Text{}, nil) do
-    {pending, _} = opens_inline_code(line)
+  defp inline_or_text?( %Line.Text{line: line}, nil) do
+    pending = inline_code_opened?(line)
     %{pending: pending, continue: true}
   end
-  defp inline_or_text?(line = %Line.TableLine{}, nil) do
-    {pending, _} = opens_inline_code(line)
+  defp inline_or_text?(%Line.TableLine{line: line}, nil) do
+    pending = inline_code_opened?(line)
     %{pending: pending, continue: true}
   end
   defp inline_or_text?( _line, nil), do: %{pending: nil, continue: false}
-  defp inline_or_text?( line, pending ) do
-    {pending, _} = still_inline_code(line, {pending, 0})
+  defp inline_or_text?( %{line: line}, pending ) do
+    pending = inline_code_continues?(line, pending)
     %{pending: pending, continue: true}
   end
 

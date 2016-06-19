@@ -24,6 +24,13 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     end
   end
 
+  @spec inline_code_opened?(String.t) :: maybe(String.t)
+  def inline_code_opened?( line ) do
+    line
+    |> behead_unopening_text
+    |> has_opening_backquotes
+  end
+
   @inline_pairs ~r'''
   ^(?:
   (?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
@@ -75,6 +82,22 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     case new_line do
       nil -> {pending, pending_lnb}
       _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
+    end
+  end
+
+  @spec inline_code_continues?( String.t, String.t ) :: maybe(String.t)
+  def inline_code_continues?( line, pending_btx ) do
+    new_line = case ( ~r"""
+    ^.*?                                 # shortest possible prefix
+    (?<![\\`])#{pending_btx}(?!`)    # unescaped ` with exactly the length of opening_backquotes
+    """x |> Regex.run( line, return: :index ) ) do
+      [match_index_tuple | _] ->  behead(line, match_index_tuple)
+      nil                     ->  nil
+    end
+
+    case new_line do
+      nil -> pending_btx
+      _   -> inline_code_opened?(line) 
     end
   end
 
