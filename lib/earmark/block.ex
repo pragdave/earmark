@@ -327,7 +327,7 @@ defmodule Earmark.Block do
   ############################################################
   @not_pending {nil, 0}
   @spec consolidate_para( ts ) :: { ts, ts, Errors.ts}  
-  defp consolidate_para( lines ), do: _consolidate_para( lines, [], [], @not_pending ) |> Tuple.delete_at(3)
+  defp consolidate_para( lines ), do: _consolidate_para( lines, [], [], nil ) |> Tuple.delete_at(3)
 
   @spec _consolidate_para( ts, ts, Errors.ts, inline_code_continuation ) :: { ts, ts, Errors.ts, inline_code_continuation }
   defp _consolidate_para( [], result, errors, pending ) do
@@ -336,9 +336,9 @@ defmodule Earmark.Block do
 
   defp _consolidate_para( [line | rest] = lines, result, errors, pending ) do
     errors = add_deprecation( line, errors )
-    case inline_or_text?( line, pending ) do
+    case inline_or_text?( line, {pending, 0} ) do
       %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], errors, still_pending )
-      _                                         -> {result, lines, errors, @not_pending}
+      _                                         -> {result, lines, errors, nil}
     end
 
   end
@@ -501,16 +501,16 @@ defmodule Earmark.Block do
   @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
   defp inline_or_text?(line, pending)
   defp inline_or_text?(line = %Line.Text{}, @not_pending) do
-    pending = opens_inline_code(line)
+    {pending, _} = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
   defp inline_or_text?(line = %Line.TableLine{}, @not_pending) do
-    pending = opens_inline_code(line)
+    {pending, _} = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
   defp inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
   defp inline_or_text?( line, pending ) do
-    pending = still_inline_code(line, pending)
+    {pending, _} = still_inline_code(line, pending)
     %{pending: pending, continue: true}
   end
 
