@@ -74,7 +74,7 @@ defmodule Earmark.Line do
   # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
   @spec scan_lines( list(String.t), %Earmark.Options{}, boolean ) :: ts
   def scan_lines lines, options, recursive do lines
-    lines_with_count( lines, options.offset )
+    lines_with_count( lines, options.line - 1 )
     |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end)
   end
 

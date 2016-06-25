@@ -173,7 +173,7 @@ defmodule Earmark.Block do
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _} = Parser.parse(lines, %Earmark.Options{file: filename, offset: offset - 1}, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{file: filename, line: offset}, true)
 
     _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end

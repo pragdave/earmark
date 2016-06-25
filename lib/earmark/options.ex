@@ -18,7 +18,6 @@ defmodule Earmark.Options do
              # Filename and initial line number of the markdown block passed in
              # for meaningfull error messages
              file: "<no file>",
-             line: 1,
-             offset: 0
+             line: 1
 end
 
