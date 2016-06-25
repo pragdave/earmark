@@ -13,7 +13,7 @@ defmodule Earmark.Parser do
     # add blank lines before and after
     [ "" | text_lines ++ [""] ]
     |> Line.scan_lines(options, recursive)
-    |> Block.parse(Map.get(options, :filename))
+    |> Block.parse(Map.get(options, :file))
   end
 
   ################################################################

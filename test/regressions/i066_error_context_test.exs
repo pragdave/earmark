@@ -4,7 +4,7 @@ defmodule Regressions.I066ErrorContextTest do
 
   test "Issue https://github.com/pragdave/earmark/issues/66 1" do
     assert capture_io( :stderr, fn->
-      Earmark.to_html ~s(`Hello\nWorld), %Earmark.Options{filename: "fn"}
+      Earmark.to_html ~s(`Hello\nWorld), %Earmark.Options{file: "fn"}
     end) == "fn:1: warning: Closing unclosed backquotes ` at end of input\n"
   end
 

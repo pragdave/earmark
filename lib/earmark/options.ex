@@ -15,8 +15,10 @@ defmodule Earmark.Options do
              # serial
              mapper: &Earmark.pmap/2,
 
-             # Filename for meaningfull error messages
-             filename: "<no file>",
+             # Filename and initial line number of the markdown block passed in
+             # for meaningfull error messages
+             file: "<no file>",
+             line: 1,
              offset: 0
 end
 

@@ -24,7 +24,7 @@ defmodule Parser.ErrorTest do
 
   test "Closing Backtick in list" do
     assert capture_io( :stderr, fn ->
-      Earmark.to_html "* one\n* two\n* `three\nfour", %Options{filename: "list.md"}
+      Earmark.to_html "* one\n* two\n* `three\nfour", %Options{file: "list.md"}
     end) == "list.md:3: warning: Closing unclosed backquotes ` at end of input\n"
   end
 
@@ -36,7 +36,7 @@ defmodule Parser.ErrorTest do
 
   test "Failed to find closing tag" do 
     assert capture_io( :stderr, fn ->
-      Earmark.to_html "one\ntwo\n<three>\nfour", %Options{filename: "input_file.md"}
+      Earmark.to_html "one\ntwo\n<three>\nfour", %Options{file: "input_file.md"}
     end) == "input_file.md:3: warning: Failed to find closing <three>\n"
   end
 
