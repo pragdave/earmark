@@ -15,10 +15,10 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
     |> Earmark.to_html()
   end
 
-  test "Issue https://github.com/pragdave/earmark/issues/77 broken markdown" do 
+  test "Issue https://github.com/pragdave/earmark/issues/78 broken markdown" do 
 
+    # Broken code in line 24
     assert capture_io( :stderr, fn->
-      # Broken code in line 24
       html_from_file("test/fixtures/i077_broken.md")
     end) == "<no file>:42: warning: Closing unclosed backquotes ` at end of input\n"
     # Yes this is correct unless we forbid multiline inline code blocks the error
@@ -26,9 +26,9 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
   end
 
 
-  test "Issue https://github.com/pragdave/earmark/issues/77 fixed markdown" do 
+  test "Issue https://github.com/pragdave/earmark/issues/78 fixed markdown" do 
+    # Fixed code in line 24
     assert capture_io( :stderr, fn->
-      # Fixed code in line 24
       html_from_file("test/fixtures/i077_fixed.md")
     end) == ""
   end
