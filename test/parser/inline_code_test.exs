@@ -11,7 +11,7 @@ defmodule Parser.InlineCodeTest do
   ##########################################################################################
   test "Multiline inline code is parsed correctly (getting rid of list items inside code)" do
     lines = [
-      "\\`prefix`first", 
+      "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
     {result, _} = Parser.parse(lines)
@@ -22,7 +22,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Multiline inline code is parsed correctly (getting rid of code inside code)" do
-    lines = [ "\\`prefix`first", 
+    lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
     {result, _} = Parser.parse(lines)
@@ -32,8 +32,8 @@ defmodule Parser.InlineCodeTest do
     assert result == expect
   end
 
-  test "Multiline inline code is parsed correctly using triple beaktix (getting rid of code and list items)" do
-    lines = [ "\\`prefix```first", 
+  test "Multiline inline code is parsed correctly using triple backtix (getting rid of code and list items)" do
+    lines = [ "\\`prefix```first",
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
@@ -45,7 +45,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Multiline inline code is correctly interpreting included longer and shorter sequences of backtix" do
-    lines = [ "`single `` ```", 
+    lines = [ "`single `` ```",
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]
@@ -85,7 +85,7 @@ defmodule Parser.InlineCodeTest do
 
   test "Mutliline inline code in list is parsed correctly (getting rid of list items inside code)" do
     lines = [
-      "\\`prefix`first", 
+      "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
     {result, _} = parse_as_list(lines)
@@ -93,7 +93,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is parsed correctly (getting rid of code inside code)" do
-    lines = [ "\\`prefix`first", 
+    lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
     {result, _} = parse_as_list( lines )
@@ -101,7 +101,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is parsed correctly using triple beaktix (getting rid of code and list items)" do
-    lines = [ "\\`prefix```first", 
+    lines = [ "\\`prefix```first",
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
@@ -110,7 +110,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is correctly interpreting included longer and shorter sequences of backtix" do
-    lines = [ "`single `` ```", 
+    lines = [ "`single `` ```",
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]

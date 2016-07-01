@@ -16,7 +16,6 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 broken markdown" do 
-
     # Broken code in line 24
     assert capture_io( :stderr, fn->
       html_from_file("test/fixtures/i077_broken.md")

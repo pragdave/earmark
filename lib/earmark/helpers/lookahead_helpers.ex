@@ -26,7 +26,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   @inline_pairs ~r'''
   ^(?:
-  (?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
+  (?:[^`]|\\(?:\\\\)*`)*      # shortes possible prefix, not consuming unescaped `
   (?<!\\)(`++)       # unescaped `, assuring longest match of `
   .+?                # shortest match before...
   (?<![\\`])\1(?!`)  # closing same length ` sequence
@@ -43,8 +43,8 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   @first_opening_backquotes ~r'''
-  ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
-  (?<!\\)(`++)        # unescaped `, assuring longest match of `
+  ^(?:[^`]|\\(?:\\\\)*`)* # shortes possible prefix, not consuming unescaped `
+  (?<!\\)(`++)            # unescaped `, assuring longest match of `
   '''x
   @spec has_opening_backquotes(String.t()) :: maybe( String.t )
   defp has_opening_backquotes line do
