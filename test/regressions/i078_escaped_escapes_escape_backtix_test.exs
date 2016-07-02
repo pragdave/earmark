@@ -10,15 +10,15 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
   end
 
   defp html_from_file(filename) do 
-    IO.stream( open_file(filename), :line)
-    |> Enum.to_list()
-    |> Earmark.to_html()
+  IO.stream( open_file(filename), :line)
+  |> Enum.to_list()
+  |> Earmark.to_html()
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 broken markdown" do 
-    # Broken code in line 24
+  # Broken code in line 42 
     assert capture_io( :stderr, fn->
-      html_from_file("test/fixtures/i077_broken.md")
+      html_from_file("test/fixtures/i078_broken.md")
     end) == "<no file>:42: warning: Closing unclosed backquotes ` at end of input\n"
     # Yes this is correct unless we forbid multiline inline code blocks the error
     # cannot be detected earlier
@@ -26,9 +26,33 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
 
 
   test "Issue https://github.com/pragdave/earmark/issues/78 fixed markdown" do 
-    # Fixed code in line 24
+  # Fixed code in line 42
     assert capture_io( :stderr, fn->
-      html_from_file("test/fixtures/i077_fixed.md")
+      html_from_file("test/fixtures/i078_fixed.md")
     end) == ""
+  end
+
+  @markdown """
+  Hello `\\`
+      World
+  """
+  @html """
+  <p>Hello <code class="inline">\\</code></p>\n<pre><code> World</code></pre>
+  """
+  @expected_html """
+  <p>  Notice we had to escape the escape character <code class=\"inline\">\\\\</code>. By giving <code class=\"inline\">\\0</code>,
+
+  <pre><code>  iex&gt; String.replace(&quot;a,b,c&quot;, &quot;b&quot;, &quot;[]&quot;, insert_replaced: 1)\n      &quot;a,[b],c&quot;</code></pre>\n
+  """
+  test "Issue https://github.com/pragdave/earmark/issues/78 correct blocks" do 
+  # assert html_from_file("test/fixtures/i078_fixed.md") == @expected_html 
+  assert (@markdown |> String.split("\n") |> Earmark.Parser.parse()) == 
+    {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\`"]},
+      %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}}
+  end
+
+  test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do 
+  # assert html_from_file("test/fixtures/i078_fixed.md") == @expected_html 
+  assert Earmark.to_html(@markdown) == @html
   end
 end

@@ -47,7 +47,7 @@ defmodule Parser.InlineCodeTest do
   test "Multiline inline code is correctly interpreting included longer and shorter sequences of backtix" do
     lines = [ "`single `` ```",
       "` ``double ` ```",
-      "     `` ```triple \\``` ` `` ````",
+      "     `` ```triple \\``` \\\\` `` ````",
       "```"]
     {result, _} = Parser.parse(lines)
     expect = [
@@ -113,6 +113,15 @@ defmodule Parser.InlineCodeTest do
     lines = [ "`single `` ```",
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
+      "```"]
+    {result, _} = parse_as_list( lines, "1." )
+    assert_list_with result, lines, type: :ol
+  end
+
+  test "Mutliline inline code in list is correctly interpreting included escaped sequences of backtix" do
+    lines = [ "`single `` ```",
+      "` ``double ` ```",
+      "     `` ```triple \\\\\\``` \\\\` `` ````",
       "```"]
     {result, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
