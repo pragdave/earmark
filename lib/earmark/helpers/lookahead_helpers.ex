@@ -16,42 +16,29 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
-    case ( line
-    |> behead_unopening_text
-    |> has_opening_backquotes ) do
-      nil -> {nil, 0}
-      btx -> {btx, lnb}
+    {:ok, tokens, _} =
+    line
+    |> to_char_list()
+    |> :string_lexer.string()
+
+    case has_opening_backquotes(tokens,nil) do 
+    nil -> {nil, 0}
+    btx -> {btx, lnb}
     end
   end
 
-  @inline_pairs ~r'''
-  ^(?:
-  (?:[^`]|\\(?:\\\\)*`)*      # shortes possible prefix, not consuming unescaped `
-  (?<!\\)(`++)       # unescaped `, assuring longest match of `
-  .+?                # shortest match before...
-  (?<![\\`])\1(?!`)  # closing same length ` sequence
-  )+
-  '''x
-  @spec behead_unopening_text(String.t()) :: String.t()
-  # All pairs of sequences of backquotes and text in front and in between
-  # are removed from line.
-  defp behead_unopening_text( line ) do 
-  case Regex.run( @inline_pairs, line, return: :index ) do
-    [match_index_tuple | _rest] -> behead( line, match_index_tuple )
-    _no_match                   -> line
-  end 
-  end
-
-  @first_opening_backquotes ~r'''
-  ^(?:[^`]|\\(?:\\\\)*`)* # shortes possible prefix, not consuming unescaped `
-  (?<!\\)(`++)            # unescaped `, assuring longest match of `
-  '''x
-  @spec has_opening_backquotes(String.t()) :: maybe( String.t )
-  defp has_opening_backquotes line do
-    case Regex.run( @first_opening_backquotes, line ) do 
-    [_total, opening_backquotes | _rest] -> opening_backquotes
-    _no_match                            -> nil
+  defp has_opening_backquotes(tokens, opened_so_far)
+  defp has_opening_backquotes([], opened_so_far), do: opened_so_far
+  defp has_opening_backquotes([{:verbatim,_,_}|rest], opened_so_far), do: has_opening_backquotes(rest, opened_so_far)
+  defp has_opening_backquotes([{:backtix,_,btx}|rest], nil), do: has_opening_backquotes(rest, to_string(btx)) 
+  defp has_opening_backquotes([{:backtix,_,btx}|rest], opened_so_far) do 
+  still_open = 
+    if (to_string(btx) == opened_so_far) do
+      nil
+    else 
+      opened_so_far 
     end
+  has_opening_backquotes(rest, still_open)
   end
 
   @doc """
@@ -90,7 +77,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   code block as indicated by `pending`.
   """
   def read_list_lines( lines, pending ) do 
-    _read_list_lines(lines, [], pending)
+  _read_list_lines(lines, [], pending)
   end
 
   @not_pending {nil, 0}
