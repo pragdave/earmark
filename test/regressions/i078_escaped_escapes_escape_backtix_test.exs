@@ -30,14 +30,15 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
     assert capture_io( :stderr, fn->
       html_from_file("test/fixtures/i078_fixed.md")
     end) == ""
+    IO.puts html_from_file("test/fixtures/i078_fixed.md")
   end
 
   @markdown """
-  Hello `\\`
+  Hello `\\` \\
       World
   """
   @html """
-  <p>Hello <code class="inline">\\</code></p>\n<pre><code> World</code></pre>
+  <p>Hello <code class="inline">\\</code></p> \\\n<pre><code>World</code></pre>
   """
   @expected_html """
   <p>  Notice we had to escape the escape character <code class=\"inline\">\\\\</code>. By giving <code class=\"inline\">\\0</code>,
@@ -47,7 +48,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
   test "Issue https://github.com/pragdave/earmark/issues/78 correct blocks" do 
   # assert html_from_file("test/fixtures/i078_fixed.md") == @expected_html 
   assert (@markdown |> String.split("\n") |> Earmark.Parser.parse()) == 
-    {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\`"]},
+    {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\` \\"]},
       %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}}
   end
 

@@ -150,7 +150,6 @@ defmodule Earmark.Block do
     case pending do
       {nil, _} -> true
       {pending, lnb} ->
-        IO.inspect {filename, lnb}
         emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
     end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)

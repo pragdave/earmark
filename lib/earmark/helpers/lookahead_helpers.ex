@@ -20,7 +20,11 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     line
     |> to_char_list()
     |> :string_lexer.string()
-
+    tokens =
+    tokens
+    |> unify([])
+    |> Enum.reverse()
+IO.inspect tokens
     case has_opening_backquotes(tokens,nil) do 
     nil -> {nil, 0}
     btx -> {btx, lnb}
@@ -50,20 +54,46 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
-    new_line = case ( ~r"""
-    ^.*?                                 # shortest possible prefix
-    (?<![\\`])#{pending}(?!`)    # unescaped ` with exactly the length of opening_backquotes
-    """x |> Regex.run( line, return: :index ) ) do
-      [match_index_tuple | _] ->  behead(line, match_index_tuple)
-      nil                     ->  nil
-    end
+  def still_inline_code( %{line: line, lnb: lnb}, old = {pending, pending_lnb} ) do
+    {:ok, tokens, _} =
+    line
+    |> to_char_list()
+    |> :string_lexer.string()
 
-    case new_line do
-      nil -> {pending, pending_lnb}
-      _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
+    case has_still_opening_backquotes(tokens,{:old, pending}) do 
+      nil -> {nil, 0}
+      {:new, btx} -> {btx, lnb}
+      {:old, _  } -> old
     end
   end
+
+  def tokenize line do 
+    {:ok, tokens, _} =
+    line
+    |> to_char_list()
+    |> :string_lexer.string()
+    
+    unify(tokens,[])|>Enum.reverse()
+  end
+
+  defp has_still_opening_backquotes(tokens, opened_so_far)
+  defp has_still_opening_backquotes([], opened_so_far), do: opened_so_far
+  defp has_still_opening_backquotes([{:verbatim,_}|rest], opened_so_far), do: has_still_opening_backquotes(rest, opened_so_far)
+  defp has_still_opening_backquotes([{:backtix,btx}|rest], nil), do: has_still_opening_backquotes(rest, {:new, btx}) 
+  defp has_still_opening_backquotes([{:backtix,btx}|rest], {old_or_new, pending}) do
+    if btx == pending do
+      has_still_opening_backquotes(rest, nil) 
+    else 
+      has_still_opening_backquotes(rest, {old_or_new, pending}) 
+    end
+  end
+
+  defp unify(tokens, rest)
+  defp unify([], result), do: result
+  defp unify([{:verbatim, _, text}|rest], result), do: unify(rest, [{:verbatim,to_string(text)}|result])
+  defp unify([{:escape, _, _},{_,_,text}|rest], result), do: unify(rest, [{:verbatim, to_string(text)}|result])
+  defp unify([{:escape, _, _}], result), do: [{:verbatim, "\\"}|result]
+  defp unify([{:backtix,_, btx}|rest], result), do: unify(rest, [{:backtix,to_string(btx)}|result])
 
   #######################################################################################
   # read_list_lines
