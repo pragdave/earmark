@@ -16,81 +16,61 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
-    {:ok, tokens, _} =
-    line
-    |> to_char_list()
-    |> :string_lexer.string()
-    tokens =
-    tokens
-    |> unify([])
-    |> Enum.reverse()
-IO.inspect tokens
-    case has_opening_backquotes(tokens,nil) do 
-    nil -> {nil, 0}
-    btx -> {btx, lnb}
+    case tokenize(line) |> has_still_opening_backtix(nil) do 
+      nil      -> {nil, 0}
+      {_, btx} -> {btx, lnb}
     end
-  end
-
-  defp has_opening_backquotes(tokens, opened_so_far)
-  defp has_opening_backquotes([], opened_so_far), do: opened_so_far
-  defp has_opening_backquotes([{:verbatim,_,_}|rest], opened_so_far), do: has_opening_backquotes(rest, opened_so_far)
-  defp has_opening_backquotes([{:backtix,_,btx}|rest], nil), do: has_opening_backquotes(rest, to_string(btx)) 
-  defp has_opening_backquotes([{:backtix,_,btx}|rest], opened_so_far) do 
-  still_open = 
-    if (to_string(btx) == opened_so_far) do
-      nil
-    else 
-      opened_so_far 
-    end
-  has_opening_backquotes(rest, still_open)
   end
 
   @doc """
   returns false if and only if the line closes a pending inline code
   *without* opening a new one.
-  The opening backquotes are passed in as second parameter.
+  The opening backtix are passed in as second parameter.
   If the function does not return false it returns the (new or original)
-  opening backquotes 
+  opening backtix 
   """
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
   def still_inline_code( %{line: line, lnb: lnb}, old = {pending, pending_lnb} ) do
-    {:ok, tokens, _} =
-    line
-    |> to_char_list()
-    |> :string_lexer.string()
-
-    case has_still_opening_backquotes(tokens,{:old, pending}) do 
+    case tokenize(line) |> has_still_opening_backtix({:old, pending}) do 
       nil -> {nil, 0}
       {:new, btx} -> {btx, lnb}
       {:old, _  } -> old
     end
   end
 
-  def tokenize line do 
+  # A tokenized line {:verabtim, text} | {:backtix, ['``+]} is analyzed for
+  # if it is closed (-> nil), not closed (-> {:old, btx}) or reopened (-> {:new, btx})
+  # concerning backtix
+  defp has_still_opening_backtix(tokens, opened_so_far)
+
+  defp has_still_opening_backtix([], opened_so_far), do: opened_so_far
+  defp has_still_opening_backtix([{:verbatim,_}|rest], opened_so_far), do: has_still_opening_backtix(rest, opened_so_far)
+  defp has_still_opening_backtix([{:backtix,btx}|rest], nil), do: has_still_opening_backtix(rest, {:new, btx}) 
+  defp has_still_opening_backtix([{:backtix,btx}|rest], opened_so_far={_, pending}) do
+    if btx == pending do
+      has_still_opening_backtix(rest, nil) 
+    else 
+      has_still_opening_backtix(rest, opened_so_far) 
+    end
+  end
+
+  defp tokenize line do 
     {:ok, tokens, _} =
     line
     |> to_char_list()
     |> :string_lexer.string()
-    
-    unify(tokens,[])|>Enum.reverse()
-  end
-
-  defp has_still_opening_backquotes(tokens, opened_so_far)
-  defp has_still_opening_backquotes([], opened_so_far), do: opened_so_far
-  defp has_still_opening_backquotes([{:verbatim,_}|rest], opened_so_far), do: has_still_opening_backquotes(rest, opened_so_far)
-  defp has_still_opening_backquotes([{:backtix,btx}|rest], nil), do: has_still_opening_backquotes(rest, {:new, btx}) 
-  defp has_still_opening_backquotes([{:backtix,btx}|rest], {old_or_new, pending}) do
-    if btx == pending do
-      has_still_opening_backquotes(rest, nil) 
-    else 
-      has_still_opening_backquotes(rest, {old_or_new, pending}) 
-    end
+    unify(tokens,[])
+    |> Enum.reverse()
   end
 
   defp unify(tokens, rest)
   defp unify([], result), do: result
   defp unify([{:verbatim, _, text}|rest], result), do: unify(rest, [{:verbatim,to_string(text)}|result])
+  defp unify([{:escape, _, _},{:backtix,_,'`'}|rest], result), do: unify(rest, [{:verbatim, "`"}|result])
+  defp unify([{:escape, _, _},{:backtix,_,many}|rest], result) do
+    unify(rest, [{:backtix,to_string(tl(many))},{:verbatim, "`"}|result])
+  end
   defp unify([{:escape, _, _},{_,_,text}|rest], result), do: unify(rest, [{:verbatim, to_string(text)}|result])
   defp unify([{:escape, _, _}], result), do: [{:verbatim, "\\"}|result]
   defp unify([{:backtix,_, btx}|rest], result), do: unify(rest, [{:backtix,to_string(btx)}|result])
