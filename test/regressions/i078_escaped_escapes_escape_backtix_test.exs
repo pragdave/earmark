@@ -30,7 +30,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktix do
     assert capture_io( :stderr, fn->
       html_from_file("test/fixtures/i078_fixed.md")
     end) == ""
-    IO.puts html_from_file("test/fixtures/i078_fixed.md")
+    # IO.puts html_from_file("test/fixtures/i078_fixed.md")
   end
 
   @markdown """

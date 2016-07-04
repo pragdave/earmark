@@ -60,20 +60,13 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     line
     |> to_char_list()
     |> :string_lexer.string()
-    unify(tokens,[])
+    elixirize_tokens(tokens,[])
     |> Enum.reverse()
   end
 
-  defp unify(tokens, rest)
-  defp unify([], result), do: result
-  defp unify([{:verbatim, _, text}|rest], result), do: unify(rest, [{:verbatim,to_string(text)}|result])
-  defp unify([{:escape, _, _},{:backtix,_,'`'}|rest], result), do: unify(rest, [{:verbatim, "`"}|result])
-  defp unify([{:escape, _, _},{:backtix,_,many}|rest], result) do
-    unify(rest, [{:backtix,to_string(tl(many))},{:verbatim, "`"}|result])
-  end
-  defp unify([{:escape, _, _},{_,_,text}|rest], result), do: unify(rest, [{:verbatim, to_string(text)}|result])
-  defp unify([{:escape, _, _}], result), do: [{:verbatim, "\\"}|result]
-  defp unify([{:backtix,_, btx}|rest], result), do: unify(rest, [{:backtix,to_string(btx)}|result])
+  defp elixirize_tokens(tokens, rest)
+  defp elixirize_tokens([], result), do: result
+  defp elixirize_tokens([{token, _, text}|rest], result), do: elixirize_tokens(rest, [{token,to_string(text)}|result])
 
   #######################################################################################
   # read_list_lines
