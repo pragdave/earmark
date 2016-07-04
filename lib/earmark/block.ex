@@ -37,7 +37,7 @@ defmodule Earmark.Block do
     end
   end
 
-  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOther{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{} 
+  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOther{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{}
   @type ts :: list(t)
 
   @doc false
@@ -84,7 +84,6 @@ defmodule Earmark.Block do
   defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
-
              |
                 rest
              ], result, filename) do
@@ -146,11 +145,11 @@ defmodule Earmark.Block do
 
   defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
-    {reversed_para_lines, rest, pending} = consolidate_para(lines) 
+    {reversed_para_lines, rest, pending} = consolidate_para(lines)
     case pending do
       {nil, _} -> true
       {pending, lnb} ->
-        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
+        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input"
     end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text} | result ], filename)
@@ -163,10 +162,10 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
-    {spaced, list_lines, rest, offset} = 
+    {spaced, list_lines, rest, offset} =
       case read_list_lines(rest, opens_inline_code(first)) do
         {s, ll, r, {_btx, lnb}} ->
-          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
+          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input"
           {s, ll, r, lnb}
         {s, ll, r} -> {s, ll, r, 0}
       end
@@ -331,7 +330,7 @@ defmodule Earmark.Block do
   ############################################################
   @not_pending {nil, 0}
   # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
-  # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} } 
+  # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
   defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
 
   @spec _consolidate_para( ts, ts, inline_code_continuation ) :: { ts, ts, inline_code_continuation }
@@ -437,7 +436,7 @@ defmodule Earmark.Block do
   # Visitor pattern for each block #
   ##################################
 
-  @spec visit(ts, %{}, (t, %{} -> %{})) :: %{} 
+  @spec visit(ts, %{}, (t, %{} -> %{})) :: %{}
   defp visit([], result, _func), do: result
 
   defp visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do

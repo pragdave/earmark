@@ -390,14 +390,8 @@
   },
   {
     "section": "Backslash escapes",
-    "html": "<p>\\<code class=\"inline\">more \\`code\\</code></p>\n",
-    "example": 623,
-    "markdown": "\\\\` more \\\\\\`code\\\\`"
-  },
-  {
-    "section": "Backslash escapes",
     "html": "<p>\\ \\</p>\n",
-    "example": 624,
+    "example": 623,
     "markdown": "\\\\ \\"
   },
   {

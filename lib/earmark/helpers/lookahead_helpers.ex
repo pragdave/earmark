@@ -60,6 +60,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     line
     |> to_char_list()
     |> :string_lexer.string()
+    # IO.inspect tokens
     elixirize_tokens(tokens,[])
     |> Enum.reverse()
   end

@@ -1,6 +1,7 @@
 Definitions.
 
 NOESCAPES   = [^`\\]+
+ESCAPEDBTX  = \\`
 ESCAPED     = \\.
 ESCAPE      = \\
 BACKTIX     = `+
@@ -8,8 +9,9 @@ BACKTIX     = `+
 Rules.
 
 {NOESCAPES}   : {token, {verbatim, TokenLine, TokenChars}}.
-{ESCAPED}     : {token, {verbatim, TokenLine, tl(TokenChars)}}.
+{ESCAPEDBTX}  : {token, {verbatim, TokenLine, '`'}}.
+{ESCAPED}     : {token, {verbatim, TokenLine, TokenChars}}.
 {BACKTIX}     : {token, {backtix, TokenLine, TokenChars}}.
-{ESCAPE}      : {token, {verbatim, TokenLine, ''}}.
+{ESCAPE}      : {token, {verbatim, TokenLine, TokenChars}}.
 
 Erlang code.
