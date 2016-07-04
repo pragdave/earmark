@@ -37,10 +37,15 @@ defmodule Earmark.Block do
     end
   end
 
+  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOther{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{}
+  @type ts :: list(t)
+
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks.
   # Then extract any id definitions, and build a hashdict from them. Not
   # for external consumption.
+
+  @spec parse( Line.ts, String.t ) :: {ts, %{}}
   def parse(lines, filename) do
     lines = remove_trailing_blank_lines( lines )
     blocks = lines_to_blocks(lines,filename)
@@ -58,8 +63,8 @@ defmodule Earmark.Block do
   end
 
 
-
-  defp _parse([], result, _filename), do: result     # consolidate also reverses, so no need
+  @spec _parse(Line.ts, ts, String.t) :: ts
+  defp _parse([], result, _filename), do: result
 
   ###################
   # setext headings #
@@ -79,7 +84,6 @@ defmodule Earmark.Block do
   defp _parse([  %Line.Blank{},
                 %Line.Text{content: heading},
                 %Line.Ruler{type: "-"}
-
              |
                 rest
              ], result, filename) do
@@ -110,7 +114,7 @@ defmodule Earmark.Block do
   defp _parse( lines = [ %Line.BlockQuote{} | _ ], result, filename) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
-    {blocks, _} = Parser.parse(lines, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{}, true)
     _parse(rest, [ %BlockQuote{blocks: blocks} | result ], filename)
   end
 
@@ -141,11 +145,11 @@ defmodule Earmark.Block do
 
   defp _parse( lines = [ %Line.Text{} | _ ], result, filename)
   do
-    {reversed_para_lines, rest, pending} = consolidate_para(lines) 
+    {reversed_para_lines, rest, pending} = consolidate_para(lines)
     case pending do
       {nil, _} -> true
       {pending, lnb} ->
-        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input" 
+        emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending} at end of input"
     end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text} | result ], filename)
@@ -158,17 +162,17 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, filename) do
-    {spaced, list_lines, rest, offset} = 
+    {spaced, list_lines, rest, offset} =
       case read_list_lines(rest, opens_inline_code(first)) do
         {s, ll, r, {_btx, lnb}} ->
-          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input" 
+          # emit_error filename, lnb, :warning, "Closing unclosed backquotes #{pending_btx} at end of input"
           {s, ll, r, lnb}
         {s, ll, r} -> {s, ll, r, 0}
       end
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- [first | list_lines], do: properly_indent(line, 1)
-    {blocks, _} = Parser.parse(lines, %Earmark.Options{filename: filename, offset: offset - 1}, true)
+    {blocks, _} = Parser.parse(lines, %Earmark.Options{file: filename, line: offset}, true)
 
     _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], filename)
   end
@@ -275,7 +279,7 @@ defmodule Earmark.Block do
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _ } = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
-                |> Parser.parse(true)
+                |> Parser.parse(%Earmark.Options{}, true)
     blocks = Enum.concat(para, blocks)
     _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ] , filename)
   end
@@ -310,6 +314,7 @@ defmodule Earmark.Block do
   # Assign attributes that follow a block to that block #
   #######################################################
 
+  @spec assign_attributes_to_blocks( ts, ts ) :: ts
   def assign_attributes_to_blocks([], result), do: Enum.reverse(result)
 
   def assign_attributes_to_blocks([ %Ial{attrs: attrs}, block | rest], result) do
@@ -324,8 +329,11 @@ defmodule Earmark.Block do
   # Consolidate multiline inline code blocks into an element #
   ############################################################
   @not_pending {nil, 0}
+  # ([#{},...]) -> {[#{}],[#{}],{'nil' | binary(),number()}}
+  # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
   defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
 
+  @spec _consolidate_para( ts, ts, inline_code_continuation ) :: { ts, ts, inline_code_continuation }
   defp _consolidate_para( [], result, pending ) do
     {result, [], pending}
   end
@@ -342,6 +350,7 @@ defmodule Earmark.Block do
   # Consolidate one or more list items into a list #
   ##################################################
 
+  @spec consolidate_list_items( ts, ts ) :: ts
   defp consolidate_list_items([], result), do: result  # no need to reverse
 
   # We have a list, and the next element is an item of the same type
@@ -367,6 +376,7 @@ defmodule Earmark.Block do
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
+  @spec read_table( ts, number, %Table{} ) :: { %Table{}, ts }
   defp read_table([ %Line.TableLine{columns: cols} | rest ],
                     col_count,
                     table = %Table{})
@@ -388,6 +398,7 @@ defmodule Earmark.Block do
   end
 
 
+  @spec look_for_alignments( [String.t] ) :: atom
   defp look_for_alignments([ _first, second | _rest ]) do
     if Enum.all?(second, fn row -> row =~ ~r{^:?-+:?$} end) do
       second
@@ -413,6 +424,7 @@ defmodule Earmark.Block do
     visit(blocks, Map.new, &link_extractor/2)
   end
 
+  @spec link_extractor(t, %{}) :: %{}
   defp link_extractor(item = %IdDef{id: id}, result) do
     Map.put(result, String.downcase(id), item)
   end
@@ -424,27 +436,28 @@ defmodule Earmark.Block do
   # Visitor pattern for each block #
   ##################################
 
-  def visit([], result, _func), do: result
+  @spec visit(ts, %{}, (t, %{} -> %{})) :: %{}
+  defp visit([], result, _func), do: result
 
-  def visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item = %List{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %List{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item = %ListItem{blocks: blocks} | rest], result, func) do
+  defp visit([ item = %ListItem{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
-  def visit([ item | rest], result, func) do
+  defp visit([ item | rest], result, func) do
     result = func.(item, result)
     visit(rest, result, func)
   end
@@ -488,6 +501,8 @@ defmodule Earmark.Block do
   ###########
 
 
+  # (_,{'nil' | binary(),number()}) -> #{}jj
+  @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
   defp inline_or_text?(line, pending)
   defp inline_or_text?(line = %Line.Text{}, @not_pending) do
     pending = opens_inline_code(line)

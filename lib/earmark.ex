@@ -179,12 +179,15 @@ defmodule Earmark do
 
   """
 
+  @spec to_html(String.t | list(String.t), %Options{}) :: String.t
+
   def to_html(lines, options \\ %Options{})
-  def to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
-    renderer.render(blocks, context, mapper)
-  end
   def to_html(lines, options = %Options{}) do
-    lines |> parse(options) |> to_html(options)
+    lines |> parse(options) |> _to_html(options)
+  end
+
+  defp _to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
+    renderer.render(blocks, context, mapper)
   end
 
   @doc """
@@ -196,9 +199,9 @@ defmodule Earmark do
   for more details.
   """
 
-  def parse(lines, options \\ %Options{})
+  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links } = Earmark.Parser.parse(lines, options)
+    { blocks, links } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
@@ -216,15 +219,17 @@ defmodule Earmark do
   end
 
   @doc false
+  @spec string_to_list( String.t ) :: list(String.t)
   defp string_to_list(document) do
     document |> String.split(~r{\r\n?|\n})
   end
 
   @doc false
+  @spec pmap( list(A), (A -> Earmark.Line.t) ) :: Earmark.Line.ts
   def pmap(collection, func) do
-    collection
+   collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Enum.map(&Task.await/1)
+   |> Enum.map(&Task.await/1)
   end
 
 end

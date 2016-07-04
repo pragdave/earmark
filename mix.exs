@@ -6,7 +6,7 @@ defmodule Earmark.Mixfile do
   def project do
     [
       app:          :earmark,
-      version:      "0.2.2",
+      version:      "1.0.0",
       elixir:       "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
       escript:       escript_config(),
@@ -22,6 +22,9 @@ defmodule Earmark.Mixfile do
 
   defp deps do
     [{:poison, "~> 2.1", only: [:dev, :test]},
+     {:credo, "~> 0.4.1", only: [:dev, :test]},
+     {:dialyxir, "~> 0.3.3", only: [:dev, :test]},
+     {:ex_doc, ">= 0.0.0", only: :dev},
      {:kwfuns, "~> 0.0", only: :test}]
   end
 

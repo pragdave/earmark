@@ -121,7 +121,7 @@ defmodule FootnoteTest do
   end
 
   test "parses footnote content" do
-    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options())
+    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
     {blocks, footnotes} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
     fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
     fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }

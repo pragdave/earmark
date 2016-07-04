@@ -7,71 +7,72 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   import Earmark.Helpers.StringHelpers
 
   @doc """
-  returns false unless the line leaves a code block open,
-  in which case the opening backquotes are returned as a string
+  Indicates if the _numbered_line_ passed in leaves an inline code block open.
+
+  If so returns a tuple whre the first element is the opening sequence of backticks,
+  and the second the linenumber of the _numbered_line_
+
+  Otherwise `{nil, 0}` is returned 
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
-    case ( line
-    |> behead_unopening_text
-    |> has_opening_backquotes ) do
-      nil -> {nil, 0}
-      btx -> {btx, lnb}
-    end
-  end
-
-  @inline_pairs ~r'''
-  ^(?:
-  (?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
-  (?<!\\)(`++)       # unescaped `, assuring longest match of `
-  .+?                # shortest match before...
-  (?<![\\`])\1(?!`)  # closing same length ` sequence
-  )+
-  '''x
-  @spec behead_unopening_text(String.t()) :: String.t()
-  # All pairs of sequences of backquotes and text in front and in between
-  # are removed from line.
-  defp behead_unopening_text( line ) do 
-  case Regex.run( @inline_pairs, line, return: :index ) do
-    [match_index_tuple | _rest] -> behead( line, match_index_tuple )
-    _no_match                   -> line
-  end 
-  end
-
-  @first_opening_backquotes ~r'''
-  ^(?:[^`]|\\`)*      # shortes possible prefix, not consuming unescaped `
-  (?<!\\)(`++)        # unescaped `, assuring longest match of `
-  '''x
-  @spec has_opening_backquotes(String.t()) :: inline_code_continuation
-  defp has_opening_backquotes line do
-    case Regex.run( @first_opening_backquotes, line ) do 
-    [_total, opening_backquotes | _rest] -> opening_backquotes
-    _no_match                            -> nil
+    case tokenize(line) |> has_still_opening_backtix(nil) do 
+      nil      -> {nil, 0}
+      {_, btx} -> {btx, lnb}
     end
   end
 
   @doc """
   returns false if and only if the line closes a pending inline code
   *without* opening a new one.
-  The opening backquotes are passed in as second parameter.
+  The opening backtix are passed in as second parameter.
   If the function does not return false it returns the (new or original)
-  opening backquotes 
+  opening backtix 
   """
-  @spec still_inline_code(numbered_line, String.t) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, {pending, pending_lnb} ) do
-    new_line = case ( ~r"""
-    ^.*?                                 # shortest possible prefix
-    (?<![\\`])#{pending}(?!`)    # unescaped ` with exactly the length of opening_backquotes
-    """x |> Regex.run( line, return: :index ) ) do
-      [match_index_tuple | _] ->  behead(line, match_index_tuple)
-      nil                     ->  nil
-    end
-
-    case new_line do
-      nil -> {pending, pending_lnb}
-      _   -> opens_inline_code(%{line: new_line, lnb: lnb}) 
+  # (#{},{_,_}) -> {_,_}
+  @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
+  def still_inline_code( %{line: line, lnb: lnb}, old = {pending, pending_lnb} ) do
+    case tokenize(line) |> has_still_opening_backtix({:old, pending}) do 
+      nil -> {nil, 0}
+      {:new, btx} -> {btx, lnb}
+      {:old, _  } -> old
     end
   end
+
+  # A tokenized line {:verabtim, text} | {:backtix, ['``+]} is analyzed for
+  # if it is closed (-> nil), not closed (-> {:old, btx}) or reopened (-> {:new, btx})
+  # concerning backtix
+  defp has_still_opening_backtix(tokens, opened_so_far)
+
+  defp has_still_opening_backtix([], opened_so_far), do: opened_so_far
+  defp has_still_opening_backtix([{:verbatim,_}|rest], opened_so_far), do: has_still_opening_backtix(rest, opened_so_far)
+  defp has_still_opening_backtix([{:backtix,btx}|rest], nil), do: has_still_opening_backtix(rest, {:new, btx}) 
+  defp has_still_opening_backtix([{:backtix,btx}|rest], opened_so_far={_, pending}) do
+    if btx == pending do
+      has_still_opening_backtix(rest, nil) 
+    else 
+      has_still_opening_backtix(rest, opened_so_far) 
+    end
+  end
+
+  defp tokenize line do 
+    {:ok, tokens, _} =
+    line
+    |> to_char_list()
+    |> :string_lexer.string()
+    # IO.inspect tokens
+    elixirize_tokens(tokens,[])
+    |> Enum.reverse()
+  end
+
+  defp elixirize_tokens(tokens, rest)
+  defp elixirize_tokens([], result), do: result
+  defp elixirize_tokens([{token, _, text}|rest], result), do: elixirize_tokens(rest, [{token,to_string(text)}|result])
+
+  #######################################################################################
+  # read_list_lines
+  #######################################################################################
+  @spec read_list_lines( Line.ts, inline_code_continuation ) :: {boolean, Line.ts, Line.ts} | {boolean, Line.ts, Line.ts, {String.t, number}}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
@@ -79,12 +80,12 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
-  @spec read_list_lines( Line.ts, inline_code_continuation )::{any, Line.ts, Line.ts}
   def read_list_lines( lines, pending ) do 
-    _read_list_lines(lines, [], pending)
+  _read_list_lines(lines, [], pending)
   end
 
   @not_pending {nil, 0}
+  @spec _read_list_lines(Line.ts, Line.ts, inline_code_continuation) :: {boolean, Line.ts, Line.ts}
   # text immediately after the start
   defp _read_list_lines([ line = %Line.Text{} | rest ], [], @not_pending) do
     _read_list_lines(rest, [ line ], opens_inline_code(line))

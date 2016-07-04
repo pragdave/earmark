@@ -11,7 +11,7 @@ defmodule Parser.InlineCodeTest do
   ##########################################################################################
   test "Multiline inline code is parsed correctly (getting rid of list items inside code)" do
     lines = [
-      "\\`prefix`first", 
+      "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
     {result, _} = Parser.parse(lines)
@@ -22,7 +22,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Multiline inline code is parsed correctly (getting rid of code inside code)" do
-    lines = [ "\\`prefix`first", 
+    lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
     {result, _} = Parser.parse(lines)
@@ -32,8 +32,8 @@ defmodule Parser.InlineCodeTest do
     assert result == expect
   end
 
-  test "Multiline inline code is parsed correctly using triple beaktix (getting rid of code and list items)" do
-    lines = [ "\\`prefix```first", 
+  test "Multiline inline code is parsed correctly using triple backtix (getting rid of code and list items)" do
+    lines = [ "\\`prefix```first",
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
@@ -45,9 +45,9 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Multiline inline code is correctly interpreting included longer and shorter sequences of backtix" do
-    lines = [ "`single `` ```", 
+    lines = [ "`single `` ```",
       "` ``double ` ```",
-      "     `` ```triple \\``` ` `` ````",
+      "     `` ```triple \\``` \\\\` `` ````",
       "```"]
     {result, _} = Parser.parse(lines)
     expect = [
@@ -64,6 +64,22 @@ defmodule Parser.InlineCodeTest do
     assert result == expect
   end
 
+  test "Escapes and Backtix" do 
+    {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
+    expect = [
+      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]}
+    ]
+    assert result == expect
+  end
+  
+  test "Escapes and Backtix and Code" do 
+    {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
+    expect = [
+      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]},
+      %Earmark.Block.Code{attrs: nil, language: nil, lines: ["Hello"]}
+    ]
+    assert result == expect
+  end
   ##########################################################################################
   #  Lists
   ##########################################################################################
@@ -85,7 +101,7 @@ defmodule Parser.InlineCodeTest do
 
   test "Mutliline inline code in list is parsed correctly (getting rid of list items inside code)" do
     lines = [
-      "\\`prefix`first", 
+      "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
     {result, _} = parse_as_list(lines)
@@ -93,7 +109,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is parsed correctly (getting rid of code inside code)" do
-    lines = [ "\\`prefix`first", 
+    lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
     {result, _} = parse_as_list( lines )
@@ -101,7 +117,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is parsed correctly using triple beaktix (getting rid of code and list items)" do
-    lines = [ "\\`prefix```first", 
+    lines = [ "\\`prefix```first",
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
@@ -110,9 +126,18 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Mutliline inline code in list is correctly interpreting included longer and shorter sequences of backtix" do
-    lines = [ "`single `` ```", 
+    lines = [ "`single `` ```",
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
+      "```"]
+    {result, _} = parse_as_list( lines, "1." )
+    assert_list_with result, lines, type: :ol
+  end
+
+  test "Mutliline inline code in list is correctly interpreting included escaped sequences of backtix" do
+    lines = [ "`single `` ```",
+      "` ``double ` ```",
+      "     `` ```triple \\\\\\``` \\\\` `` ````",
       "```"]
     {result, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
