@@ -42,8 +42,8 @@ defmodule Earmark.Mixfile do
 
   defp package do
     [
-      files:       [ "lib", "tasks", "mix.exs", "README.md" ],
-      maintainers: [ 
+      files:       [ "lib", "src", "tasks", "mix.exs", "README.md" ],
+      maintainers: [
                      "Robert Dober <robert.dober@gmail.com>",
                      "Dave Thomas <dave@pragdave.me>"
                    ],
