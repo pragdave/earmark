@@ -1,3 +1,66 @@
+# 1.0.1  06/07/16
+
+* fixing issue #81 by pushing this updated Changelog.md :)
+* PR from mschae fixing issue #80 broken hex package
+
+## Kudos:
+  Michael Schaefermeyer (mschae) & Tobias Pfeiffer (PragTob)
+
+# 1.0.0  06/07/16
+
+* --version | -v switch for `earmark` escript.
+* added security notice about XSS to docs thanks to remiq
+* PR from alakra (issue #59) to allow Hypens and Unicode in fenced code block names
+* PR from sntran to fix unsafe conditional variables from PR
+* PR from riacataquian to use maps instead of dicts
+* PR from gmile to remove duplicate tests
+* PR from gmile to upgrade poison dependency
+* PR from whatyouhide to fix warnings for Elixir 1.4 with additional help from milmazz
+* Travis for 1.2.x and 1.3.1 as well as OTP 19
+* Fixes for issues:
+  - #61
+  - #66
+  - #70
+  - #71
+  - #72
+  - #77
+  - #78
+
+## Kudos:
+Remigiusz Jackowski (remiq), Angelo Lakra (alakra), Son Tran-Nguyen (sntran), Mike Kreuzer (mikekreuzer),
+Ria Cataquian (riacataquian), Eugene Pirogov (gmile), Andrea Leopardi (whatyouhide) & Milton Mazzarri (milmazz)
+
+# 0.2.1  01/15/16
+
+* Added 1.2 for Travis
+* PR from mneudert to fix HTMLOneLine detection
+
+## Kudos:
+
+Marc Neudert (mneudert) 
+
+
+# 0.2.0  12/28/15
+
+* PR from eksperimental guaranteeing 100% HTML5
+* PR from imbriaco to decouple parsing and html generation and whitespace removal
+* Fixes for issues:
+  - #40
+  - #41
+  - #43
+  - #48
+  - #50
+  - #51
+* Explicit LICENSE change to Apache 2.0 (#42)
+* Loading of test support files only in test environment thanks to José Valim
+* IO Capture done correctly thanks to whatyouhide
+* Warning for Elixir 1.2 fixed by mschae
+
+## Kudos:
+
+Eksperimental (eksperimental), Mark Imbriaco (imbriaco), Andrea Leopardi(whatyouhide), José Valim &
+Michael Schaefermeyer (mschae)
+
 # 0.1.19 10/27/15
 
 * Fix | in implicit lists, and restructur the parse a little.
