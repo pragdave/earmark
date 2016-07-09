@@ -4,7 +4,6 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   alias Earmark.Line
   import Earmark.Helpers.LineHelpers
-  import Earmark.Helpers.StringHelpers
 
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
@@ -31,7 +30,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
-  def still_inline_code( %{line: line, lnb: lnb}, old = {pending, pending_lnb} ) do
+  def still_inline_code( %{line: line, lnb: lnb}, old = {pending, _pending_lnb} ) do
     case tokenize(line) |> has_still_opening_backtix({:old, pending}) do 
       nil -> {nil, 0}
       {:new, btx} -> {btx, lnb}
