@@ -252,7 +252,6 @@ defmodule Earmark.Block do
   do
     title = case maybe_title do
       %Line.Text{content: content}   ->  Line.matches_id_title(content)
-      %Line.Indent{content: content} ->  Line.matches_id_title(content)
       _                              ->  nil
     end
 
@@ -486,7 +485,6 @@ defmodule Earmark.Block do
   do
     case html_match_to_closing(new_tag, rest, [opener]) do
       {:ok, { html_lines, rest }} ->  html_match_to_closing(tag, rest, html_lines ++ result)
-      error                       ->  error
     end
   end
 
