@@ -10,3 +10,6 @@ notes/*
 /earmark
 *.beam
 doc/
+
+# leex generated file
+src/string_lexer.erl
