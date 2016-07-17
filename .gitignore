@@ -13,3 +13,4 @@ doc/
 
 # leex generated file
 src/string_lexer.erl
+cover
