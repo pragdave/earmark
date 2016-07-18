@@ -8,7 +8,8 @@ defmodule Earmark.HtmlRenderer do
 
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
-  import Earmark.Helpers, only: [ escape: 2, behead: 2 ]
+  import Earmark.Helpers, only: [ escape: 2 ]
+  import Earmark.Helpers.StringHelpers, only: [behead: 2]
 
   def render(blocks, context, map_func) do
     map_func.(blocks, &(render_block(&1, context, map_func)))

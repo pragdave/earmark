@@ -1,6 +1,8 @@
 defmodule Earmark.CLI do
 
   def main(argv) do
+    argv |>
+      IO.inspect()
     argv 
     |> parse_args 
     |> process

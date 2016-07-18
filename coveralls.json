@@ -1,0 +1,8 @@
+{
+  "skip_files": [
+    "earmark/cli.ex",
+    "earmark/scanner.ex",
+    "src/",
+    "test/"
+  ]
+}

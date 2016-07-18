@@ -52,7 +52,7 @@ defmodule Earmark.Parser do
         note = %Block.FnDef{} -> number = length(list) + options.footnote_offset
                                  note = %Block.FnDef{ note | number: number }
                                  [ note | list ]
-        _                     -> list # TODO inline footnotes
+        # _                     -> list # TODO inline footnotes, but commented for coverage
       end
     end)
   end

@@ -353,6 +353,24 @@
     "markdown": "1. foo\nbar"
   },
   {
+    "section": "List items",
+    "html": "<ul>\n<li>a\nb\nc\n</li>\n</ul>\n",
+    "example": 581,
+    "markdown": "* a\n    b\nc"
+  },
+  {
+    "section": "List items",
+    "html": "<ul>\n<li>x\na\n| A | B |\n</li>\n</ul>\n",
+    "example": 582,
+    "markdown": "* x\n    a\n| A | B |"
+  },
+  {
+    "section": "List items",
+    "html": "<ul>\n<li>x\n | A | B |\n</li>\n</ul>\n",
+    "example": 583,
+    "markdown": "* x\n | A | B |"
+  },
+  {
     "section": "Inlines",
     "html": "<p><code class=\"inline\">hi</code>lo`</p>\n",
     "example": 590,

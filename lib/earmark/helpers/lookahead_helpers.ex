@@ -80,7 +80,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   code block as indicated by `pending`.
   """
   def read_list_lines( lines, pending ) do 
-  _read_list_lines(lines, [], pending)
+    _read_list_lines(lines, [], pending)
   end
 
   @not_pending {nil, 0}
@@ -132,12 +132,6 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   defp _read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
-  result, @not_pending)
-  do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
-  end
-
-  defp _read_list_lines([ line = %Line.TableLine{content: <<"  ", _ :: binary>>} | rest ],
   result, @not_pending)
   do
     _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 

@@ -6,6 +6,7 @@ defmodule Earmark.Inline do
   """
 
   import Earmark.Helpers
+  import Earmark.Helpers.StringHelpers, only: [behead: 2]
   alias Earmark.Context
 
   @doc false
@@ -40,106 +41,94 @@ defmodule Earmark.Inline do
                 out = renderer.link(href, text)
                 convert_each(behead(src, match), context, [ result | out ])
 
-                # url (gfm)
-                  match = Regex.run(context.rules.url, src) ->
-                    [ match, href ] = match
-                      text = escape(href)
-                      out = renderer.link(href, text)
+                # tag
+                  match = Regex.run(context.rules.tag, src) ->
+                    [ match ] = match
+                      out = context.options.do_sanitize.(match)
                       convert_each(behead(src, match), context, [ result | out ])
 
-                      # tag
-                        match = Regex.run(context.rules.tag, src) ->
-                          [ match ] = match
-                            out = context.options.do_sanitize.(match)
-                            convert_each(behead(src, match), context, [ result | out ])
+                      # link
+                        match = Regex.run(context.rules.link, src) ->
+                          { match, text, href, title } = case match do
+                            [ match, text, href ]        -> { match, text, href, nil }
+                            [ match, text, href, title ] -> { match, text, href, title }
+                            end
+                            out = output_image_or_link(context, match, text, href, title)
+                            result = convert_each(behead(src, match), context, [ result | out ])
+                            result
 
-                            # link
-                              match = Regex.run(context.rules.link, src) ->
-                                { match, text, href, title } = case match do
-                                  [ match, text, href ]        -> { match, text, href, nil }
-                                  [ match, text, href, title ] -> { match, text, href, title }
+
+                            # reflink
+                              match = Regex.run(context.rules.reflink, src) ->
+                                { match, alt_text, id } = case match do
+                                  [ match, id, "" ]       -> { match, id, id  }
+                                  [ match, alt_text, id ] -> { match, alt_text, id }
                                   end
-                                  out = output_image_or_link(context, match, text, href, title)
-                                  result = convert_each(behead(src, match), context, [ result | out ])
-                                  result
+                                  out = reference_link(context, match, alt_text, id)
+                                  convert_each(behead(src, match), context, [ result | out ])
 
-
-                                  # reflink
-                                    match = Regex.run(context.rules.reflink, src) ->
-                                      { match, alt_text, id } = case match do
-                                        [ match, id ]           -> { match, nil, id }
-                                        [ match, id, "" ]       -> { match, id, id  }
-                                        [ match, alt_text, id ] -> { match, alt_text, id }
-                                        end
-                                        out = reference_link(context, match, alt_text, id)
+                                  # footnotes
+                                    match = Regex.run(context.rules.footnote, src) ->
+                                      [match, id] = match
+                                        out = footnote_link(context, match, id)
                                         convert_each(behead(src, match), context, [ result | out ])
 
-                                        # footnotes
-                                          match = Regex.run(context.rules.footnote, src) ->
-                                            [match, id] = match
-                                              out = footnote_link(context, match, id)
+
+                                        # nolink
+                                          match = Regex.run(context.rules.nolink, src) ->
+                                            [ match, id ] = match
+                                              out = reference_link(context, match, id, id)
                                               convert_each(behead(src, match), context, [ result | out ])
 
 
-                                              # nolink
-                                                match = Regex.run(context.rules.nolink, src) ->
-                                                  [ match, id ] = match
-                                                    out = reference_link(context, match, id, id)
+                                              # strikethrough (gfm)
+                                                match = Regex.run(context.rules.strikethrough, src) ->
+                                                  [ match, content ] = match
+                                                    out = renderer.strikethrough(convert(content, context))
                                                     convert_each(behead(src, match), context, [ result | out ])
 
 
-                                                    # strikethrough (gfm)
-                                                      match = Regex.run(context.rules.strikethrough, src) ->
-                                                        [ match, content ] = match
-                                                          out = renderer.strikethrough(convert(content, context))
-                                                          convert_each(behead(src, match), context, [ result | out ])
+                                                    # strong
+                                                      match = Regex.run(context.rules.strong, src) ->
+                                                        { match, content } = case match do
+                                                          [ m, _, c ] -> {m, c}
+                                                          [ m, c ]    -> {m, c}
+                                                        end
+                                                        out = renderer.strong(convert(content, context))
+                                                        convert_each(behead(src, match), context, [ result | out ])
+
+                                                        # em
+                                                          match = Regex.run(context.rules.em, src) ->
+                                                            { match, content } = case match do
+                                                              [ m, _, c ] -> {m, c}
+                                                              [ m, c ]    -> {m, c}
+                                                            end
+                                                            out = renderer.em(convert(content, context))
+                                                            convert_each(behead(src, match), context, [ result | out ])
 
 
-                                                          # strong
-                                                            match = Regex.run(context.rules.strong, src) ->
-                                                              { match, content } = case match do
-                                                                [ m, _, c ] -> {m, c}
-                                                                [ m, c ]    -> {m, c}
-                                                              end
-                                                              out = renderer.strong(convert(content, context))
-                                                              convert_each(behead(src, match), context, [ result | out ])
-
-                                                              # em
-                                                                match = Regex.run(context.rules.em, src) ->
-                                                                  { match, content } = case match do
-                                                                    [ m, _, c ] -> {m, c}
-                                                                    [ m, c ]    -> {m, c}
-                                                                  end
-                                                                  out = renderer.em(convert(content, context))
+                                                            # code
+                                                              match = Regex.run(context.rules.code, src) ->
+                                                                [match, _, content] = match
+                                                                  content = String.strip(content)  # this from Gruber
+                                                                  out = renderer.codespan(escape(content, true))
                                                                   convert_each(behead(src, match), context, [ result | out ])
 
-
-                                                                  # code
-                                                                    match = Regex.run(context.rules.code, src) ->
-                                                                      [match, _, content] = match
-                                                                        content = String.strip(content)  # this from Gruber
-                                                                        out = renderer.codespan(escape(content, true))
-                                                                        convert_each(behead(src, match), context, [ result | out ])
-
-                                                                        # br
-                                                                          match = Regex.run(context.rules.br, src, return: :index) ->
-                                                                            out = renderer.br()
-                                                                            [ {0, match_len} ] = match
-                                                                              convert_each(behead(src, match_len), context, [ result | out ])
+                                                                  # br
+                                                                    match = Regex.run(context.rules.br, src, return: :index) ->
+                                                                      out = renderer.br()
+                                                                      [ {0, match_len} ] = match
+                                                                        convert_each(behead(src, match_len), context, [ result | out ])
 
 
-                                                                              # text
-                                                                              match = Regex.run(context.rules.text, src) ->
-                                                                                [ match ] = match
-                                                                                  out = escape(context.options.do_smartypants.(match))
-                                                                                  result = convert_each(behead(src, match), context, [ result | out ])
-                                                                                  result
+                                                                        # text
+                                                                        match = Regex.run(context.rules.text, src) ->
+                                                                          [ match ] = match
+                                                                            out = escape(context.options.do_smartypants.(match))
+                                                                            result = convert_each(behead(src, match), context, [ result | out ])
+                                                                            result
 
-                                                                                  # No match
-                                                                                    true ->
-                                                                                      location = String.slice(src, 0, 100)
-                                                                                      raise("Failed to parse inline starting at: #{inspect(location)}")
-                                                                                  end
+                                                                            end
   end
 
   defp convert_autolink(link, _separator = "@") do
@@ -211,12 +200,10 @@ defmodule Earmark.Inline do
       end
   end
 
-  defp footnote_link(context, match, id) do
-    case Map.fetch(context.footnotes, id) do
-      {:ok, footnote} -> number = footnote.number
-      output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
-      _               -> match
-      end
+  defp footnote_link(context, _match, id) do
+    with {:ok, %{number: number}} <- Map.fetch(context.footnotes, id),
+    do:
+    output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
   end
 
 
