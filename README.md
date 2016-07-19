@@ -2,6 +2,8 @@
 
 # Earmark—A Pure Elixir Markdown Processor [![Build Status](https://travis-ci.org/pragdave/earmark.svg?branch=master)](https://travis-ci.org/pragdave/earmark)
 
+[![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
+
 ## Dependency
 
     { :earmark, "> x.y.z" }
