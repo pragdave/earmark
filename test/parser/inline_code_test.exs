@@ -1,8 +1,6 @@
 defmodule Parser.InlineCodeTest do
   use ExUnit.Case
 
-  use Kwfuns
-
   alias Earmark.Parser
   alias Earmark.Block
 
@@ -83,14 +81,14 @@ defmodule Parser.InlineCodeTest do
   ##########################################################################################
   #  Lists
   ##########################################################################################
-  # Need better macro skills to get default kw params
-  defkwp assert_list_with result, text_lines, spaced: false, type: :ul do
+  defp assert_list_with(result, text_lines), do: assert_list_with(result, text_lines, type: :ul)
+  defp assert_list_with(result, text_lines, [type: type]) do
     assert result == [
       %Block.List{
         attrs: nil,
         blocks: [%Block.ListItem{ attrs: nil,
           blocks: [%Block.Para{attrs: nil, lines: text_lines}],
-          spaced: spaced,
+          spaced: false,
           type: type}],
         type: type}]
   end

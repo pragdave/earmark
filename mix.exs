@@ -28,7 +28,7 @@ defmodule Earmark.Mixfile do
      {:dialyxir, "~> 0.3.3", only: [:dev, :test]},
      {:ex_doc, ">= 0.0.0", only: :dev},
      {:excoveralls, "~> 0.5", only: :test},
-     {:kwfuns, "~> 0.0", only: :test}]
+   ]
   end
 
   defp description do
