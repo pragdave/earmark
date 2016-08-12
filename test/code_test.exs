@@ -101,4 +101,24 @@ defmodule CodeTest do
     result = Earmark.to_html "```elixir\n  # Hello\nend\n```"
     assert result == ~s(<pre><code class="elixir">  # Hello\nend</code></pre>\n)
   end
+  test "code block (fenced with uniform 4-space indents)" do
+    result = Earmark.to_html "    ```elixir\n    defmodule\n    ```"
+    assert result == "<pre><code>```elixir\ndefmodule\n```</code></pre>\n"
+  end
+  test "code block (fenced with non-uniform 2- and 4-space indents)" do
+    result = Earmark.to_html "  ```elixir\n    defmodule\n    ```"
+    assert result == "<pre><code class=\"elixir\">    defmodule\n    ```</code></pre>\n"
+  end
+  test "code block (in list item, with 4-space indent and ending fence in-line)" do
+    result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule```\n"
+    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule```</code></pre>\n</li>\n</ol>\n"
+  end
+  test "code block (in list item, with 4-space indent containing backticks)" do
+    result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule```\n    ```"
+    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule```</code></pre>\n</li>\n</ol>\n"
+  end
+  test "code block (in list item, with uniform 4-space indents)" do
+    result = Earmark.to_html "  1. one\n\n    ```elixir\n    defmodule\n    ```"
+    assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
+  end
 end
