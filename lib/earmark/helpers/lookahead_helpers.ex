@@ -146,12 +146,34 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   # Only now we match for list lines inside an open multiline inline code block
   defp _read_list_lines([line|rest], result, pending) do
-    _read_list_lines(rest, [%{line|inside_code: true} | result], still_inline_code(line, pending))
+    fence_start  = find_code_fence_in_lines(result)
+    inside_code? =
+      if are_matching_fences?(fence_start, line) do
+        false
+      else
+        true
+      end
+
+    _read_list_lines(rest, [%{line|inside_code: inside_code?} | result], still_inline_code(line, pending))
   end
   # Running into EOI insise an open multiline inline code block
   defp _read_list_lines([], result, pending) do
     { spaced, rest, lines } =_read_list_lines( [], result, @not_pending )
     { spaced, rest, lines, pending }
   end
+
+  defp find_code_fence_in_lines(lines) do
+    Enum.find(lines, fn
+      %Line.Indent{content: <<"```", _::binary>>} ->
+        true
+      _ ->
+        false
+    end)
+  end
+
+  defp are_matching_fences?(%{line: line1}, %{line: line2}) do
+    String.starts_with?(line1, line2)
+  end
+  defp are_matching_fences?(_, _), do: false
 
 end
