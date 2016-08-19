@@ -117,6 +117,7 @@ defmodule CodeTest do
     result = Earmark.to_html "1. one\n\n    ```elixir\n    defmodule```\n    ```"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule```</code></pre>\n</li>\n</ol>\n"
   end
+  @tag :wip
   test "code block (in list item, with uniform 4-space indents)" do
     result = Earmark.to_html "  1. one\n\n    ```elixir\n    defmodule\n    ```"
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
