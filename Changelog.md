@@ -2,7 +2,7 @@
 
 * PR from jonnystorm with a fix for a special case in issue #85
 * test coverage at 100%
-* PR from michalmuskala 
+* PR from michalmuskala
 * Fixed remaining compiler warnings from 1.0.1 (Elixir 1.3)
 
 ## Kudos:
@@ -47,7 +47,7 @@ Ria Cataquian (riacataquian), Eugene Pirogov (gmile), Andrea Leopardi (whatyouhi
 
 ## Kudos:
 
-Marc Neudert (mneudert) 
+Marc Neudert (mneudert)
 
 
 # 0.2.0  12/28/15
@@ -75,7 +75,7 @@ Michael Schaefermeyer (mschae)
 
 * Fix | in implicit lists, and restructur the parse a little.
   Many thanks to Robert Dober
-  
+
 # 0.1.17 05/18/15
 
 * Add strikethrough support to the HTML renderer. Thanks to
