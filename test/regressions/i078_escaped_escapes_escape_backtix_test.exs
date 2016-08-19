@@ -1,4 +1,4 @@
-defmodule Regressions.I078EscapedEscapesEscapeBacktix do
+defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
 
