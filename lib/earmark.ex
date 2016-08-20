@@ -215,13 +215,9 @@ defmodule Earmark do
     end
   end
   def parse(lines, options) when is_binary(lines) do
-    lines |> string_to_list |> parse(options)
-  end
-
-  @doc false
-  @spec string_to_list( String.t ) :: list(String.t)
-  defp string_to_list(document) do
-    document |> String.split(~r{\r\n?|\n})
+    lines 
+    |> String.split(~r{\r\n?|\n})
+    |> parse(options)
   end
 
   @doc false
