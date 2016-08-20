@@ -128,7 +128,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   defp _read_list_lines([ line = %Line.Indent{} | rest ], result, @not_pending) do
-    _read_list_lines(rest, [ line | result ], opens_inline_code(line)) 
+    _read_list_lines(rest, [ line | result ], @not_pending)
   end
 
   defp _read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
