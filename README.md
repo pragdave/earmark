@@ -1,9 +1,8 @@
-<!-- moduledoc: Earmark -->
-
 # Earmark—A Pure Elixir Markdown Processor
 
 [![Build Status](https://travis-ci.org/pragdave/earmark.svg?branch=master)](https://travis-ci.org/pragdave/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
+<!-- moduledoc: Earmark -->
 
 ## Dependency
 
@@ -13,9 +12,9 @@
 
 ### API
 
-    html_doc = Earmark.to_html(markdown)
+  html_doc = Earmark.to_html(markdown)
 
-    html_doc = Earmark.to_html(markdown, options)
+  html_doc = Earmark.to_html(markdown, options)
 
 (See the documentation for `to_html` for options)
 
@@ -94,9 +93,9 @@ For example:
         hello
         </div></div>
 
-* John Gruber's tests contain an ambiguity when it comes to 
+* John Gruber's tests contain an ambiguity when it comes to
   lines that might be the start of a list inside paragraphs.
- 
+
   One test says that
 
         This is the text
@@ -115,29 +114,30 @@ For example:
   I've chosen always to use the second interpretation—a line that looks like
   a list item will always be a list item.
 
+## Security
+
+  Please be aware that Markdown is not a secure format. It produces HTML from Markdown
+  and HTML. It is your job to sanitize and or filter the output of `Markdown.html` if
+  you cannot trust the input and are to serve the produced HTML on the Web.
+
 ## Author
 
-Copyright © 2014 Dave Thomas, The Pragmatic Programmers  
+Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
-Licensed under the same terms as Elixir.
-
-
-
-
-
+Licensed under the same terms as Elixir, which is Apache 2.0.
 <!-- endmoduledoc: Earmark -->
 
 # Details
 <!-- doc: Earmark.to_html -->
-Given a markdown document (as either a list of lines or 
+Given a markdown document (as either a list of lines or
 a string containing newlines), return an HTML representation.
 
 The options are a `%Earmark.Options{}` structure:
 
 * `renderer`: ModuleName
 
-  The module used to render the final document. Defaults to 
+  The module used to render the final document. Defaults to
   `Earmark.HtmlRenderer`
 
 * `gfm`: boolean

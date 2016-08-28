@@ -2,8 +2,6 @@ defmodule Earmark do
 
   @moduledoc """
 
-  # Earmark—A Pure Elixir Markdown Processor
-
   ## Dependency
 
       { :earmark, "> x.y.z" }
