@@ -10,9 +10,9 @@ defmodule Earmark do
 
   ### API
 
-    html_doc = Earmark.to_html(markdown)
+      html_doc = Earmark.to_html(markdown)
 
-    html_doc = Earmark.to_html(markdown, options)
+      html_doc = Earmark.to_html(markdown, options)
 
   (See the documentation for `to_html` for options)
 
