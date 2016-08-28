@@ -50,7 +50,7 @@ defmodule Earmark.Mixfile do
                      "Robert Dober <robert.dober@gmail.com>",
                      "Dave Thomas <dave@pragdave.me>"
                    ],
-      licenses:    [ "See the file LICENSE" ],
+      licenses:    [ "Apache 2 (see the file LICENSE for details)" ],
       links:       %{
                        "GitHub" => "https://github.com/pragdave/earmark",
                    }
