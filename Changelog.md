@@ -4,11 +4,13 @@
 * test coverage at 100%
 * PR from michalmuskala
 * Fixed remaining compiler warnings from 1.0.1 (Elixir 1.3)
+* PR from Peter Debelak to fix a factual error in the README
 * Fixes for issues
   - #86
+  - #88
 
 ## Kudos:
-  Jonathan Storm (jonnystorm) & Michal Muskala (michalmuskala)
+  Jonathan Storm (jonnystorm), Michal Muskala (michalmuskala) & Peter Debelak (pdebelak)
 
 # 1.0.1  06/07/16
 
