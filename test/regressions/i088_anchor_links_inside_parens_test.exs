@@ -20,11 +20,4 @@ defmodule Regressions.I88AnchorLinksInsideParensTest do
       assert "<p>(<img src=\"link\" alt=\"text\"/>)</p>\n" == result
     end
   end
-
-  describe "brackets" do
-    test "normal case" do 
-      result = Earmark.to_html( "[[text](link)]" )
-      assert "<p>[<a href=\"link\">text</a>]</p>\n" == result
-    end
-  end
 end

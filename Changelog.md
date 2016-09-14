@@ -8,6 +8,7 @@
 * Fixes for issues
   - #86
   - #88
+  - #89
 
 ## Kudos:
   Jonathan Storm (jonnystorm), Michal Muskala (michalmuskala) & Peter Debelak (pdebelak)

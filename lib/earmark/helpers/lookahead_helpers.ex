@@ -4,6 +4,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   alias Earmark.Line
   import Earmark.Helpers.LineHelpers
+  import Earmark.Helpers.LeexHelpers
 
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
@@ -15,7 +16,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   """
   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
-    case tokenize(line) |> has_still_opening_backtix(nil) do 
+    case tokenize(line, with: :string_lexer) |> has_still_opening_backtix(nil) do 
       nil      -> {nil, 0}
       {_, btx} -> {btx, lnb}
     end
@@ -31,7 +32,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   # (#{},{_,_}) -> {_,_}
   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
   def still_inline_code( %{line: line, lnb: lnb}, old = {pending, _pending_lnb} ) do
-    case tokenize(line) |> has_still_opening_backtix({:old, pending}) do 
+    case tokenize(line, with: :string_lexer) |> has_still_opening_backtix({:old, pending}) do 
       nil -> {nil, 0}
       {:new, btx} -> {btx, lnb}
       {:old, _  } -> old
@@ -53,20 +54,6 @@ defmodule Earmark.Helpers.LookaheadHelpers do
       has_still_opening_backtix(rest, opened_so_far) 
     end
   end
-
-  defp tokenize line do 
-    {:ok, tokens, _} =
-    line
-    |> to_char_list()
-    |> :string_lexer.string()
-    # IO.inspect tokens
-    elixirize_tokens(tokens,[])
-    |> Enum.reverse()
-  end
-
-  defp elixirize_tokens(tokens, rest)
-  defp elixirize_tokens([], result), do: result
-  defp elixirize_tokens([{token, _, text}|rest], result), do: elixirize_tokens(rest, [{token,to_string(text)}|result])
 
   #######################################################################################
   # read_list_lines
