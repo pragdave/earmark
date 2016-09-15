@@ -4,28 +4,29 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   import Earmark.Helpers.LeexHelpers, only: [lex: 2]
   describe "text part" do
     test "empty" do 
-      assert [] == parse("[]")
+      assert {'[]()', [], []} == parse("[]()")
     end
     test "incorrect" do 
       assert nil == parse("([]")
+      assert nil == parse("([]()")
     end
     test "simple text" do 
-      assert 'hello' == parse("[hello]")
+      assert {'[hello]()', 'hello', ''} == parse("[hello]()")
     end
     test "text with escapes" do 
-      assert 'hello[' == parse("[hello\\[]")
+      assert {'[hello[]()', 'hello[', ''} == parse("[hello\\[]()")
     end
     test "text with many parts" do 
-      assert 'hello( world])' == parse("[hello( world\\])]")
+      assert {'[hello( world])]()', 'hello( world])', ''} == parse("[hello( world\\])]()")
     end
     test "simple imbrication" do 
-      assert '[hello]' == parse("[[hello]]")
+      assert {'[[hello]]()', '[hello]', ''} == parse("[[hello]]()")
     end
     test "complex imbrication" do 
-      assert 'pre[iniside]suff' == parse("[pre[iniside]suff]")
+      assert {'[pre[iniside]suff]()', 'pre[iniside]suff', ''} == parse("[pre[iniside]suff]()")
     end
     test "deep imbrication" do 
-      assert 'pre[[in]]side])' == parse("[pre[[in\\]]side])]")
+      assert {'[pre[[in]]side])]()', 'pre[[in]]side])', ''} == parse("[pre[[in\\]]side])]()")
     end
     test "missing closing brackets" do 
       assert nil ==  parse("[pre[[in\\]side])]")
