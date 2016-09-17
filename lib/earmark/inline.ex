@@ -8,7 +8,7 @@ defmodule Earmark.Inline do
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   alias Earmark.Context
-  alias Earmerk.Helpers.Kludge
+  alias Earmark.Helpers.Kludge
 
   @doc false
   def convert(src, context) when is_list(src) do

@@ -1,7 +1,7 @@
 Nonterminals link_text
              inside_brackets inside_brackets_part.
 
-Terminals  open_bracket close_bracket open_paren close_paren verbatim.
+Terminals any_quote open_bracket close_bracket open_paren close_paren verbatim.
 
 Rootsymbol link_text.
 
@@ -14,6 +14,7 @@ inside_brackets -> inside_brackets_part inside_brackets       : string:concat('$
 inside_brackets_part -> verbatim                                   : extract_token('$1').
 inside_brackets_part -> open_paren                                 : "(".
 inside_brackets_part -> close_paren                                : ")".
+inside_brackets_part -> any_quote                                  : extract_token('$1').
 inside_brackets_part -> open_bracket inside_brackets close_bracket : join_strings(["[", '$2', "]"]).
 
 Erlang code.

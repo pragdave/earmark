@@ -30,6 +30,9 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   test "deep imbrication" do 
     assert {'[pre[[in]]side])]', 'pre[[in]]side])'} == parse("[pre[[in\\]]side])]")
   end
+  test "with quotes" do
+    assert {'["hello\']', '"hello\''} == parse(~s<["hello']>)
+  end
   test "missing closing brackets" do 
     assert nil ==  parse("[pre[[in\\]side])]")
   end

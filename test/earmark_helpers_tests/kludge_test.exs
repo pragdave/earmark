@@ -1,7 +1,7 @@
 defmodule EarmarkHelpersTests.KludgeTest do
   use ExUnit.Case
 
-  alias Earmerk.Helpers.Kludge
+  alias Earmark.Helpers.Kludge
 
   describe "text part" do
     test "empty" do 
