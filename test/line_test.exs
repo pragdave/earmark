@@ -2,7 +2,7 @@ defmodule LineTest do
   use ExUnit.Case
 
   alias Earmark.Line
-  
+
      id1 = ~S{[ID1]: http://example.com  "The title"}
      id2 = ~S{[ID2]: http://example.com  'The title'}
      id3 = ~S{[ID3]: http://example.com  (The title)}
@@ -12,10 +12,11 @@ defmodule LineTest do
      id7 = ~S{  [ID7]: http://example.com  "The title"}
      id8 = ~S{   [ID8]: http://example.com  "The title"}
      id9 = ~S{    [ID9]: http://example.com  "The title"}
-     
+
      id10 = ~S{[ID10]: /url/ "Title with "quotes" inside"}
-     
-    [ 
+     id11 = ~S{[ID11]: http://example.com "Title with trailing whitespace" }
+
+    [
      { "",         %Line.Blank{} },
      { "        ", %Line.Blank{} },
 
@@ -48,7 +49,7 @@ defmodule LineTest do
      { "> quote",    %Line.BlockQuote{content: "quote"} },
      { ">    quote", %Line.BlockQuote{content: "   quote"} },
      { ">quote",     %Line.Text{content: ">quote"} },
- 
+
        #1234567890
      { "   a",        %Line.Text{content: "   a"} },
      { "    b",       %Line.Indent{level: 1, content: "b"} },
@@ -114,6 +115,7 @@ defmodule LineTest do
             level: 1,       line: "    [ID9]: http://example.com  \"The title\""} },
 
      {id10, %Line.IdDef{id: "ID10", url: "/url/", title: "Title with \"quotes\" inside"}},
+     {id11, %Line.IdDef{id: "ID11", url: "http://example.com", title: "Title with trailing whitespace"}},
 
 
      { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
@@ -137,17 +139,17 @@ defmodule LineTest do
      { "{: .attr }",       %Line.Ial{attrs: ".attr"} },
      { "{:.a1 .a2}",       %Line.Ial{attrs: ".a1 .a2"} },
 
-     { "  | a | b | c | ", %Line.TableLine{content: "  | a | b | c | ", 
+     { "  | a | b | c | ", %Line.TableLine{content: "  | a | b | c | ",
                                            columns: ~w{a b c} } },
-     { "  | a         | ", %Line.TableLine{content: "  | a         | ", 
+     { "  | a         | ", %Line.TableLine{content: "  | a         | ",
                                            columns: ~w{a} } },
-     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",   
+     { "  a | b | c  ",    %Line.TableLine{content: "  a | b | c  ",
                                            columns: ~w{a b c} } },
-     { "  a \\| b | c  ",  %Line.TableLine{content: "  a \\| b | c  ",   
+     { "  a \\| b | c  ",  %Line.TableLine{content: "  a \\| b | c  ",
                                            columns: [ "a | b",  "c"] } },
 
     ]
-    |> Enum.each(fn { text, type } -> 
+    |> Enum.each(fn { text, type } ->
          test("line: '" <> text <> "'") do
            struct = unquote(Macro.escape type)
            struct = %{ struct | line: unquote(text), lnb: 42 }
