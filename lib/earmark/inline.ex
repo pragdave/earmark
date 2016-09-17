@@ -8,6 +8,7 @@ defmodule Earmark.Inline do
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   alias Earmark.Context
+  alias Earmerk.Helpers.Kludge
 
   @doc false
   def convert(src, context) when is_list(src) do
@@ -49,14 +50,16 @@ defmodule Earmark.Inline do
           convert_each(behead(src, match), context, [ result | out ])
 
       # link
-      # TODO: match = parse_links( src )
-      match = Regex.run(context.rules.link, src) ->
-        IO.inspect {src, match}
-        { match, text, href, title } = case match do
-          [ match, text, href ]        -> { match, text, href, nil }
-          [ match, text, href, title ] -> { match, text, href, title }
-          end
-      IO.inspect {:link, title}
+      # TODO: v1.2 Fix this `mess` where mess in
+      #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
+      #       the later two are _home made_)
+      #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.2)
+      #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
+      #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!
+      #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
+      #       Oh yes and of course I cannot even preparse the url part because of this e.g.
+      #                 [...](url "((((((")
+      {match, text, href, title}  = Kludge.parse_link(src) ->
           out = output_image_or_link(context, match, text, href, title)
           result = convert_each(behead(src, match), context, [ result | out ])
           result
