@@ -32,8 +32,8 @@ inside_brackets_part -> open_bracket inside_brackets close_bracket : join_string
 % URL part
 %
 link_url -> open_paren close_paren                : {[], [], nil}.
-link_url -> open_paren inside_parens close_paren  : {join_strings(['$1', '$2', '$3']), '$2', nil}.
-link_url -> open_paren inside_parens link_title close_paren : {join_strings(['$1', '$2', '$3', '$4']), '$2', remove_quotes('$3')}.
+link_url -> open_paren inside_parens close_paren  : {join_strings(["(", '$2',")"]), '$2', nil}.
+link_url -> open_paren inside_parens link_title close_paren : {join_strings(["(", '$2', '$3',"]"]), '$2', remove_quotes('$3')}.
 
 inside_parens -> inside_parens_part               : '$1'.
 inside_parens -> inside_parens_part inside_parens : string:concat('$1', '$2').
@@ -64,6 +64,7 @@ Erlang code.
 extend_text_part({FullText, Text}, {UrlText, Url, Title}) -> {join_strings([FullText, "(", UrlText, ")"]), Text, Url, Title}.
 
 extract_token({_Token, _Line, Value}) -> Value.
+extract_token(String)                 -> String.
 
 join_strings(Strings) -> string:join(Strings, "").
 

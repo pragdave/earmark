@@ -1,13 +1,13 @@
 Definitions.
 
-NOESCAPES      = [^]\\()[]+
+NOESCAPES      = [^]"'\\()[]+
 ESCAPED        = \\.
 OPEN_PAREN     = \(
 CLOSE_PAREN    = \)
 OPEN_BRACKET   = \[
 CLOSE_BRACKET  = \]
 ANY_QUOTE      = ["']
-ANY            = [^]\\()[]+
+ANY            = [^]\\"'()[]+
 
 Rules.
 

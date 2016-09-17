@@ -5,6 +5,7 @@
 extend_text_part({FullText, Text}, {UrlText, Url, Title}) -> {join_strings([FullText, "(", UrlText, ")"]), Text, Url, Title}.
 
 extract_token({_Token, _Line, Value}) -> Value.
+extract_token(String)                 -> String.
 
 join_strings(Strings) -> string:join(Strings, "").
 
@@ -188,7 +189,7 @@ yecctoken2string(Other) ->
 
 
 
--file("src/link_parser.erl", 191).
+-file("src/link_parser.erl", 192).
 
 -dialyzer({nowarn_function, yeccpars2/7}).
 yeccpars2(0=S, Cat, Ss, Stack, T, Ts, Tzr) ->
@@ -691,7 +692,7 @@ yeccpars2_26_(__Stack0) ->
 yeccpars2_29_(__Stack0) ->
  [__3,__2,__1 | __Stack] = __Stack0,
  [begin
-   { join_strings ( [ __1 , __2 , __3 ] ) , __2 , nil }
+   { join_strings ( [ "(" , __2 , ")" ] ) , __2 , nil }
   end | __Stack].
 
 -compile({inline,yeccpars2_32_/1}).
@@ -763,7 +764,7 @@ yeccpars2_39_(__Stack0) ->
 yeccpars2_40_(__Stack0) ->
  [__4,__3,__2,__1 | __Stack] = __Stack0,
  [begin
-   { join_strings ( [ __1 , __2 , __3 , __4 ] ) , __2 , remove_quotes ( __3 ) }
+   { join_strings ( [ "(" , __2 , __3 , "]" ] ) , __2 , remove_quotes ( __3 ) }
   end | __Stack].
 
 -compile({inline,yeccpars2_41_/1}).
@@ -775,4 +776,4 @@ yeccpars2_41_(__Stack0) ->
   end | __Stack].
 
 
--file("src/link_parser.yrl", 75).
+-file("src/link_parser.yrl", 76).
