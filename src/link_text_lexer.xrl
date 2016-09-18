@@ -15,7 +15,7 @@ Rules.
 {CLOSE_PAREN}   : {token, {close_paren, TokenLine, TokenChars}}.
 {OPEN_BRACKET}  : {token, {open_bracket, TokenLine, TokenChars}}.
 {CLOSE_BRACKET} : {token, {close_bracket, TokenLine, TokenChars}}.
-{ANY_QUOTE}           : {token, {any_quote, TokenLine, TokenChars}}.
+{ANY_QUOTE}     : {token, {any_quote, TokenLine, TokenChars}}.
 {ANY}           : {token, {verbatim, TokenLine, TokenChars}}.
 
 Erlang code.
