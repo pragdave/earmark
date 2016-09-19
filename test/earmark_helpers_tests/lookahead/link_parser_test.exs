@@ -4,7 +4,7 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   import Earmark.Helpers.LeexHelpers, only: [lex: 2]
 
   test "empty" do 
-    assert {'[]', []} == parse("[]")
+    assert {[], '[]'} == parse("[]")
   end
 
   test "incorrect" do 
@@ -13,25 +13,35 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
 
   test "simple text" do 
-    assert {'[hello]', 'hello'} == parse("[hello]")
+    assert {'hello', '[hello]'} == parse("[hello]")
   end
   test "text with escapes" do 
-    assert {'[hello[]', 'hello['} == parse("[hello\\[]")
+    str = "[hello\\[]"
+    assert {'hello[', String.to_char_list(str)} == parse(str)
   end
   test "text with many parts" do 
-    assert {'[hello( world])]', 'hello( world])'} == parse("[hello( world\\])]")
+    str = "[hello( world\\])]"
+    assert {'hello( world])', String.to_char_list(str)} == parse(str)
   end
   test "simple imbrication" do 
-    assert {'[[hello]]', '[hello]'} == parse("[[hello]]")
+    str = "[[hello]]"
+    assert {'[hello]', String.to_char_list(str)} == parse(str)
   end
   test "complex imbrication" do 
-    assert {'[pre[iniside]suff]', 'pre[iniside]suff'} == parse("[pre[iniside]suff]")
+    str = "[pre[iniside]suff]"
+    assert {'pre[iniside]suff', String.to_char_list(str)} == parse(str)
   end
   test "deep imbrication" do 
-    assert {'[pre[[in]]side])]', 'pre[[in]]side])'} == parse("[pre[[in\\]]side])]")
+    str = "[pre[[in\\]]side])]"
+    assert {'pre[[in]]side])', String.to_char_list(str)} == parse(str)
   end
   test "with quotes" do
-    assert {'["hello\']', '"hello\''} == parse(~s<["hello']>)
+    str = ~s<["hello']>
+    assert {'"hello\'', String.to_char_list(str)} == parse(str)
+  end
+  test "with quotes and escapes" do
+    str = ~s<["hell\\o']>
+    assert {'"hello\'', String.to_char_list(str)} == parse("#{str}(url\\))")
   end
   test "missing closing brackets" do 
     assert nil ==  parse("[pre[[in\\]side])]")
@@ -42,7 +52,7 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
     |> lex(with: :link_text_lexer)
     |> :link_text_parser.parse() do
       {:ok, ast} -> ast
-      {:error, e} ->
+      {:error, _e} ->
         # IO.inspect(e)
         nil
     end

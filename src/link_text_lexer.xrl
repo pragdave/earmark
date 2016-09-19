@@ -10,7 +10,7 @@ ANY            = [^]\\"'()[]+
 
 Rules.
 
-{ESCAPED}       : {token, {verbatim, TokenLine, dismiss_backslash(TokenChars)}}.
+{ESCAPED}       : {token, {escaped, TokenLine, dismiss_backslash(TokenChars)}}.
 {OPEN_PAREN}    : {token, {open_paren, TokenLine, TokenChars}}.
 {CLOSE_PAREN}   : {token, {close_paren, TokenLine, TokenChars}}.
 {OPEN_BRACKET}  : {token, {open_bracket, TokenLine, TokenChars}}.

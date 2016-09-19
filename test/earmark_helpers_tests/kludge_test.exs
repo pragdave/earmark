@@ -5,7 +5,7 @@ defmodule EarmarkHelpersTests.KludgeTest do
 
   describe "text part" do
     test "empty" do 
-      assert {~s<[]()>, [], [], nil} == Kludge.parse_link("[]()")
+      assert {~s<[]()>, "", "", nil} == Kludge.parse_link("[]()")
     end
     test "incorrect" do 
       assert nil == Kludge.parse_link("([]")

@@ -380,7 +380,7 @@ yyaction(_, _, _, _) -> error.
 -compile({inline,yyaction_0/2}).
 -file("src/link_text_lexer.xrl", 11).
 yyaction_0(TokenChars, TokenLine) ->
-     { token, { verbatim, TokenLine, dismiss_backslash (TokenChars) } } .
+     { token, { escaped, TokenLine, dismiss_backslash (TokenChars) } } .
 
 -compile({inline,yyaction_1/2}).
 -file("src/link_text_lexer.xrl", 12).
