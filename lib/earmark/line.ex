@@ -30,6 +30,7 @@ defmodule Earmark.Line do
         \s+                   # optional title
         #{@id_title_part}
      )?
+     \s*
   $
   '''x
 
