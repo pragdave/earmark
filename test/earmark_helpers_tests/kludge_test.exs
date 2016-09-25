@@ -64,24 +64,41 @@ defmodule EarmarkHelpersTests.KludgeTest do
 
   describe "url part with title" do
     test "simple url" do 
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link("[text](url 'title')")
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link("[text](url'title')")
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url"title")>)
+      assert {~s<[text](url 'title')>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link("[text](url 'title')")
+      assert {~s<[text](url "title")>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url  "title")>)
     end
 
-    # FIXME in v1.2, remove this test
-    test "remove in v2" do 
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url "title')>)
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url 'title")>)
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, ~s<title')title")title>} == Kludge.parse_link(~s<[text](url 'title')title")title")>)
-    end
-    test "simple url w/o title" do 
-      assert {~s<[text](url)>, ~s<text>, ~s<url>, nil} == Kludge.parse_link("[text](url)")
-      assert {~s<[text](url)>, ~s<text>, ~s<url"title>, nil} == Kludge.parse_link(~s<[text](url\\"title)>)
-    end
     test "title escapes parens" do 
       assert {~s<[text](url "(title")>, ~s<text>, ~s<url>, ~s<(title>} == Kludge.parse_link(~s<[text](url "(title")>)
       assert {~s<[text](url "tit)le")>, ~s<text>, ~s<url>, ~s<(title>} == Kludge.parse_link(~s<[text](url "tit)le")>)
+    end
+
+  end
+
+  describe "deprecate in v1.1, remove in v1.2" do
+    test "remove in v1.2" do 
+      assert {~s<[text](url "title')>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url "title')>)
+      assert {~s<[text](url 'title")>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url 'title")>)
+      src = ~s<[text](url 'title')title")title")>
+      assert {src, ~s<text>, ~s<url>, ~s<title')title")title>} == Kludge.parse_link(src)
+    end
+    test "title quotes cannot be escaped" do 
+      assert {~s<[text](url "title\\')>, ~s<text>, ~s<url>, ~s<title\\>} == Kludge.parse_link(~s<[text](url "title\\')>)
+      assert {~s<[text](url 'title\\")>, ~s<text>, ~s<url>, ~s<title\\>} == Kludge.parse_link(~s<[text](url 'title\\")>)
+    end
+  end
+
+  describe "url no title" do
+    test "missing space" do 
+      assert {~s<[text](url'title')>, ~s<text>, ~s<url'title'>, nil} == Kludge.parse_link("[text](url'title')")
+      assert {~s<[text](url"title")>, ~s<text>, ~s<url"title">, nil} == Kludge.parse_link(~s<[text](url"title")>)
+    end
+    test "no title even before v1.2" do 
+      assert {~s<[text](url"title')>, ~s<text>, ~s<url"title'>, nil} == Kludge.parse_link(~s<[text](url"title')>)
+      assert {~s<[text](url'title")>, ~s<text>, ~s<url'title"> , nil} == Kludge.parse_link(~s<[text](url'title")>)
+    end
+    test "missing second quote" do 
+      assert {~s<[text](url "title)>, ~s<text>, ~s<url "title>, nil} == Kludge.parse_link(~s<[text](url "title)>)
     end
   end
 

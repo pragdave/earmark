@@ -39,12 +39,20 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
     str = ~s<["hello']>
     assert {'"hello\'', String.to_char_list(str)} == parse(str)
   end
+  test "with open_title token" do 
+    str = ~s<[hello "world"]>
+    assert {'hello "world"', String.to_char_list(str)} == parse(str)
+  end
   test "with quotes and escapes" do
     str = ~s<["hell\\o']>
     assert {'"hello\'', String.to_char_list(str)} == parse("#{str}(url\\))")
   end
   test "missing closing brackets" do 
     assert nil ==  parse("[pre[[in\\]side])]")
+  end
+  test "complex case" do 
+    str = "[text](pre](in  fix)suff)"
+    assert {'text', '[text]'} == parse(str)
   end
 
   defp parse str do
