@@ -1,4 +1,4 @@
-defmodule Earmark.Helpers.Kludge do
+defmodule Earmark.Helpers.LinkParser do
 
   import Earmark.Helpers.LeexHelpers, only: [tokenize: 2]
   import Earmark.Helpers.YeccHelpers, only: [parse!: 2]
@@ -27,9 +27,9 @@ defmodule Earmark.Helpers.Kludge do
 
   @doc false
   def parse_link( src ) do
-    with {link_text, parsed_text} <-  parse!(src, lexer: :link_text_lexer, parser: :link_text_parser),
-         beheaded                    <-  behead(src, to_string(parsed_text)),
-         tokens                      <-  tokenize(beheaded, with: :link_text_lexer) do
+    with {link_text, parsed_text} <- parse!(src, lexer: :link_text_lexer, parser: :link_text_parser),
+         beheaded                 <- behead(src, to_string(parsed_text)),
+         tokens                   <- tokenize(beheaded, with: :link_text_lexer) do
        p_url(tokens) |> make_result(to_string(link_text), to_string(parsed_text))
      end
   end
