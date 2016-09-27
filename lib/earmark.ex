@@ -198,6 +198,7 @@ defmodule Earmark do
   """
 
   @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
+  def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
     { blocks, links } = Earmark.Parser.parse(lines, options, false)
 
