@@ -54,14 +54,21 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
     str = "[text](pre](in  fix)suff)"
     assert {'text', '[text]'} == parse(str)
   end
+  test "even more complex" do 
+    str = "[text](a(1)[((2) \\\\one)z)"
+    assert {'text','[text]'} == parse(str)
+  end
+  test "images" do 
+    str = ~s<![f[]oo](/url "ti() tle")>
+    assert {'f[]oo', '![f[]oo]'} == parse(str)
+  end
 
   defp parse str do
     case str
     |> lex(with: :link_text_lexer)
     |> :link_text_parser.parse() do
       {:ok, ast} -> ast
-      {:error, _e} ->
-        # IO.inspect(e)
+      {:error, _} ->
         nil
     end
   end

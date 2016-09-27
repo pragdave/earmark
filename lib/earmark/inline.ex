@@ -27,7 +27,6 @@ defmodule Earmark.Inline do
   end
 
   defp convert_each(src, context, result) do
-    # remove: IO.inspect src
     renderer = context.options.renderer
 
     cond do
@@ -59,14 +58,13 @@ defmodule Earmark.Inline do
       #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
       #       Oh yes and of course I cannot even preparse the url part because of this e.g.
       #                 [...](url "((((((")
-      {match, text, href, title}  = Kludge.parse_link(src) ->
-          out = output_image_or_link(context, match, text, href, title)
-          result = convert_each(behead(src, match), context, [ result | out ])
-          result
+      match_t = Kludge.parse_link(src) ->
+        {match, text, href, title} = match_t
+        out = output_image_or_link(context, match, text, href, title)
+        convert_each(behead(src, match), context, [ result | out ])
 
       # reflink
       match = Regex.run(context.rules.reflink, src) ->
-        # remove: IO.inspect {:reflink, src, match}
         { match, alt_text, id } = case match do
           [ match, id, "" ]       -> { match, id, id  }
           [ match, alt_text, id ] -> { match, alt_text, id }
@@ -76,28 +74,24 @@ defmodule Earmark.Inline do
 
       # footnotes
       match = Regex.run(context.rules.footnote, src) ->
-        # remove: IO.inspect {:footnotes, src, match}
         [match, id] = match
           out = footnote_link(context, match, id)
           convert_each(behead(src, match), context, [ result | out ])
 
       # nolink
       match = Regex.run(context.rules.nolink, src) ->
-        # remove: IO.inspect {:nolink, src, match}
         [ match, id ] = match
           out = reference_link(context, match, id, id)
           convert_each(behead(src, match), context, [ result | out ])
 
       # strikethrough (gfm)
       match = Regex.run(context.rules.strikethrough, src) ->
-        # remove: IO.inspect {:strikethrough, src, match}
         [ match, content ] = match
           out = renderer.strikethrough(convert(content, context))
           convert_each(behead(src, match), context, [ result | out ])
 
       # strong
       match = Regex.run(context.rules.strong, src) ->
-        # remove: IO.inspect {:strong, src, match}
         { match, content } = case match do
           [ m, _, c ] -> {m, c}
           [ m, c ]    -> {m, c}
@@ -107,7 +101,6 @@ defmodule Earmark.Inline do
 
       # em
       match = Regex.run(context.rules.em, src) ->
-        # remove: IO.inspect {:em, src, match}
         { match, content } = case match do
           [ m, _, c ] -> {m, c}
           [ m, c ]    -> {m, c}
@@ -118,7 +111,6 @@ defmodule Earmark.Inline do
 
       # code
       match = Regex.run(context.rules.code, src) ->
-        # remove: IO.inspect {:code, src, match}
         [match, _, content] = match
           content = String.strip(content)  # this from Gruber
           out = renderer.codespan(escape(content, true))
@@ -126,7 +118,6 @@ defmodule Earmark.Inline do
 
       # br
         match = Regex.run(context.rules.br, src, return: :index) ->
-          # remove: IO.inspect {:br, src, match}
           out = renderer.br()
           [ {0, match_len} ] = match
             convert_each(behead(src, match_len), context, [ result | out ])
@@ -134,7 +125,6 @@ defmodule Earmark.Inline do
 
       # text
       match = Regex.run(context.rules.text, src) ->
-        # remove: IO.inspect {:text, src, match}
         [ match ] = match
           out = escape(context.options.do_smartypants.(match))
           result = convert_each(behead(src, match), context, [ result | out ])

@@ -16,7 +16,7 @@ defmodule Regressions.I88AnchorLinksInsideParensTest do
     end
     test "non regression on titles" do 
       result = Earmark.to_html( "[text](link 'title')still title'))" )
-      assert ~s{<p><a href="link" title="title')still title">text</a>)</p>|n} == result
+      assert ~s{<p><a href="link" title="title&#39;)still title">text</a>)</p>\n} == result
     end
 
     test "images" do 
@@ -26,7 +26,7 @@ defmodule Regressions.I88AnchorLinksInsideParensTest do
     
     test "images with titles" do 
       result = Earmark.to_html( "![text](src 'title')still title'))" )
-      assert ~s{<p><img src="src" title="title')still alt ="text"/>)</p>|n} == result
+      assert ~s{<p><img src="src" alt="text" title="title&#39;)still title"/>)</p>\n} == result
     end
   end
 end

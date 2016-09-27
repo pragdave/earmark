@@ -45,6 +45,9 @@ defmodule EarmarkHelpersTests.KludgeTest do
     test "url with escapes" do 
       assert {~s<[text](url))>, ~s<text>, ~s<url)>, nil} == Kludge.parse_link("[text](url\\))")
     end
+    test "double )) at end" do 
+      assert {~s<[text](url)>, ~s<text>, ~s<url>, nil} == Kludge.parse_link("[text](url))")
+    end
     test "url with many parts" do 
       assert {~s<[text](pre[()>, ~s<text>, ~s<pre[(>, nil} == Kludge.parse_link("[text](pre[\\()")
     end
@@ -65,12 +68,12 @@ defmodule EarmarkHelpersTests.KludgeTest do
   describe "url part with title" do
     test "simple url" do 
       assert {~s<[text](url 'title')>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link("[text](url 'title')")
-      assert {~s<[text](url "title")>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url  "title")>)
+      assert {~s<[text](url  "title")>, ~s<text>, ~s<url>, ~s<title>} == Kludge.parse_link(~s<[text](url  "title")>)
     end
 
     test "title escapes parens" do 
       assert {~s<[text](url "(title")>, ~s<text>, ~s<url>, ~s<(title>} == Kludge.parse_link(~s<[text](url "(title")>)
-      assert {~s<[text](url "tit)le")>, ~s<text>, ~s<url>, ~s<(title>} == Kludge.parse_link(~s<[text](url "tit)le")>)
+      assert {~s<[text](url "tit)le")>, ~s<text>, ~s<url>, ~s<tit)le>} == Kludge.parse_link(~s<[text](url "tit)le")>)
     end
 
   end
