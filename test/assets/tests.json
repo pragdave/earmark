@@ -270,6 +270,12 @@
   },
   {
     "section": "Link reference definitions",
+    "html": "",
+    "example": 441,
+    "markdown": "[foo]: /url \"title\"\n"
+  },
+  {
+    "section": "Link reference definitions",
     "html": "<h1><a href=\"/url\" title=\"\">Foo</a></h1>\n<blockquote><p>bar</p>\n</blockquote>\n",
     "example": 450,
     "markdown": "# [Foo]\n[foo]: /url\n> bar\n"

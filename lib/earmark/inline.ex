@@ -28,7 +28,6 @@ defmodule Earmark.Inline do
 
   defp convert_each(src, context, result) do
     renderer = context.options.renderer
-
     cond do
       # escape
       match = Regex.run(context.rules.escape, src) ->
@@ -48,41 +47,9 @@ defmodule Earmark.Inline do
         out = context.options.do_sanitize.(match)
         convert_each(behead(src, match), context, [ result | out ])
 
-      # link
-      # TODO: v1.2 Fix this `mess` where mess in
-      #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
-      #       the later two are _home made_)
-      #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.2)
-      #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
-      #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!
-      #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
-      #       Oh yes and of course I cannot even preparse the url part because of this e.g.
-      #                 [...](url "((((((")
-      match_t = LinkParser.parse_link(src) ->
-        {match, text, href, title} = match_t
-        out = output_image_or_link(context, match, text, href, title)
-        convert_each(behead(src, match), context, [ result | out ])
-
-      # reflink
-      match = Regex.run(context.rules.reflink, src) ->
-        { match, alt_text, id } = case match do
-            [ match, id, "" ]       -> { match, id, id  }
-            [ match, alt_text, id ] -> { match, alt_text, id }
-          end
-          out = reference_link(context, match, alt_text, id)
-          convert_each(behead(src, match), context, [ result | out ])
-
-      # footnotes
-      match = Regex.run(context.rules.footnote, src) ->
-        [match, id] = match
-        out = footnote_link(context, match, id)
-        convert_each(behead(src, match), context, [ result | out ])
-
-      # nolink
-      match = Regex.run(context.rules.nolink, src) ->
-        [ match, id ] = match
-        out = reference_link(context, match, id, id)
-        convert_each(behead(src, match), context, [ result | out ])
+      # linky
+      String.starts_with?( src, ~w(![ [)) ->
+        convert_linky(src, context, result)
 
       # strikethrough (gfm)
       match = Regex.run(context.rules.strikethrough, src) ->
@@ -127,6 +94,52 @@ defmodule Earmark.Inline do
         out = escape(context.options.do_smartypants.(match))
         convert_each(behead(src, match), context, [ result | out ])
 
+    end
+  end
+
+  def convert_linky(src, context, result) do
+    cond do
+      # TODO: v1.2 Fix this `mess` where mess in
+      #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
+      #       the later two are _home made_)
+      #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.2)
+      #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
+      #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!
+      #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
+      #       Oh yes and of course I cannot even preparse the url part because of this e.g.
+      #                 [...](url "((((((")
+      # link
+      match = LinkParser.parse_link(src) ->
+        {match, text, href, title} = match
+        out = output_image_or_link(context, match, text, href, title)
+        convert_each(behead(src, match), context, [ result | out ])
+
+      # reflink
+      match = Regex.run(context.rules.reflink, src) ->
+        { match, alt_text, id } = case match do
+            [ match, id, "" ]       -> { match, id, id  }
+            [ match, alt_text, id ] -> { match, alt_text, id }
+          end
+          case reference_link(context, match, alt_text, id) do
+            {:ok, out}    -> convert_each(behead(src, match), context, [ result | out ])
+            {:error, out} -> convert_each(behead(src, out), context, [ result | out ])
+          end
+
+      # footnote
+      match = Regex.run(context.rules.footnote, src) ->
+        [match, id] = match
+        out = footnote_link(context, match, id)
+        convert_each(behead(src, match), context, [ result | out ])
+
+      # nolink
+      match = Regex.run(context.rules.nolink, src) ->
+        [ match, id ] = match
+        case  reference_link(context, match, id, id) do
+          {:ok, out}    -> convert_each(behead(src, match), context, [ result | out ])
+          {:error, out} -> convert_each(behead(src, out), context, [ result | out ])
+        end
+
+     true -> nil
     end
   end
 
@@ -175,6 +188,9 @@ defmodule Earmark.Inline do
   defp output_link(context, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
+    # Hmm this call of convert_each shall not convert links ((sweat))
+    # Actually convert_each treats structural and non structural markup, e.g. `**hello**` as
+    # well as `[t](u)`
     context.options.renderer.link(href, convert_each(text, context, []), title)
   end
 
@@ -194,8 +210,10 @@ defmodule Earmark.Inline do
     id = id |> replace(~r{\s+}, " ") |> String.downcase
 
     case Map.fetch(context.links, id) do
-      {:ok, link } -> output_image_or_link(context, match, alt_text, link.url, link.title)
-      _            -> match
+      {:ok, link } -> {:ok, output_image_or_link(context, match, alt_text, link.url, link.title)}
+      # And here we need to reinject match into convert_each as we need to parse it after pulling off just one [ or ![
+      _            -> {:error, Regex.replace( ~r{^(!?\[).*}, match, "\\1" )}
+      # _            -> match
       end
   end
 
@@ -231,8 +249,8 @@ defmodule Earmark.Inline do
   end
 
 
-  @inside  ~S{(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*}
-  @href    ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}  #"
+  @link_text  ~S{(?:\[[^]]*\]|[^][]|\])*}
+  @href       ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}  #"
 
   @code ~r{^
    (`+)		# $1 = Opening run of `
@@ -248,20 +266,23 @@ defmodule Earmark.Inline do
       escape:   ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
       autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},
       url:      ~r{\z\A},  # noop
+
       tag:      ~r{
         ^<!--[\s\S]*?--> |
         ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
         '[^'<]*' |
         [^'"<>])*?>}x,
-       link:     ~r{^!?\[(#{@inside})\]\(#{@href}\)},
-       reflink:  ~r{^!?\[(#{@inside})\]\s*\[([^\]]*)\]},
-      nolink:   ~r{^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]},
+
+     link:     ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
+     reflink:  ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
+     nolink:   ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
      strong:   ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
      em:       ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
      code:     @code,
      br:       ~r<^ {2,}\n(?!\s*$)>,
      text:     ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
-      strikethrough: ~r{\z\A}   # noop
+
+     strikethrough: ~r{\z\A}   # noop
     ]
   end
 
@@ -270,8 +291,8 @@ defmodule Earmark.Inline do
       rules = [
         escape:        ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>~|])},
         url:           ~r{^(https?:\/\/[^\s<]+[^<.,:;\"\')\]\s])},
-       strikethrough: ~r{^~~(?=\S)([\s\S]*?\S)~~},
-       text:          ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| \{2,\}\n|$)}
+        strikethrough: ~r{^~~(?=\S)([\s\S]*?\S)~~},
+        text:          ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| \{2,\}\n|$)}
       ]
       if options.breaks do
         break_updates = [
@@ -292,9 +313,9 @@ defmodule Earmark.Inline do
         []
       end
     end
-    footnote = if options.footnotes, do: ~r{^\[\^(#{@inside})\]}, else: ~r{\z\A}
+    footnote = if options.footnotes, do: ~r{^\[\^(#{@link_text})\]}, else: ~r{\z\A}
     rule_updates = Keyword.merge(rule_updates, [footnote: footnote])
     Keyword.merge(basic_rules(), rule_updates)
     |> Enum.into(%{})
   end
-  end
+end
