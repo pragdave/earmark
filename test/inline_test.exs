@@ -121,6 +121,11 @@ defmodule InlineTest do
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
 
+  test "basic no link" do 
+    result = convert_pedantic(~s{a [my link][no-such-number] nolink})
+    assert result == ~s{a [my link][no-such-number] nolink}
+  end
+
   test "case insensitive reference link" do
     result = convert_pedantic(~s{a [my link][ID1] link})
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
@@ -141,6 +146,16 @@ defmodule InlineTest do
     assert result == ~s[a <a href="url%201" title="title 1">id1</a> link]
   end
 
+  test "imbricated image inside reference link" do
+    result = convert_pedantic(~s{a [![my link](url)][id1] link})
+    assert result == "a <a href=\"url%201\" title=\"title 1\"><img src=\"url\" alt=\"my link\"/></a> link"
+  end
+
+  test "imbricated link inside reference link" do
+    result = convert_pedantic(~s{a [[my link](url)][id1] link})
+    assert result == "a <a href=\"url%201\" title=\"title 1\">[my link](url)</a> link"
+  end
+
 
   #########################
   # Reference image links #
@@ -159,6 +174,17 @@ defmodule InlineTest do
       ~s[a <img src="img%202" alt="my image"/> link]
   end
 
+  test "basic reference image link with link in alt" do
+    result = convert_pedantic(~s{a ![[my image](my url "my title")][img1] link})
+    assert result ==
+      ~s{a <img src="img%201" alt="[my image](my url &quot;my title&quot;)" title="image 1"/> link}
+  end
+
+  test "basic reference image link with image in alt" do
+    result = convert_pedantic(~s{a ![![my image](my url "my title")][img1] link})
+    assert result ==
+      ~s{a <img src="img%201" alt="![my image](my url &quot;my title&quot;)" title="image 1"/> link}
+  end
 
   ###############
   # Inline HTML #

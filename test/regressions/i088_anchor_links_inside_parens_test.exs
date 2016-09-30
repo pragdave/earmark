@@ -24,6 +24,7 @@ defmodule Regressions.I88AnchorLinksInsideParensTest do
       assert ~s{<p>(<img src="src" alt="text"/>)</p>\n} == result
     end
     
+    @tag :wip
     test "parens: images with titles" do 
       result = Earmark.to_html( "![text](src 'title')still title'))" )
       assert ~s{<p><img src="src" alt="text" title="title&#39;)still title"/>)</p>\n} == result
