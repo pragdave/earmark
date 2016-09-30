@@ -13,9 +13,8 @@ defmodule Regressions.I089LinkInsideBracketsTest do
     str = "[[text](link 'title')]"
     assert ~s{<p>[<a href="link" title="title">text</a>]</p>\n} == Earmark.to_html(str)
   end
-  @tag :wip
   test "ambigous link" do 
     str = "[[text](inner)](outer)"
-    assert ~s{<p><a href="outer">[text](inner)</a>\n</p>\n} == Earmark.to_html(str)
+    assert ~s{<p><a href="outer">[text](inner)</a></p>\n} == Earmark.to_html(str)
   end
 end
