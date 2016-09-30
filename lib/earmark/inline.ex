@@ -140,7 +140,7 @@ defmodule Earmark.Inline do
   defp converter_for_nolink({src, context, result}, _renderer) do
     if match = Regex.run(context.rules.nolink, src) do
       [ match, id ] = match
-      case  reference_link(context, match, id, id) do
+      case reference_link(context, match, id, id) do
           {:ok, out}    -> { behead(src, match), context, [ result | out ] }
           {:error, out} -> { behead(src, out), context, [ result | out ] }
       end

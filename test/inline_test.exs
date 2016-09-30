@@ -121,6 +121,11 @@ defmodule InlineTest do
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
 
+  test "basic no link" do 
+    result = convert_pedantic(~s{a [my link][no-such-number] nolink})
+    assert result == ~s{a [my link][no-such-number] nolink}
+  end
+
   test "case insensitive reference link" do
     result = convert_pedantic(~s{a [my link][ID1] link})
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
@@ -180,6 +185,7 @@ defmodule InlineTest do
     assert result ==
       ~s{a <img src="img%201" alt="![my image](my url &quot;my title&quot;)" title="image 1"/> link}
   end
+
   ###############
   # Inline HTML #
   ###############
