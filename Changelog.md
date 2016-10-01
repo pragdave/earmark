@@ -11,6 +11,7 @@
   - #86
   - #88
   - #89
+  - #93
 
 ## Kudos:
   Jonathan Storm (jonnystorm), Michal Muskala (michalmuskala) & Peter Debelak (pdebelak)

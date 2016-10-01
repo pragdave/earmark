@@ -23,20 +23,20 @@ defmodule Earmark.Inline do
 
   defp all_converters do
     [
-      converter_for_escape: &converter_for_escape/2,
-      converter_for_autolink: &converter_for_autolink/2,
-      converter_for_tag: &converter_for_tag/2,
-      converter_for_link: &converter_for_link/2,
-      converter_for_img: &converter_for_img/2,
-      converter_for_reflink: &converter_for_reflink/2,
-      converter_for_footnote: &converter_for_footnote/2,
-      converter_for_nolink: &converter_for_nolink/2,
-      converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/2,
-      converter_for_strong: &converter_for_strong/2,
-      converter_for_em: &converter_for_em/2,
-      converter_for_code: &converter_for_code/2,
-      converter_for_br: &converter_for_br/2,
-      converter_for_text: &converter_for_text/2
+      converter_for_escape:             &converter_for_escape/2,
+      converter_for_autolink:           &converter_for_autolink/2,
+      converter_for_tag:                &converter_for_tag/2,
+      converter_for_link:               &converter_for_link/2,
+      converter_for_img:                &converter_for_img/2,
+      converter_for_reflink:            &converter_for_reflink/2,
+      converter_for_footnote:           &converter_for_footnote/2,
+      converter_for_nolink:             &converter_for_nolink/2,
+      converter_for_strikethrough_gfm:  &converter_for_strikethrough_gfm/2,
+      converter_for_strong:             &converter_for_strong/2,
+      converter_for_em:                 &converter_for_em/2,
+      converter_for_code:               &converter_for_code/2,
+      converter_for_br:                 &converter_for_br/2,
+      converter_for_text:               &converter_for_text/2
     ]
   end
 
