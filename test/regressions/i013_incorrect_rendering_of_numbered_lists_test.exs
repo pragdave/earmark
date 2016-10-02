@@ -15,7 +15,7 @@ defmodule Regressions.I013IncorrectRenderingOfNumberedLists do
                      <ol>
                      <li><p>l1</p>
                      </li>
-                     <li>l2
+                     <li><p>l2</p>
                      </li>
                      </ol>
                      """

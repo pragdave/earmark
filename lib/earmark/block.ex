@@ -1,6 +1,7 @@
 defmodule Earmark.Block do
 
   use Earmark.Types
+  import Tools.Tracer
   import Earmark.Helpers, only: [emit_error: 4]
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
@@ -438,24 +439,28 @@ defmodule Earmark.Block do
   @spec visit(ts, %{}, (t, %{} -> %{})) :: %{}
   defp visit([], result, _func), do: result
 
+  # Structural node BlockQuote -> descend
   defp visit([ item = %BlockQuote{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
+  # Structural node List -> descend
   defp visit([ item = %List{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
+  # Structural node ListItem -> descend
   defp visit([ item = %ListItem{blocks: blocks} | rest], result, func) do
     result = func.(item, result)
     result = visit(blocks, result, func)
     visit(rest, result, func)
   end
 
+  # Leaf, leaf it alone
   defp visit([ item | rest], result, func) do
     result = func.(item, result)
     visit(rest, result, func)

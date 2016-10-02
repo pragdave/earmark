@@ -2,6 +2,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   use Earmark.Types
 
+  import Tools.Tracer
   alias Earmark.Line
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.LeexHelpers
