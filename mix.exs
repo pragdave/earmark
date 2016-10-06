@@ -13,8 +13,6 @@ defmodule Earmark.Mixfile do
       deps:          deps(),
       description:   description(),
       package:       package(),
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
     ]
   end
 
@@ -27,10 +25,6 @@ defmodule Earmark.Mixfile do
      {:credo, "~> 0.4.1", only: [:dev, :test]},
      {:dialyxir, "~> 0.3.3", only: [:dev, :test]},
      {:ex_doc, ">= 0.0.0", only: :dev},
-     # Temporary use of this fork because:
-     # `mix excoveralls.detail --filter ...` is broken, 
-     # PR has been issued: https://github.com/parroty/excoveralls/pull/79
-     {:excoveralls, github: "RobertDober/excoveralls", only: :test},
    ]
   end
 
