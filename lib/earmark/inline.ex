@@ -48,10 +48,10 @@ defmodule Earmark.Inline do
     |> replace(~r{(</[^>]*>)“}, "\\1”")
   end
 
-  defp convert_each(data = {src, context, _result}, converters) do
+  defp convert_each(data = {_src, context, _result}, converters) do
     renderer = context.options.renderer
     case converters
-         |> Enum.find_value( fn {converter_name, converter_fun} -> converter_fun.(data, renderer) end )
+         |> Enum.find_value( fn {_converter_name, converter_fun} -> converter_fun.(data, renderer) end )
     do
       # nil                                  -> raise EarmarkError, "cannot convert #{inspect data}"
       # {{_,_,_} = new_data, new_converters} -> convert_each(new_data, new_converters)
@@ -156,7 +156,6 @@ defmodule Earmark.Inline do
   end
 
   defp converter_for_strong({src, context, result}, renderer) do
-    match = Regex.run(context.rules.strong, src)
     if match = Regex.run(context.rules.strong, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
@@ -168,7 +167,6 @@ defmodule Earmark.Inline do
   end
 
   defp converter_for_em({src, context, result}, renderer) do
-    match = Regex.run(context.rules.em, src)
     if match = Regex.run(context.rules.em, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
