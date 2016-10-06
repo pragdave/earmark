@@ -4,10 +4,11 @@ defmodule Earmark.Helpers.LeexHelpers do
     the tokens as needed for a yecc parser.
   """
   def lex text, with: lexer do
-    with {:ok, tokens, _} <-
-      text
+    case text
       |> String.to_char_list()
-      |> lexer.string(), do: tokens
+      |> lexer.string() do
+        {:ok, tokens, _} -> tokens
+      end
   end
 
   def tokenize line, with: lexer do 

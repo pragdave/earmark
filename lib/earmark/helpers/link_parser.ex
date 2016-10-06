@@ -57,8 +57,6 @@ defmodule Earmark.Helpers.LinkParser do
   defp url([{:any_quote, text}|ts], result, needed), do: url(ts, add(result, text), needed)
   defp url([{:verbatim, text}|ts], result, needed), do: url(ts, add(result, text), needed)
   defp url([{:escaped, text}|ts], result, needed), do: url(ts, add(result, text), needed)
-  # Hmmm that should never happen, TODO: Remove next line, when all tests green
-  defp url([], result, []), do: result
   # That is not good, actually this is not a legal url part of a link
   defp url(_, _, _), do: nil
 

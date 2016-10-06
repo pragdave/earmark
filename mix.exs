@@ -27,7 +27,10 @@ defmodule Earmark.Mixfile do
      {:credo, "~> 0.4.1", only: [:dev, :test]},
      {:dialyxir, "~> 0.3.3", only: [:dev, :test]},
      {:ex_doc, ">= 0.0.0", only: :dev},
-     {:excoveralls, "~> 0.5", only: :test},
+     # Temporary use of this fork because:
+     # `mix excoveralls.detail --filter ...` is broken, 
+     # PR has been issued: https://github.com/parroty/excoveralls/pull/79
+     {:excoveralls, github: "RobertDober/excoveralls", only: :test},
    ]
   end
 
