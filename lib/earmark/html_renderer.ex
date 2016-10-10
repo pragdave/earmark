@@ -9,7 +9,6 @@ defmodule Earmark.HtmlRenderer do
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2 ]
-  import Earmark.Helpers.MatchHelpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
 
   def render(blocks, context, map_func) do
@@ -107,9 +106,7 @@ defmodule Earmark.HtmlRenderer do
   #########
 
   def render_block(%Block.List{type: type, blocks: items, attrs: attrs}, context, mf) do
-    content = items
-      |> unify_spacing_in_list()
-      |> render(context, mf)
+    content = render(items, context, mf)
     html = "<#{type}>\n#{content}</#{type}>\n"
     add_attrs(html, attrs)
   end
@@ -277,17 +274,5 @@ defmodule Earmark.HtmlRenderer do
   def append_footnote_link(block, fnlink) do
     [block, %Block.Para{lines: fnlink}]
   end
-
-  ###############################
-  # Ugly List Helper            #
-  ###############################
-  
-  defp unify_spacing_in_list(items) do
-    with spaced = Enum.any?(items, pattern_fn(%{spaced: true})),
-    do: items |> _unify_spacing_in_list([], spaced) |> Enum.reverse()
-  end
-
-  defp _unify_spacing_in_list([], result, _spaced), do: result
-  defp _unify_spacing_in_list([head | tail], result, spaced), do: _unify_spacing_in_list(tail, [%{head | spaced: spaced} | result], spaced)
 
 end

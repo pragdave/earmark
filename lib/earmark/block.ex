@@ -350,7 +350,9 @@ defmodule Earmark.Block do
   ##################################################
 
   @spec consolidate_list_items( ts, ts ) :: ts
-  defp consolidate_list_items([], result), do: result  # no need to reverse
+  defp consolidate_list_items([], result) do
+    result |> Enum.map(&compute_list_spacing/1)  # no need to reverse
+  end
 
   # We have a list, and the next element is an item of the same type
   defp consolidate_list_items(
@@ -370,6 +372,20 @@ defmodule Earmark.Block do
   defp consolidate_list_items([ head | rest ], result) do
     consolidate_list_items(rest, [ head | result ])
   end
+
+  defp compute_list_spacing( list = %List{blocks: items} ) do
+    with spaced = any_spaced_items?(items),
+         unified_items = Enum.map(items, &(%{&1 | spaced: spaced}))
+    do
+      %{list | blocks: unified_items}
+    end
+  end
+  defp compute_list_spacing( anything_else ), do: anything_else # nop
+
+  defp any_spaced_items?([]), do: false
+  defp any_spaced_items?([%{spaced: true}|_]), do: true
+  defp any_spaced_items?([_|tail]), do: any_spaced_items?(tail)
+
 
   ##################################################
   # Read in a table (consecutive TableLines with

@@ -4,6 +4,7 @@ defmodule ListTest do
   alias Earmark.Line
   alias Earmark.Block
 
+  # TODO: These tests are heavily
   test "Basic UL" do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
@@ -89,7 +90,7 @@ defmodule ListTest do
              ], filename())
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
     ]}]
     assert result == expected
   end

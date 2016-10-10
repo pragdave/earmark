@@ -18,7 +18,7 @@ defmodule Regressions.I093LastLiNotWrappedInPTest do
          spaced: true, type: :ul},
        %Earmark.Block.ListItem{attrs: nil,
         blocks: [%Earmark.Block.Para{attrs: nil, lines: ["b"]}],
-        spaced: false, type: :ul}], type: :ul}], %{}}
+        spaced: true, type: :ul}], type: :ul}], %{}}
 
      assert expected == @vanilla_list |> String.split(~r{\n}) |>Earmark.Parser.parse()
   end
