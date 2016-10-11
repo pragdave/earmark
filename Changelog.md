@@ -1,3 +1,10 @@
+# 1.0.3 ??/??/????
+
+* PR from TBK145
+
+## Kudos:
+  Thijs Klaver (TBK145)
+
 # 1.0.2 10/10/2016
 
 * PR from pdebelak with a fix of #55
