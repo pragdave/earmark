@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Readme do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
           docs = Code.get_docs(module, :docs)
-          doc = Enum.find_value(docs, fn ({{fun, _}, _line, _kind, _args, doc}) ->
+          Enum.find_value(docs, fn ({{fun, _}, _line, _kind, _args, doc}) ->
             fun == func && doc
           end)
         else
