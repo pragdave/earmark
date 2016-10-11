@@ -36,20 +36,20 @@ defmodule Earmark do
           State | Abbrev | Capital
           ----: | :----: | -------
           Texas | TX     | Austin
-          Maine | MN     | Augusta
+          Maine | ME     | Augusta
 
   Tables may have leading and trailing vertical bars on each line
 
           | State | Abbrev | Capital |
           | ----: | :----: | ------- |
           | Texas | TX     | Austin  |
-          | Maine | MN     | Augusta |
+          | Maine | ME     | Augusta |
 
   Tables need not have headers, in which case all column alignments
   default to left.
 
           | Texas | TX     | Austin  |
-          | Maine | MN     | Augusta |
+          | Maine | ME     | Augusta |
 
   Currently we assume there are always spaces around interior vertical
   bars. It isn't clear what the expectation is.
