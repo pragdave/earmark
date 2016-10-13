@@ -9,7 +9,6 @@ defmodule BlockTest do
   # Headings #
   ############
 
-  @tag :now
   test "Setext Heading" do
     result = Block.lines_to_blocks([
                 %Line.Blank{},

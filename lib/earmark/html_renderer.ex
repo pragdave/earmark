@@ -8,7 +8,7 @@ defmodule Earmark.HtmlRenderer do
 
   alias  Earmark.Block
   import Earmark.Inline,  only: [ convert: 2 ]
-  import Earmark.Helpers, only: [ escape: 2 ]
+  import Earmark.Helpers, only: [ escape: 2, emit_error: 4 ]
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
 
   def render(blocks, context, map_func) do
@@ -140,6 +140,13 @@ defmodule Earmark.HtmlRenderer do
     Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")
   end
 
+  #######################################
+  # Isolated IALs are rendered as paras #
+  #######################################
+  def render_block(%Block.Ial{attrs: attrs}, context, _mf) do 
+    "<p>#{convert(["{:#{attrs}}"], context)}</p>\n"
+  end
+
   ####################
   # IDDef is ignored #
   ####################
@@ -210,6 +217,7 @@ defmodule Earmark.HtmlRenderer do
     |> add_to(text)
   end
 
+  # Hmm might be a good idea to have this accomplished by the parser.
   def expand(dict, attrs) do
     cond do
       Regex.match?(~r{^\s*$}, attrs) -> dict
@@ -224,11 +232,13 @@ defmodule Earmark.HtmlRenderer do
           Map.update(dict, "id", [ id ], &[ id | &1])
           |> expand(behead(attrs, leader))
 
+      # Might we being running into escape issues here too?
       match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
       [ leader, name, value ] = match
         Map.update(dict, name, [ value ], &[ value | &1])
         |> expand(behead(attrs, leader))
 
+      # Might we being running into escape issues here too?
       match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
       [ leader, name, value ] = match
         Map.update(dict, name, [ value ], &[ value | &1])
@@ -239,8 +249,14 @@ defmodule Earmark.HtmlRenderer do
           Map.update(dict, name, [ value ], &[ value | &1])
           |> expand(behead(attrs, leader))
 
+      match = Regex.run(~r{^(\S+)\s*(.*)}, attrs) ->
+        [ _, incorrect, rest  ] = match
+        emit_error("unknown", "unknown", "warning", "Illegal attribute #{inspect incorrect} ignored in IAL")
+        expand( dict, rest )
+        
       :otherwise ->
-        raise EarmarkError, "Invalid Markdown attributes: {#{attrs}}"
+        emit_error("unknown", "unknown", "warning", "Illegal attribute and all following #{inspect attrs} ignored in IAL")
+        dict
       end
   end
 
@@ -250,7 +266,8 @@ defmodule Earmark.HtmlRenderer do
   end
 
   def add_to(attrs, text) do
-    String.replace(text, ~r{\s?/?>}, " #{attrs}\\0", global: false)
+    attrs = if attrs == "", do: "", else: " #{attrs}" 
+    String.replace(text, ~r{\s?/?>}, "#{attrs}\\0", global: false)
   end
 
   ###############################
