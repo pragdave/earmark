@@ -1,6 +1,8 @@
 # 1.0.3 ??/??/????
 
 * PR from TBK145
+* Fixes for issues
+  - #99
 
 ## Kudos:
   Thijs Klaver (TBK145)

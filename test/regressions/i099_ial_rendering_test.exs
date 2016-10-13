@@ -8,11 +8,11 @@ defmodule Regressions.I099IalRenderingTest do
   test "Associated but incorrect" do 
     assert capture_io(:stderr, fn ->
       assert "<p>World</p>\n" == Earmark.to_html( "World\n{:hello}" )
-    end ) == "<no file>:2: warning: Ignoring illegal html attribute specification \"hello\""
+    end ) == "<no file>:2: warning: Illegal attribute \"hello\" ignored in IAL\n"
   end
   test "Associated but partly incorrect" do 
     assert capture_io(:stderr, fn ->
       assert "<p title=\"world\">World</p>\n" == Earmark.to_html( "World\n{:hello title=world}" )
-    end ) == "<no file>:2: warning: Ignoring illegal html attribute specification \"hello\""
+    end ) == "<no file>:2: warning: Illegal attribute \"hello\" ignored in IAL\n"
   end
 end

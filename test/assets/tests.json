@@ -738,28 +738,35 @@
     "description": "Associated",
     "markdown": "Before\n{:hello=world}",
     "html": "<p hello=\"world\">Before</p>\n",
-    "example": 1110
+    "example": 1090
   }
   ,{
     "section": "IAL",
     "description": "Associated",
     "markdown": "Before\n{:hello=world}\nAfter",
     "html": "<p hello=\"world\">Before</p>\n<p>After</p>\n",
-    "example": 1120
+    "example": 1100
   }
   ,{
     "section": "IAL",
     "description": "Associated and incorrect",
     "markdown": "Before\n{:hello}",
     "html": "<p>Before</p>\n",
-    "example": 1130
+    "example": 1110
   }
   ,{
     "section": "IAL",
     "description": "Associated and partly incorrect",
     "markdown": "Before\n{:hello title=world}",
     "html": "<p title=\"world\">Before</p>\n",
-    "example": 1140
+    "example": 1120
+  }
+  ,{
+    "section": "IAL",
+    "description": "Associated and partly incorrect and shortcuts",
+    "markdown": "Before\n{:#hello .alpha hello title=world .beta class=\"gamma\" title='class'}",
+    "html": "<p class=\"gamma beta alpha\" id=\"hello\" title=\"class world\">Before</p>\n",
+    "example": 1130
   }
 
   #
@@ -769,19 +776,19 @@
     "section": "Entities",
     "markdown": "`f&ouml;&ouml;`\n",
     "html": "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n",
-    "example": 1150
+    "example": 1140
   }
   ,{
     "section": "Code spans",
     "markdown": "`foo`\n",
     "html": "<p><code class=\"inline\">foo</code></p>\n",
-    "example": 1160
+    "example": 1150
   }
   ,{
     "section": "Textual content",
     "markdown": "Multiple     spaces\n",
     "html": "<p>Multiple     spaces</p>\n",
-    "example": 1170
+    "example": 1160
   }
 
 ]
