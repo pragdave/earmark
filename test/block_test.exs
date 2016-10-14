@@ -9,7 +9,6 @@ defmodule BlockTest do
   # Headings #
   ############
 
-  @tag :now
   test "Setext Heading" do
     result = Block.lines_to_blocks([
                 %Line.Blank{},
@@ -230,7 +229,7 @@ defmodule BlockTest do
              ], filename())
 
     assert result == [
-        %Block.Para{lines: [ "line" ], attrs: ".a1 .a2"},
+        %Block.Para{lines: [ "line" ], attrs: %{"class" => ~w[a2 a1]}},
         %Block.Para{lines: [ "another" ], attrs: nil}
     ]
   end

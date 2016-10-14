@@ -54,7 +54,7 @@ defmodule Earmark do
   Currently we assume there are always spaces around interior vertical
   bars. It isn't clear what the expectation is.
 
-  ### Adding HTML attributes
+  ### Adding HTML attributes with the IAL extension
 
   HTML attributes can be added to any block-level element. We use
   the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
@@ -64,6 +64,16 @@ defmodule Earmark do
   * `.className`
   * `#id`
   * name=value, name="value", or name='value'
+
+  Malformed attributes are ignored and a warning is issued to stderr
+
+  If you need to render an IAL like string verbatim escape it, as follows
+
+  `\\{:alpha, 42}`
+
+  this of course is not necessary in code blocks or any text line just containing an IAL like string, as in
+
+  `look at the returned tuple, which should be {:error, "I wish you had'nt done that"}`
 
   For example:
 
