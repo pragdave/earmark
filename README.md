@@ -67,15 +67,16 @@ _attrs_ can be one or more of:
 * `#id`
 * name=value, name="value", or name='value'
 
-Malformed attributes are ignored and a warning is issued to stderr
+Malformed attributes are ignored and a warning is issued to stderr.
 
-If you need to render an IAL like string verbatim escape it, as follows
+If you need to render IAL-like test verbatim escape it:
 
 `\{:alpha, 42}`
 
-this of course is not necessary in code blocks or any text line just containing an IAL like string, as in
+This of course is not necessary in code blocks or text lines
+containing an IAL-like string, as in
 
-`look at the returned tuple, which should be {:error, "I wish you had'nt done that"}`
+`the returned tuple should be {:error, "I wish you hadn't done that"}`
 
 For example:
 
@@ -126,9 +127,10 @@ For example:
 
 ## Security
 
-  Please be aware that Markdown is not a secure format. It produces HTML from Markdown
-  and HTML. It is your job to sanitize and or filter the output of `Markdown.html` if
-  you cannot trust the input and are to serve the produced HTML on the Web.
+  Please be aware that Markdown is not a secure format. It produces
+  HTML from Markdown and HTML. It is your job to sanitize and or
+  filter the output of `Markdown.html` if you cannot trust the input
+  and are to serve the produced HTML on the Web.
 
 ## Author
 
