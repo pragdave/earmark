@@ -4,6 +4,7 @@ defmodule Earmark.Block do
   import Earmark.Helpers, only: [emit_error: 4]
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
+  import Earmark.Helpers.AttrParser
 
   @moduledoc """
   Given a list of _parsed blocks, convert them into blocks.
@@ -27,7 +28,7 @@ defmodule Earmark.Block do
   defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
   defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: nil, blocks: []
   defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
-  defmodule Ial,         do: defstruct attrs: nil
+  defmodule Ial,         do: defstruct attrs: nil, content: nil
 
   defmodule Table do
     defstruct attrs: nil, rows: [], header: nil, alignments: []
@@ -287,8 +288,11 @@ defmodule Earmark.Block do
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs} | rest ], result, filename) do
-    _parse(rest, [ %Ial{attrs: attrs} | result ], filename)
+  defp _parse( [ %Line.Ial{attrs: attrs, line: line} | rest ], result, filename) do
+    {attributes, errors} = parse_attrs( attrs ) 
+    for { error_type, error_message } <- errors, do:
+      emit_error(filename, line, error_type, error_message)
+    _parse(rest, [ %Ial{attrs: attributes, content: attrs} | result ], filename)
   end
 
   ###############
