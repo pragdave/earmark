@@ -288,10 +288,10 @@ defmodule Earmark.Block do
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs, line: line} | rest ], result, filename) do
+  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb} | rest ], result, filename) do
     {attributes, errors} = parse_attrs( attrs ) 
-    for { error_type, error_message } <- errors, do:
-      emit_error(filename, line, error_type, error_message)
+    unless Enum.empty?( errors ), do:
+      emit_error(filename, lnb, :warning, "Illegal attributes #{inspect errors} ignored in IAL")
     _parse(rest, [ %Ial{attrs: attributes, content: attrs} | result ], filename)
   end
 

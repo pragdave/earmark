@@ -10,6 +10,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2, emit_error: 4 ]
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
+  import Earmark.Helpers.AttrParser
 
   def render(blocks, context, map_func) do
     map_func.(blocks, &(render_block(&1, context, map_func)))
@@ -143,8 +144,8 @@ defmodule Earmark.HtmlRenderer do
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
-  def render_block(%Block.Ial{attrs: attrs}, context, _mf) do 
-    "<p>#{convert(["{:#{attrs}}"], context)}</p>\n"
+  def render_block(%Block.Ial{content: content}, context, _mf) do 
+    "<p>#{convert(["{:#{content}}"], context)}</p>\n"
   end
 
   ####################
@@ -203,61 +204,22 @@ defmodule Earmark.HtmlRenderer do
   # add attributes to the outer tag in a block #
   ##############################################
 
-  def add_attrs(text, attrs_as_string, default_attrs \\ [])
+  def add_attrs(text, attrs_as_string_or_map, default_attrs \\ [])
 
   def add_attrs(text, nil, []), do: text
 
-  def add_attrs(text, nil, default), do: add_attrs(text, "", default)
+  def add_attrs(text, nil, default), do: add_attrs(text, %{}, default)
 
+  # TODO: Check if the binary form of attrs can be eliminated by parsing attrs in
+  #       the parser, as done in the Ial case.
+  def add_attrs(text, attrs, default) when is_binary(attrs) do
+    with {attrs,_} <- parse_attrs( attrs ), do: add_attrs(text, attrs, default)
+  end
   def add_attrs(text, attrs, default) do
     default
-    |> Enum.into(Map.new)
-    |> expand(attrs)
+    |> Enum.into(attrs)
     |> attrs_to_string
     |> add_to(text)
-  end
-
-  # Hmm might be a good idea to have this accomplished by the parser.
-  def expand(dict, attrs) do
-    cond do
-      Regex.match?(~r{^\s*$}, attrs) -> dict
-
-      match = Regex.run(~r{^\.(\S+)\s*}, attrs) ->
-        [ leader, class ] = match
-          Map.update(dict, "class", [ class ], &[ class | &1])
-          |> expand(behead(attrs, leader))
-
-      match = Regex.run(~r{^\#(\S+)\s*}, attrs) ->
-        [ leader, id ] = match
-          Map.update(dict, "id", [ id ], &[ id | &1])
-          |> expand(behead(attrs, leader))
-
-      # Might we being running into escape issues here too?
-      match = Regex.run(~r{^(\S+)=\'([^\']*)'\s*}, attrs) -> #'
-      [ leader, name, value ] = match
-        Map.update(dict, name, [ value ], &[ value | &1])
-        |> expand(behead(attrs, leader))
-
-      # Might we being running into escape issues here too?
-      match = Regex.run(~r{^(\S+)=\"([^\"]*)"\s*}, attrs) -> #"
-      [ leader, name, value ] = match
-        Map.update(dict, name, [ value ], &[ value | &1])
-        |> expand(behead(attrs, leader))
-
-      match = Regex.run(~r{^(\S+)=(\S+)\s*}, attrs) ->
-        [ leader, name, value ] = match
-          Map.update(dict, name, [ value ], &[ value | &1])
-          |> expand(behead(attrs, leader))
-
-      match = Regex.run(~r{^(\S+)\s*(.*)}, attrs) ->
-        [ _, incorrect, rest  ] = match
-        emit_error("unknown", "unknown", "warning", "Illegal attribute #{inspect incorrect} ignored in IAL")
-        expand( dict, rest )
-        
-      :otherwise ->
-        emit_error("unknown", "unknown", "warning", "Illegal attribute and all following #{inspect attrs} ignored in IAL")
-        dict
-      end
   end
 
   def attrs_to_string(attrs) do
