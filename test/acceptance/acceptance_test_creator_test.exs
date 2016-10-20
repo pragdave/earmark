@@ -4,12 +4,12 @@ defmodule AcceptanceTestCreatorTest do
   alias Support.AcceptanceTestStruct
   import ExUnit.CaptureIO
 
-  {:ok, test_case_data } =
-  Path.join([__DIR__,"../assets/tests.json"])
+  test_case_data =
+  Path.join([__DIR__,"../assets/acceptance_tests.json"])
   |> File.stream!( [], :line )
   |> Enum.reject( &(String.match?(&1, ~r{^\s*(?:#|//)})) )
   |> Enum.join( "\n" )
-  |> Poison.decode( as: [%AcceptanceTestStruct{}] )
+  |> Poison.decode!( as: [%AcceptanceTestStruct{}] )
 
 
   for acceptance_test <- test_case_data do

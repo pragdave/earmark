@@ -122,6 +122,10 @@ defmodule Earmark do
     I've chosen always to use the second interpretation—a line that looks like
     a list item will always be a list item.
 
+  * Rendering of block and inline elements.
+    TODO: Check for Jon Gruber's tests and explain variations accordingly, c.f. DEVNOTES.md  
+
+
   ## Security
 
     Please be aware that Markdown is not a secure format. It produces HTML from Markdown
