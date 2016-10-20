@@ -6,6 +6,9 @@ defmodule Earmark.Options do
              smartypants: true, sanitize: false,
              footnotes: false, footnote_offset: 1,
 
+             # additional prefies for class of code blocks
+             code_class_prefix: nil,
+
              # Internal—only override if you're brave
              do_smartypants: nil, do_sanitize: nil,
 

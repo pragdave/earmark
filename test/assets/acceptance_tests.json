@@ -204,6 +204,14 @@
   }
   ,{
     "section": "Fenced code blocks",
+    "description": "with a code_block_prefix",
+    "options": { "code_block_prefix": "lang-" },
+    "markdown": "```elixir\naaa\n~~~\n```\n",
+    "html": "<pre><code class=\"elixir\">aaa\n~~~</code></pre>\n",
+    "example": 29
+  }
+  ,{
+    "section": "Fenced code blocks",
     "markdown": "   ```\naaa\nb\n  ```\n",
     "html": "<pre><code class=\"\">aaa\nb</code></pre>\n",
     "example": 30

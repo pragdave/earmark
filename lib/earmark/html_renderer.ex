@@ -93,8 +93,8 @@ defmodule Earmark.HtmlRenderer do
   ########
   # Code #
   ########
-  def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, _context, _mf) do
-    class = if language, do: ~s{ class="#{language}"}, else: ""
+  def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, %Earmark.Context{options: options}, _mf) do
+    class = if language, do: ~s{ class="#{code_classes( language, options.code_class_prefix)}"}, else: ""
     tag = ~s[<pre><code#{class}>]
     lines = lines |> Enum.map(&(escape(&1, true))) |> Enum.join("\n") # |> String.strip
     html = ~s[#{tag}#{lines}</code></pre>\n]
@@ -253,4 +253,9 @@ defmodule Earmark.HtmlRenderer do
     [block, %Block.Para{lines: fnlink}]
   end
 
+  defp code_classes(language, prefix) do 
+   ["" | String.split( prefix || "" )]
+   |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
+   |> Enum.join(" ")
+  end
 end
