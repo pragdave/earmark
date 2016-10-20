@@ -138,15 +138,22 @@ defmodule Earmark.Line do
         [ _, fence, language ] = match
         %Fence{delimiter: fence, language: language}
 
-      # (match = Regex.run(~r{^<hr(\s|>|/).*}, line)) && !recursive ->
-      #   %HtmlOneLine{tag: "hr", content: line}
+      #   Although no block tags I still think they should close a preceding para as do many other
+      #   implementations.
       (match = Regex.run(@void_tag_rgx, line)) && !recursive ->
         [ _, tag ] = match
+
         %HtmlOneLine{tag: tag, content: line}
 
       (match = Regex.run(~r{^<([-\w]+?)(?:\s.*)?>.*</\1>}, line)) && !recursive ->
         [ _, tag ] = match
-        %HtmlOneLine{tag: tag, content: line}
+          if block_tag?(tag), do: %HtmlOneLine{tag: tag, content: line},
+            else: %Text{content: line}
+
+      (match = Regex.run(~r{^<([-\w]+?)(?:\s.*)?/>.*}, line)) && !recursive ->
+        [ _, tag ] = match
+          if block_tag?(tag), do: %HtmlOneLine{tag: tag, content: line},
+            else: %Text{content: line}
 
       (match = Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line)) && !recursive ->
         [ _, tag ] = match
@@ -205,6 +212,11 @@ defmodule Earmark.Line do
     end
   end
 
+
+  @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video> |>
+    Enum.into( MapSet.new() )
+  defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
+  
   defp split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})
