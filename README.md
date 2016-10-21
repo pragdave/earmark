@@ -156,7 +156,9 @@ For example:
 ### Syntax Highlightning
 
 All backquoted or fenced code blocks with a language string are rendered with the given 
-language as a _class_ of the _code_ tag like the following:
+language as a _class_ attribute of the _code_ tag.
+
+For example:
 
       ```elixir
          @tag :hello
@@ -166,20 +168,21 @@ will be rendered as
 
        <pre><code class="elixir">...
 
-If you want to integrate with a different syntax highligher, e.g. Prism.js you can modify
-the classes assigned to the _code_ tag with the option `code_class_prefix`, if e.g. you
-render the above markdown with
+If you want to integrate with a syntax highlighter with different conventions you can classes with prefixes to the
+language. Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
+as a `code_class_prefix` to `Earmark.Options`.
+
+In the following example we want more than one additional class, so we added more prefixes.
 
       Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
-the following will be rendered:
+rendering
 
        <pre><code class="elixir lang-elixiri language-elixir">...
 
-In case of usage of the command line the option can be issued as follows:
+As for all other options it can be passed into the `earmark` executable as follows:
 
       earmark --code-class-prefix "language- lang-" ...
-
 
 ## Security
 
