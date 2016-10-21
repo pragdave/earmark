@@ -149,7 +149,7 @@ defmodule ListTest do
 
 
   test "Simple list render" do
-    result = Earmark.to_html(["* one", "* two"])
+    result = Earmark.as_html!(["* one", "* two"])
     expected = """
     <ul>
     <li>one\n</li>
@@ -161,7 +161,7 @@ defmodule ListTest do
 
 
   test "Indented list render" do
-    result = Earmark.to_html(["   * one", "   * two"])
+    result = Earmark.as_html!(["   * one", "   * two"])
     expected = """
     <ul>
     <li>one\n</li>
@@ -172,7 +172,7 @@ defmodule ListTest do
   end
 
   test "Initial indentation of * taken into account when looking at body" do
-    result = Earmark.to_html([
+    result = Earmark.as_html!([
     "   * one",
     "     one.one",
     "   * two"

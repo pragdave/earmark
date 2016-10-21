@@ -12,7 +12,7 @@ defmodule VoidElementsTest do
   ] |> Enum.each( fn {inp, out} ->
       test "#{inp} is transformed to #{out} without errors" do
         stderr_out  = capture_io(:stderr, fn ->
-          result = Earmark.to_html(unquote(inp))
+          result = Earmark.as_html!(unquote(inp))
           expected = unquote(out||inp)
           assert result == expected
         end)

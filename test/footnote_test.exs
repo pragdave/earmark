@@ -27,13 +27,13 @@ defmodule FootnoteTest do
 
   test "handles FnDef blocks without Footnotes enabled" do
     lines = ["This is a footnote[^1].", "", "[^1]: This is the content."]
-    Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
+    Earmark.as_html!(lines, put_in(%Earmark.Options{}.footnotes, false))
     # expected: not crashing
   end
 
   test "handles text without footntoes when Footnotes enabled" do
     lines = ["This is some regular text"]
-    Earmark.to_html(lines, options())
+    Earmark.as_html!(lines, options())
   end
 
   test "basic footnote link" do
@@ -79,7 +79,7 @@ defmodule FootnoteTest do
 		}]
     assert result == expected
 
-    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, true))
+    html = Earmark.as_html!(lines, put_in(%Earmark.Options{}.footnotes, true))
     expected_html = """
     <p>This is a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>
     <div class="footnotes">
@@ -140,7 +140,7 @@ defmodule FootnoteTest do
     [^ref-b]: Ref B.
     [^ref-a]: Ref A.
     """
-    result = Earmark.to_html(body, put_in(%Earmark.Options{}.footnotes, true))
+    result = Earmark.as_html!(body, put_in(%Earmark.Options{}.footnotes, true))
     expected = """
     <p>A line with<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> two references<a href="#fn:2" id="fnref:2" class="footnote" title="see footnote">2</a>.</p>
     <div class="footnotes">

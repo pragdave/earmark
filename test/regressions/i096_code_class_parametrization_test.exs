@@ -2,7 +2,7 @@ defmodule Regressions.I096CodeClassParametrizationTest do
   use ExUnit.Case
 
   defp html(str, code_class_prefix \\ nil) do
-    Earmark.to_html( str, %Earmark.Options{code_class_prefix: code_class_prefix} )
+    Earmark.as_html!( str, %Earmark.Options{code_class_prefix: code_class_prefix} )
   end
 
   test "as you were" do

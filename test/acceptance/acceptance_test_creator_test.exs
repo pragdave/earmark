@@ -20,7 +20,7 @@ defmodule AcceptanceTestCreatorTest do
       capture_io :stderr, fn ->
         options = %Earmark.Options{smartypants: false}
         result =
-            Earmark.to_html( unquote(acceptance_test.markdown), options )
+            Earmark.as_html!( unquote(acceptance_test.markdown), options )
         assert result == unquote(acceptance_test.html)
       end
     end

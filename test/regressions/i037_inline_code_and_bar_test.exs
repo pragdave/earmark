@@ -6,7 +6,7 @@ defmodule Regressions.I037InlineCodeAndBarTest do
   beta | gamma
   """
   test "Issue https://github.com/pragdave/earmark/issues/37" do
-    result = Earmark.to_html @implicit_list_with_bar
+    result = Earmark.as_html! @implicit_list_with_bar
     assert result == """
                      <ul>
                      <li>alpha\nbeta | gamma

@@ -63,7 +63,7 @@ defmodule TableTest do
 
 
   test "Simple table render" do
-    result = Earmark.to_html(["a | b | c", "d | e | f"])
+    result = Earmark.as_html!(["a | b | c", "d | e | f"])
     expected = """
     <table>
     <colgroup>
@@ -83,7 +83,7 @@ defmodule TableTest do
   end
 
   test "Table with heading and alignment" do
-    result = Earmark.to_html(["a | b | c", ":-- | :--: |--:", "d | e | f"])
+    result = Earmark.as_html!(["a | b | c", ":-- | :--: |--:", "d | e | f"])
     expected = """
     <table>
     <colgroup>
@@ -105,7 +105,7 @@ defmodule TableTest do
   end
 
   test "markdown in cells" do
-    result = Earmark.to_html(["a | _b_ | `c`", " <xx>d</xx> | **e** | __f__"])
+    result = Earmark.as_html!(["a | _b_ | `c`", " <xx>d</xx> | **e** | __f__"])
     expected = """
     <table>
     <colgroup>

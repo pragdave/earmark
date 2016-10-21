@@ -5,7 +5,7 @@ defmodule Regressions.I062BangVersionTest  do
   @moduletag :later
   test "Issue https://github.com/pragdave/earmark/issues/62" do
     assert capture_io( :stderr, fn->
-      Earmark.to_html "hello"
-    end) == "warning: using `Earmark.to_html` is deprecated, please use `Earmark.as_html!` for the same semantics, or preferably `{:ok, html} = Earmark.as_html`"
+      Earmark.as_html! "hello"
+    end) == "warning: using `Earmark.as_html!` is deprecated, please use `Earmark.as_html!` for the same semantics, or preferably `{:ok, html} = Earmark.as_html`"
   end
 end

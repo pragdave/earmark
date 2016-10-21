@@ -10,11 +10,11 @@ defmodule Earmark do
 
   ### API
 
-        html_doc = Earmark.to_html(markdown)
+        html_doc = Earmark.as_html!(markdown)
 
-        html_doc = Earmark.to_html(markdown, options)
+        html_doc = Earmark.as_html!(markdown, options)
 
-  (See the documentation for `to_html` for options)
+  (See the documentation for `as_html!` for options)
 
   ### Command line
 
@@ -32,7 +32,7 @@ defmodule Earmark do
 
   will call
 
-      Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+      Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
 
   ## Supports
@@ -188,7 +188,7 @@ defmodule Earmark do
 
   In the following example we want more than one additional class, so we add more prefixes.
 
-        Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+        Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
   which is rendering
 
@@ -260,18 +260,27 @@ defmodule Earmark do
   you'd call
 
       alias Earmark.Options
-      result = Earmark.to_html(original, %Options{smartypants: false})
+      result = Earmark.as_html!(original, %Options{smartypants: false})
 
   """
 
-  @spec to_html(String.t | list(String.t), %Options{}) :: String.t
-
-  def to_html(lines, options \\ %Options{})
-  def to_html(lines, options = %Options{}) do
-    lines |> parse(options) |> _to_html(options)
+  @to_html_deprecation_warning """
+  warning: usage of `Earmark.to_html` is deprecated.
+  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`
+  """
+  def to_html(lines, options \\ %Options{}) do
+    IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
+    as_html!(lines, options)
   end
 
-  defp _to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
+  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
+
+  def as_html!(lines, options \\ %Options{})
+  def as_html!(lines, options = %Options{}) do
+    lines |> parse(options) |> _as_html!(options)
+  end
+
+  defp _as_html!({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
     renderer.render(blocks, context, mapper)
   end
 
@@ -280,7 +289,7 @@ defmodule Earmark do
   a string containing newlines), return a parse tree and
   the context necessary to render the tree.
 
-  The options are a `%Earmark.Options{}` structure. See `to_html`
+  The options are a `%Earmark.Options{}` structure. See `as_html!`
   for more details.
   """
 

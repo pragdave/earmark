@@ -12,7 +12,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   defp html_from_file(filename) do
     IO.stream( open_file(filename), :line)
     |> Enum.to_list()
-    |> Earmark.to_html()
+    |> Earmark.as_html!()
   end
 
   defp blox_from_file(filename) do
