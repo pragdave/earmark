@@ -27,8 +27,8 @@ defmodule Earmark.CLI do
     parse = OptionParser.parse(argv, switches: switches, aliases: aliases)
     case  parse  do
       { [ {switch, true } ],  _, _ } -> switch
-      { switches, [ filename ],  _ } -> {open_file(filename), switches}
-      { switches, [ ],           _ } -> {:stdio, switches}
+      { options, [ filename ],  _ }  -> {open_file(filename), options}
+      { options, [ ],           _ }  -> {:stdio, options}
       _                              -> :help
     end
   end
@@ -45,13 +45,29 @@ defmodule Earmark.CLI do
   end
 
   defp process({io_device, options}) do
-    IO.inspect options
+    options = options 
+      |> booleanify()
+      |> Enum.into(%Earmark.Options{})
     content = IO.stream(io_device, :line) |> Enum.to_list
-    Earmark.to_html(content, %Earmark.Options{})
+    Earmark.to_html(content, options)
     |> IO.puts
   end
 
 
+
+  defp booleanify( keywords ), do: Enum.map(keywords, &booleanify_option/1)
+  defp booleanify_option({k, v}) do
+    {k, 
+     case Map.get %Earmark.Options{}, k, :does_not_exist do
+        true  -> if v == "false", do: false, else: true
+        false -> if v == "false", do: false, else: true
+        :does_not_exist ->
+          IO.puts( :stderr, "ignoring unsupported option #{inspect k}")
+          v
+        _     -> v
+      end
+    }
+  end
 
   defp open_file(filename), do: io_device(File.open(filename, [:utf8]), filename)
 
