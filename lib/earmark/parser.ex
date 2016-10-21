@@ -5,7 +5,7 @@ defmodule Earmark.Parser do
 
 
   # TODO: fix any
-  # 
+  #
   @spec parse(list(String.t), %Earmark.Options{}, boolean) :: {Block.ts(), %{}}
   def parse(text_lines), do: parse(text_lines, %Earmark.Options{}, false)
 

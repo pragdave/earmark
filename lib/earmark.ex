@@ -21,6 +21,20 @@ defmodule Earmark do
       $ mix escript.build
       $ ./earmark file.md
 
+  Some options defined in the `Earmark.Options` struct can be specified as command line switches.
+
+  Use
+      $ ./earmark --help
+
+  to find out more, but here is a short example
+
+      $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
+
+  will call
+
+      Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+
+
   ## Supports
 
   Standard [Gruber markdown][gruber].
@@ -65,15 +79,17 @@ defmodule Earmark do
   * `#id`
   * name=value, name="value", or name='value'
 
-  Malformed attributes are ignored and a warning is issued to stderr
 
-  If you need to render an IAL like string verbatim escape it, as follows
+  Malformed attributes are ignored and a warning is issued to stderr.
 
-  `\\{:alpha, 42}`
+  If you need to render IAL-like test verbatim escape it:
 
-  this of course is not necessary in code blocks or any text line just containing an IAL like string, as in
+  `\{:alpha, 42}`
 
-  `look at the returned tuple, which should be {:error, "I wish you had'nt done that"}`
+  This of course is not necessary in code blocks or text lines
+  containing an IAL-like string, as in
+
+  `the returned tuple should be {:error, "I wish you hadn't done that"}`
 
   For example:
 
@@ -123,14 +139,71 @@ defmodule Earmark do
     a list item will always be a list item.
 
   * Rendering of block and inline elements.
-    TODO: Check for Jon Gruber's tests and explain variations accordingly, c.f. DEVNOTES.md  
 
+    Block or void HTML elements that are at the absolute beginning of a line end
+    the preceeding paragraph.
+
+    Thusly
+
+          mypara
+          <hr>
+
+    Becomes
+
+          <p>mypara</p>
+          <hr>
+
+    While
+
+          mypara
+           <hr>
+
+    will be transformed into
+
+          <p>mypara
+           <hr></p>
+
+  ## Integration
+
+  ### Syntax Highlightning
+
+  All backquoted or fenced code blocks with a language string are rendered with the given
+  language as a _class_ attribute of the _code_ tag.
+
+  For example:
+
+        ```elixir
+           @tag :hello
+        ```
+
+  will be rendered as
+
+         <pre><code class="elixir">...
+
+  If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
+  put before the language string.
+
+  Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
+  as a `code_class_prefix` to `Earmark.Options`.
+
+  In the following example we want more than one additional class, so we add more prefixes.
+
+        Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+
+  which is rendering
+
+         <pre><code class="elixir lang-elixiri language-elixir">...
+
+  As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
+
+        earmark --code-class-prefix "language- lang-" ...
 
   ## Security
 
-    Please be aware that Markdown is not a secure format. It produces HTML from Markdown
-    and HTML. It is your job to sanitize and or filter the output of `Markdown.html` if
-    you cannot trust the input and are to serve the produced HTML on the Web.
+    Please be aware that Markdown is not a secure format. It produces
+    HTML from Markdown and HTML. It is your job to sanitize and or
+    filter the output of `Markdown.html` if you cannot trust the input
+    and are to serve the produced HTML on the Web.
 
   ## Author
 
@@ -228,7 +301,7 @@ defmodule Earmark do
     end
   end
   def parse(lines, options) when is_binary(lines) do
-    lines 
+    lines
     |> String.split(~r{\r\n?|\n})
     |> parse(options)
   end

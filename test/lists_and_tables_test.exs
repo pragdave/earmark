@@ -7,7 +7,7 @@ defmodule ListAndTablesTest do
     #{Enum.map( lines, &("<li>#{&1}\n</li>\n") )}</ul>
     """
   end
-  
+
   test "Simple list render with |" do
     result = Earmark.to_html(["* one | half", "* two | third"])
     expected = ul([ "one | half", "two | third" ])
@@ -43,7 +43,7 @@ defmodule ListAndTablesTest do
     expected = ul(["a\n  b\ne | f"])
     assert result == expected
   end
-  
+
   test "Alternating text and indented table lines" do
     result = Earmark.to_html( ["- a", "   b | c", "e | f"] )
     expected = ul(["a\n   b | c\ne | f"])
@@ -57,7 +57,7 @@ defmodule ListAndTablesTest do
   end
 
   test "Same as above but in middle of list" do
-    result = Earmark.to_html( ["- 0", "- a", "   b | c", "e | f", "- Ω"] ) 
+    result = Earmark.to_html( ["- 0", "- a", "   b | c", "e | f", "- Ω"] )
     expected = ul(["0", "a\n   b | c\ne | f", "Ω"])
     assert result == expected
   end

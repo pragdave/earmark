@@ -5,21 +5,21 @@ defmodule EarmarkHelpersTests.AttrParserTest do
   #
   # describe "without errors" do  # still using Elixir 1.2
   #
-  test "empty" do 
+  test "empty" do
     assert_parsed_as( %{}, "")
   end
   test "base case" do
     assert_parsed_as(%{"title" => ~w[Pragdave]}, "title=Pragdave")
   end
-  test "many base cases" do 
+  test "many base cases" do
     assert_parsed_as(%{"title" => ~w[Pragdave], "alt" => ~w[Control]}, "title=Pragdave alt='Control'")
   end
-  test "shortcuts" do 
+  test "shortcuts" do
     assert_parsed_as(%{"class" => ~w[80]},".80")
     assert_parsed_as(%{"class" => ~w[80], "id" => ~w[awesome-42]},".80 #awesome-42")
     assert_parsed_as(%{"class" => ~w[80], "id" => ~w[awesome-42]},"#awesome-42 .80")
   end
-  test "a wild mix" do 
+  test "a wild mix" do
     assert_parsed_as(
       %{
         "alt" => ["motion picture"], "class" => ["satchmo", "crooner", "upperclass"], "id" => ["Doris"], "title" => ["made my Day", "hello"]
@@ -36,15 +36,15 @@ defmodule EarmarkHelpersTests.AttrParserTest do
     assert_parsed_as(%{"title" => ~w[Pragdave]}, "title=Pragdave error", errors: "error" )
     assert_parsed_as(%{"title" => ~w[Pragdave]}, "error= title=Pragdave error", errors: ~w[error error=] )
   end
-  test "many base cases - with errors" do 
+  test "many base cases - with errors" do
     assert_parsed_as(%{"title" => ~w[Pragdave], "alt" => ~w[Control]}, "error title=Pragdave alt='Control'", errors: "error")
   end
-  test "shortcuts - with errors" do 
+  test "shortcuts - with errors" do
     assert_parsed_as(%{"class" => ~w[80]},".80 error", errors: "error")
     assert_parsed_as(%{"class" => ~w[80], "id" => ~w[awesome-42]},".80 error #awesome-42", errors: "error")
     assert_parsed_as(%{"class" => ~w[80], "id" => ~w[awesome-42]},"#awesome-42 .80 error", errors: "error")
   end
-  test "a wild mix - with errors" do 
+  test "a wild mix - with errors" do
     assert_parsed_as(
       %{
         "alt" => ["motion picture"], "class" => ["satchmo", "crooner", "upperclass"], "id" => ["Doris"], "title" => ["made my Day", "hello"]
@@ -54,10 +54,10 @@ defmodule EarmarkHelpersTests.AttrParserTest do
     )
   end
 
-  defp assert_parsed_as( attrs, str, errors \\ [errors: []]  ) do 
+  defp assert_parsed_as( attrs, str, errors \\ [errors: []]  ) do
     errors = Keyword.get( errors, :errors )
     errors = if is_list(errors), do: errors, else: [errors]
     result = parse_attrs( str )
-    assert {attrs, errors} == result 
+    assert {attrs, errors} == result
   end
 end

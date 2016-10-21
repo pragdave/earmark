@@ -1,7 +1,7 @@
 defmodule Regressions.I095OpeningHtmlTagClosesParaTest do
   use ExUnit.Case
 
-  test "html inline tag as a complete line" do 
+  test "html inline tag as a complete line" do
     expected = "<p>foo\n<b>bar</b></p>\n"
     assert Earmark.to_html("foo\n<b>bar</b>") == expected
   end
@@ -17,7 +17,7 @@ defmodule Regressions.I095OpeningHtmlTagClosesParaTest do
     expected = "<p>foo\nbaz <b>bar</b></p>\n"
     assert Earmark.to_html("foo\nbaz <b>bar</b>") == expected
   end
-  
+
   test "html block tag at beginning of line" do
     expected = "<p>foo</p>\n<h5>bar</h5> baz"
     assert Earmark.to_html("foo\n<h5>bar</h5> baz") == expected

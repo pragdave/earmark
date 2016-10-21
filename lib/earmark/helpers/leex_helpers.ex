@@ -11,7 +11,7 @@ defmodule Earmark.Helpers.LeexHelpers do
       end
   end
 
-  def tokenize line, with: lexer do 
+  def tokenize line, with: lexer do
     {:ok, tokens, _} =
     line
     |> to_char_list()

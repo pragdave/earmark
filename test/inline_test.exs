@@ -121,7 +121,7 @@ defmodule InlineTest do
     assert result == ~s[a <a href=\"url%201\" title=\"title 1\">my link</a> link]
   end
 
-  test "basic no link" do 
+  test "basic no link" do
     result = convert_pedantic(~s{a [my link][no-such-number] nolink})
     assert result == ~s{a [my link][no-such-number] nolink}
   end

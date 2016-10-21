@@ -5,7 +5,7 @@ defmodule Earmark.Helpers.LineHelpers do
   @spec blank?(Line.t) :: boolean
   def blank?(%Line.Blank{}),   do: true
   def blank?(_),               do: false
-  
+
   # Gruber's tests have
   #
   #   para text...

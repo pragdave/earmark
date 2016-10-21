@@ -33,7 +33,7 @@ defmodule EscapeLtTest do
     result = convert_pedantic( "_<hello_" )
     assert result ==  "<em>&lt;hello</em>"
   end
-  
+
   ###############
   # Inline HTML #
   ###############

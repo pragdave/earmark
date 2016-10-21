@@ -30,7 +30,7 @@ defmodule Earmark.Scanner do
   defmodule Text,          do: defstruct content: ""
   defmodule UnderHeadline, do: defstruct level: 1..2
 
-  @type token :: %Backtix{} | %Blockquote{} | %CodeFence{} | %Headline{} | %IdClose{} | %IdOpen{} | %Indent{} | %ListItem{} | %RulerFat{} | %RulerMedium{} | %RulerThin{} | %Text{} | %UnderHeadline{} 
+  @type token :: %Backtix{} | %Blockquote{} | %CodeFence{} | %Headline{} | %IdClose{} | %IdOpen{} | %Indent{} | %ListItem{} | %RulerFat{} | %RulerMedium{} | %RulerThin{} | %Text{} | %UnderHeadline{}
 
   @type tokens :: list(token)
   @type t_continuation :: {token, String.t, boolean()}
@@ -39,7 +39,7 @@ defmodule Earmark.Scanner do
   @spec scan_line( String.t ) :: tokens
   @doc """
   Scans a line into a list of tokens
-  """ 
+  """
   def scan_line line do
     scan_line_into_tokens( line, [], true )
     |> Enum.reverse
@@ -51,7 +51,7 @@ defmodule Earmark.Scanner do
     []
   end
   # Line consumed
-  defp scan_line_into_tokens( "", tokens, _beg), do: tokens 
+  defp scan_line_into_tokens( "", tokens, _beg), do: tokens
   # Line not consumed
   defp scan_line_into_tokens line, tokens, beg do
     {token, rest, still_at_beg} = scan_next_token( line, beg )
@@ -66,7 +66,7 @@ defmodule Earmark.Scanner do
         {%Blockquote{}, behead(line, 1), false}
       matches = Regex.run( @list_item_rgx, line) ->
         [content, ws, bullet] = matches
-        prefixed_with_ws(line, ws) || 
+        prefixed_with_ws(line, ws) ||
           {make_list_item(bullet), behead(line,content), false}
 
       matches = Regex.run( @id_open_rgx, line ) ->
@@ -81,7 +81,7 @@ defmodule Earmark.Scanner do
 
       matches = Regex.run( @code_fence_rgx, line ) ->
         [_line, ws] = matches
-        prefixed_with_ws(line, ws) || 
+        prefixed_with_ws(line, ws) ||
           {%CodeFence{}, behead(line, 3), false}
 
       matches = Regex.run( @indent_rgx, line ) ->
@@ -97,7 +97,7 @@ defmodule Earmark.Scanner do
         {make_ruler_from(type), "", false}
 
       true ->
-        scan_next_token( line, false ) 
+        scan_next_token( line, false )
     end
   end
   defp scan_next_token line, false do
@@ -119,8 +119,8 @@ defmodule Earmark.Scanner do
       matches = Regex.run( @text_rgx, line ) ->
         text = hd matches
         {%Text{content: text}, behead(line, text)}
-      true -> {} 
-    end 
+      true -> {}
+    end
   end
 
   @spec make_ruler_from( String.t ) :: token

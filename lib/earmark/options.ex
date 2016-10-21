@@ -6,6 +6,9 @@ defmodule Earmark.Options do
              smartypants: true, sanitize: false,
              footnotes: false, footnote_offset: 1,
 
+             # additional prefies for class of code blocks
+             code_class_prefix: nil,
+
              # Internal—only override if you're brave
              do_smartypants: nil, do_sanitize: nil,
 
@@ -19,5 +22,17 @@ defmodule Earmark.Options do
              # for meaningfull error messages
              file: "<no file>",
              line: 1
+
+  defimpl Collectable, for: __MODULE__ do
+    def into(options) do
+      { options, fn
+          acc, {:cont, {k, v}} -> Map.put(acc, k, v)
+          acc, :done           -> acc
+          _,   :halt           -> :ok
+        end
+      }
+    end
+  end
+
 end
 

@@ -36,15 +36,15 @@ defmodule Mix.Tasks.Readme do
   /x
 
   defp remove_old_doc(readme) do
-    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) -> 
-        hdr 
+    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) ->
+        hdr
     end)
   end
 
   defp add_updated_doc(readme) do
-    Regex.replace(@new_doc, readme, fn (_, hdr, type, name) -> 
-      "\n" <> hdr <> "\n" <> 
-      doc_for(type, name) <> 
+    Regex.replace(@new_doc, readme, fn (_, hdr, type, name) ->
+      "\n" <> hdr <> "\n" <>
+      doc_for(type, name) <>
       Regex.replace(~r/!-- /, hdr, "!-- end") <> "\n"
     end)
   end
@@ -92,7 +92,7 @@ defmodule Mix.Tasks.Readme do
     markdown || "No function documentation available for #{name}\n"
   end
 
-                                                      
+
   defp write_back(readme) do
     IO.puts :stderr,
       (case File.write("README.md", readme) do

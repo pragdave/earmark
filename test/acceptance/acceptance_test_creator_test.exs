@@ -13,13 +13,14 @@ defmodule AcceptanceTestCreatorTest do
 
 
   for acceptance_test <- test_case_data do
-    @tag :acceptance 
+    @tag :acceptance
     @tag :"example_#{acceptance_test.example}"
-    test "Acceptance Tests -- Section #{acceptance_test.section} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
+    test "Acceptance: #{acceptance_test.section} #{acceptance_test.description} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
 
       capture_io :stderr, fn ->
+        options = %Earmark.Options{smartypants: false}
         result =
-            Earmark.to_html( unquote(acceptance_test.markdown), %Earmark.Options{smartypants: false} )
+            Earmark.to_html( unquote(acceptance_test.markdown), options )
         assert result == unquote(acceptance_test.html)
       end
     end

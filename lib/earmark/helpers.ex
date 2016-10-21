@@ -45,14 +45,14 @@ defmodule Earmark.Helpers do
   @doc """
   Replace <, >, and quotes with the corresponding entities. If
   `encode` is true, convert ampersands, too, otherwise only
-   convert non-entity ampersands. 
+   convert non-entity ampersands.
   """
 
   def escape(html, encode \\ false)
 
   def escape(html, false), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
   def escape(html, _), do: _escape(String.replace(html, "&", "&amp;"))
-                                                  
+
   defp _escape(html) do
     html
     |> String.replace("<",  "&lt;")

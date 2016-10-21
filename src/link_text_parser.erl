@@ -12,7 +12,7 @@ extract_token({_Token, _Line, Value}) -> {Value, Value}.
 
 make_image_tuple({L, R}) -> {L, string:concat("!", R)}.
 
-title_tuple({Title, Parsed}) -> {Title, string:join(["[", Parsed, "]"], "")}. 
+title_tuple({Title, Parsed}) -> {Title, string:join(["[", Parsed, "]"], "")}.
 
 -file("/usr/local/Cellar/erlang/19.0.2/lib/erlang/lib/parsetools-2.1.2/include/yeccpre.hrl", 0).
 %%
@@ -72,7 +72,7 @@ return_error(Line, Message) ->
 
 yeccpars0(Tokens, Tzr, State, States, Vstack) ->
     try yeccpars1(Tokens, Tzr, State, States, Vstack)
-    catch 
+    catch
         error: Error ->
             Stacktrace = erlang:get_stacktrace(),
             try yecc_error_type(Error, Stacktrace) of

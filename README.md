@@ -23,6 +23,20 @@
     $ mix escript.build
     $ ./earmark file.md
 
+Some options defined in the `Earmark.Options` struct can be specified as command line switches.
+
+Use
+    $ ./earmark --help
+
+to find out more, but here is a short example
+
+    $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
+
+will call
+
+    Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+
+
 ## Supports
 
 Standard [Gruber markdown][gruber].
@@ -67,11 +81,12 @@ _attrs_ can be one or more of:
 * `#id`
 * name=value, name="value", or name='value'
 
+
 Malformed attributes are ignored and a warning is issued to stderr.
 
 If you need to render IAL-like test verbatim escape it:
 
-`\{:alpha, 42}`
+`{:alpha, 42}`
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in
@@ -124,6 +139,66 @@ For example:
 
   I've chosen always to use the second interpretation—a line that looks like
   a list item will always be a list item.
+
+* Rendering of block and inline elements.
+
+  Block or void HTML elements that are at the absolute beginning of a line end
+  the preceeding paragraph.
+
+  Thusly
+
+        mypara
+        <hr>
+
+  Becomes
+
+        <p>mypara</p>
+        <hr>
+
+  While
+
+        mypara
+         <hr>
+
+  will be transformed into
+
+        <p>mypara
+         <hr></p>
+
+## Integration
+
+### Syntax Highlightning
+
+All backquoted or fenced code blocks with a language string are rendered with the given
+language as a _class_ attribute of the _code_ tag.
+
+For example:
+
+      ```elixir
+         @tag :hello
+      ```
+
+will be rendered as
+
+       <pre><code class="elixir">...
+
+If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
+put before the language string.
+
+Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
+as a `code_class_prefix` to `Earmark.Options`.
+
+In the following example we want more than one additional class, so we add more prefixes.
+
+      Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+
+which is rendering
+
+       <pre><code class="elixir lang-elixiri language-elixir">...
+
+As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
+
+      earmark --code-class-prefix "language- lang-" ...
 
 ## Security
 

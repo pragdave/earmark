@@ -42,7 +42,7 @@ defmodule Earmark.Line do
   '''x
 #'
 
-    
+
   defmodule Blank,        do: defstruct lnb: 0, line: "", content: "", inside_code: false
   defmodule Ruler,        do: defstruct lnb: 0, line: "", type: "- or * or _", inside_code: false
   defmodule Heading,      do: defstruct lnb: 0, line: "", level: 1, content: "inline text", inside_code: false
@@ -216,7 +216,7 @@ defmodule Earmark.Line do
   @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video> |>
     Enum.into( MapSet.new() )
   defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
-  
+
   defp split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})

@@ -3,5 +3,5 @@ defmodule Support.AcceptanceTestStruct do
   A struct representing an acceptance test that will be created from the json file `../assets/tests.json`
   in `../acceptance/acceptance_test_creator.exs`
   """
-  defstruct section: nil, example: nil, html: nil, markdown: nil
+  defstruct section: nil, example: nil, html: nil, markdown: nil, description: nil, options: nil
 end
