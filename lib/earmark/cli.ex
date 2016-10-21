@@ -1,8 +1,8 @@
 defmodule Earmark.CLI do
 
   def main(argv) do
-    argv 
-    |> parse_args 
+    argv
+    |> parse_args
     |> process
   end
 
@@ -19,7 +19,7 @@ defmodule Earmark.CLI do
 
   """
 
-  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks] 
+  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks]
 
   defp parse_args(argv) do
     switches = [
@@ -52,7 +52,7 @@ defmodule Earmark.CLI do
   end
 
   defp process({io_device, options}) do
-    options = options 
+    options = options
       |> booleanify()
       |> Enum.into(%Earmark.Options{})
     content = IO.stream(io_device, :line) |> Enum.to_list
@@ -64,7 +64,7 @@ defmodule Earmark.CLI do
 
   defp booleanify( keywords ), do: Enum.map(keywords, &booleanify_option/1)
   defp booleanify_option({k, v}) do
-    {k, 
+    {k,
      case Map.get %Earmark.Options{}, k, :does_not_exist do
         true  -> if v == "false", do: false, else: true
         false -> if v == "false", do: false, else: true
@@ -84,13 +84,13 @@ defmodule Earmark.CLI do
     exit(1)
   end
 
-  defp option_related_help do 
+  defp option_related_help do
     @cli_options
     |> Enum.map(&specific_option_help/1)
     |> Enum.join("\n")
   end
 
-  defp specific_option_help( option ) do 
+  defp specific_option_help( option ) do
     "      --#{option} defaults to #{inspect(Map.get(%Earmark.Options{}, option))}"
   end
 

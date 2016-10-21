@@ -52,4 +52,4 @@ extract_token({_Token, _Line, Value}) -> {Value, Value}.
 
 make_image_tuple({L, R}) -> {L, string:concat("!", R)}.
 
-title_tuple({Title, Parsed}) -> {Title, string:join(["[", Parsed, "]"], "")}. 
+title_tuple({Title, Parsed}) -> {Title, string:join(["[", Parsed, "]"], "")}.

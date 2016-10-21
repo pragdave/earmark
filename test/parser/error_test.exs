@@ -1,28 +1,28 @@
-defmodule Parser.ErrorTest do 
+defmodule Parser.ErrorTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
 
   alias Earmark.Options
 
-  test "Unexpected line" do 
+  test "Unexpected line" do
     assert capture_io( :stderr, fn->
       Earmark.parse "A\nB\n="
     end) == "<no file>:3: warning: Unexpected line =\n"
   end
 
-  test "Unexpected line, with lnb" do 
+  test "Unexpected line, with lnb" do
     assert capture_io( :stderr, fn->
       Earmark.parse "A\nB\n=", %Options{line: 42}
     end) == "<no file>:44: warning: Unexpected line =\n"
   end
 
-  test "Closing Backtick" do 
+  test "Closing Backtick" do
     assert capture_io( :stderr, fn->
       Earmark.parse "A\n`B\n"
     end) == "<no file>:2: warning: Closing unclosed backquotes ` at end of input\n"
   end
 
-  test "Closing Backtick, with lnb" do 
+  test "Closing Backtick, with lnb" do
     assert capture_io( :stderr, fn->
       Earmark.parse "A\n`B\n", %Options{line: 42}
     end) == "<no file>:43: warning: Closing unclosed backquotes ` at end of input\n"
@@ -64,13 +64,13 @@ defmodule Parser.ErrorTest do
     end) == "<no file>:43: warning: Closing unclosed backquotes `` at end of input\n"
   end
 
-  test "Failed to find closing tag" do 
+  test "Failed to find closing tag" do
     assert capture_io( :stderr, fn ->
       Earmark.parse "one\ntwo\n<three>\nfour", %Options{file: "input_file.md"}
     end) == "input_file.md:3: warning: Failed to find closing <three>\n"
   end
 
-  test "Failed to find closing tag, with lnb" do 
+  test "Failed to find closing tag, with lnb" do
     assert capture_io( :stderr, fn ->
       Earmark.parse "one\ntwo\n<three>\nfour", %Options{file: "input_file.md", line: 23}
     end) == "input_file.md:25: warning: Failed to find closing <three>\n"

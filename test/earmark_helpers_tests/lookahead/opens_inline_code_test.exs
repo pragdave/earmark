@@ -20,7 +20,7 @@ defmodule Helpers.InlineCodeTest.OpensInlineCodeTest do
     { "single backquote in between, some escapes -> pending(`)", "`1 `` 2` `` ` `` \\`>`< ``", {"`", 42}},
     { "pair of backquotes, some escaped escapes -> pending", "`1 `` 2` `` ` `` ` `` \\\\`>`<", {"`",42}},
     { "single backquote in between, some escaped escapes -> pending one", "`1 `` 2` `` ` `` \\\\\\`` >``<", {"`", 42}},
-  ] |> Enum.each(fn { description, line, result } -> 
+  ] |> Enum.each(fn { description, line, result } ->
            test(description) do
              assert opens_inline_code(%{line: unquote(line), lnb: 42}) == unquote(result)
            end

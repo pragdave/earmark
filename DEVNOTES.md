@@ -21,7 +21,7 @@ is rendered as
 
 I guess we can if someone wants to write code like that she shall bare with the consequences
 
-  
+
 ###### List of Block Elements
 
 * address

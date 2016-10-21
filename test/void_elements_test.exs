@@ -3,7 +3,7 @@ defmodule VoidElementsTest do
 
   import ExUnit.CaptureIO
 
-  [ 
+  [
     {~s[<img src="whatevs.png">], nil},
     {~s[<area alt="alt" href="http://some.image.com/image">], nil},
     {~s[<br>], nil},

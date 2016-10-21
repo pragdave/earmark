@@ -13,7 +13,7 @@ defmodule AcceptanceTestCreatorTest do
 
 
   for acceptance_test <- test_case_data do
-    @tag :acceptance 
+    @tag :acceptance
     @tag :"example_#{acceptance_test.example}"
     test "Acceptance: #{acceptance_test.section} #{acceptance_test.description} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
 

@@ -62,15 +62,15 @@ defmodule Parser.InlineCodeTest do
     assert result == expect
   end
 
-  test "Escapes and Backtix" do 
+  test "Escapes and Backtix" do
     {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
     expect = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]}
     ]
     assert result == expect
   end
-  
-  test "Escapes and Backtix and Code" do 
+
+  test "Escapes and Backtix and Code" do
     {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
     expect = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]},

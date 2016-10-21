@@ -24,7 +24,7 @@ defmodule Earmark.Options do
              line: 1
 
   defimpl Collectable, for: __MODULE__ do
-    def into(options) do 
+    def into(options) do
       { options, fn
           acc, {:cont, {k, v}} -> Map.put(acc, k, v)
           acc, :done           -> acc
@@ -32,7 +32,7 @@ defmodule Earmark.Options do
         end
       }
     end
-  end 
+  end
 
 end
 

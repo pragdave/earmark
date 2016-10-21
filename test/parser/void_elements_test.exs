@@ -1,6 +1,6 @@
 defmodule Parser.VoidElementTest do
   use ExUnit.Case
-  
+
   alias Earmark.Parser
   alias Earmark.Block
 

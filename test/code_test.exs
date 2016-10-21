@@ -29,8 +29,8 @@ defmodule CodeTest do
 
   test "ampersands and angle brackets are escaped in code" do
     result = convert_pedantic("the `<a> &123;` function")
-    expect = 
-      ~s[the <code class="inline">&lt;a&gt; &amp;123;</code> function]    
+    expect =
+      ~s[the <code class="inline">&lt;a&gt; &amp;123;</code> function]
     assert result == expect
   end
   test "" do

@@ -26,14 +26,14 @@
 Some options defined in the `Earmark.Options` struct can be specified as command line switches.
 
 Use
-    $ ./earmark --help 
-    
+    $ ./earmark --help
+
 to find out more, but here is a short example
 
     $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
 
-will call 
-    
+will call
+
     Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
 
@@ -144,9 +144,9 @@ For example:
 
   Block or void HTML elements that are at the absolute beginning of a line end
   the preceeding paragraph.
-  
+
   Thusly
-        
+
         mypara
         <hr>
 
@@ -169,7 +169,7 @@ For example:
 
 ### Syntax Highlightning
 
-All backquoted or fenced code blocks with a language string are rendered with the given 
+All backquoted or fenced code blocks with a language string are rendered with the given
 language as a _class_ attribute of the _code_ tag.
 
 For example:
