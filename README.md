@@ -168,19 +168,21 @@ will be rendered as
 
        <pre><code class="elixir">...
 
-If you want to integrate with a syntax highlighter with different conventions you can classes with prefixes to the
-language. Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
+If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
+put before the language string.
+
+Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
 as a `code_class_prefix` to `Earmark.Options`.
 
-In the following example we want more than one additional class, so we added more prefixes.
+In the following example we want more than one additional class, so we add more prefixes.
 
       Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
-rendering
+which is rendering
 
        <pre><code class="elixir lang-elixiri language-elixir">...
 
-As for all other options it can be passed into the `earmark` executable as follows:
+As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
 
       earmark --code-class-prefix "language- lang-" ...
 
