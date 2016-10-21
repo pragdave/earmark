@@ -21,9 +21,12 @@ defmodule Earmark do
       $ mix escript.build
       $ ./earmark file.md
 
-  All options defined in the `Earmark.Options` struct can be specified as command line switches.
+  Some options defined in the `Earmark.Options` struct can be specified as command line switches.
 
-  The invocation of
+  Use
+      $ ./earmark --help 
+      
+  to find out more, but here is a short example
 
       $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
   
