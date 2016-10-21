@@ -22,5 +22,17 @@ defmodule Earmark.Options do
              # for meaningfull error messages
              file: "<no file>",
              line: 1
+
+  defimpl Collectable, for: __MODULE__ do
+    def into(options) do 
+      { options, fn
+          acc, {:cont, {k, v}} -> Map.put(acc, k, v)
+          acc, :done           -> acc
+          _,   :halt           -> :ok
+        end
+      }
+    end
+  end 
+
 end
 

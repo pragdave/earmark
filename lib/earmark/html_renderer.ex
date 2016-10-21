@@ -143,7 +143,7 @@ defmodule Earmark.HtmlRenderer do
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
-  def render_block(%Block.Ial{content: content}, context, _mf) do 
+  def render_block(%Block.Ial{content: content}, context, _mf) do
     "<p>#{convert(["{:#{content}}"], context)}</p>\n"
   end
 
@@ -227,7 +227,7 @@ defmodule Earmark.HtmlRenderer do
   end
 
   def add_to(attrs, text) do
-    attrs = if attrs == "", do: "", else: " #{attrs}" 
+    attrs = if attrs == "", do: "", else: " #{attrs}"
     String.replace(text, ~r{\s?/?>}, "#{attrs}\\0", global: false)
   end
 
@@ -253,9 +253,9 @@ defmodule Earmark.HtmlRenderer do
     [block, %Block.Para{lines: fnlink}]
   end
 
-  defp code_classes(language, prefix) do 
+  defp code_classes(language, prefix) do
    ["" | String.split( prefix || "" )]
-   |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
-   |> Enum.join(" ")
+     |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
+     |> Enum.join(" ")
   end
 end

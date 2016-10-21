@@ -1,8 +1,6 @@
 defmodule Earmark.CLI do
 
   def main(argv) do
-    argv |>
-      IO.inspect()
     argv 
     |> parse_args 
     |> process
@@ -19,7 +17,7 @@ defmodule Earmark.CLI do
   defp parse_args(argv) do
     switches = [
       help: :boolean,
-      version: :boolean,
+      version: :boolean
       ]
     aliases = [
       h: :help,
@@ -28,11 +26,10 @@ defmodule Earmark.CLI do
 
     parse = OptionParser.parse(argv, switches: switches, aliases: aliases)
     case  parse  do
-
-    { [ {switch, true } ],  _,  _ } -> switch
-    { _, [ filename ], _     } -> open_file(filename)
-    { _, [ ],          _ }     -> :stdio
-    _                          -> :help
+      { [ {switch, true } ],  _, _ } -> switch
+      { switches, [ filename ],  _ } -> {open_file(filename), switches}
+      { switches, [ ],           _ } -> {:stdio, switches}
+      _                              -> :help
     end
   end
 
@@ -47,7 +44,8 @@ defmodule Earmark.CLI do
     IO.puts( version )
   end
 
-  defp process(io_device) do
+  defp process({io_device, options}) do
+    IO.inspect options
     content = IO.stream(io_device, :line) |> Enum.to_list
     Earmark.to_html(content, %Earmark.Options{})
     |> IO.puts
