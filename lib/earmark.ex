@@ -21,6 +21,17 @@ defmodule Earmark do
       $ mix escript.build
       $ ./earmark file.md
 
+  All options defined in the `Earmark.Options` struct can be specified as command line switches.
+
+  The invocation of
+
+      $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
+  
+  will call 
+      
+      Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+
+
   ## Supports
 
   Standard [Gruber markdown][gruber].
