@@ -1,6 +1,6 @@
 # 1.0.3 ??/??/????
 
-* PR from TBK145
+* PR from TBK145 with some dead code elimination.
 * Implementation of command line switches for the `earmark` executable. Now any `%Earmark.Options{}` key can be
   passed in.
 
@@ -8,6 +8,7 @@
   - #99
   - #96
   - #95
+  - #103
 
 ## Kudos:
   Thijs Klaver (TBK145)
