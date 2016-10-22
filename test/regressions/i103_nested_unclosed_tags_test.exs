@@ -12,6 +12,15 @@ defmodule Regressions.I103NestedUnclosedTagsTest do
     assert capture_io( :stderr, fn ->
       assert Earmark.to_html("<x>\ninner\n<y>\npending") == "<x>\ninner\n<y>\npending"
     end) == "<no file>:1: warning: Failed to find closing <x>\n<no file>:3: warning: Failed to find closing <y>\n"
+  end
 
+  test "mixture of tags" do 
+    assert capture_io( :stderr, fn ->
+      assert Earmark.to_html("<x>a\n<y></y>\n<y>\n<z>\n</z>\n<z>\n</x>") == "<x>a\n<y></y>\n<y>\n<z>\n</z>\n<z>\n</x>"
+    end) == """
+      <no file>:1: warning: Failed to find closing <x>
+      <no file>:3: warning: Failed to find closing <y>
+      <no file>:6: warning: Failed to find closing <z>
+      """ |> String.lstrip()
   end
 end
