@@ -206,10 +206,13 @@ defmodule Earmark.Block do
   # HTML block #
   ##############
   defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, filename) do
-    {status, {html_lines, rest}} = html_match_to_closing(tag, rest, [opener])
-    unless status == :ok do
-      emit_error filename, opener, :warning, "Failed to find closing <#{tag}>"
-    end
+    {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
+    unclosed
+    |> Enum.reverse()
+    |> Enum.each( fn %{lnb: lnb, tag: tag} ->
+       emit_error filename, lnb, :warning, "Failed to find closing <#{tag}>"
+    end)
+
     html = (for line <- Enum.reverse(html_lines), do: line.line)
     _parse(rest, [ %Html{tag: tag, html: html} | result ], filename)
   end
@@ -489,39 +492,33 @@ defmodule Earmark.Block do
   # Consume HTML, taking care of nesting. Assumes one tag per line. #
   ###################################################################
 
-  # run out of input
-  defp html_match_to_closing(_tag, [], result) do
-    {:error, { result, [] }}
-  end
+  defp html_match_to_closing(opener, rest), do: find_closing_tags([opener], rest, [opener])
 
-  # find closing tag
-  defp html_match_to_closing(tag,
-                             [closer = %Line.HtmlCloseTag{tag: tag} | rest],
-                             result)
-  do
-    {:ok, { [closer | result], rest }}
-  end
+  # No more open tags, happy case
+  defp find_closing_tags([], rest, html_lines), do: {html_lines, rest, []}
 
-  # a nested open tag
-  defp html_match_to_closing(tag,
-                             [opener = %Line.HtmlOpenTag{tag: new_tag} | rest],
-                             result)
-  do
-    case html_match_to_closing(new_tag, rest, [opener]) do
-      {:ok, { html_lines, rest }} ->  html_match_to_closing(tag, rest, html_lines ++ result)
+  # run out of input, unhappy case
+  defp find_closing_tags(needed, [], html_lines), do: {html_lines, [], needed}
+
+  # still more lines, still needed closing
+  defp find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines) do
+    cond do
+      closes_tag?(rest_hd, needed_hd) -> find_closing_tags(needed_tl, rest_tl, [rest_hd|html_lines])
+      opens_tag?(rest_hd)             -> find_closing_tags([rest_hd|needed], rest_tl, [rest_hd|html_lines])
+      true                            -> find_closing_tags(needed, rest_tl, [rest_hd|html_lines])
     end
   end
-
-  # anything else
-  defp html_match_to_closing(tag, [ line | rest ], result) do
-    html_match_to_closing(tag, rest, [ line | result ])
-  end
-
 
   ###########
   # Helpers #
   ###########
 
+  defp closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}), do: ctag == otag
+  defp closes_tag?(_, _), do: false
+
+  defp opens_tag?(%Line.HtmlOpenTag{}), do: true
+  defp opens_tag?(_), do: false
+  
 
   # (_,{'nil' | binary(),number()}) -> #{}jj
   @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
