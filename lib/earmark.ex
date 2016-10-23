@@ -273,16 +273,25 @@ defmodule Earmark do
     as_html!(lines, options)
   end
 
-  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
+  @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
+  def as_html(lines, options \\ %Options{}) do
+    # This makes our acceptance tests fail
+    #
+    with {blocks, context, warnings, errors} <- lines |> parse(options),
+      do:
+        {options.renderer.render( blocks, context, options.mapper ), warnings, errors}
+  end
 
+  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-    lines |> parse(options) |> _as_html!(options)
+    with {html, warnings, errors} <- as_html(lines, options) do
+      emit_errors(errors)
+      emit_errors(warnings)
+      html
+    end
   end
 
-  defp _as_html!({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
-    renderer.render(blocks, context, mapper)
-  end
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -304,9 +313,9 @@ defmodule Earmark do
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
-      { blocks, context }
+      { blocks, context, [], [] }
     else
-      { blocks, context }
+      { blocks, context, [], [] }
     end
   end
   def parse(lines, options) when is_binary(lines) do
@@ -323,4 +332,5 @@ defmodule Earmark do
    |> Enum.map(&Task.await/1)
   end
 
+  defp emit_errors(error_list), do: error_list |> Enum.each(&(IO.puts(:stderr, &1)))
 end
