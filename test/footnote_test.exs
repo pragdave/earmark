@@ -43,7 +43,7 @@ defmodule FootnoteTest do
 
   test "pulls one-line footnote bodies" do
     result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], filename())
-    assert result == [%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}]
+    assert result == {[%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}], [],[]}
   end
 
   test "pulls multi-line footnote bodies" do
@@ -51,9 +51,9 @@ defmodule FootnoteTest do
                 %Line.FnDef{id: "some-fn", content: "This is a multi-line"},
                 %Line.Text{content: "footnote example.", line: "footnote example."}
              ], filename())
-    expected = [%Block.FnDef{id: "some-fn", blocks: [
+    expected = {[%Block.FnDef{id: "some-fn", blocks: [
                   %Block.Para{lines: ["This is a multi-line", "footnote example."]}
-                ]}]
+                ]}], [],[]}
     assert result == expected
   end
 
@@ -71,7 +71,7 @@ defmodule FootnoteTest do
              "    * List Item 2"
              ]
 
-    {result, _} = Parser.parse(lines)
+    {result, _, _, _} = Parser.parse(lines)
     expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]},
 		%Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
             	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "",
@@ -121,7 +121,7 @@ defmodule FootnoteTest do
   end
 
   test "parses footnote content" do
-    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
+    {blocks, _, _, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
     {blocks, footnotes} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
     fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
     fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }

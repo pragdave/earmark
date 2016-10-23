@@ -9,9 +9,9 @@ defmodule ListTest do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -20,10 +20,10 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Text{content: "line 2"}
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -34,11 +34,11 @@ defmodule ListTest do
                %Line.Indent{content: "line 2", level: 1},
                %Line.Blank{}
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["line 2"]}],
                                 spaced: false, type: :ul}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -49,11 +49,11 @@ defmodule ListTest do
                %Line.Text{content: "  line 2", line: "  line 2"},
                %Line.Blank{}
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["  line 2"]}],
                                 spaced: false, type: :ul}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -63,10 +63,10 @@ defmodule ListTest do
                %Line.Text{content: "line 2"},
                %Line.Blank{}
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
                  %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -75,10 +75,10 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -88,10 +88,10 @@ defmodule ListTest do
                %Line.Blank{},
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ], filename())
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
        %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 
@@ -102,13 +102,13 @@ defmodule ListTest do
                %Line.Blank{},
                %Line.Text{content: "para", line: "para"}
              ], filename())
-    expected = [
+    expected = {[
        %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
          %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
        ]},
        %Block.Para{lines: ["para"]},
-    ]
+    ], [],[]}
     assert result == expected
   end
 
@@ -122,12 +122,12 @@ defmodule ListTest do
                %Line.Indent{level: 1, content: "line 2", lnb: 1},
              ], filename())
 
-    expected = [ %Block.List{ type: :ul, blocks: [
+    expected = {[ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, blocks: [
                %Block.Para{lines: ["line 1"]},
                %Block.Code{language: nil, lines: ["code 1", "    code 2"]},
                %Block.Para{lines: ["line 2"]}], spaced: false}
-    ]}]
+    ]}], [],[]}
 
     assert result == expected
   end
@@ -140,9 +140,9 @@ defmodule ListTest do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
              ], filename())
-    expected = [ %Block.List{ type: :ol, blocks: [
+    expected = {[ %Block.List{ type: :ol, blocks: [
          %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
-    ]}]
+    ]}], [],[]}
     assert result == expected
   end
 

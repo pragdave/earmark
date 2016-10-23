@@ -12,7 +12,7 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
-    {result, _} = Parser.parse(lines)
+    {result, _, _, _} = Parser.parse(lines)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -23,7 +23,7 @@ defmodule Parser.InlineCodeTest do
     lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
-    {result, _} = Parser.parse(lines)
+    {result, _, _, _} = Parser.parse(lines)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -35,7 +35,7 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _} = Parser.parse(lines)
+    {result, _, _, _} = Parser.parse(lines)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -47,7 +47,7 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` \\\\` `` ````",
       "```"]
-    {result, _} = Parser.parse(lines)
+    {result, _, _, _} = Parser.parse(lines)
     expect = [
       %Block.Para{attrs: nil, lines: lines}
     ]
@@ -55,7 +55,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Even number of inline code" do
-    {result, _} = Parser.parse([ "third` suffix`"])
+    {result, _, _, _} = Parser.parse([ "third` suffix`"])
     expect = [
       %Block.Para{attrs: nil, lines: ["third` suffix`"]}
     ]
@@ -63,7 +63,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Escapes and Backtix" do
-    {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
+    {result, _, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
     expect = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]}
     ]
@@ -71,7 +71,7 @@ defmodule Parser.InlineCodeTest do
   end
 
   test "Escapes and Backtix and Code" do
-    {result, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
+    {result, _, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
     expect = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]},
       %Earmark.Block.Code{attrs: nil, language: nil, lines: ["Hello"]}
@@ -102,7 +102,7 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
-    {result, _} = parse_as_list(lines)
+    {result, _, _, _} = parse_as_list(lines)
     assert_list_with result, lines
   end
 
@@ -110,7 +110,7 @@ defmodule Parser.InlineCodeTest do
     lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
-    {result, _} = parse_as_list( lines )
+    {result, _, _, _} = parse_as_list( lines )
     assert_list_with result, lines
   end
 
@@ -119,7 +119,7 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _} = parse_as_list( lines )
+    {result, _, _, _} = parse_as_list( lines )
     assert_list_with result, lines
   end
 
@@ -128,7 +128,7 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]
-    {result, _} = parse_as_list( lines, "1." )
+    {result, _, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 
@@ -137,13 +137,13 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\\\\\``` \\\\` `` ````",
       "```"]
-    {result, _} = parse_as_list( lines, "1." )
+    {result, _, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 
   test "Even number of inline code in list" do
     lines = [ "third` suffix`"]
-    {result, _} = parse_as_list( lines, "1." )
+    {result, _, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 end

@@ -34,7 +34,7 @@ defmodule Parser.VoidElementTest do
     ]},
     ] |> Enum.each( fn {description, input, expect} ->
       test( description ) do
-        {result, _} = Parser.parse(unquote(input))
+        {result, _, _, _} = Parser.parse(unquote(input))
         assert result == unquote(Macro.escape expect)
       end
     end)

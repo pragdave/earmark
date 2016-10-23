@@ -302,10 +302,10 @@ defmodule Earmark do
   for more details.
   """
 
-  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
+  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{}, list(String.t), list(String.t) }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, warnings, errors } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
@@ -313,9 +313,9 @@ defmodule Earmark do
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
-      { blocks, context, [], [] }
+      { blocks, context, warnings, errors }
     else
-      { blocks, context, [], [] }
+      { blocks, context, warnings, errors }
     end
   end
   def parse(lines, options) when is_binary(lines) do

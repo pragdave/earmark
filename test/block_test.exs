@@ -17,12 +17,12 @@ defmodule BlockTest do
                 # %Line.Blank{}
              ], filename())
 
-    assert result == [ %Block.Heading{content: "Heading", level: 1} ]
+    assert result == {[ %Block.Heading{content: "Heading", level: 1} ], [],[]}
   end
 
   test "Regular heading" do
     result = Block.lines_to_blocks([ %Line.Heading{content: "Heading", level: 2} ], filename())
-    assert result == [ %Block.Heading{content: "Heading", level: 2} ]
+    assert result == {[ %Block.Heading{content: "Heading", level: 2} ], [],[]}
   end
 
   ##########
@@ -31,7 +31,7 @@ defmodule BlockTest do
 
   test "Ruler" do
     result = Block.lines_to_blocks([ %Line.Ruler{type: "-"} ], filename())
-    assert result == [ %Block.Ruler{type: "-"} ]
+    assert result == {[ %Block.Ruler{type: "-"} ], [],[]}
   end
 
   ###############
@@ -44,7 +44,7 @@ defmodule BlockTest do
                %Line.BlockQuote{content: "line 2"}
              ], filename())
 
-    expected = [%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}]
+    expected = {[%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}], [],[]}
     assert result == expected
   end
 
@@ -54,7 +54,7 @@ defmodule BlockTest do
                %Line.Text{content: "line 2"}
              ], filename())
 
-    expected = [%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}]
+    expected = {[%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}], [],[]}
     assert result == expected
   end
 
@@ -72,8 +72,8 @@ defmodule BlockTest do
                   %Line.Indent{level: 1, content: "line 4"}
              ], filename())
 
-    expected = [%Block.Code{language: nil,
-                            lines: ["line 1", " line 2", "", " line 3", "line 4"]}]
+    expected = {[%Block.Code{language: nil,
+                            lines: ["line 1", " line 2", "", " line 3", "line 4"]}], [],[]}
     assert result == expected
   end
 
@@ -85,8 +85,8 @@ defmodule BlockTest do
                   %Line.Indent{level: 2, content: "  line 4"}
              ], filename())
 
-    expected = [%Block.Code{language: nil,
-                            lines: ["line 1", "  line 2", "    line 3", "      line 4"]}]
+    expected = {[%Block.Code{language: nil,
+                            lines: ["line 1", "  line 2", "    line 3", "      line 4"]}], [],[]}
     assert result == expected
   end
 
@@ -98,7 +98,7 @@ defmodule BlockTest do
                   %Line.Indent{level: 1, content: "line 2", line: "    line 2"},
                   %Line.Fence{delimiter: "~~~"},
              ], filename())
-    expected = [%Block.Code{language: "elixir", lines: ["line 1", "", "    line 2"]}]
+    expected = {[%Block.Code{language: "elixir", lines: ["line 1", "", "    line 2"]}], [],[]}
     assert result == expected
   end
 
@@ -109,7 +109,7 @@ defmodule BlockTest do
                   %Line.Text{content: "line 1", line: "line 1"},
                   %Line.Fence{delimiter: "~~~"},
              ], filename())
-    expected = [%Block.Code{language: "elixir", lines: ["``` elixir", "line 1"]}]
+    expected = {[%Block.Code{language: "elixir", lines: ["``` elixir", "line 1"]}], [],[]}
     assert result == expected
   end
 
@@ -128,14 +128,14 @@ defmodule BlockTest do
                   %Line.HtmlCloseTag{tag: "table", line: "</table>"},
              ], filename())
 
-    expected = [%Block.Html{tag: "table", html:
+    expected = {[%Block.Html{tag: "table", html:
                  ["<table class='c'>",
                   "line 1",
                   "<pre>",
                   "line 2",
                   "</pre>",
                   "line 3",
-                  "</table>"]}]
+                  "</table>"]}], [],[]}
 
     assert result == expected
   end
@@ -151,14 +151,14 @@ defmodule BlockTest do
                   %Line.HtmlCloseTag{tag: "table", line: "</table>"},
              ], filename())
 
-    expected = [%Block.Html{tag: "table", html:
+    expected = {[%Block.Html{tag: "table", html:
                  ["<table class='c'>",
                   "line 1",
                   "<table>",
                   "line 2",
                   "</table>",
                   "line 3",
-                  "</table>"]}]
+                  "</table>"]}], [],[]}
 
     assert result == expected
   end
@@ -168,7 +168,7 @@ defmodule BlockTest do
     result = Block.lines_to_blocks([
                   %Line.HtmlComment{line: "<!-- xx -->", complete: true}
              ], filename())
-    expected = [ %Block.HtmlOther{html: [ "<!-- xx -->" ]}]
+    expected = {[ %Block.HtmlOther{html: [ "<!-- xx -->" ]}], [],[]}
 
     assert result == expected
   end
@@ -179,7 +179,7 @@ defmodule BlockTest do
                   %Line.Indent{level: 2, line: "xxx"},
                   %Line.Text{line: "-->"}
              ], filename())
-    expected = [ %Block.HtmlOther{html: ["<!-- ", "xxx", "-->"]}]
+    expected = {[ %Block.HtmlOther{html: ["<!-- ", "xxx", "-->"]}], [],[]}
 
     assert result == expected
   end
@@ -193,7 +193,7 @@ defmodule BlockTest do
                   %Line.IdDef{id: "id1", url: "url1", title: "title1"}
              ], filename())
 
-    assert result == [%Block.IdDef{id: "id1", title: "title1", url: "url1"}]
+    assert result == {[%Block.IdDef{id: "id1", title: "title1", url: "url1"}], [],[]}
   end
 
   test "ID definition with title on next line" do
@@ -202,7 +202,7 @@ defmodule BlockTest do
                   %Line.Text{content: "  (title1)"}
              ], filename())
 
-    assert result == [%Block.IdDef{id: "id1", title: "title1", url: "url1"}]
+    assert result == {[%Block.IdDef{id: "id1", title: "title1", url: "url1"}], [],[]}
   end
 
   test "ID definition with no title and no title on next line" do
@@ -211,10 +211,10 @@ defmodule BlockTest do
                   %Line.Text{content: "  not title1", line: "  not title1"}
              ], filename())
 
-    assert result == [
+    assert result == {[
         %Block.IdDef{id: "id1", title: nil, url: "url1"},
         %Block.Para{lines: [ "  not title1" ]}
-    ]
+    ], [],[]}
   end
 
   ################################################
@@ -228,10 +228,10 @@ defmodule BlockTest do
                   %Line.Text{content: "another", line: "another"}
              ], filename())
 
-    assert result == [
+    assert result == {[
         %Block.Para{lines: [ "line" ], attrs: %{"class" => ~w[a2 a1]}},
         %Block.Para{lines: [ "another" ], attrs: nil}
-    ]
+    ], [],[]}
   end
 
   ######################################################
@@ -239,7 +239,7 @@ defmodule BlockTest do
   ######################################################
 
   test "Accumulate basic ID definition" do
-    {blocks, refs } = Block.parse([
+    {blocks, refs, _, _ } = Block.parse([
                   %Line.IdDef{id: "id1", url: "url1", title: "title1"}
              ], filename())
 
@@ -249,7 +249,7 @@ defmodule BlockTest do
   end
 
   test "ID definition nested in list" do
-    { blocks, refs } = Block.parse([
+    { blocks, refs, _, _ } = Block.parse([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
                %Line.Blank{},
                %Line.Indent{level: 1, content: "[id1]: url1  (title1)"},

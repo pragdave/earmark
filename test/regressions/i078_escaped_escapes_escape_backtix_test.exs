@@ -56,7 +56,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   # assert (@markdown |> String.split("\n") |> Earmark.Parser.parse()) ==
     assert blox_from_file("test/fixtures/i078_short.md") ==
       {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\\\` \\\\"]},
-        %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}}
+        %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}, [],[]}
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do

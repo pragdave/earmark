@@ -5,7 +5,7 @@ defmodule Parser.WhitespaceTest do
   alias Earmark.Block
 
   test "Whitespace before and after code is ignored" do
-    {result, _} = Parser.parse(["",
+    {result, _, _, _} = Parser.parse(["",
       "    line 1",
       "    line 2",
       "",

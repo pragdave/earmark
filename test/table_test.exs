@@ -10,7 +10,7 @@ defmodule TableTest do
                 %Line.Blank{}
              ], filename())
 
-    assert result == [ %Block.Para{lines: ["a | b | c"]} ]
+    assert result == {[ %Block.Para{lines: ["a | b | c"]} ], [],[]}
   end
 
   test "test two table lines make a table" do
@@ -25,7 +25,7 @@ defmodule TableTest do
       alignments: [ :left, :left, :left ],
       header:     nil}
 
-    assert result == [ expected ]
+    assert result == {[ expected ], [],[]}
   end
 
   test "test heading" do
@@ -41,7 +41,7 @@ defmodule TableTest do
       rows:       [ ~w{d e f} ],
       alignments: [ :left, :left, :left ]}
 
-    assert result == [ expected ]
+    assert result == {[ expected ], [],[]}
   end
 
   test "test alignment" do
@@ -57,7 +57,7 @@ defmodule TableTest do
       rows:       [ ~w{d e f} ],
       alignments: [ :right, :center, :left ]}
 
-    assert result == [ expected ]
+    assert result == {[ expected ], [],[]}
   end
 
 
