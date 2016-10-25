@@ -62,13 +62,4 @@ defmodule Earmark.Helpers do
   end
 
 
-  @doc """
-  Formats an error message and puts it to stderr
-  """
-  def format_error filename, %{lnb: lnb}, error_type, error_message do
-    format_error filename, lnb, error_type, error_message
-  end
-  def format_error filename, lnb, error_type, error_message do
-    "#{filename}:#{lnb}: #{error_type}: #{error_message}"
-  end
 end

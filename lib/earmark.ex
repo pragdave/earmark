@@ -228,6 +228,7 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
+  alias Earmark.Messages
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -305,17 +306,21 @@ defmodule Earmark do
   @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{}, list(String.t), list(String.t) }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links, warnings, errors } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, messages } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
 
+    filename = Map.get(options, :file)
+    messages = messages |> Enum.map(&(Messages.format_message(filename,&1)))
+
+
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
-      { blocks, context, warnings, errors }
+      { blocks, context, messages }
     else
-      { blocks, context, warnings, errors }
+      { blocks, context, messages }
     end
   end
   def parse(lines, options) when is_binary(lines) do
