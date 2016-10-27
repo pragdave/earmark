@@ -12,7 +12,7 @@ defmodule Earmark.Parser do
   def parse(text_lines, options = %Earmark.Options{}, recursive) do
     [ "" | text_lines ++ [""] ]
     |> Line.scan_lines(options, recursive)
-    |> Block.parse()
+    |> Block.parse(options)
   end
 
   ################################################################

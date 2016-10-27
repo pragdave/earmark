@@ -228,7 +228,7 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
-  alias Earmark.Messages
+  alias Earmark.Message
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -278,21 +278,27 @@ defmodule Earmark do
   def as_html(lines, options \\ %Options{}) do
     # This makes our acceptance tests fail
     #
-    with {blocks, context, warnings, errors} <- lines |> parse(options),
-      do:
-        {options.renderer.render( blocks, context, options.mapper ), warnings, errors}
+    with {html, %{messages: messages}} <- lines |> _as_html(options) do
+      formatted = messages |>
+        Enum.map(
+        { html, messages}
   end
 
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-    with {html, warnings, errors} <- as_html(lines, options) do
-      emit_errors(errors)
-      emit_errors(warnings)
+
+        {options.renderer.render( blocks, context, options.mapper ), messages}
+    with {html, options1} <- _as_html(lines, options) do
+      emit_messages(options1messages)
       html
     end
   end
 
+  defp _as_html(lines, options), do:
+    with {blocks, context, options1} <- lines |> parse(options),
+      do:
+        {options.renderer.render( blocks, context, options.mapper ), options1}
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -312,7 +318,7 @@ defmodule Earmark do
               |> Earmark.Inline.update_context
 
     filename = Map.get(options, :file)
-    messages = messages |> Enum.map(&(Messages.format_message(filename,&1)))
+    messages = messages |> Enum.map(&(Message.format_message(filename,&1)))
 
 
     if options.footnotes do
