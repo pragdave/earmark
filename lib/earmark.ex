@@ -10,11 +10,21 @@ defmodule Earmark do
 
   ### API
 
+        case Earmark.as_html(markdown) do
+          {:ok, html_doc} -> ...
+          {:error, html_doc, error_messages} -> ...
+        end
+
+  Options can be passed into `as_html` according to the documentation.
+
         html_doc = Earmark.as_html!(markdown)
 
         html_doc = Earmark.as_html!(markdown, options)
 
-  (See the documentation for `as_html!` for options)
+  Prints the error_messages returned by `as_html` to stderr and just returns the second element
+  of the tuple it had returned.
+
+  (Again, see the documentation for `as_html` for options)
 
   ### Command line
 
@@ -230,9 +240,23 @@ defmodule Earmark do
   alias Earmark.Context
   alias Earmark.Message
 
+
+  @to_html_deprecation_warning """
+  warning: usage of `Earmark.to_html` is deprecated.
+  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`
+  """
+  def to_html(lines, options \\ %Options{}) do
+    IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
+    as_html!(lines, options)
+  end
+
   @doc """
   Given a markdown document (as either a list of lines or
-  a string containing newlines), return an HTML representation.
+  a string containing newlines), returns a tuple containing either
+  `{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+  Where `html_doc` is an HTML representation of the markdown document and
+  `error_messages` is a list of strings representing information concerning
+  the errors that occurred during parsing.
 
   The options are a `%Earmark.Options{}` structure:
 
@@ -261,19 +285,9 @@ defmodule Earmark do
   you'd call
 
       alias Earmark.Options
-      result = Earmark.as_html!(original, %Options{smartypants: false})
+      Earmark.as_html(original, %Options{smartypants: false})
 
   """
-
-  @to_html_deprecation_warning """
-  warning: usage of `Earmark.to_html` is deprecated.
-  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`
-  """
-  def to_html(lines, options \\ %Options{}) do
-    IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
-    as_html!(lines, options)
-  end
-
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     # This makes our acceptance tests fail
@@ -289,6 +303,12 @@ defmodule Earmark do
     end
   end
 
+  @doc """
+  A convenience method that *always* returns an HTML representation of the markdown document passed in.
+  In case of the presence of any error messages they are prinetd to stderr.
+
+  Otherwise it behaves exactly as `as_html`.
+  """
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
