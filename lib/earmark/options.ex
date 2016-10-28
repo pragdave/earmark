@@ -43,7 +43,5 @@ defmodule Earmark.Options do
     %{options|messages: [Message.new_warning(line, text) | options.messages]}
   end
 
-  def add_warning
-
 end
 

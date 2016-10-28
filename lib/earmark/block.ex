@@ -1,7 +1,6 @@
 defmodule Earmark.Block do
 
   use Earmark.Types
-  import Earmark.Message
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
@@ -161,7 +160,6 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type} | rest ], result, options) do
-    filename = options.file
     {spaced, list_lines, rest, offset} =
       case read_list_lines(rest, opens_inline_code(first)) do
         {s, ll, r, {_btx, lnb}} ->
@@ -206,7 +204,6 @@ defmodule Earmark.Block do
   defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, options) do
     {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
     options1 = unclosed
-      |> Enum.reverse()
       |> Enum.reduce(options, fn %{lnb: lnb, tag: tag}, acc ->
         Options.add_warning(acc, lnb, "Failed to find closing <#{tag}>")
       end)
@@ -278,11 +275,11 @@ defmodule Earmark.Block do
     first_line = %Line.Text{line: defn.content}
     {para, options1} = _parse([ first_line | para_lines ], [], options)
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
-    {blocks, _, options1} = remove_trailing_blank_lines(indent_lines)
+    {blocks, _, options2} = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
-                |> Parser.parse(options, true)
+                |> Parser.parse(options1, true)
     blocks = Enum.concat(para, blocks)
-    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ], options1)
+    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ], options2)
   end
 
   ####################
@@ -314,7 +311,7 @@ defmodule Earmark.Block do
 
   defp _parse( [ anything | rest ], result, options) do
     _parse( [ %Line.Text{content: anything.line} | rest], result,
-    [new_warning( anything.lnb, "Unexpected line #{anything.line}" ) | options])
+            Options.add_warning(options, anything.lnb, "Unexpected line #{anything.line}" ))
   end
 
   #######################################################

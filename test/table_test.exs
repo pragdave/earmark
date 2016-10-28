@@ -2,15 +2,16 @@ defmodule TableTest do
   use ExUnit.Case
 
   alias Earmark.Line
+  alias Earmark.Options
   alias Earmark.Block
 
   test "test one table line is just a paragraph" do
     result = Block.lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
                 %Line.Blank{}
-             ], filename())
+             ], options())
 
-    assert result == {[ %Block.Para{lines: ["a | b | c"]} ], [],[]}
+    assert result == {[ %Block.Para{lines: ["a | b | c"]} ], options}
   end
 
   test "test two table lines make a table" do
@@ -18,14 +19,14 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
                 %Line.TableLine{columns: ~w{d e f}, line: "d | e | f"},
                 %Line.Blank{}
-             ], filename())
+             ], options())
 
     expected = %Block.Table{
       rows:       [ ~w{a b c}, ~w{d e f} ],
       alignments: [ :left, :left, :left ],
       header:     nil}
 
-    assert result == {[ expected ], [],[]}
+    assert result == {[ expected ], options}
   end
 
   test "test heading" do
@@ -34,14 +35,14 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{ --- --- ---}, line: "--|---|--"},
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
                 %Line.Blank{}
-             ], filename())
+             ], options())
 
     expected = %Block.Table{
       header:     ~w{a b c},
       rows:       [ ~w{d e f} ],
       alignments: [ :left, :left, :left ]}
 
-    assert result == {[ expected ], [],[]}
+    assert result == {[ expected ], options}
   end
 
   test "test alignment" do
@@ -50,14 +51,14 @@ defmodule TableTest do
                 %Line.TableLine{columns: ~w{ --: :--: :---}, line: "--|---|--"},
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
                 %Line.Blank{}
-             ], filename())
+             ], options())
 
     expected = %Block.Table{
       header:     ~w{a b c},
       rows:       [ ~w{d e f} ],
       alignments: [ :right, :center, :left ]}
 
-    assert result == {[ expected ], [],[]}
+    assert result == {[ expected ], options}
   end
 
 
@@ -124,8 +125,8 @@ defmodule TableTest do
     assert result == expected
   end
 
-  defp filename do
-    "file name"
+  defp options do
+    %Options{file: "file name"}
   end
 
 end

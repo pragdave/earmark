@@ -12,22 +12,22 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
-    {result, _, _, _} = Parser.parse(lines)
-    expect = [
+    {result, _, _} = Parser.parse(lines)
+    expected = [
       %Block.Para{attrs: nil, lines: lines}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Multiline inline code is parsed correctly (getting rid of code inside code)" do
     lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
-    {result, _, _, _} = Parser.parse(lines)
-    expect = [
+    {result, _, _} = Parser.parse(lines)
+    expected = [
       %Block.Para{attrs: nil, lines: lines}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Multiline inline code is parsed correctly using triple backtix (getting rid of code and list items)" do
@@ -35,11 +35,11 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _, _, _} = Parser.parse(lines)
-    expect = [
+    {result, _, _} = Parser.parse(lines)
+    expected = [
       %Block.Para{attrs: nil, lines: lines}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Multiline inline code is correctly interpreting included longer and shorter sequences of backtix" do
@@ -47,36 +47,36 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` \\\\` `` ````",
       "```"]
-    {result, _, _, _} = Parser.parse(lines)
-    expect = [
+    {result, _, _} = Parser.parse(lines)
+    expected = [
       %Block.Para{attrs: nil, lines: lines}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Even number of inline code" do
-    {result, _, _, _} = Parser.parse([ "third` suffix`"])
-    expect = [
+    {result, _, _} = Parser.parse([ "third` suffix`"])
+    expected = [
       %Block.Para{attrs: nil, lines: ["third` suffix`"]}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Escapes and Backtix" do
-    {result, _, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
-    expect = [
+    {result, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
+    expected = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]}
     ]
-    assert result == expect
+    assert result == expected
   end
 
   test "Escapes and Backtix and Code" do
-    {result, _, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
-    expect = [
+    {result, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
+    expected = [
       %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]},
       %Earmark.Block.Code{attrs: nil, language: nil, lines: ["Hello"]}
     ]
-    assert result == expect
+    assert result == expected
   end
   ##########################################################################################
   #  Lists
@@ -102,7 +102,7 @@ defmodule Parser.InlineCodeTest do
       "\\`prefix`first",
       "* second \\`",
       " third` `suffix`"]
-    {result, _, _, _} = parse_as_list(lines)
+    {result, _, _} = parse_as_list(lines)
     assert_list_with result, lines
   end
 
@@ -110,7 +110,7 @@ defmodule Parser.InlineCodeTest do
     lines = [ "\\`prefix`first",
       "     second \\`",
       " third` `suffix`"]
-    {result, _, _, _} = parse_as_list( lines )
+    {result, _, _} = parse_as_list( lines )
     assert_list_with result, lines
   end
 
@@ -119,7 +119,7 @@ defmodule Parser.InlineCodeTest do
       "     second \\`",
       "+ third``` `fourth``",
       "     fifth`"]
-    {result, _, _, _} = parse_as_list( lines )
+    {result, _, _} = parse_as_list( lines )
     assert_list_with result, lines
   end
 
@@ -128,7 +128,7 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\``` ` `` ````",
       "```"]
-    {result, _, _, _} = parse_as_list( lines, "1." )
+    {result, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 
@@ -137,13 +137,13 @@ defmodule Parser.InlineCodeTest do
       "` ``double ` ```",
       "     `` ```triple \\\\\\``` \\\\` `` ````",
       "```"]
-    {result, _, _, _} = parse_as_list( lines, "1." )
+    {result, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 
   test "Even number of inline code in list" do
     lines = [ "third` suffix`"]
-    {result, _, _, _} = parse_as_list( lines, "1." )
+    {result, _, _} = parse_as_list( lines, "1." )
     assert_list_with result, lines, type: :ol
   end
 end

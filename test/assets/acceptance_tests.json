@@ -1007,4 +1007,12 @@
     "messages": [],
     "example": 127
   }
+  ,{
+    "section": "Unexpected input",
+    "markdown":"A\nB\n=",
+    "html": "<p>A\nB</p>\n<p></p>\n",
+    "messages": ["<no file>:3: warning: Unexpected line ="],
+    "example": 128
+  }
+
 ]
