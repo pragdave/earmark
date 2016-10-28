@@ -14,7 +14,7 @@ defmodule Earmark.Block do
 
   alias Earmark.Line
   alias Earmark.Parser
-
+  alias Earmark.Options
 
   defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
   defmodule Ruler,       do: defstruct attrs: nil, type: nil
@@ -43,7 +43,7 @@ defmodule Earmark.Block do
 
   @doc false
   # Given a list of `Line.xxx` structs, group them into related blocks.
-  # Then extract any id definitions, and build a hashdict from them. Not
+  # Then extract any id definitions, and build a map from them. Not
   # for external consumption.
 
   @spec parse( Line.ts, Context.t ) :: {ts, %{}, Context.t}
@@ -56,8 +56,8 @@ defmodule Earmark.Block do
   @doc false
   # Public to allow easier testing
   def lines_to_blocks(lines, options) do
-    with {blocks, warnings, errors} <- lines |> _parse([], options), do:
-      { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), warnings, errors}
+    with {blocks, options1} <- lines |> _parse([], options), do:
+      { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
   end
 
 
@@ -208,7 +208,7 @@ defmodule Earmark.Block do
     options1 = unclosed
       |> Enum.reverse()
       |> Enum.reduce(options, fn %{lnb: lnb, tag: tag}, acc ->
-        Options.add_message(acc, Message.new_warning(lnb,  "Failed to find closing <#{tag}>"))
+        Options.add_warning(acc, lnb, "Failed to find closing <#{tag}>")
       end)
 
     html = (for line <- Enum.reverse(html_lines), do: line.line)

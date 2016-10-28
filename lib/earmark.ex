@@ -277,21 +277,26 @@ defmodule Earmark do
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     # This makes our acceptance tests fail
-    #
     with {html, %{messages: messages}} <- lines |> _as_html(options) do
-      formatted = messages |>
-        Enum.map(
-        { html, messages}
+        if Enum.empty?(messages) do
+          {:ok, html}
+        else
+          filename  = options.file
+          formatted = messages |>
+            Enum.map(&(Message.format_message(filename, &1)))
+          {:error, html, formatted}
+      end
+    end
   end
 
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-
-        {options.renderer.render( blocks, context, options.mapper ), messages}
-    with {html, options1} <- _as_html(lines, options) do
-      emit_messages(options1messages)
-      html
+    case as_html(lines, options) do
+      {:ok, html} -> html
+      {:error, html, messages} ->
+        emit_messages(messages)
+        html
     end
   end
 
@@ -317,10 +322,6 @@ defmodule Earmark do
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
 
-    filename = Map.get(options, :file)
-    messages = messages |> Enum.map(&(Message.format_message(filename,&1)))
-
-
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
@@ -343,5 +344,5 @@ defmodule Earmark do
    |> Enum.map(&Task.await/1)
   end
 
-  defp emit_errors(error_list), do: error_list |> Enum.each(&(IO.puts(:stderr, &1)))
+  defp emit_messages(error_list), do: error_list |> Enum.each(&(IO.puts(:stderr, &1)))
 end

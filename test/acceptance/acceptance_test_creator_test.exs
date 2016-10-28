@@ -15,9 +15,11 @@ defmodule AcceptanceTestCreatorTest do
     @tag :"example_#{acceptance_test.example}"
     test "Acceptance: #{acceptance_test.section} #{acceptance_test.description} (#{acceptance_test.example})\n---\n#{acceptance_test.markdown}\n---\n" do
       options = %Earmark.Options{smartypants: false}
-      result =
-        Earmark.as_html( unquote(acceptance_test.markdown), options )
-      assert result == {unquote(acceptance_test.html), unquote(acceptance_test.warnings), unquote(acceptance_test.errors)}
+      result = case Earmark.as_html( unquote(acceptance_test.markdown), options ) do
+        {:ok, html} -> {html, []}
+        {:error, html, messages} -> {html, messages}
+      end
+      assert result == {unquote(acceptance_test.html), unquote(acceptance_test.messages)}
     end
   end
 

@@ -1,4 +1,5 @@
 defmodule Earmark.Options do
+  alias Earmark.Message
              # What we use to render
   defstruct  renderer: Earmark.HtmlRenderer,
              # Inline style options
@@ -38,9 +39,11 @@ defmodule Earmark.Options do
   @doc """
     Add a message at the head of the messages list of the options struct
   """
-  def add_message options, message do 
-    %{options|messages: [message | options.messages]}
+  def add_warning options, line, text do 
+    %{options|messages: [Message.new_warning(line, text) | options.messages]}
   end
+
+  def add_warning
 
 end
 
