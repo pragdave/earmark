@@ -12,11 +12,21 @@
 
 ### API
 
-      html_doc = Earmark.to_html(markdown)
+      case Earmark.as_html(markdown) do
+        {:ok, html_doc} -> ...
+        {:error, html_doc, error_messages} -> ...
+      end
 
-      html_doc = Earmark.to_html(markdown, options)
+Options can be passed into `as_html` according to the documentation.
 
-(See the documentation for `to_html` for options)
+      html_doc = Earmark.as_html!(markdown)
+
+      html_doc = Earmark.as_html!(markdown, options)
+
+Prints the error_messages returned by `as_html` to stderr and just returns the second element
+of the tuple it had returned.
+
+(Again, see the documentation for `as_html` for options)
 
 ### Command line
 
@@ -34,7 +44,7 @@ to find out more, but here is a short example
 
 will call
 
-    Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+    Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
 
 ## Supports
@@ -190,7 +200,7 @@ as a `code_class_prefix` to `Earmark.Options`.
 
 In the following example we want more than one additional class, so we add more prefixes.
 
-      Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+      Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
 which is rendering
 
@@ -216,9 +226,13 @@ Licensed under the same terms as Elixir, which is Apache 2.0.
 <!-- endmoduledoc: Earmark -->
 
 # Details
-<!-- doc: Earmark.to_html -->
+<!-- doc: Earmark.as_html -->
 Given a markdown document (as either a list of lines or
-a string containing newlines), return an HTML representation.
+a string containing newlines), returns a tuple containing either
+`{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+Where `html_doc` is an HTML representation of the markdown document and
+`error_messages` is a list of strings representing information concerning
+the errors that occurred during parsing.
 
 The options are a `%Earmark.Options{}` structure:
 
@@ -247,9 +261,9 @@ So, to format the document in `original` and disable smartypants,
 you'd call
 
     alias Earmark.Options
-    result = Earmark.to_html(original, %Options{smartypants: false})
+    Earmark.as_html(original, %Options{smartypants: false})
 
-<!-- enddoc: Earmark.to_html -->
+<!-- enddoc: Earmark.as_html -->
 
 # LICENSE
 

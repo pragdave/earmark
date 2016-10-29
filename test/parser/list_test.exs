@@ -11,17 +11,17 @@ defmodule Parser.ListTest do
             blocks: [%Block.Para{attrs: nil, lines: ["alpha", "beta"]}],
             spaced: false, type: :ul}], type: :ul}]
 
-    assert expected == parse( ["- alpha", "beta"] )
+    assert parse( ["- alpha", "beta"] ) == expected
   end
 
   test "Implicit List continuation with bar" do
-    expected = [
+    expected = [ 
       %Block.List{attrs: nil,
         blocks: [%Block.ListItem{attrs: nil,
             blocks: [%Block.Para{attrs: nil, lines: ["alpha", "beta | gamma"]}],
             spaced: false, type: :ul}], type: :ul}]
 
-    assert expected == parse( ["- alpha", "beta | gamma"] )
+    assert parse( ["- alpha", "beta | gamma"] ) == expected
   end
 
   test "Implicit List continuations with bars" do
@@ -31,7 +31,7 @@ defmodule Parser.ListTest do
             blocks: [%Block.Para{attrs: nil, lines: ["alpha", "beta | gamma", "delta | epsilon"]}],
             spaced: false, type: :ul}], type: :ul}]
 
-    assert expected == parse( ["- alpha", "beta | gamma", "delta | epsilon"] )
+    assert parse( ["- alpha", "beta | gamma", "delta | epsilon"] ) == expected
   end
 
   test "Spacing" do
@@ -42,10 +42,10 @@ defmodule Parser.ListTest do
                  %Block.ListItem{attrs: nil, blocks: [
                    %Block.Para{attrs: nil, lines: ["b"]}], spaced: true, type: :ul}], type: :ul}]
 
-     assert expected == parse( ["* a", "", "* b"] )
+     assert parse( ["* a", "", "* b"] ) == expected
   end
 
   defp parse(lines) do
-    with {result, _} <- Parser.parse(lines), do: result
+    with {result, _, _} <- Parser.parse(lines), do: result
   end
 end

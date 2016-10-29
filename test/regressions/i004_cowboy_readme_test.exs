@@ -55,7 +55,7 @@ defmodule Regressions.I004CowboyReadmeTest do
   """
 
   test "rendering the Cowboy webserver README" do
-    Earmark.to_html @cowboy_readme
+    Earmark.as_html! @cowboy_readme
   end
 
 

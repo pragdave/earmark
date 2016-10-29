@@ -10,11 +10,21 @@ defmodule Earmark do
 
   ### API
 
-        html_doc = Earmark.to_html(markdown)
+        case Earmark.as_html(markdown) do
+          {:ok, html_doc} -> ...
+          {:error, html_doc, error_messages} -> ...
+        end
 
-        html_doc = Earmark.to_html(markdown, options)
+  Options can be passed into `as_html` according to the documentation.
 
-  (See the documentation for `to_html` for options)
+        html_doc = Earmark.as_html!(markdown)
+
+        html_doc = Earmark.as_html!(markdown, options)
+
+  Prints the error_messages returned by `as_html` to stderr and just returns the second element
+  of the tuple it had returned.
+
+  (Again, see the documentation for `as_html` for options)
 
   ### Command line
 
@@ -32,7 +42,7 @@ defmodule Earmark do
 
   will call
 
-      Earmark.to_html( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+      Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
 
   ## Supports
@@ -188,7 +198,7 @@ defmodule Earmark do
 
   In the following example we want more than one additional class, so we add more prefixes.
 
-        Earmark.to_html(..., %Earmark.Options{code_class_prefix: "lang- language-"})
+        Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
   which is rendering
 
@@ -228,10 +238,25 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
+  alias Earmark.Message
+
+
+  @to_html_deprecation_warning """
+  warning: usage of `Earmark.to_html` is deprecated.
+  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`
+  """
+  def to_html(lines, options \\ %Options{}) do
+    IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
+    as_html!(lines, options)
+  end
 
   @doc """
   Given a markdown document (as either a list of lines or
-  a string containing newlines), return an HTML representation.
+  a string containing newlines), returns a tuple containing either
+  `{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+  Where `html_doc` is an HTML representation of the markdown document and
+  `error_messages` is a list of strings representing information concerning
+  the errors that occurred during parsing.
 
   The options are a `%Earmark.Options{}` structure:
 
@@ -260,34 +285,59 @@ defmodule Earmark do
   you'd call
 
       alias Earmark.Options
-      result = Earmark.to_html(original, %Options{smartypants: false})
+      Earmark.as_html(original, %Options{smartypants: false})
 
   """
-
-  @spec to_html(String.t | list(String.t), %Options{}) :: String.t
-
-  def to_html(lines, options \\ %Options{})
-  def to_html(lines, options = %Options{}) do
-    lines |> parse(options) |> _to_html(options)
+  @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
+  def as_html(lines, options \\ %Options{}) do
+    # This makes our acceptance tests fail
+    with {html, %{messages: messages}} <- lines |> _as_html(options) do
+        if Enum.empty?(messages) do
+          {:ok, html}
+        else
+          filename  = options.file
+          formatted = messages |>
+            Enum.map(&(Message.format_message(filename, &1)))
+          {:error, html, formatted}
+      end
+    end
   end
 
-  defp _to_html({blocks, context = %Context{}}, %Options{renderer: renderer, mapper: mapper}=_options) do
-    renderer.render(blocks, context, mapper)
+  @doc """
+  A convenience method that *always* returns an HTML representation of the markdown document passed in.
+  In case of the presence of any error messages they are prinetd to stderr.
+
+  Otherwise it behaves exactly as `as_html`.
+  """
+  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
+  def as_html!(lines, options \\ %Options{})
+  def as_html!(lines, options = %Options{}) do
+    case as_html(lines, options) do
+      {:ok, html} -> html
+      {:error, html, messages} ->
+        emit_messages(messages)
+        html
+    end
   end
+
+  defp _as_html(lines, options), do:
+    with {blocks, context, options1} <- lines |> parse(options),
+      do:
+        {options.renderer.render( blocks, context, options.mapper ), options1}
 
   @doc """
   Given a markdown document (as either a list of lines or
   a string containing newlines), return a parse tree and
   the context necessary to render the tree.
 
-  The options are a `%Earmark.Options{}` structure. See `to_html`
+  The options are a `%Earmark.Options{}` structure. See `as_html!`
   for more details.
   """
 
-  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
+  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{}, list(String.t), list(String.t) }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, messages } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context
@@ -295,9 +345,9 @@ defmodule Earmark do
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
-      { blocks, context }
+      { blocks, context, messages }
     else
-      { blocks, context }
+      { blocks, context, messages }
     end
   end
   def parse(lines, options) when is_binary(lines) do
@@ -314,4 +364,5 @@ defmodule Earmark do
    |> Enum.map(&Task.await/1)
   end
 
+  defp emit_messages(error_list), do: error_list |> Enum.each(&(IO.puts(:stderr, &1)))
 end

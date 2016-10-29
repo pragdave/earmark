@@ -1,4 +1,5 @@
 defmodule Earmark.Options do
+  alias Earmark.Message
              # What we use to render
   defstruct  renderer: Earmark.HtmlRenderer,
              # Inline style options
@@ -21,7 +22,8 @@ defmodule Earmark.Options do
              # Filename and initial line number of the markdown block passed in
              # for meaningfull error messages
              file: "<no file>",
-             line: 1
+             line: 1,
+             messages: [] # [%Earmark.Message{}]
 
   defimpl Collectable, for: __MODULE__ do
     def into(options) do
@@ -32,6 +34,13 @@ defmodule Earmark.Options do
         end
       }
     end
+  end
+
+  @doc """
+    Add a message at the head of the messages list of the options struct
+  """
+  def add_warning options, line, text do 
+    %{options|messages: [Message.new_warning(line, text) | options.messages]}
   end
 
 end

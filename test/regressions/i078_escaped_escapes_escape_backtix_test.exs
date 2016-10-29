@@ -12,7 +12,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   defp html_from_file(filename) do
     IO.stream( open_file(filename), :line)
     |> Enum.to_list()
-    |> Earmark.to_html()
+    |> Earmark.as_html!()
   end
 
   defp blox_from_file(filename) do
@@ -56,7 +56,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   # assert (@markdown |> String.split("\n") |> Earmark.Parser.parse()) ==
     assert blox_from_file("test/fixtures/i078_short.md") ==
       {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\\\` \\\\"]},
-        %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}}
+        %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}, %Earmark.Options{}}
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do

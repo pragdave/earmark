@@ -10,10 +10,9 @@ defmodule Earmark.Parser do
   def parse(text_lines), do: parse(text_lines, %Earmark.Options{}, false)
 
   def parse(text_lines, options = %Earmark.Options{}, recursive) do
-    # add blank lines before and after
     [ "" | text_lines ++ [""] ]
     |> Line.scan_lines(options, recursive)
-    |> Block.parse(Map.get(options, :file))
+    |> Block.parse(options)
   end
 
   ################################################################
