@@ -226,9 +226,44 @@ Licensed under the same terms as Elixir, which is Apache 2.0.
 <!-- endmoduledoc: Earmark -->
 
 # Details
-<!-- doc: Earmark.to_html -->
-No function documentation available for Earmark.to_html
-<!-- enddoc: Earmark.to_html -->
+<!-- doc: Earmark.as_html -->
+Given a markdown document (as either a list of lines or
+a string containing newlines), returns a tuple containing either
+`{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+Where `html_doc` is an HTML representation of the markdown document and
+`error_messages` is a list of strings representing information concerning
+the errors that occurred during parsing.
+
+The options are a `%Earmark.Options{}` structure:
+
+* `renderer`: ModuleName
+
+  The module used to render the final document. Defaults to
+  `Earmark.HtmlRenderer`
+
+* `gfm`: boolean
+
+  True by default. Turns on Github Flavored Markdown extensions
+
+* `breaks`: boolean
+
+  Only applicable if `gfm` is enabled. Makes all line breaks
+  significant (so every line in the input is a new line in the
+  output.
+
+* `smartypants`: boolean
+
+  Turns on smartypants processing, so quotes become curly, two
+  or three hyphens become en and em dashes, and so on. True by
+  default.
+
+So, to format the document in `original` and disable smartypants,
+you'd call
+
+    alias Earmark.Options
+    Earmark.as_html(original, %Options{smartypants: false})
+
+<!-- enddoc: Earmark.as_html -->
 
 # LICENSE
 
