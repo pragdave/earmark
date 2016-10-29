@@ -64,6 +64,9 @@ defmodule Earmark.Line do
   defmodule Ial,          do: defstruct lnb: 0, line: "", attrs:   "", inside_code: false
   defmodule Text,         do: defstruct lnb: 0, line: "", content: "", inside_code: false
 
+  defmodule Plugin,       do: defstruct lnb: 0, line: "", content: "", prefix: "$$"
+  defmodule PluginDef,    do: defstruct lnb: 0, line: "", content: "", plugin: "name of plugin", prefix: "$$"
+
   @type t :: %Blank{} | %Ruler{} | %Heading{} | %BlockQuote{} | %Indent{} | %Fence{} | %HtmlOpenTag{} | %HtmlCloseTag{} | %HtmlComment{} | %HtmlOneLine{} | %IdDef{} | %FnDef{} | %ListItem{} | %SetextUnderlineHeading{} | %TableLine{} | %Ial{} | %Text{}
 
   @type ts :: list(t)
@@ -206,6 +209,21 @@ defmodule Earmark.Line do
       match = Regex.run(~r<^\s{0,3}{:\s*([^}]+)}\s*$>, line) ->
         [ _, ial ] = match
         %Ial{attrs: String.strip(ial)}
+
+      match = Regex.run(~r<^\$\$\s?plugin\s+(\w+)(\s+prefixed(?:\s+by)?\s+(.*)$)?>, line) ->
+        case match do
+          [_, name, _, prefix] ->
+            %PluginDef{content: line, plugin: name, prefix: "$$#{prefix}"}
+          [_, name] ->
+            %PluginDef{content: line, plugin: name}
+        end
+
+      match = Regex.run(~r<^\$\$\w+$>, line) ->
+        %Plugin{ content: "", prefix: (hd match) }
+
+      match = Regex.run(~r<^(\$\$\w*)\s(.*)$>, line) ->
+        [_, prefix, content] = match
+        %Plugin{ content: content, prefix: prefix }
 
       true ->
         %Text{content: line }

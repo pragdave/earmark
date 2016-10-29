@@ -23,7 +23,8 @@ defmodule Earmark.Options do
              # for meaningfull error messages
              file: "<no file>",
              line: 1,
-             messages: [] # [%Earmark.Message{}]
+             messages: [], # [%Earmark.Message{}]
+             plugins: %{}
 
   defimpl Collectable, for: __MODULE__ do
     def into(options) do
