@@ -210,14 +210,6 @@ defmodule Earmark.Line do
         [ _, ial ] = match
         %Ial{attrs: String.strip(ial)}
 
-      match = Regex.run(~r<^\$\$\s?plugin\s+(\w+)(\s+prefixed(?:\s+by)?\s+(.*)$)?>, line) ->
-        case match do
-          [_, name, _, prefix] ->
-            %PluginDef{content: line, plugin: name, prefix: "$$#{prefix}"}
-          [_, name] ->
-            %PluginDef{content: line, plugin: name}
-        end
-
       match = Regex.run(~r<^\$\$\w+$>, line) ->
         %Plugin{ content: "", prefix: (hd match) }
 

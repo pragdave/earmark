@@ -151,12 +151,6 @@ defmodule Functional.Scanner.LineTypeTest do
       #
       # Plugins
       #
-      { "$$plugin my_plugin", %Line.PluginDef{content: "$$plugin my_plugin", plugin: "my_plugin", prefix: "$$"}},
-      { "$$ plugin my_plugin", %Line.PluginDef{content: "$$ plugin my_plugin", plugin: "my_plugin", prefix: "$$"}},
-      { "$$plugin my_plugin prefixed by my", %Line.PluginDef{content: "$$plugin my_plugin prefixed by my", plugin: "my_plugin", prefix: "$$my"}},
-      { "$$plugin my_plugin prefixed my", %Line.PluginDef{content: "$$plugin my_plugin prefixed my", plugin: "my_plugin", prefix: "$$my"}},
-      { " $$plugin my_plugin", %Line.Text{content: " $$plugin my_plugin"}},
-      { "\\$$plugin my_plugin", %Line.Text{content: "\\$$plugin my_plugin"}},
       { "$$",                                %Line.Text{content: "$$"}},
 
       { "$$ my line for plugin", %Line.Plugin{prefix: "$$", content: "my line for plugin"}},

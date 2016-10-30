@@ -223,19 +223,6 @@ defmodule Earmark do
   Licensed under the same terms as Elixir, which is Apache 2.0.
   """
 
-  # #### Use as_html! if you do not care to catch errors
-
-  #     html_doc = Earmark.as_html!(markdown)
-
-  #     html_doc = Earmark.as_html!(markdown, options)
-
-  # (See the documentation for `as_html` for options)
-  #### Or do pattern matching on the result of as_html
-
-#       case Earmark.as_html( markdown )
-#         {:ok, html} -> html
-#         {:error, reason}  -> ...
-
   alias Earmark.Options
   alias Earmark.Context
   alias Earmark.Message
