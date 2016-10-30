@@ -24,7 +24,8 @@ defmodule Earmark.Options do
              file: "<no file>",
              line: 1,
              messages: [], # [%Earmark.Message{}]
-             plugins: %{}
+             plugins: %{},
+             plugin_prefixes: %{}
 
   defimpl Collectable, for: __MODULE__ do
     def into(options) do

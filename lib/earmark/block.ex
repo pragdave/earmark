@@ -310,15 +310,17 @@ defmodule Earmark.Block do
   #####################
   # Plugin Definition #
   #####################
-  
-  defp _parse( [%Line.PluginDef{content: content, plugin: plugin, prefix: prefix, lnb: lnb} | rest], result, options) do
+
+  defp _parse( lines = [%Line.PluginDef{plugin: plugin, lnb: lnb} | rest], result, options) do
     if Options.defined_plugin?(options, plugin) do
-      _parse(rest, [%PluginDef{content: content, plugin: plugin, prefix: prefix} | result], options)
+      parse_defined_plugin_def( lines, result, options)
     else
       _parse(rest, result,
         Options.add_error(options, lnb, "no entry for #{inspect plugin} in options.plugins; plugin definition ignored"))
     end
   end
+
+
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
@@ -520,6 +522,28 @@ defmodule Earmark.Block do
       true                            -> find_closing_tags(needed, rest_tl, [rest_hd|html_lines])
     end
   end
+
+  ##################
+  # Plugin related #
+  ##################
+
+  defp parse_defined_plugin_def(
+    [%Line.PluginDef{content: content, plugin: plugin, prefix: prefix, lnb: lnb}| rest],
+    result,
+    options) do
+      case options.plugin_prefixes[prefix] do
+        { using_plugin, definition_line } ->
+        _parse(rest, result,
+          Options.add_error(options, lnb,
+          Enum.join(["cannot reuse already defined prefix #{inspect prefix} for plugin #{inspect plugin} ",
+                      "(used in line #{definition_line} by #{inspect using_plugin})\n",
+                      "try to use a differnt prefix with \"$$plugin #{plugin} prefixed by `new_prefix`\""])))
+      _ ->
+        plugin_prefixes = Map.put(options.plugin_prefixes, prefix, {plugin,lnb})
+        _parse(rest, [%PluginDef{content: content, plugin: plugin, prefix: prefix} | result], %{options | plugin_prefixes: plugin_prefixes})
+      end
+  end
+
 
   ###########
   # Helpers #
