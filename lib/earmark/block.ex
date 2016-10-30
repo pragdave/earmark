@@ -29,6 +29,8 @@ defmodule Earmark.Block do
   defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
   defmodule Ial,         do: defstruct attrs: nil, content: nil
 
+  defmodule PluginDef,   do: defstruct content: "", plugin: "name of plugin", prefix: "$$"
+
   defmodule Table do
     defstruct attrs: nil, rows: [], header: nil, alignments: []
 
@@ -305,6 +307,18 @@ defmodule Earmark.Block do
     _parse(rest, result, options)
   end
 
+  #####################
+  # Plugin Definition #
+  #####################
+  
+  defp _parse( [%Line.PluginDef{content: content, plugin: plugin, prefix: prefix, lnb: lnb} | rest], result, options) do
+    if Options.defined_plugin?(options, plugin) do
+      _parse(rest, [%PluginDef{content: content, plugin: plugin, prefix: prefix} | result], options)
+    else
+      _parse(rest, result,
+        Options.add_error(options, lnb, "no entry for #{inspect plugin} in options.plugins; plugin definition ignored"))
+    end
+  end
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################

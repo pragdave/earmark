@@ -38,10 +38,21 @@ defmodule Earmark.Options do
   end
 
   @doc """
-    Add a message at the head of the messages list of the options struct
+    Add an error message at the head of the messages list of the options struct
+  """
+  def add_error options, line, text do 
+    %{options|messages: [Message.new_error(line, text) | options.messages]}
+  end
+
+  @doc """
+    Add a warning message at the head of the messages list of the options struct
   """
   def add_warning options, line, text do 
     %{options|messages: [Message.new_warning(line, text) | options.messages]}
+  end
+
+  def defined_plugin?(options, plugin_name) do
+    Map.get(options.plugins, String.to_atom(plugin_name), false)
   end
 
 end

@@ -20,5 +20,6 @@ defmodule Earmark.Message do
   defp emit_message(filename, msg, device), do:
     IO.puts(device, format_message(filename, msg))
 
+  def new_error(line, text), do: %__MODULE__{line: line, text: text, type: :error}
   def new_warning(line, text), do: %__MODULE__{line: line, text: text, type: :warning}
 end
