@@ -52,8 +52,8 @@ defmodule Earmark.Options do
     %{options|messages: [Message.new_warning(line, text) | options.messages]}
   end
 
-  def defined_plugin?(options, plugin_name) do
-    Map.get(options.plugins, String.to_atom(plugin_name), false)
+  def plugin_for_prefix(options, plugin_name) do
+    Map.get(options.plugins, plugin_name, false)
   end
 
 end

@@ -29,6 +29,8 @@ defmodule Earmark.Block do
   defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
   defmodule Ial,         do: defstruct attrs: nil, content: nil
 
+  defmodule Plugin,      do: defstruct attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
+
   defmodule Table do
     defstruct attrs: nil, rows: [], header: nil, alignments: []
 
@@ -308,7 +310,17 @@ defmodule Earmark.Block do
   ##########
   # Plugin #
   ##########
-
+  
+  defp _parse( lines = [%Line.Plugin{prefix: prefix, lnb: lnb}|_], result, options) do
+    handler =  Options.plugin_for_prefix(options, prefix)
+    {plugin_lines, rest1} = collect_plugin_lines(lines, prefix, [])
+    if handler do
+      _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines}|result], options) 
+    else
+      _parse(rest1, result,
+        Options.add_warning(options, lnb, "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})")) 
+    end
+  end
 
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
@@ -515,6 +527,12 @@ defmodule Earmark.Block do
   ##################
   # Plugin related #
   ##################
+
+  defp collect_plugin_lines(lines, prefix, result)
+  defp collect_plugin_lines([], _, result), do: {Enum.reverse(result), []}
+  defp collect_plugin_lines([%Line.Plugin{prefix: prefix, content: content, lnb: lnb} | rest], prefix, result),
+    do: collect_plugin_lines(rest, prefix, [{content, lnb} | result])
+  defp collect_plugin_lines( lines, _, result ), do: {Enum.reverse(result), lines}
 
   ###########
   # Helpers #

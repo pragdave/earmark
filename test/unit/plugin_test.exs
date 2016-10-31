@@ -35,4 +35,21 @@ defmodule Unit.PluginTest do
     end)
   end
 
+  test "plugin_for_prefix default defined" do 
+    assert O.plugin_for_prefix(P.define(E), "") == E
+  end
+  test "plugin_for_prefix pfx undefined" do
+    assert O.plugin_for_prefix(P.define(E), "pfx") == false
+  end
+  test "plugin_for_prefix default undefined" do
+    assert O.plugin_for_prefix(P.define({E, "pfx"}), "") == false
+  end
+  test "plugin_for_prefix pfx defined" do
+    assert O.plugin_for_prefix(P.define({E, "pfx"}), "pfx") == E
+  end
+  test "plugin_for_prefix pfx and default defined" do
+    assert O.plugin_for_prefix(P.define([E, {O, "pfx"}]), "pfx") == O
+    assert O.plugin_for_prefix(P.define(%O{}, [E, {O, "pfx"}]), "pfx") == O
+  end
+
 end
