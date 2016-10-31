@@ -151,11 +151,13 @@ defmodule Functional.Scanner.LineTypeTest do
       #
       # Plugins
       #
-      { "$$",                                %Line.Text{content: "$$"}},
+      { "$$",                       %Line.Plugin{prefix: "", content: ""}},
+      { "$$ ",                      %Line.Plugin{prefix: "", content: ""}},
+      { "$$pfx ",                   %Line.Plugin{prefix: "pfx", content: ""}},
+      { "$$pfx",                    %Line.Plugin{prefix: "pfx", content: ""}},
 
-      { "$$ my line for plugin", %Line.Plugin{prefix: "$$", content: "my line for plugin"}},
-      { "$$pfx my line for plugin", %Line.Plugin{prefix: "$$pfx", content: "my line for plugin"}},
-      { "$$pfx", %Line.Plugin{prefix: "$$pfx", content: ""}},
+      { "$$ my line for plugin",    %Line.Plugin{prefix: "", content: "my line for plugin"}},
+      { "$$pfx my line for plugin", %Line.Plugin{prefix: "pfx", content: "my line for plugin"}},
 
           ]
   |> Enum.each(fn { text, type } ->
