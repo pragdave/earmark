@@ -165,7 +165,13 @@ defmodule Earmark.HtmlRenderer do
   # Plugins #
   ###########
 
-  def render_block(%Block.Plugin{lines: lines, handler: handler}), do: handler.as_html(lines)
+  def render_block(%Block.Plugin{lines: lines, handler: handler}, _context, _mf) do
+    case handler.as_html(lines) do
+      {html, messages}        -> {html, Enum.map(messages, &Message.new_message/1)}
+      html when is_list(html) -> {html, []}
+      html                    -> {[html], []}
+    end
+  end
 
   #####################################
   # And here are the inline renderers #
