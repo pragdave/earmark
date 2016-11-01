@@ -277,16 +277,14 @@ defmodule Earmark do
   """
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
   def as_html(lines, options \\ %Options{}) do
-    # This makes our acceptance tests fail
-    with {html, %{messages: messages}} <- lines |> _as_html(options) do
-        if Enum.empty?(messages) do
-          {:ok, html}
-        else
-          filename  = options.file
-          formatted = messages |>
-            Enum.map(&(Message.format_message(filename, &1)))
-          {:error, html, formatted}
-      end
+    {html, messages} = _as_html(lines, options)
+    if Enum.empty?(messages) do
+      {:ok, html}
+    else
+      filename  = options.file
+      formatted = messages |>
+        Enum.map(&(Message.format_message(filename, &1)))
+      {:error, html, formatted}
     end
   end
 
@@ -307,10 +305,12 @@ defmodule Earmark do
     end
   end
 
-  defp _as_html(lines, options), do:
-    with {blocks, context, options1} <- lines |> parse(options),
-      do:
-        {options.renderer.render( blocks, context, options.mapper ), options1}
+  defp _as_html(lines, options) do
+    {blocks, context} = parse(lines, options)
+    parser_messages = Context.messages(context)
+    {html, render_messages} = options.renderer.render(blocks, context)
+    {html, List.flatten(parser_messages ++ render_messages)}
+  end
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -321,20 +321,21 @@ defmodule Earmark do
   for more details.
   """
 
-  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{}, list(String.t), list(String.t) }
+  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links, messages } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, %{messages: messages} } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
-              |> Earmark.Inline.update_context
+              |> Earmark.Inline.update_context()
+              |> Context.add_messages(messages)
 
     if options.footnotes do
       { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = put_in(context.footnotes, footnotes)
-      { blocks, context, messages }
+      { blocks, context }
     else
-      { blocks, context, messages }
+      { blocks, context }
     end
   end
   def parse(lines, options) when is_binary(lines) do
