@@ -16,7 +16,6 @@ defmodule Earmark.Helpers.LeexHelpers do
     line
     |> to_char_list()
     |> lexer.string()
-    # IO.inspect tokens
     elixirize_tokens(tokens,[])
     |> Enum.reverse()
   end

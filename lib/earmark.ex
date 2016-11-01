@@ -281,7 +281,6 @@ defmodule Earmark do
     if Enum.empty?(messages) do
       {:ok, html}
     else
-      IO.inspect messages
       filename  = options.file
       formatted = messages |>
         Enum.map(&(Message.format_message(filename, &1)))
