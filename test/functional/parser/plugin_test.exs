@@ -2,6 +2,7 @@ defmodule Functional.Parser.PluginTest do
   use ExUnit.Case
 
   alias Earmark.Block
+  alias Earmark.Context
   alias Earmark.Message
   alias Earmark.Plugin
 
@@ -89,8 +90,8 @@ defmodule Functional.Parser.PluginTest do
 
 
   defp parse(lines) do
-    with {blocks, _, %{messages: messages}} <-
-      Earmark.parse(lines, Plugin.define([ Block, {Message, "msg"}, {Plugin, "pg"} ])), do:
-      {blocks, messages}
+    {blocks, ctxt} =
+      Earmark.parse(lines, Plugin.define([ Block, {Message, "msg"}, {Plugin, "pg"} ]))
+    {blocks, Context.messages(ctxt)}
   end
 end

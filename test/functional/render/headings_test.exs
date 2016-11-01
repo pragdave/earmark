@@ -8,11 +8,12 @@ defmodule HeadingsTest do
 
 
   defp render [level: level, content: content] do
-    Renderer.render_block(
+    {html, _} = Renderer.render_block(
       %Heading{attrs: nil, level: level, content: content},
       inline_context(),
       false
     )
+    html
   end
 
   defp inline_context do

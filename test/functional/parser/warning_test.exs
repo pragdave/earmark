@@ -80,6 +80,6 @@ defmodule Parser.WarningTest do
   end
 
   defp messages_from_parse(str, options \\ %Earmark.Options{}) do 
-    with {_,_, %{messages: messages}} <- Earmark.parse(str, options), do: messages
+    with {_, %{options: %{messages: messages}}} <- Earmark.parse(str, options), do: messages
   end
 end

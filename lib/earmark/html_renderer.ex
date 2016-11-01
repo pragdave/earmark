@@ -141,8 +141,8 @@ defmodule Earmark.HtmlRenderer do
       blocks = append_footnote_link(note)
       %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
     end)
-    html = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
-    { Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n"), [] }
+    { html, messages } = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
+    { Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n"), messages }
   end
 
   #######################################

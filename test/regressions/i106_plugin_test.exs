@@ -3,6 +3,7 @@ defmodule Regressions.I106PluginTest do
 
   import Earmark, only: [as_html: 2]
   alias Earmark.Options
+  alias Earmark.Plugin
   
   @comment_md """
   $$ this is a comment
