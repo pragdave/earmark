@@ -1,16 +1,14 @@
 defmodule Earmark.Message do
-  defstruct type: :warning, # or :error
-            line: 1,
-            text: "oooooh noooo no such soooo"
 
-  @type t :: %__MODULE__{}
+  @type message_type :: :error | :warning
+  @type t :: {message_type, number, binary}
   @type ts:: list(t)
 
   @doc """
     Formats a message as a string
   """
   @spec format_message( String.t, t ) :: String.t
-  def format_message filename, %{line: line, type: type, text: text} do
+  def format_message filename, {type, line, text} do
     "#{filename}:#{line}: #{type}: #{text}"
   end
 
@@ -21,9 +19,9 @@ defmodule Earmark.Message do
     IO.puts(device, format_message(filename, msg))
 
   @doc false
-  def new_error(line, text), do: new_message({:error, line, text})
+  def new_error(line, text), do: new_message({:warning, line, text})
   @doc false
-  def new_message({type, line, text}), do: %__MODULE__{line: line, text: text, type: type}
+  def new_message({type, line, text}), do: {type, line, text}
   @doc false
   def new_warning(line, text), do: new_message({:warning, line, text})
 end

@@ -3,8 +3,9 @@ defmodule Functional.Parser.PluginTest do
 
   alias Earmark.Block
   alias Earmark.Context
-  alias Earmark.Message
   alias Earmark.Plugin
+
+  defmodule Plug, do: nil
 
   test "no plugins" do 
     assert parse("a") == {
@@ -51,7 +52,7 @@ defmodule Functional.Parser.PluginTest do
     assert default_plugin_block == 
       %Block.Plugin{prefix: "", lines: [{"default one", 2}], handler: Block}
     assert prefix_plugin_block ==
-      %Block.Plugin{prefix: "msg", handler: Message,
+      %Block.Plugin{prefix: "msg", handler: Plug,
                  lines: [{"prefix one", 3}, {"", 4}]}
     assert other_default_block ==
       %Block.Plugin{prefix: "", handler: Block, lines: [{"default two", 7}, {"default three", 8}]}
@@ -80,18 +81,18 @@ defmodule Functional.Parser.PluginTest do
     assert default_plugin_block == 
       %Block.Plugin{prefix: "", lines: [{"default one", 2}], handler: Block}
     assert prefix_plugin_block ==
-      %Block.Plugin{prefix: "msg", handler: Message,
+      %Block.Plugin{prefix: "msg", handler: Plug,
                  lines: [{"", 5}]}
     assert other_default_block ==
       %Block.Plugin{prefix: "", handler: Block, lines: [{"default two", 8}, {"default three", 9}]}
     assert messages == 
-      [%Earmark.Message{line: 10, text: "lines for undefined plugin prefix \"yud\" ignored (10..10)", type: :warning}, %Earmark.Message{line: 3, text: "lines for undefined plugin prefix \"udf\" ignored (3..4)", type: :warning}]
+      [{ :warning, 10, "lines for undefined plugin prefix \"yud\" ignored (10..10)" }, { :warning, 3, "lines for undefined plugin prefix \"udf\" ignored (3..4)" }]
   end
 
 
   defp parse(lines) do
     {blocks, ctxt} =
-      Earmark.parse(lines, Plugin.define([ Block, {Message, "msg"}, {Plugin, "pg"} ]))
+      Earmark.parse(lines, Plugin.define([ Block, {Plug, "msg"}, {Plugin, "pg"} ]))
     {blocks, Context.messages(ctxt)}
   end
 end

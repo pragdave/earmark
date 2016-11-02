@@ -13,7 +13,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "the comment plugin" do 
     assert as_html(@comment_md, %Options{plugins: %{"" => CommentPlugin}}) ==
-      { :ok, "<!-- this is a comment -->\n" } end 
+      { "<!-- this is a comment -->\n", [] } end 
   @comments_md """
   $$c comment one
   $$c comment two
@@ -22,7 +22,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "more lines" do 
     assert as_html(@comments_md, Plugin.define({CommentPlugin, "c"})) ==
-    { :error, "<!-- comment one\ncomment two -->\n<!-- comment three -->\n", ["<no file>:3: warning: lines for undefined plugin prefix \"unregistered\" ignored (3..3)"]}
+    { "<!-- comment one\ncomment two -->\n<!-- comment three -->\n", [{ :warning, 3, "lines for undefined plugin prefix \"unregistered\" ignored (3..3)"}]}
   end
 
   @more_md """
@@ -33,7 +33,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "even more lines" do 
     assert as_html(@more_md, Plugin.define(%Options{}, [CommentPlugin])) ==
-    { :error, "<p>line one</p>\n<!-- comment one -->\n<p>line two</p>\n", ["<no file>:3: warning: lines for undefined plugin prefix \"c\" ignored (3..3)"]}
+    { "<p>line one</p>\n<!-- comment one -->\n<p>line two</p>\n", [{ :warning, 3, "lines for undefined plugin prefix \"c\" ignored (3..3)"}]}
   end
 
   @mix_errors """
@@ -43,8 +43,8 @@ defmodule Regressions.I106PluginTest do
   """
   test "a mix of errors" do 
     assert as_html(@mix_errors, Plugin.define(%Options{}, CommentPlugin)) ==
-    { :error, "<!-- comment -->\n<p></p>\n",["<no file>:3: warning: Unexpected line =",
-        "<no file>:1: warning: lines for undefined plugin prefix \"unregistered\" ignored (1..1)"]}
+    { "<!-- comment -->\n<p></p>\n",[{ :warning, 3, "Unexpected line ="},
+          { :warning, 1, "lines for undefined plugin prefix \"unregistered\" ignored (1..1)"}]}
   end
 
   @error_plugin """
@@ -57,8 +57,7 @@ defmodule Regressions.I106PluginTest do
   test "a plugin with errors" do
     options = Plugin.define(%Options{}, [ErrorPlugin, {CommentPlugin, "c"}])
     assert as_html(@error_plugin, options) ==
-    { :error, "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [
-        "<no file>:5: warning: lines for undefined plugin prefix \"undef\" ignored (5..5)",
-        "<no file>:4: error: that is incorrect"]}
+    { "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [{:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"},
+          {:error, 4, "that is incorrect" }]}
   end
 end

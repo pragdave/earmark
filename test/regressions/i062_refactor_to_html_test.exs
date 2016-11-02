@@ -5,7 +5,7 @@ defmodule Regressions.I062RefactorToHtmlTest do
   test "deprecation warning for to_html" do 
     assert capture_io( :stderr, fn->
       Earmark.to_html("* hello")
-    end) == "warning: usage of `Earmark.to_html` is deprecated.\nUse `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`\n"
+    end) == "warning: usage of `Earmark.to_html` is deprecated.\nUse `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, errors}`\n"
   end
 
   test "as_html! takes place" do 

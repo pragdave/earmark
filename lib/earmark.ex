@@ -225,12 +225,12 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
-  alias Earmark.Message
+  import Earmark.Message, only: [emit_messages: 2]
 
 
   @to_html_deprecation_warning """
   warning: usage of `Earmark.to_html` is deprecated.
-  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, warnings, errors}`
+  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, errors}`
   """
   def to_html(lines, options \\ %Options{}) do
     IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
@@ -275,17 +275,9 @@ defmodule Earmark do
       Earmark.as_html(original, %Options{smartypants: false})
 
   """
-  @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t), list(String.t)}
+  @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
-    {html, messages} = _as_html(lines, options)
-    if Enum.empty?(messages) do
-      {:ok, html}
-    else
-      filename  = options.file
-      formatted = messages |>
-        Enum.map(&(Message.format_message(filename, &1)))
-      {:error, html, formatted}
-    end
+    _as_html(lines, options)
   end
 
   @doc """
@@ -297,12 +289,9 @@ defmodule Earmark do
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-    case as_html(lines, options) do
-      {:ok, html} -> html
-      {:error, html, messages} ->
-        emit_messages(messages)
-        html
-    end
+    {html, messages} = _as_html(lines, options)
+    emit_messages(options.file, messages)
+    html
   end
 
   defp _as_html(lines, options) do
@@ -351,6 +340,4 @@ defmodule Earmark do
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
    |> Enum.map(&Task.await/1)
   end
-
-  defp emit_messages(error_list), do: error_list |> Enum.each(&(IO.puts(:stderr, &1)))
 end

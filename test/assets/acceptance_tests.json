@@ -655,7 +655,7 @@
     "section": "Inlines",
     "markdown": "`hi`lo`\n",
     "html": "<p><code class=\"inline\">hi</code>lo`</p>\n",
-    "messages": ["<no file>:1: warning: Closing unclosed backquotes ` at end of input"],
+    "messages": [[1, "Closing unclosed backquotes ` at end of input"]],
     "example": 82
   }
   ,{
@@ -708,7 +708,7 @@
     "section": "Backslash escapes",
     "markdown": "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n",
     "html": "<p>*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url &quot;not a reference&quot;</p>\n",
-    "messages": ["<no file>:3: warning: Closing unclosed backquotes ` at end of input"],
+    "messages": [[3, "Closing unclosed backquotes ` at end of input"]],
     "example": 89
   }
   ,{
@@ -939,7 +939,7 @@
     "description": "Not associated and incorrect",
     "markdown": "{:hello}",
     "html": "<p>{:hello}</p>\n",
-    "messages": ["<no file>:1: warning: Illegal attributes [\"hello\"] ignored in IAL"],
+    "messages": [[1, "Illegal attributes [\"hello\"] ignored in IAL"]],
     "example": 119
   }
   ,{
@@ -963,7 +963,7 @@
     "description": "Associated and incorrect",
     "markdown": "Before\n{:hello}",
     "html": "<p>Before</p>\n",
-    "messages": ["<no file>:2: warning: Illegal attributes [\"hello\"] ignored in IAL"],
+    "messages": [[2, "Illegal attributes [\"hello\"] ignored in IAL"]],
     "example": 122
   }
   ,{
@@ -971,7 +971,7 @@
     "description": "Associated and partly incorrect",
     "markdown": "Before\n{:hello title=world}",
     "html": "<p title=\"world\">Before</p>\n",
-    "messages": ["<no file>:2: warning: Illegal attributes [\"hello\"] ignored in IAL"],
+    "messages": [[2, "Illegal attributes [\"hello\"] ignored in IAL"]],
     "example": 123
   }
   ,{
@@ -979,7 +979,7 @@
     "description": "Associated and partly incorrect and shortcuts",
     "markdown": "Before\n{:#hello .alpha hello title=world .beta class=\"gamma\" title='class'}",
     "html": "<p class=\"gamma beta alpha\" id=\"hello\" title=\"class world\">Before</p>\n",
-    "messages": ["<no file>:2: warning: Illegal attributes [\"hello\"] ignored in IAL"],
+    "messages": [[2, "Illegal attributes [\"hello\"] ignored in IAL"]],
     "example": 124
   }
 
@@ -1011,7 +1011,7 @@
     "section": "Unexpected input",
     "markdown":"A\nB\n=",
     "html": "<p>A\nB</p>\n<p></p>\n",
-    "messages": ["<no file>:3: warning: Unexpected line ="],
+    "messages": [[3, "Unexpected line ="]],
     "example": 128
   }
 
