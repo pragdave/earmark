@@ -10,10 +10,9 @@ defmodule Earmark do
 
   ### API
 
-        case Earmark.as_html(markdown) do
-          {:ok, html_doc} -> ...
-          {:error, html_doc, error_messages} -> ...
-        end
+        {html_doc, error_messages} = Earmark.as_html(markdown)
+
+        {html_doc, error_messages} = Earmark.as_html!(markdown, options)
 
   Options can be passed into `as_html` according to the documentation.
 
@@ -21,10 +20,8 @@ defmodule Earmark do
 
         html_doc = Earmark.as_html!(markdown, options)
 
-  Prints the error_messages returned by `as_html` to stderr and just returns the second element
-  of the tuple it had returned.
-
-  (Again, see the documentation for `as_html` for options)
+  Formats the error_messages returned by `as_html` and adds the filename to each.
+  Then prints them to stderr and just returns the html_doc
 
   ### Command line
 
