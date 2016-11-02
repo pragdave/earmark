@@ -1,4 +1,4 @@
-# 1.0.3 ??/??/????
+# 1.0.3 2016/11/02
 
 * PR from TBK145 with some dead code elimination.
 * Implementation of command line switches for the `earmark` executable. Now any `%Earmark.Options{}` key can be
@@ -13,7 +13,7 @@
 ## Kudos:
   Thijs Klaver (TBK145)
 
-# 1.0.2 10/10/2016
+# 1.0.2 2016/10/10
 
 * PR from pdebelak with a fix of #55
 * PR from jonnystorm with a fix for a special case in issue #85
@@ -31,7 +31,7 @@
 ## Kudos:
   Jonathan Storm (jonnystorm), Michal Muskala (michalmuskala) & Peter Debelak (pdebelak)
 
-# 1.0.1  06/07/16
+# 1.0.1  2016/06/07
 
 * fixing issue #81 by pushing this updated Changelog.md :)
 * PR from mschae fixing issue #80 broken hex package
@@ -39,7 +39,7 @@
 ## Kudos:
   Michael Schaefermeyer (mschae) & Tobias Pfeiffer (PragTob)
 
-# 1.0.0  06/07/16
+# 1.0.0  2016/06/07
 
 * --version | -v switch for `earmark` escript.
 * added security notice about XSS to docs thanks to remiq
@@ -63,7 +63,7 @@
 Remigiusz Jackowski (remiq), Angelo Lakra (alakra), Son Tran-Nguyen (sntran), Mike Kreuzer (mikekreuzer),
 Ria Cataquian (riacataquian), Eugene Pirogov (gmile), Andrea Leopardi (whatyouhide) & Milton Mazzarri (milmazz)
 
-# 0.2.1  01/15/16
+# 0.2.1  2016/01/15
 
 * Added 1.2 for Travis
 * PR from mneudert to fix HTMLOneLine detection
@@ -73,7 +73,7 @@ Ria Cataquian (riacataquian), Eugene Pirogov (gmile), Andrea Leopardi (whatyouhi
 Marc Neudert (mneudert)
 
 
-# 0.2.0  12/28/15
+# 0.2.0  2015/12/28
 
 * PR from eksperimental guaranteeing 100% HTML5
 * PR from imbriaco to decouple parsing and html generation and whitespace removal
@@ -94,43 +94,43 @@ Marc Neudert (mneudert)
 Eksperimental (eksperimental), Mark Imbriaco (imbriaco), Andrea Leopardi(whatyouhide), José Valim &
 Michael Schaefermeyer (mschae)
 
-# 0.1.19 10/27/15
+# 0.1.19 2015/10/27
 
 * Fix | in implicit lists, and restructur the parse a little.
   Many thanks to Robert Dober
 
-# 0.1.17 05/18/15
+# 0.1.17 2015/05/18
 
 * Add strikethrough support to the HTML renderer. Thanks to
   Michael Schaefermeyer (mschae)
 
 
-# 0.1.16 05/08/15
+# 0.1.16 2015/05/08
 
 * Another fix from José, this time for & in code blocks.
 
 
-# 0.1.15 03/25/15
+# 0.1.15 2015/03/25
 
 * Allow numbered lists to start anywhere in the first four columns.
   (This was previously allowed for unnumbered lists). Fixes #13.
 
 
-# 0.1.14 03/25/15
+# 0.1.14 2015/03/25
 
 * Fixed a problem where a malformed text heading caused a crash.
   We now report what appears to be malformed Markdown and
   continue, processing the line as text. Fixes #17.
 
 
-# 0.1.13 01/31/15
+# 0.1.13 2015/01/31
 
 * José fixed a bug in Regex that revealed a problem with some
   Earmark replacement strings. As he's a true gentleman, he then
   fixed Earmark.
 
 
-# 0.1.11 08/18/14
+# 0.1.11 2014/08/18
 
 * Matthew Lyon contributed footnote support.
 
@@ -144,7 +144,7 @@ Michael Schaefermeyer (mschae)
   to enable it by passing the `footnotes: true` option.
 
 
-# 0.1.10 08/13/14
+# 0.1.10 2014/08/13
 
 * The spec is ambiguous when it comes to setext headings. I assumed
   that they needed a blank line after them, but common practice says
@@ -152,13 +152,13 @@ Michael Schaefermeyer (mschae)
   blank.
 
 
-# 0.1.9 08/05/14
+# 0.1.9 2014/08/05
 
 * Bug fix—extra blank lines could be appended to code blocks.
 * Tidied up code block HTML
 
 
-# 0.1.7 07/26/16
+# 0.1.7 2014/07/26
 
 * Block rendering is now performed in parallel
 
