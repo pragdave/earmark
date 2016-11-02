@@ -10,9 +10,9 @@ defmodule Earmark.Plugin do
   @moduledoc """
   Plugins are modules that implement a render function. Right now that is `as_html`.
 
-  #### API
+  ### API
 
-  ##### Plugin Registration
+  #### Plugin Registration
 
   When invoking `Earmark.as_html(some_md, options)` we can register plugins inside the `plugins` map, where
   each plugin is a value pointed to by the prefix triggering it.
@@ -26,7 +26,7 @@ defmodule Earmark.Plugin do
   Please see the documentation of `Plugin.define` for a convenience function that helps creating the necessary
   `Earmark.Options` structs for the usage of plugins.
 
-  ##### Plugin Invocation
+  #### Plugin Invocation
 
   `as_html` (or other render functions in the future) is invoked with a list of pairs containing the text
   and line number of the lines in the block. As an example, if our plugin was registered with the default prefix
@@ -41,7 +41,7 @@ defmodule Earmark.Plugin do
 
         as_html([{"line one", 2}, {"", 3}, {"line two", 4})
 
-  ##### Plugin Output
+  #### Plugin Output
 
   Earmark's render function will invoke the plugin's render function as explained above. It can then integrate the
   return value of the function into the generated rendering output if it complies to the following criteria.

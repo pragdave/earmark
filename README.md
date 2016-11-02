@@ -265,6 +265,55 @@ you'd call
 
 <!-- enddoc: Earmark.as_html -->
 
+
+## Plugins
+<!-- moduledoc: Earmark.Plugin -->
+Plugins are modules that implement a render function. Right now that is `as_html`.
+
+### API
+
+#### Plugin Registration
+
+When invoking `Earmark.as_html(some_md, options)` we can register plugins inside the `plugins` map, where
+each plugin is a value pointed to by the prefix triggering it.
+
+Prefixes are appended to `"$$"` and lines starting by that string will be rendered by the registered plugin.
+
+`%Earmark.Options{plugins: %{"" => CommentPlugin}}` would trigger the `CommentPlugin` for each block of
+lines prefixed by `$$`, while `%Earmark.Options{plugins: %{"cp" => CommentPlugin}}` would do the same for
+blocks of lines prefixed by `$$cp`.
+
+Please see the documentation of `Plugin.define` for a convenience function that helps creating the necessary
+`Earmark.Options` structs for the usage of plugins.
+
+#### Plugin Invocation
+
+`as_html` (or other render functions in the future) is invoked with a list of pairs containing the text
+and line number of the lines in the block. As an example, if our plugin was registered with the default prefix
+of `""` and the markdown to be converted was:
+
+      # Plugin output ahead
+      $$ line one
+      $$
+      $$ line two
+
+`as_html` would be invoked as follows:
+
+      as_html([{"line one", 2}, {"", 3}, {"line two", 4})
+
+#### Plugin Output
+
+Earmark's render function will invoke the plugin's render function as explained above. It can then integrate the
+return value of the function into the generated rendering output if it complies to the following criteria.
+
+1. It returns a string
+1. It returns a list of strings
+1. It returns a pair of lists containing a list of strings and a list of error/warning tuples.
+Where the tuples are of the form `{:error | :warning, line_number, descriptive_text}`
+
+
+<!-- endmoduledoc: Earmark.Plugin -->
+
 # LICENSE
 
 Same as Elixir, which is Apache License v2.0. Please refer to [LICENSE](LICENSE) for details.
