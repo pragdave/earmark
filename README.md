@@ -311,7 +311,38 @@ return value of the function into the generated rendering output if it complies 
 1. It returns a pair of lists containing a list of strings and a list of error/warning tuples.
 Where the tuples are of the form `{:error | :warning, line_number, descriptive_text}`
 
+#### A complete example
 
+  iex> defmodule MyPlug do
+  ...>   def as_html(lines) do
+  ...>     # to demonstrate the three possible return values
+  ...>     case render(lines) do
+  ...>       {[line], []} -> line
+  ...>       {lines, []} -> lines
+  ...>       tuple       -> tuple
+  ...>     end
+  ...>   end
+  ...>
+  ...>   defp render(lines) do
+  ...>     Enum.map(lines, &render_line/1) |> Enum.partition(&ok?/1)
+  ...>   end
+  ...>
+  ...>   defp render_line({"", _}), do: "<hr/>"
+  ...>   defp render_line({"line one", _}), do: "<p>first line</p>\n"
+  ...>   defp render_line({line, lnb}), do: {:error, lnb, line}
+  ...>
+  ...>   defp ok?({_, _, _}), do: false
+  ...>   defp ok?(_), do: true
+  ...> end
+  ...>
+  ...> lines = [
+  ...>   "# Plugin Ahead",
+  ...>   "$$ line one",
+  ...>   "$$",
+  ...>   "$$ line two",
+  ...> ]
+  ...> Earmark.as_html(lines, Earmark.Plugin.define(MyPlug))
+  {:error, "<h1>Plugin Ahead</h1>\n<p>first line</p>\n<hr/>", ["<no file>:4: error: line two"]}
 <!-- endmoduledoc: Earmark.Plugin -->
 
 # LICENSE
