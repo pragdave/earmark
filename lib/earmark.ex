@@ -199,7 +199,7 @@ defmodule Earmark do
 
   which is rendering
 
-         <pre><code class="elixir lang-elixiri language-elixir">...
+         <pre><code class="elixir lang-elixir language-elixir">...
 
   As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
 
