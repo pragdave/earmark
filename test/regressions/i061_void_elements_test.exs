@@ -4,13 +4,13 @@ defmodule Regressions.I061VoidElementsTest do
 
   @i61_void_elements ~s{<img src="whatever.png">\n**strong**}
   test "Issue: https://github.com/pragdave/earmark/issues/61" do
-    result = Earmark.to_html @i61_void_elements
+    result = Earmark.as_html! @i61_void_elements
     assert result == ~s[<img src=\"whatever.png\"><p><strong>strong</strong></p>\n]
   end
 
   test "Issue: https://github.com/pragdave/earmark/issues/61 no message" do
     assert capture_io(:stderr, fn ->
-      Earmark.to_html @i61_void_elements
+      Earmark.as_html! @i61_void_elements
     end) == ""
   end
 end

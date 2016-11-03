@@ -9,7 +9,7 @@ defmodule Regressions.I013IncorrectRenderingOfNumberedLists do
   """
 
   test "Issue https://github.com/pragdave/earmark/issues/13" do
-    result = Earmark.to_html @indented_list
+    result = Earmark.as_html! @indented_list
     assert result == """
                      <p>  Para</p>
                      <ol>

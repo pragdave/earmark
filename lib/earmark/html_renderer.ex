@@ -7,73 +7,77 @@ defmodule Earmark.HtmlRenderer do
   end
 
   alias  Earmark.Block
+  alias  Earmark.Context
+  alias  Earmark.Message
+  alias  Earmark.Options
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.AttrParser
 
-  def render(blocks, context, map_func) do
-    map_func.(blocks, &(render_block(&1, context, map_func)))
-    |> IO.iodata_to_binary
+  def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
+    {html, messages} =
+      mapper.(blocks, &(render_block(&1, context))) |>
+      Enum.unzip()
+    { IO.iodata_to_binary(html), messages }
   end
-
 
   #############
   # Paragraph #
   #############
-  def render_block(%Block.Para{lines: lines, attrs: attrs}, context, _mf) do
+  defp render_block(%Block.Para{lines: lines, attrs: attrs}, context) do
     lines = convert(lines, context)
-    add_attrs("<p>#{lines}</p>\n", attrs)
+    { add_attrs("<p>#{lines}</p>\n", attrs), [] }
   end
 
   ########
   # Html #
   ########
-  def render_block(%Block.Html{html: html}, _context, _mf) do
-    Enum.intersperse(html, ?\n)
+  defp render_block(%Block.Html{html: html}, _context) do
+    { Enum.intersperse(html, ?\n), [] }
   end
 
-  def render_block(%Block.HtmlOther{html: html}, _context, _mf) do
-    Enum.intersperse(html, ?\n)
+  defp render_block(%Block.HtmlOther{html: html}, _context) do
+    { Enum.intersperse(html, ?\n), [] }
   end
 
   #########
   # Ruler #
   #########
-  def render_block(%Block.Ruler{type: "-", attrs: attrs}, _context, _mf) do
-    add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}])
+  defp render_block(%Block.Ruler{type: "-", attrs: attrs}, _context) do
+    { add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}]), [] }
   end
 
-  def render_block(%Block.Ruler{type: "_", attrs: attrs}, _context, _mf) do
-    add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}])
+  defp render_block(%Block.Ruler{type: "_", attrs: attrs}, _context) do
+    { add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}]), [] }
   end
 
-  def render_block(%Block.Ruler{type: "*", attrs: attrs}, _context, _mf) do
-    add_attrs("<hr/>\n", attrs, [{"class", ["thick"]}])
+  defp render_block(%Block.Ruler{type: "*", attrs: attrs}, _context) do
+    { add_attrs("<hr/>\n", attrs, [{"class", ["thick"]}]), [] }
   end
 
   ###########
   # Heading #
   ###########
-  def render_block(%Block.Heading{level: level, content: content, attrs: attrs}, context, _mf) do
+  defp render_block(%Block.Heading{level: level, content: content, attrs: attrs}, context) do
     html = "<h#{level}>#{convert(content,context)}</h#{level}>\n"
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), [] }
   end
 
   ##############
   # Blockquote #
   ##############
 
-  def render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, mf) do
-    body = render(blocks, context, mf)
+  defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context) do
+    {body, messages} = render(blocks, context)
     html = "<blockquote>#{body}</blockquote>\n"
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), messages }
   end
 
   #########
   # Table #
   #########
 
-  def render_block(%Block.Table{header: header, rows: rows, alignments: aligns, attrs: attrs}, context, _mf) do
+  defp render_block(%Block.Table{header: header, rows: rows, alignments: aligns, attrs: attrs}, context) do
     cols = for _align <- aligns, do: "<col>\n"
     html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
@@ -87,72 +91,86 @@ defmodule Earmark.HtmlRenderer do
 
     html = [ html, add_table_rows(context, rows, "td", aligns), "</table>\n" ]
 
-    html
+    { html, [] }
   end
 
   ########
   # Code #
   ########
-  def render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, %Earmark.Context{options: options}, _mf) do
+
+  defp render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, %Earmark.Context{options: options}) do
     class = if language, do: ~s{ class="#{code_classes( language, options.code_class_prefix)}"}, else: ""
     tag = ~s[<pre><code#{class}>]
     lines = lines |> Enum.map(&(escape(&1, true))) |> Enum.join("\n") # |> String.strip
     html = ~s[#{tag}#{lines}</code></pre>\n]
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), [] }
   end
 
   #########
   # Lists #
   #########
 
-  def render_block(%Block.List{type: type, blocks: items, attrs: attrs}, context, mf) do
-    content = render(items, context, mf)
+  defp render_block(%Block.List{type: type, blocks: items, attrs: attrs}, context) do
+    {content, messages} = render(items, context)
     html = "<#{type}>\n#{content}</#{type}>\n"
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), messages }
   end
 
   # format a single paragraph list item, and remove the para tags
-  def render_block(%Block.ListItem{blocks: blocks, spaced: false, attrs: attrs}, context, mf)
+  defp render_block(%Block.ListItem{blocks: blocks, spaced: false, attrs: attrs}, context)
   when length(blocks) == 1 do
-    content = render(blocks, context, mf)
+    {content, messages}  = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
     html = "<li>#{content}</li>\n"
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), messages }
   end
 
   # format a spaced list item
-  def render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context, mf) do
-    content = render(blocks, context, mf)
+  defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
+    {content, messages} = render(blocks, context)
     html = "<li>#{content}</li>\n"
-    add_attrs(html, attrs)
+    { add_attrs(html, attrs), messages }
   end
 
   ##################
   # Footnote Block #
   ##################
 
-  def render_block(%Block.FnList{blocks: footnotes}, context, mf) do
+  defp render_block(%Block.FnList{blocks: footnotes}, context) do
     items = Enum.map(footnotes, fn(note) ->
       blocks = append_footnote_link(note)
       %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
     end)
-    html = render_block(%Block.List{type: :ol, blocks: items}, context, mf)
-    Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")
+    { html, messages } = render_block(%Block.List{type: :ol, blocks: items}, context)
+    { Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n"), messages }
   end
 
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
-  def render_block(%Block.Ial{content: content}, context, _mf) do
-    "<p>#{convert(["{:#{content}}"], context)}</p>\n"
+
+  defp render_block(%Block.Ial{content: content}, context) do
+    { "<p>#{convert(["{:#{content}}"], context)}</p>\n", [] }
   end
 
   ####################
   # IDDef is ignored #
   ####################
 
-  def render_block(%Block.IdDef{}, _context, _mf) do
-    ""
+  defp render_block(%Block.IdDef{}, _context) do
+    { "", [] }
+  end
+
+  ###########
+  # Plugins #
+  ###########
+
+  defp render_block(%Block.Plugin{lines: lines, handler: handler}, _context) do
+    case handler.as_html(lines) do
+      {html, messages}        -> {html, Enum.map(messages, &Message.new_message/1)}
+      html when is_list(html) -> {html, []}
+      html                    -> {[html], []}
+    end
   end
 
   #####################################

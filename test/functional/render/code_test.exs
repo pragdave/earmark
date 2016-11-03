@@ -82,23 +82,23 @@ defmodule CodeTest do
   ##########
 
   test "simple code block" do
-    result = Earmark.to_html "```\ndefmodule\n```"
+    result = Earmark.as_html! "```\ndefmodule\n```"
     assert result == ~s(<pre><code class="">defmodule</code></pre>\n)
   end
   test "indented code block" do
-    result = Earmark.to_html "    defmodule\n    end"
+    result = Earmark.as_html! "    defmodule\n    end"
     assert result == ~s(<pre><code>defmodule\nend</code></pre>\n)
   end
   test "indented code block (increasing indent)" do
-    result = Earmark.to_html "    defmodule\n      defstruct"
+    result = Earmark.as_html! "    defmodule\n      defstruct"
     assert result == ~s(<pre><code>defmodule\n  defstruct</code></pre>\n)
   end
   test "indented code block (decreasing indent)" do
-    result = Earmark.to_html "      # Hello\n    end"
+    result = Earmark.as_html! "      # Hello\n    end"
     assert result == ~s(<pre><code>  # Hello\nend</code></pre>\n)
   end
   test "code block (decreasing indent)" do
-    result = Earmark.to_html "```elixir\n  # Hello\nend\n```"
+    result = Earmark.as_html! "```elixir\n  # Hello\nend\n```"
     assert result == ~s(<pre><code class="elixir">  # Hello\nend</code></pre>\n)
   end
 end

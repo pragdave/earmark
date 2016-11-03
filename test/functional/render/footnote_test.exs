@@ -12,7 +12,7 @@ defmodule FootnoteTest do
   end
 
   def options do
-    %Earmark.Options{footnotes: true}
+    %Earmark.Options{footnotes: true, file: filename}
   end
 
   def context do
@@ -27,13 +27,13 @@ defmodule FootnoteTest do
 
   test "handles FnDef blocks without Footnotes enabled" do
     lines = ["This is a footnote[^1].", "", "[^1]: This is the content."]
-    Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, false))
+    Earmark.as_html!(lines, put_in(%Earmark.Options{}.footnotes, false))
     # expected: not crashing
   end
 
   test "handles text without footntoes when Footnotes enabled" do
     lines = ["This is some regular text"]
-    Earmark.to_html(lines, options())
+    Earmark.as_html!(lines, options())
   end
 
   test "basic footnote link" do
@@ -42,18 +42,18 @@ defmodule FootnoteTest do
   end
 
   test "pulls one-line footnote bodies" do
-    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], filename())
-    assert result == [%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}]
+    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], options())
+    assert result == {[%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}], options()}
   end
 
   test "pulls multi-line footnote bodies" do
     result = Block.lines_to_blocks([
                 %Line.FnDef{id: "some-fn", content: "This is a multi-line"},
                 %Line.Text{content: "footnote example.", line: "footnote example."}
-             ], filename())
-    expected = [%Block.FnDef{id: "some-fn", blocks: [
+             ], options())
+    expected = {[%Block.FnDef{id: "some-fn", blocks: [
                   %Block.Para{lines: ["This is a multi-line", "footnote example."]}
-                ]}]
+                ]}], options()}
     assert result == expected
   end
 
@@ -71,7 +71,7 @@ defmodule FootnoteTest do
              "    * List Item 2"
              ]
 
-    {result, _} = Parser.parse(lines)
+    {result, _, _} = Parser.parse(lines)
     expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]},
 		%Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
             	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "",
@@ -79,7 +79,7 @@ defmodule FootnoteTest do
 		}]
     assert result == expected
 
-    html = Earmark.to_html(lines, put_in(%Earmark.Options{}.footnotes, true))
+    html = Earmark.as_html!(lines, put_in(%Earmark.Options{}.footnotes, true))
     expected_html = """
     <p>This is a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>
     <div class="footnotes">
@@ -121,7 +121,7 @@ defmodule FootnoteTest do
   end
 
   test "parses footnote content" do
-    {blocks, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
+    {blocks, _, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
     {blocks, footnotes} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
     fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
     fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }
@@ -140,7 +140,7 @@ defmodule FootnoteTest do
     [^ref-b]: Ref B.
     [^ref-a]: Ref A.
     """
-    result = Earmark.to_html(body, put_in(%Earmark.Options{}.footnotes, true))
+    result = Earmark.as_html!(body, put_in(%Earmark.Options{}.footnotes, true))
     expected = """
     <p>A line with<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> two references<a href="#fn:2" id="fnref:2" class="footnote" title="see footnote">2</a>.</p>
     <div class="footnotes">
@@ -160,4 +160,5 @@ defmodule FootnoteTest do
   defp filename do
     "file name"
   end
+  
 end

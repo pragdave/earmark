@@ -5,20 +5,20 @@ defmodule Parser.WhitespaceTest do
   alias Earmark.Block
 
   test "Whitespace before and after code is ignored" do
-    {result, _} = Parser.parse(["",
+    {result, _, _} = Parser.parse(["",
       "    line 1",
       "    line 2",
       "",
       "",
       "para"])
 
-    expect = [
+    expected = [
       %Block.Code{attrs: nil,
         language: nil,
         lines: ["line 1", "line 2"]},
       %Block.Para{attrs: nil, lines: ["para"]}
     ]
-    assert result == expect
+    assert result == expected
   end
 end
 

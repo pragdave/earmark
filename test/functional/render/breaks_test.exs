@@ -1,7 +1,7 @@
 defmodule BreaksTest do
   use ExUnit.Case
 
-  defp convert(markdown), do: markdown |> Earmark.to_html(%Earmark.Options{breaks: true})
+  defp convert(markdown), do: markdown |> Earmark.as_html!(%Earmark.Options{breaks: true})
 
   test "acceptance test 480 with breaks" do
     expected = "<blockquote><h1>Foo</h1>\n<p>bar<br/>baz</p>\n</blockquote>\n"
