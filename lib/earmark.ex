@@ -224,7 +224,7 @@ defmodule Earmark do
   alias Earmark.Context
   import Earmark.Message, only: [emit_messages: 2]
 
-  if vsn = Elixir.Version.compare(Elixir.System.version, "1.3.0") == :lt, do:
+  if (vsn = Elixir.Version.compare(Elixir.System.version, "1.3.0")) == :lt, do:
     IO.puts( :stderr, "Usage of Elixir versions < 1.3.0 is deprecated, please upgrade from your version #{vsn}" )
 
   @to_html_deprecation_warning """
