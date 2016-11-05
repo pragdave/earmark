@@ -9,8 +9,8 @@ defmodule Earmark.Helpers.YeccHelpers do
   end
 
   def parse( text, lexer: lexer, parser: parser ) do
-    with yokensj <- lex(text, with: lexer) do
-      parser.parse(yokensj)
+    with tokens <- lex(text, with: lexer) do
+      parser.parse(tokens)
     end
   end
 end
