@@ -6,7 +6,7 @@ defmodule Earmark.Block do
   import Earmark.Helpers.AttrParser
 
   @moduledoc """
-  Given a list of _parsed blocks, convert them into blocks.
+  Given a list of parsed lines, convert them into blocks.
   That list of blocks is the final representation of the
   document (in internal form).
   """

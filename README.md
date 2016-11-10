@@ -4,9 +4,10 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 <!-- moduledoc: Earmark -->
 
-## Dependency
+## Disclaimer
 
-    { :earmark, "> x.y.z" }
+You are looking at the README of the unreleased development version of _Earmark_. If you have come here
+for the currently released version please follow on to the [hexdoc](https://hexdocs.pm/earmark/Earmark.html).
 
 ## Usage
 
