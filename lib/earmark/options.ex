@@ -26,16 +26,6 @@ defmodule Earmark.Options do
              messages: [], # [{:error|:warning, lnb, text},...]
              plugins: %{}
 
-  defimpl Collectable, for: __MODULE__ do
-    def into(options) do
-      { options, fn
-          acc, {:cont, {k, v}} -> Map.put(acc, k, v)
-          acc, :done           -> acc
-          _,   :halt           -> :ok
-        end
-      }
-    end
-  end
 
   @doc """
     Add an error message at the head of the messages list of the options struct

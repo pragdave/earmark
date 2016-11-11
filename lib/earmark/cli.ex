@@ -16,6 +16,7 @@ defmodule Earmark.CLI do
   convert file from Markdown to HTML.
 
      where options can be any of:
+       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks
 
   """
 
@@ -52,9 +53,7 @@ defmodule Earmark.CLI do
   end
 
   defp process({io_device, options}) do
-    options = options
-      |> booleanify()
-      |> Enum.into(%Earmark.Options{})
+    options = struct(Earmark.Options, booleanify(options))
     content = IO.stream(io_device, :line) |> Enum.to_list
     Earmark.to_html(content, options)
     |> IO.puts
