@@ -16,7 +16,7 @@ defmodule Earmark.Inline do
   end
 
   def convert(src, context) do
-    convert_each({src, context, []}, all_converters)
+    convert_each({src, context, []}, all_converters())
   end
 
   @linky_converter_names [:converter_for_link, :converter_for_reflink, :converter_for_footnote, :converter_for_nolink]
@@ -51,7 +51,7 @@ defmodule Earmark.Inline do
   defp convert_each(data = {_src, context, _result}, converters) do
     with new_data <- converters
       |> Enum.find_value( fn {_converter_name, converter_fun} -> converter_fun.(data, context.options.renderer) end ),
-      do: convert_each(new_data, all_converters)
+      do: convert_each(new_data, all_converters())
   end
 
   defp converter_for_escape({src, context, result}, _renderer) do
@@ -242,7 +242,8 @@ defmodule Earmark.Inline do
   defp output_link(context, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
-    link = convert_each({text, context, []}, Keyword.drop(all_converters, @linky_converter_names))
+    link = convert_each({text, context, []},
+                        Keyword.drop(all_converters(), @linky_converter_names))
     context.options.renderer.link(href, link, title)
   end
 
