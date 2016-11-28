@@ -44,7 +44,7 @@ defmodule Earmark.CLI do
 
   defp process(:help) do
     IO.puts(:stderr, @args)
-    IO.puts(:stderr, option_related_help)
+    IO.puts(:stderr, option_related_help())
   end
 
   defp process(:version) do
