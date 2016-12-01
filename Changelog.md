@@ -1,3 +1,14 @@
+# 1.1.0 ????/??/??
+
+* PR from Pragdave
+* PR from christopheradams
+
+* Fixes for issues
+  - #
+
+## Kudos:
+  Christopher Adams (christopheradams)
+
 # 1.0.3 2016/11/02
 
 * PR from TBK145 with some dead code elimination.
