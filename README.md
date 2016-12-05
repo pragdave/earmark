@@ -4,10 +4,9 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 <!-- moduledoc: Earmark -->
 
-## Disclaimer
+## Dependency
 
-You are looking at the README of the unreleased development version of _Earmark_. If you have come here
-for the currently released version please follow on to the [hexdoc](https://hexdocs.pm/earmark/Earmark.html).
+    { :earmark, "> x.y.z" }
 
 ## Usage
 
@@ -151,7 +150,7 @@ For example:
 * Rendering of block and inline elements.
 
   Block or void HTML elements that are at the absolute beginning of a line end
-  the preceding paragraph.
+  the preceeding paragraph.
 
   Thusly
 
@@ -175,7 +174,7 @@ For example:
 
 ## Integration
 
-### Syntax Highlighting
+### Syntax Highlightning
 
 All backquoted or fenced code blocks with a language string are rendered with the given
 language as a _class_ attribute of the _code_ tag.
@@ -202,7 +201,7 @@ In the following example we want more than one additional class, so we add more 
 
 which is rendering
 
-       <pre><code class="elixir lang-elixiri language-elixir">...
+       <pre><code class="elixir lang-elixir language-elixir">...
 
 As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
 
@@ -345,7 +344,7 @@ Where the tuples are of the form `{:error | :warning, line_number, descriptive_t
 #### Plugins, reusing Earmark
 
 As long as you avoid endless recursion there is absolutely no problem to call `Earmark.as_html` in your plugin, consider the following
-example in which the plugin will parse markdown and render html verbatim (which is stupid, that is what Earmark already does for you,
+example in which the plugin will parse markdown and render html verbatim (which uis stupid, that is what Earmark already does for you,
 but just to demonstrate the possibilities):
 
       iex> defmodule Again do
@@ -362,6 +361,12 @@ but just to demonstrate the possibilities):
       ...>  Earmark.as_html(lines, Earmark.Plugin.define({Again, "a"}))
       {"<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n* one* two", []}
 <!-- endmoduledoc: Earmark.Plugin -->
+
+
+## Author
+
+Copyright © 2014 Dave Thomas, The Pragmatic Programmers
+@/+pragdave,  dave@pragprog.com
 
 # LICENSE
 
