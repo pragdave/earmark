@@ -19,6 +19,23 @@ defmodule Regressions.I1102spacedListsTest do
     assert Earmark.as_html!(@double_spaced) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   end
 
+  @double_spaced2 """
+    * alpha
+      * beta
+        * gamma
+  """
+  test "two create a new list too, indented by 2" do 
+    assert Earmark.as_html!(@double_spaced2) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  end
+
+  @double_spaced1 """
+   * alpha
+     * beta
+       * gamma
+  """
+  test "two create a new list too, indented by 1" do 
+    assert Earmark.as_html!(@double_spaced1) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  end
   @single_spaced """
   * alpha
    * beta
@@ -36,27 +53,4 @@ defmodule Regressions.I1102spacedListsTest do
     assert Earmark.as_html!(@no_sublist) == "<ul>\n<li>alpha\n</li>\n<li>omega\n</li>\n</ul>\n"
   end
 
-  @assure_structure """
-  * ul1
-        some code
-      1. ol2
-  2. ol1
-      - ul2
-          -ul3
-  """
-  @expected_structure """
-  """
-  # test "assuring structure" do 
-  #   expected = parse( @expected_structure )
-  #   actual   = Earmark.as_html!(@assure_structure) |> parse()
-  #   assert actual == expected
-  # end
-
-  defp parse(html) do
-    Floki.parse(html)
-    |> Traverse.mapall(&cleanup/1)
-  end
-
-  defp cleanup([]), do: Traverse.Ignore
-  defp cleanup(x) when is_binary(x), do: String.strip(x)
 end

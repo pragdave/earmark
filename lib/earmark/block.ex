@@ -1,7 +1,7 @@
 defmodule Earmark.Block do
 
   use Earmark.Types
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 2]
+  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
 
@@ -161,16 +161,12 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type} | rest ], result, options) do
-    {spaced, list_lines, rest, offset} =
-      case read_list_lines(rest, opens_inline_code(first)) do
-        {s, ll, r, {_btx, lnb}} ->
-          {s, ll, r, lnb}
-        {s, ll, r} -> {s, ll, r, 0}
-      end
+  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content} | rest ], result, options) do
+    {spaced, list_lines, rest, offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
-    lines = for line <- [first | list_lines], do: properly_indent(line, 1)
+    lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0)
+    lines = [content | lines]
     {blocks, _, options1} = Parser.parse(lines, %{options | line: offset}, true)
 
     _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], options1)
@@ -566,6 +562,29 @@ defmodule Earmark.Block do
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
+  end
+
+  # In case we are inside a code block we return the verbatim text
+  defp indent_list_item_body(%{inside_code: true, line: line}, _level) do
+    line
+  end
+  # Sublistitems are **always** 2 spaces relative to the main list
+  defp indent_list_item_body(%Line.ListItem{line: line}, _target_level) do
+    String.slice(line, 2..-1)
+  end
+  # Add additional spaces for any indentation past level 1
+  defp indent_list_item_body(%Line.Indent{level: level, content: content}, target_level)
+  when level * 4 == target_level do
+    content
+  end
+
+  defp indent_list_item_body(%Line.Indent{level: level, content: content}, target_level)
+  when level * 4  > target_level do
+    String.duplicate(" ", level *4 - target_level) <> content
+  end
+
+  defp indent_list_item_body(line, _) do
+    line.content
   end
 
   # In case we are inside a code block we return the verbatim text
