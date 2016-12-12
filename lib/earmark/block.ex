@@ -4,6 +4,7 @@ defmodule Earmark.Block do
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
+  import Earmark.Helpers.ReparseHelpers
 
   @moduledoc """
   Given a list of parsed lines, convert them into blocks.
@@ -562,48 +563,6 @@ defmodule Earmark.Block do
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
-  end
-
-  # In case we are inside a code block we return the verbatim text
-  defp indent_list_item_body(%{inside_code: true, line: line}, _level) do
-    line
-  end
-  # Sublistitems are **always** 2 spaces relative to the main list
-  defp indent_list_item_body(%Line.ListItem{line: line}, _target_level) do
-    String.slice(line, 2..-1)
-  end
-  # Add additional spaces for any indentation past level 1
-  defp indent_list_item_body(%Line.Indent{level: level, content: content}, target_level)
-  when level * 4 == target_level do
-    content
-  end
-
-  defp indent_list_item_body(%Line.Indent{level: level, content: content}, target_level)
-  when level * 4  > target_level do
-    String.duplicate(" ", level *4 - target_level) <> content
-  end
-
-  defp indent_list_item_body(line, _) do
-    line.content
-  end
-
-  # In case we are inside a code block we return the verbatim text
-  defp properly_indent(%{inside_code: true, line: line}, _level) do
-    line
-  end
-  # Add additional spaces for any indentation past level 1
-  defp properly_indent(%Line.Indent{level: level, content: content}, target_level)
-  when level == target_level do
-    content
-  end
-
-  defp properly_indent(%Line.Indent{level: level, content: content}, target_level)
-  when level > target_level do
-    String.duplicate("    ", level-target_level) <> content
-  end
-
-  defp properly_indent(line, _) do
-    line.content
   end
 
   defp remove_trailing_blank_lines(lines) do

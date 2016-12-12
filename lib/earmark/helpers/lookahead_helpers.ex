@@ -66,63 +66,55 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
-  def read_list_lines( lines, pending, initial_indent ) do
-    _read_list_lines(lines, [], %{pending: pending, pending_lnb: 0, minindent: nil, initial_indent: initial_indent})
+  def read_list_lines( lines, {pending, pending_lnb}, initial_indent ) do
+    _read_list_lines(lines, [], %{pending: pending, pending_lnb: pending_lnb, min_indent: nil, initial_indent: initial_indent})
   end
 
-  @type read_list_info :: %{pending: maybe(String.t), pending_lnb: number, initial_indent: number, minindent: maybe(number)}
+  @type read_list_info :: %{pending: maybe(String.t), pending_lnb: number, initial_indent: number, min_indent: maybe(number)}
   @not_pending {nil, 0}
   @spec _read_list_lines(Line.ts, Line.ts, read_list_info) :: {boolean, Line.ts, Line.ts, number}
   # List items with initial_indent + 2
-  defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], [], 
-    params=%{pending: nil, initial_indent: initial_indent, minindent: minindent})
+  defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], [],
+    params=%{pending: nil, initial_indent: initial_indent, min_indent: min_indent})
   when li_indent == initial_indent + 2 do
     with {pending1, pending_lnb1} = opens_inline_code(line),
-         minindent1 = new_minindent(minindent, 2), do: 
-    _read_list_lines(rest, [ line ], %{params | pending: pending1, pending_lnb: pending_lnb1, minindent: minindent1})
+         min_indent1 = new_min_indent(min_indent, 2), do:
+    _read_list_lines(rest, [ line ], %{params | pending: pending1, pending_lnb: pending_lnb1, min_indent: min_indent1})
   end
   # text immediately after the start
   defp _read_list_lines([ line = %Line.Text{} | rest ], [], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line ], _opens_inline_code(line, params))
   end
   # table line immediately after the start
   defp _read_list_lines([ line = %Line.TableLine{} | rest ], [], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line ], _opens_inline_code(line, params))
   end
 
   # text immediately after another text line
   defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Text{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
   # table line immediately after another text line
   defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Text{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
 
   # text immediately after a table line
   defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.TableLine{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
   # table line immediately after another table line
   defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.TableLine{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
 
   # text immediately after an indent
   defp _read_list_lines([ line = %Line.Text{} | rest ], result =[ %Line.Indent{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
   # table line immediately after an indent
   defp _read_list_lines([ line = %Line.TableLine{} | rest ], result =[ %Line.Indent{} | _], params=%{pending: nil}) do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
 
   # Always allow blank lines and indents, and text or table lines with at least
@@ -132,23 +124,22 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   defp _read_list_lines([ line = %Line.Indent{level: indent_level} | rest ], result,
-    params=%{pending: nil, minindent: minindent}) do
-    with minindent1 = new_minindent(minindent, indent_level * 4), do:
-    _read_list_lines(rest, [ line | result ], %{params | minindent: minindent1})
+    params=%{pending: nil, min_indent: min_indent}) do
+    with min_indent1 = new_min_indent(min_indent, indent_level * 4), do:
+    _read_list_lines(rest, [ line | result ], %{params | min_indent: min_indent1})
   end
 
   defp _read_list_lines([ line = %Line.Text{line: <<"  ", _ :: binary>>} | rest ],
     result, params=%{pending: nil})
   do
-    with {pending1, pending_lnb1} = opens_inline_code(line), do:
-    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1})
+    _read_list_lines(rest, [ line | result ], _opens_inline_code(line, params))
   end
 
   # no match, must be done
-  defp _read_list_lines(lines, result, params=%{pending: nil, minindent: minindent}) do
+  defp _read_list_lines(lines, result, %{pending: nil, min_indent: min_indent}) do
     { trailing_blanks, rest } = Enum.split_while(result, &blank?/1)
     spaced = length(trailing_blanks) > 0
-    { spaced, Enum.reverse(rest), lines, 0, minindent }
+    { spaced, Enum.reverse(rest), lines, 0, min_indent }
   end
 
   # Only now we match for list lines inside an open multiline inline code block
@@ -158,12 +149,18 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   # Running into EOI insise an open multiline inline code block
-  defp _read_list_lines([], result, params = %{pending_lnb: pending_lnb, minindent: minindent}) do
+  defp _read_list_lines([], result, params = %{pending_lnb: pending_lnb, min_indent: min_indent}) do
     { spaced, rest, lines, _, _ } =_read_list_lines( [], result, %{params | pending: nil} )
-    { spaced, rest, lines, pending_lnb, minindent }
+    { spaced, rest, lines, pending_lnb, min_indent }
   end
 
-  defp new_minindent(nil,           new_minindent),                                     do: new_minindent
-  defp new_minindent(old_minindent, new_minindent) when old_minindent <= new_minindent, do: old_minindent
-  defp new_minindent(_,             new_minindent),                                     do: new_minindent
+  defp new_min_indent(nil,           new_min_indent),                                     do: new_min_indent
+  defp new_min_indent(old_min_indent, new_min_indent) when old_min_indent <= new_min_indent, do: old_min_indent
+  defp new_min_indent(_,             new_min_indent),                                     do: new_min_indent
+
+  # Convenience wrapper around `opens_inline_code` into a map
+  defp _opens_inline_code( line, params ) do
+    with {pending, pending_lnb} = opens_inline_code(line), do:
+      %{ params | pending: pending, pending_lnb: pending_lnb }
+  end
 end
