@@ -19,8 +19,8 @@ defmodule Earmark.Block do
   defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
   defmodule Ruler,       do: defstruct attrs: nil, type: nil
   defmodule BlockQuote,  do: defstruct attrs: nil, blocks: []
-  defmodule List,        do: defstruct attrs: nil, type: :ul, blocks:  []
-  defmodule ListItem,    do: defstruct attrs: nil, type: :ul, spaced: true, blocks: []
+  defmodule List,        do: defstruct attrs: nil, type: :ul, blocks:  [], start: ""
+  defmodule ListItem,    do: defstruct attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
   defmodule Para,        do: defstruct attrs: nil, lines:  []
   defmodule Code,        do: defstruct attrs: nil, lines:  [], language: nil
   defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
@@ -162,7 +162,7 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content} | rest ], result, options) do
+  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet} | rest ], result, options) do
     {spaced, list_lines, rest, offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
@@ -170,7 +170,7 @@ defmodule Earmark.Block do
     lines = [content | lines]
     {blocks, _, options1} = Parser.parse(lines, %{options | line: offset}, true)
 
-    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced} | result ], options1)
+    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet} | result ], options1)
   end
 
   #################
@@ -372,21 +372,20 @@ defmodule Earmark.Block do
   defp consolidate_list_items([], result) do
     result |> Enum.map(&compute_list_spacing/1)  # no need to reverse
   end
-
   # We have a list, and the next element is an item of the same type
   defp consolidate_list_items(
     [list = %List{type: type, blocks: items},
      item = %ListItem{type: type} | rest], result)
   do
+    start = extract_start(item)
     items = [ item | items ]   # original list is reversed
-    consolidate_list_items([ %{ list | blocks: items } | rest ], result)
+    consolidate_list_items([ %{ list | blocks: items, start: start } | rest ], result)
   end
-
   # We have an item, but no open list
   defp consolidate_list_items([ item = %ListItem{type: type} | rest], result) do
-    consolidate_list_items([ %List{ type: type, blocks: [ item ] } | rest ], result)
+    start = extract_start(item)
+    consolidate_list_items([ %List{ type: type, blocks: [ item ], start: start } | rest ], result)
   end
-
   # Nothing to see here, move on
   defp consolidate_list_items([ head | rest ], result) do
     consolidate_list_items(rest, [ head | result ])
@@ -563,6 +562,14 @@ defmodule Earmark.Block do
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do
     head.__struct__ == struct && head.type == type
+  end
+
+  defp extract_start(%{bullet: "1."}), do: ""
+  defp extract_start(%{bullet: bullet}) do
+    case Regex.run(~r{^(\d+)\.}, bullet) do 
+      nil -> ""
+      [_, start] -> ~s{ start="#{start}"}
+    end
   end
 
   defp remove_trailing_blank_lines(lines) do

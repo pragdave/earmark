@@ -83,12 +83,18 @@ defmodule Parser.InlineCodeTest do
   ##########################################################################################
   defp assert_list_with(result, text_lines), do: assert_list_with(result, text_lines, type: :ul)
   defp assert_list_with(result, text_lines, [type: type]) do
+    bullet = if type == :ul do
+      "*"
+    else
+      "1."
+    end
     assert result == [
       %Block.List{
         attrs: nil,
         blocks: [%Block.ListItem{ attrs: nil,
           blocks: [%Block.Para{attrs: nil, lines: text_lines}],
           spaced: false,
+          bullet: bullet,
           type: type}],
         type: type}]
   end

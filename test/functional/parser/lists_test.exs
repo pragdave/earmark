@@ -10,7 +10,7 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
-         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false, bullet: "*"}
     ]}], options()}
     assert result == expected
   end
@@ -22,7 +22,7 @@ defmodule ListTest do
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
-                %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
+                %Block.Para{lines: ["line 1", "line 2"]}], spaced: false, bullet: "*"}
     ]}], options()}
     assert result == expected
   end
@@ -37,7 +37,7 @@ defmodule ListTest do
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["line 2"]}],
-                                spaced: false, type: :ul}
+                                spaced: false, type: :ul, bullet: "*"}
     ]}], options()}
     assert result == expected
   end
@@ -52,7 +52,7 @@ defmodule ListTest do
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
                                 %Block.Para{lines: ["  line 2"]}],
-                                spaced: false, type: :ul}
+                                spaced: false, type: :ul, bullet: "*"}
     ]}], options()}
     assert result == expected
   end
@@ -65,7 +65,7 @@ defmodule ListTest do
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{type: :ul, blocks: [
-                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: false}
+                 %Block.Para{lines: ["line 1", "line 2"]}], spaced: false, bullet: "*"}
     ]}], options()}
     assert result == expected
   end
@@ -76,8 +76,8 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false, bullet: "*"},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false, bullet: "*"},
     ]}], options()}
     assert result == expected
   end
@@ -89,8 +89,8 @@ defmodule ListTest do
                %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true},
-       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: true, bullet: "*"},
+       %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: true, bullet: "*"},
     ]}], options()}
     assert result == expected
   end
@@ -104,8 +104,8 @@ defmodule ListTest do
              ], options())
     expected = {[
        %Block.List{ type: :ul, blocks: [
-         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false},
-         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false},
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false, bullet: "*"},
+         %Block.ListItem{type: :ul, blocks: [%Block.Para{lines: ["line 2"]}], spaced: false, bullet: "*"},
        ]},
        %Block.Para{lines: ["para"]},
     ], options()}
@@ -126,7 +126,7 @@ defmodule ListTest do
        %Block.ListItem{type: :ul, blocks: [
                %Block.Para{lines: ["line 1"]},
                %Block.Code{language: nil, lines: ["code 1", "    code 2"]},
-               %Block.Para{lines: ["line 2"]}], spaced: false}
+               %Block.Para{lines: ["line 2"]}], spaced: false, bullet: "*"}
     ]}], options()}
 
     assert result == expected
@@ -141,7 +141,7 @@ defmodule ListTest do
                %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
              ], options())
     expected = {[ %Block.List{ type: :ol, blocks: [
-         %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false}
+         %Block.ListItem{type: :ol, blocks: [%Block.Para{lines: ["line 1"]}], spaced: false, bullet: "1."}
     ]}], options()}
     assert result == expected
   end
