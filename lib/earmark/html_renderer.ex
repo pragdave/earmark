@@ -110,9 +110,9 @@ defmodule Earmark.HtmlRenderer do
   # Lists #
   #########
 
-  defp render_block(%Block.List{type: type, blocks: items, attrs: attrs}, context) do
+  defp render_block(%Block.List{type: type, blocks: items, attrs: attrs, start: start}, context) do
     {content, messages} = render(items, context)
-    html = "<#{type}>\n#{content}</#{type}>\n"
+    html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     { add_attrs(html, attrs), messages }
   end
 
