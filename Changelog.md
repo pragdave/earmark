@@ -1,13 +1,17 @@
-# 1.1.0 ????/??/??
+# 1.1.0 2016/12/18
 
 * PR from Pragdave
 * PR from christopheradams
+* PR from [AndrewDryga](https://github.com/AndrewDryga)
 
 * Fixes for issues
-  - #
+  - #106
+  - #110
+  - #114
 
 ## Kudos:
-  Christopher Adams (christopheradams)
+  [AndrewDryga](https://github.com/AndrewDryga), [Christopher Adams](https://github.com/christopheradams)
+
 
 # 1.0.3 2016/11/02
 
