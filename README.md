@@ -150,7 +150,7 @@ For example:
 * Rendering of block and inline elements.
 
   Block or void HTML elements that are at the absolute beginning of a line end
-  the preceeding paragraph.
+  the preceding paragraph.
 
   Thusly
 
