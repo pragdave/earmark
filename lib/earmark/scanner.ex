@@ -6,7 +6,7 @@ defmodule Earmark.Scanner do
   @blockquote_rgx ~r/\A>(?!\S)/
   @code_fence_rgx ~r/\A(\s*)~~~/
   @headline_rgx   ~r/\A(\#{1,6})(\s+)(.*)/
-  @id_close_rgx   ~r/\[(.*?)\](?!:)/
+#  @id_close_rgx   ~r/\[(.*?)\](?!:)/
   @id_open_rgx    ~r/\A(\s{0,3})\[(.*?)\]:\s+(.*)\z/
   @indent_rgx     ~r/\A\s{4,}/
   @list_item_rgx  ~r/\A(\s{0,3})(\d+\.|\*|-)\s+/
