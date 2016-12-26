@@ -64,4 +64,8 @@ defmodule Earmark.Mixfile do
 
   defp elixirc_paths(:test), do: [ "lib", "test/support" ]
   defp elixirc_paths(_),     do: [ "lib" ]
+
+  def x(), do: "hello"
 end
+
+Code.eval_file "tasks/make_doc.exs"
