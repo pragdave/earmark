@@ -71,7 +71,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
 
   @type read_list_info :: %{pending: maybe(String.t), pending_lnb: number, initial_indent: number, min_indent: maybe(number)}
-  @not_pending {nil, 0}
+
   @spec _read_list_lines(Line.ts, Line.ts, read_list_info) :: {boolean, Line.ts, Line.ts, number}
   # List items with initial_indent + 2
   defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], [],
