@@ -1,0 +1,29 @@
+defmodule Regressions.I119FootnotesInsideLiTest do
+  use ExUnit.Case
+  
+  @footnote """
+  foo[^1]
+  
+  [^1]: bar baz
+  """
+  test "footnotes still work" do
+    assert with_fn(@footnote) == ~s{<p>foo<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>\n<div class="footnotes">\n<hr>\n<ol>\n<li id="fn:1"><p>bar baz&nbsp;<a href="#fnref:1" title="return to article" class="reversefootnote">&#x21A9;</a></p>\n</li>\n</ol>\n\n</div>}
+  end
+
+  test "footnotes in list items do not crash (no footnotes)" do
+    assert without_fn(@footnote) == ~s{<p>foo[^1]</p>\n<p>[^1]: bar baz</p>\n}
+  end
+
+  @li_footnote """
+  1. foo[^1]
+  
+  [^1]: bar baz
+  """
+  test "footnotes in list items do not crash (footnotes)" do
+    assert with_fn(@li_footnote) == ~s{<ol>\n<li><p>foo<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>\n</li>\n</ol>\n}
+    
+  end
+
+  defp with_fn(md), do: Earmark.as_html!(md, %Earmark.Options{footnotes: true})
+  defp without_fn(md), do: Earmark.as_html!(md, %Earmark.Options{footnotes: false})
+end

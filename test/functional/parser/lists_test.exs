@@ -192,6 +192,6 @@ defmodule ListTest do
   end
 
   defp options do
-    %Earmark.Options{file: filename, line: 0}
+    %Earmark.Options{file: filename(), line: 0}
   end
 end

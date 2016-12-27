@@ -12,7 +12,7 @@ defmodule FootnoteTest do
   end
 
   def options do
-    %Earmark.Options{footnotes: true, file: filename}
+    %Earmark.Options{footnotes: true, file: filename()}
   end
 
   def context do

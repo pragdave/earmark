@@ -20,10 +20,6 @@ defmodule Regressions.I051FencedCodeAndInlineCodeTest do
   ```
   """
 
-  @code_inline_to_validate """
-  `term < term :: boolean`
-  """
-
   test"Escape html in text different than in url" do
     result = Earmark.as_html! @url_to_validate
     assert result == """
