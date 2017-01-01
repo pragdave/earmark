@@ -57,7 +57,6 @@ defmodule Earmark.Inline do
           nd -> {nd, _converter_name}
         end
       end ) do
-        IO.inspect({new_data, used_converter})
         convert_each(new_data, all_converters())
     end
   end

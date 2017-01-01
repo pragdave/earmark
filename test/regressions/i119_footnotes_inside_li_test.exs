@@ -30,7 +30,7 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   end
 
   test "footnotes in list items do not crash (footnotes)" do
-    assert with_fn(@li_footnote) == {~s{<ol>\n<li><p>foo<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a></p>\n</li>\n</ol>\n}, []}
+    assert with_fn(@li_footnote) == {~s{<ol>\n<li>foo<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a>\n</li>\n</ol>\n}, []}
   end
 
   @undefined """
