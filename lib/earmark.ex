@@ -319,8 +319,10 @@ defmodule Earmark do
               |> Context.add_messages(messages)
 
     if options.footnotes do
-      { blocks, footnotes } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
-      context = put_in(context.footnotes, footnotes)
+      { blocks, footnotes, undefined } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
+      context = 
+        put_in(context.footnotes, footnotes) |>
+        Context.add_messages(undefined)
       { blocks, context }
     else
       { blocks, context }
@@ -330,6 +332,14 @@ defmodule Earmark do
     lines
     |> String.split(~r{\r\n?|\n})
     |> parse(options)
+  end
+
+  @doc """
+    Accesses current hex version of the `Earmark` application. Convenience for
+    `iex` usage.
+  """
+  def version() do
+    with {:ok, version} = :application.get_key(:earmark, :vsn), do: version
   end
 
   @doc false

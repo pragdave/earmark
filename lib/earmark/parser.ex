@@ -22,12 +22,13 @@ defmodule Earmark.Parser do
   # @spec handle_footnotes( Block.ts, %Earmark.Options{}, ( Block.ts,
   def handle_footnotes(blocks, options, map_func) do
     { footnotes, blocks } = Enum.partition(blocks, &footnote_def?/1)
-    footnotes = map_func.(blocks, &find_footnote_links/1)
-                |> List.flatten
-                |> get_footnote_numbers(footnotes, options)
+    { footnotes, undefined_footnotes } =
+      map_func.(blocks, &find_footnote_links/1)
+        |> List.flatten
+        |> get_footnote_numbers(footnotes, options)
     blocks = create_footnote_blocks(blocks, footnotes)
     footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(Map.new)
-    { blocks, footnotes }
+    { blocks, footnotes, undefined_footnotes }
   end
 
   @spec footnote_def?( Block.t )::boolean
@@ -46,12 +47,12 @@ defmodule Earmark.Parser do
 
   @spec get_footnote_numbers( list(String.t), Block.ts, %Earmark.Options{} ) :: Block.ts
   def get_footnote_numbers(refs, footnotes, options) do
-    Enum.reduce(refs, [], fn(ref, list) ->
+    Enum.reduce(refs, {[], []}, fn(ref, {defined, undefined}) ->
       case Enum.find(footnotes, &(&1.id == ref)) do
-        note = %Block.FnDef{} -> number = length(list) + options.footnote_offset
+        note = %Block.FnDef{} -> number = length(defined) + options.footnote_offset
                                  note = %Block.FnDef{ note | number: number }
-                                 [ note | list ]
-        # _                     -> list # TODO inline footnotes, but commented for coverage
+                                 {[ note | defined ], undefined}
+        _                     -> {defined, [{:error, 99999, "footnote #{ref} undefined, reference to it ignored"} | undefined]}
       end
     end)
   end

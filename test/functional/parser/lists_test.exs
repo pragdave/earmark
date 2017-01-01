@@ -4,7 +4,7 @@ defmodule ListTest do
   alias Earmark.Line
   alias Earmark.Block
 
-  # TODO: These tests are heavily
+  # TODO: These tests are heavily unorthogonal, seperate functional from integration tests
   test "Basic UL" do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}

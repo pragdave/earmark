@@ -49,9 +49,17 @@ defmodule Earmark.Inline do
   end
 
   defp convert_each(data = {_src, context, _result}, converters) do
-    with new_data <- converters
-      |> Enum.find_value( fn {_converter_name, converter_fun} -> converter_fun.(data, context.options.renderer) end ),
-      do: convert_each(new_data, all_converters())
+    with {new_data, used_converter} =
+      converters
+      |> Enum.find_value( fn {_converter_name, converter_fun} ->
+        case converter_fun.(data, context.options.renderer) do
+          nil -> nil
+          nd -> {nd, _converter_name}
+        end
+      end ) do
+        IO.inspect({new_data, used_converter})
+        convert_each(new_data, all_converters())
+    end
   end
 
   defp converter_for_escape({src, context, result}, _renderer) do
