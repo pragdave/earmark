@@ -317,6 +317,7 @@ defmodule Earmark do
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context()
               |> Context.add_messages(messages)
+              IO.inspect context
 
     if options.footnotes do
       { blocks, footnotes, undefined } = Earmark.Parser.handle_footnotes(blocks, options, mapper)

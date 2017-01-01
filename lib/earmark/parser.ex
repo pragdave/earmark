@@ -36,7 +36,12 @@ defmodule Earmark.Parser do
   defp footnote_def?(_block), do: false
 
   @spec find_footnote_links(Block.t) :: list(String.t)
-  defp find_footnote_links(%Block.Para{lines: lines}), do: Enum.flat_map(lines, &extract_footnote_links/1)
+  defp find_footnote_links(%Block.Para{lines: lines}) do
+    Enum.flat_map(lines, &extract_footnote_links/1)
+  end
+  defp find_footnote_links(%{blocks: blocks}) do
+    Enum.flat_map(blocks, &find_footnote_links/1)
+  end
   defp find_footnote_links(_), do: []
 
   @spec extract_footnote_links(String.t) :: list(String.t)

@@ -1,4 +1,5 @@
 defmodule Earmark.Inline do
+  import Tools.Tracer
 
   @moduledoc """
   Match and render inline sequences, passing each to the
@@ -16,7 +17,9 @@ defmodule Earmark.Inline do
   end
 
   def convert(src, context) do
-    convert_each({src, context, []}, all_converters())
+    with {conversions, errors} = convert_each({src, context, {[], []}}, all_converters()) do
+      conversions
+    end
   end
 
   @linky_converter_names [:converter_for_link, :converter_for_reflink, :converter_for_footnote, :converter_for_nolink]
@@ -41,23 +44,24 @@ defmodule Earmark.Inline do
   end
 
 
-  defp convert_each({"", _context, result}, _converters) do
-    result
-    |> IO.iodata_to_binary
-    |> replace(~r{(</[^>]*>)‘}, "\\1’")
-    |> replace(~r{(</[^>]*>)“}, "\\1”")
+  defp convert_each({"", _context, {result, errors}}, _converters) do
+    IO.inspect result
+    { result
+        |> Enum.reverse()
+        |> IO.iodata_to_binary
+        |> replace(~r{(</[^>]*>)‘}, "\\1’")
+        |> replace(~r{(</[^>]*>)“}, "\\1”"), errors }
   end
 
   defp convert_each(data = {_src, context, _result}, converters) do
-    with {new_data, used_converter} =
+    with {new_data={s,_,r}, used_converter} =
       converters
       |> Enum.find_value( fn {_converter_name, converter_fun} ->
         case converter_fun.(data, context.options.renderer) do
           nil -> nil
-          nd -> {nd, _converter_name}
+          nd  -> {nd, _converter_name}
         end
       end ) do
-        IO.inspect({new_data, used_converter})
         convert_each(new_data, all_converters())
     end
   end
@@ -65,7 +69,7 @@ defmodule Earmark.Inline do
   defp converter_for_escape({src, context, result}, _renderer) do
     if match = Regex.run(context.rules.escape, src) do
       [ match, escaped ] = match
-      {behead(src, match), context, [result | escaped]}
+      {behead(src, match), context, prepend_to_result(escaped, result)}
     end
   end
 
@@ -74,7 +78,7 @@ defmodule Earmark.Inline do
       [ match, link, protocol ] = match
       { href, text } = convert_autolink(link, protocol)
       out = renderer.link(href, text)
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -82,7 +86,7 @@ defmodule Earmark.Inline do
     if match = Regex.run(context.rules.tag, src) do
       [ match ] = match
       out = context.options.do_sanitize.(match)
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -101,7 +105,7 @@ defmodule Earmark.Inline do
       unless is_image?(match) do
         {match, text, href, title} = match
         out = output_link(context, text, href, title)
-        { behead(src, match), context, [ result | out ] }
+        { behead(src, match), context, prepend_to_result(out, result) }
       end
     end
   end
@@ -114,7 +118,7 @@ defmodule Earmark.Inline do
       if is_image?(match) do
         {match, text, href, title} = match
         out = output_image(context.options.renderer, text, href, title)
-        { behead(src, match), context, [ result | out ] }
+        { behead(src, match), context, prepend_to_result(out, result) }
       end
     end
   end
@@ -126,17 +130,21 @@ defmodule Earmark.Inline do
         [ match, alt_text, id ] -> { match, alt_text, id }
       end
       case reference_link(context, match, alt_text, id) do
-        {:ok, out}    -> { behead(src, match), context, [ result | out ] }
-        {:error, out} -> { behead(src, out), context, [ result | out ] }
+        {:ok, out}    -> { behead(src, match), context, prepend_to_result(out, result) }
+        {:error, out} -> { behead(src, out), context, prepend_to_errors(out, result) }
         end
       end
     end
 
   defp converter_for_footnote({src, context, result}, _renderer) do
+    IO.inspect({src, context.rules.footnote})
     if match = Regex.run(context.rules.footnote, src) do
+      IO.inspect match
       [match, id] = match
       out = footnote_link(context, match, id)
-      { behead(src, match), context, [ result | out ] }
+      # TODO: I believe we have to check for errors here as in converter_for_reflink and
+      # ..._nolink
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -144,8 +152,8 @@ defmodule Earmark.Inline do
     if match = Regex.run(context.rules.nolink, src) do
       [ match, id ] = match
       case reference_link(context, match, id, id) do
-          {:ok, out}    -> { behead(src, match), context, [ result | out ] }
-          {:error, out} -> { behead(src, out), context, [ result | out ] }
+          {:ok, out}    -> { behead(src, match), context, prepend_to_result(out, result) }
+          {:error, out} -> { behead(src, out), context, prepend_to_errors(out, result) }
       end
     end
   end
@@ -154,7 +162,7 @@ defmodule Earmark.Inline do
     if match = Regex.run(context.rules.strikethrough, src) do
       [ match, content ] = match
       out = renderer.strikethrough(convert(content, context))
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -165,7 +173,7 @@ defmodule Earmark.Inline do
         [ m, c ]    -> {m, c}
       end
       out = renderer.strong(convert(content, context))
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -176,7 +184,7 @@ defmodule Earmark.Inline do
         [ m, c ]    -> {m, c}
       end
       out = renderer.em(convert(content, context))
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -185,7 +193,7 @@ defmodule Earmark.Inline do
       [match, _, content] = match
       content = String.strip(content)  # this from Gruber
       out = renderer.codespan(escape(content, true))
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -193,7 +201,7 @@ defmodule Earmark.Inline do
     if match = Regex.run(context.rules.br, src, return: :index) do
       out = renderer.br()
       [ {0, match_len} ] = match
-      { behead(src, match_len), context, [ result | out ] }
+      { behead(src, match_len), context, prepend_to_result(out, result) }
     end
   end
 
@@ -201,7 +209,7 @@ defmodule Earmark.Inline do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
       out = escape(context.options.do_smartypants.(match))
-      { behead(src, match), context, [ result | out ] }
+      { behead(src, match), context, prepend_to_result(out, result) }
     end
   end
 
@@ -250,7 +258,7 @@ defmodule Earmark.Inline do
   defp output_link(context, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
-    link = convert_each({text, context, []},
+    {link, _errors} = convert_each({text, context, {[], []}},
                         Keyword.drop(all_converters(), @linky_converter_names))
     context.options.renderer.link(href, link, title)
   end
@@ -278,11 +286,14 @@ defmodule Earmark.Inline do
   end
 
   defp footnote_link(context, _match, id) do
-    with {:ok, %{number: number}} <- Map.fetch(context.footnotes, id),
-    do:
-    output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
+    case Map.fetch(context.footnotes, id) do
+      {:ok, %{number: number}} -> output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
+      _                        -> {:error, "undefined footnote #{id}", "[^#{id}]"}
+    end
   end
 
+  defp prepend_to_errors(item, {result, errors}), do: {result, [item | errors]}
+  defp prepend_to_result(item, {result, errors}), do: {[item | result], errors}
 
   ##############################################################################
   # Handle adding option specific rules and processors                         #
