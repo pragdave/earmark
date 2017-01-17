@@ -1,5 +1,6 @@
-# 1.1.0 2016/12/18
+# 1.1.0 2017/??/??
 
+* PR from Michael Pope
 * PR from Pragdave
 * PR from christopheradams
 * PR from [AndrewDryga](https://github.com/AndrewDryga)
@@ -10,7 +11,8 @@
   - #114
 
 ## Kudos:
-  [AndrewDryga](https://github.com/AndrewDryga), [Christopher Adams](https://github.com/christopheradams)
+  [AndrewDryga](https://github.com/AndrewDryga), [Christopher Adams](https://github.com/christopheradams),
+  [Michael Pope](https://github.com/amorphid)
 
 
 # 1.0.3 2016/11/02
