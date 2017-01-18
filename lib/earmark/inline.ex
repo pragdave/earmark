@@ -44,6 +44,8 @@ defmodule Earmark.Inline do
   end
 
 
+  defp convert_each(data, converters)
+
   defp convert_each({"", _context, {result, errors}}, _converters) do
     { result
         |> Enum.reverse()
@@ -51,19 +53,24 @@ defmodule Earmark.Inline do
         |> replace(~r{(</[^>]*>)‘}, "\\1’")
         |> replace(~r{(</[^>]*>)“}, "\\1”"), errors }
   end
-
   defp convert_each(data = {_src, context, _result}, converters) do
-    with {new_data={s,_,r}, used_converter} =
-      converters
-      |> Enum.find_value( fn {_converter_name, converter_fun} ->
-        case converter_fun.(data, context.options.renderer) do
-          nil -> nil
-          nd  -> {nd, _converter_name}
-        end
-      end ) do
-        convert_each(new_data, all_converters())
+    walk_converters(converters, data, converters)
+  end
+
+  defp walk_converters(converters, data, all_converters)
+
+  defp walk_converters([], _, _) do
+    # This should never happen
+    raise Error, "Illegal State"
+  end
+  defp walk_converters([{_converter_name, converter}|rest], data = { src, context, result}, all_converters) do
+    case converter.(data, context.options.renderer) do
+      nil                -> walk_converters(rest, data, all_converters)
+      {:error, message}  -> walk_converters(rest, {src, context, prepend_to_errors(message, result)}, all_converters)
+      nd = {src, _, res} -> convert_each(nd, all_converters)
     end
   end
+  
 
   defp converter_for_escape({src, context, result}, _renderer) do
     if match = Regex.run(context.rules.escape, src) do
@@ -130,7 +137,7 @@ defmodule Earmark.Inline do
       end
       case reference_link(context, match, alt_text, id) do
         {:ok, out}    -> { behead(src, match), context, prepend_to_result(out, result) }
-        {:error, out} -> { behead(src, out), context, prepend_to_errors(out, result) }
+        error         -> error
         end
       end
     end
@@ -140,8 +147,7 @@ defmodule Earmark.Inline do
       [match, id] = match
       case footnote_link(context, match, id) do
         {:ok, out} -> { behead(src, match), context, prepend_to_result(out, result) }
-        # {:error, message, src} -> { behead(src, match), context, prepend_to_errors(message, result) }
-        {:error, message, src} -> { behead(src, match), context, prepend_to_both(src, message, result) }
+        {:error, message, src} -> {:error, message}
       end
     end
   end
@@ -151,7 +157,8 @@ defmodule Earmark.Inline do
       [ match, id ] = match
       case reference_link(context, match, id, id) do
           {:ok, out}    -> { behead(src, match), context, prepend_to_result(out, result) }
-          {:error, out} -> { behead(src, out), context, prepend_to_errors(out, result) }
+          # {:error, out} -> { behead(src, match), context, prepend_to_errors(out, result) }
+          {:error, out} -> nil
       end
     end
   end

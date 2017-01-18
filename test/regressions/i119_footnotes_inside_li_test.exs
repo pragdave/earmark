@@ -32,7 +32,7 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   [^2]: bar baz
   """
   test "undefined footnotes do not crash" do
-    assert with_fn(@undefined) == {~s{<p>foo hello</p>\n}, [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
+    assert with_fn(@undefined) == {~s{<p>foo[^1]\nhello</p>\n}, [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
   end
 
   @nofns """
@@ -40,7 +40,7 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   hello
   """
   test "undefined footnotes (none at all) do not crash" do
-    assert with_fn(@nofns) == {~s{<p>foo hello</p>\n}, [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
+    assert with_fn(@nofns) == {~s{<p>foo[^1]\nhello</p>\n}, [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
   end
 
 
