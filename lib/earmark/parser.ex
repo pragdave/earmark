@@ -26,7 +26,6 @@ defmodule Earmark.Parser do
       map_func.(blocks, &find_footnote_links/1)
         |> List.flatten
         |> get_footnote_numbers(footnotes, options)
-        raise "Continue Here"
     blocks = create_footnote_blocks(blocks, footnotes)
     footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(Map.new)
     { blocks, footnotes, undefined_footnotes }

@@ -45,7 +45,6 @@ defmodule Earmark.Inline do
 
 
   defp convert_each({"", _context, {result, errors}}, _converters) do
-    IO.inspect result
     { result
         |> Enum.reverse()
         |> IO.iodata_to_binary
@@ -137,14 +136,13 @@ defmodule Earmark.Inline do
     end
 
   defp converter_for_footnote({src, context, result}, _renderer) do
-    IO.inspect({src, context.rules.footnote})
     if match = Regex.run(context.rules.footnote, src) do
-      IO.inspect match
       [match, id] = match
-      out = footnote_link(context, match, id)
-      # TODO: I believe we have to check for errors here as in converter_for_reflink and
-      # ..._nolink
-      { behead(src, match), context, prepend_to_result(out, result) }
+      case footnote_link(context, match, id) do
+        {:ok, out} -> { behead(src, match), context, prepend_to_result(out, result) }
+        # {:error, message, src} -> { behead(src, match), context, prepend_to_errors(message, result) }
+        {:error, message, src} -> { behead(src, match), context, prepend_to_both(src, message, result) }
+      end
     end
   end
 
@@ -287,11 +285,12 @@ defmodule Earmark.Inline do
 
   defp footnote_link(context, _match, id) do
     case Map.fetch(context.footnotes, id) do
-      {:ok, %{number: number}} -> output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)
+      {:ok, %{number: number}} -> {:ok, output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)}
       _                        -> {:error, "undefined footnote #{id}", "[^#{id}]"}
     end
   end
 
+  defp prepend_to_both(item, error, {result, errors}), do: {[item | result], [error | errors]}
   defp prepend_to_errors(item, {result, errors}), do: {result, [item | errors]}
   defp prepend_to_result(item, {result, errors}), do: {[item | result], errors}
 
