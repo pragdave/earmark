@@ -1,4 +1,7 @@
 defmodule Earmark.Context do
+
+  use Earmark.Types
+
   defstruct options:  %Earmark.Options{},
             links:    Map.new,
             rules:    nil,
@@ -7,6 +10,7 @@ defmodule Earmark.Context do
   @doc """
   Append messages to `context.options.messages`
   """
+  @spec add_messages( %Earmark.Options{}, list(message)|message) :: %Earmark.Options{}
   def add_messages(context, messages)
   def add_messages(context, messages) when is_list(messages) do
     options = context.options

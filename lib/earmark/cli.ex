@@ -48,8 +48,7 @@ defmodule Earmark.CLI do
   end
 
   defp process(:version) do
-    {:ok, version} = :application.get_key(:earmark, :vsn)
-    IO.puts( version )
+    IO.puts( Earmark.version() )
   end
 
   defp process({io_device, options}) do

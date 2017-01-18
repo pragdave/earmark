@@ -58,8 +58,9 @@ defmodule Earmark.Block do
   @doc false
   # Public to allow easier testing
   def lines_to_blocks(lines, options) do
-    with {blocks, options1} <- lines |> _parse([], options), do:
+    with {blocks, options1} <- lines |> _parse([], options) do
       { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
+    end
   end
 
 

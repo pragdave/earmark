@@ -149,6 +149,11 @@ defmodule Functional.Scanner.LineTypeTest do
           columns: [ "a | b",  "c"] } },
 
       #
+      # Footnote Definitions but no footnote option
+      #
+      { "[^1]: bar baz", %Earmark.Line.Text{content: "[^1]: bar baz", inside_code: false,
+                       line: "[^1]: bar baz", lnb: 42}},
+      #
       # Plugins
       #
       { "$$",                       %Line.Plugin{prefix: "", content: ""}},
