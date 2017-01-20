@@ -16,24 +16,24 @@ defmodule Earmark.Block do
   alias Earmark.Parser
   alias Earmark.Options
 
-  defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
-  defmodule Ruler,       do: defstruct attrs: nil, type: nil
-  defmodule BlockQuote,  do: defstruct attrs: nil, blocks: []
-  defmodule List,        do: defstruct attrs: nil, type: :ul, blocks:  [], start: ""
-  defmodule ListItem,    do: defstruct attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
-  defmodule Para,        do: defstruct attrs: nil, lines:  []
-  defmodule Code,        do: defstruct attrs: nil, lines:  [], language: nil
-  defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
-  defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
-  defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
-  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: nil, blocks: []
-  defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
-  defmodule Ial,         do: defstruct attrs: nil, content: nil
+  defmodule Heading,     do: defstruct lnb: 0, attrs: nil, content: nil, level: nil
+  defmodule Ruler,       do: defstruct lnb: 0, attrs: nil, type: nil
+  defmodule BlockQuote,  do: defstruct lnb: 0, attrs: nil, blocks: []
+  defmodule List,        do: defstruct lnb: 0, attrs: nil, type: :ul, blocks:  [], start: ""
+  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
+  defmodule Para,        do: defstruct lnb: 0, attrs: nil, lines:  []
+  defmodule Code,        do: defstruct lnb: 0, attrs: nil, lines:  [], language: nil
+  defmodule Html,        do: defstruct lnb: 0, attrs: nil, html:   [], tag: nil
+  defmodule HtmlOther,   do: defstruct lnb: 0, attrs: nil, html:   []
+  defmodule IdDef,       do: defstruct lnb: 0, attrs: nil, id: nil, url: nil, title: nil
+  defmodule FnDef,       do: defstruct lnb: 0, attrs: nil, id: nil, number: nil, blocks: []
+  defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
+  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil
 
-  defmodule Plugin,      do: defstruct attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
+  defmodule Plugin,      do: defstruct lnb: 0, attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
 
   defmodule Table do
-    defstruct attrs: nil, rows: [], header: nil, alignments: []
+    defstruct lnb: 0, attrs: nil, rows: [], header: nil, alignments: []
 
     def new_for_columns(n) do
       %__MODULE__{alignments: Elixir.List.duplicate(:left, n)}
@@ -58,6 +58,7 @@ defmodule Earmark.Block do
   @doc false
   # Public to allow easier testing
   def lines_to_blocks(lines, options) do
+    raise "Pass lnb into blocks"
     with {blocks, options1} <- lines |> _parse([], options) do
       { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
     end
