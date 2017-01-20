@@ -14,7 +14,7 @@ defmodule Parser.InlineCodeTest do
       " third` `suffix`"]
     {result, _, _} = Parser.parse(lines)
     expected = [
-      %Block.Para{attrs: nil, lines: lines}
+      %Block.Para{attrs: nil, lines: lines, lnb: 1}
     ]
     assert result == expected
   end
@@ -25,7 +25,7 @@ defmodule Parser.InlineCodeTest do
       " third` `suffix`"]
     {result, _, _} = Parser.parse(lines)
     expected = [
-      %Block.Para{attrs: nil, lines: lines}
+      %Block.Para{attrs: nil, lines: lines, lnb: 1}
     ]
     assert result == expected
   end
@@ -37,7 +37,7 @@ defmodule Parser.InlineCodeTest do
       "     fifth`"]
     {result, _, _} = Parser.parse(lines)
     expected = [
-      %Block.Para{attrs: nil, lines: lines}
+      %Block.Para{attrs: nil, lines: lines, lnb: 1}
     ]
     assert result == expected
   end
@@ -49,7 +49,7 @@ defmodule Parser.InlineCodeTest do
       "```"]
     {result, _, _} = Parser.parse(lines)
     expected = [
-      %Block.Para{attrs: nil, lines: lines}
+      %Block.Para{attrs: nil, lines: lines, lnb: 1}
     ]
     assert result == expected
   end
@@ -57,7 +57,7 @@ defmodule Parser.InlineCodeTest do
   test "Even number of inline code" do
     {result, _, _} = Parser.parse([ "third` suffix`"])
     expected = [
-      %Block.Para{attrs: nil, lines: ["third` suffix`"]}
+      %Block.Para{attrs: nil, lines: ["third` suffix`"], lnb: 1}
     ]
     assert result == expected
   end
@@ -65,7 +65,7 @@ defmodule Parser.InlineCodeTest do
   test "Escapes and Backtix" do
     {result, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`"])
     expected = [
-      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]}
+      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"], lnb: 1}
     ]
     assert result == expected
   end
@@ -73,8 +73,8 @@ defmodule Parser.InlineCodeTest do
   test "Escapes and Backtix and Code" do
     {result, _, _} = Parser.parse([ "\\\\` more \\\\\\`code\\\\`","    Hello"])
     expected = [
-      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"]},
-      %Earmark.Block.Code{attrs: nil, language: nil, lines: ["Hello"]}
+      %Earmark.Block.Para{attrs: nil, lines: ["\\\\` more \\\\\\`code\\\\`"], lnb: 1},
+      %Earmark.Block.Code{attrs: nil, language: nil, lines: ["Hello"], lnb: 2}
     ]
     assert result == expected
   end
@@ -92,11 +92,11 @@ defmodule Parser.InlineCodeTest do
       %Block.List{
         attrs: nil,
         blocks: [%Block.ListItem{ attrs: nil,
-          blocks: [%Block.Para{attrs: nil, lines: text_lines}],
+          blocks: [%Block.Para{attrs: nil, lines: text_lines, lnb: 1}],
           spaced: false,
           bullet: bullet,
-          type: type}],
-        type: type}]
+          type: type, lnb: 1}],
+        type: type, lnb: 1}]
   end
 
   defp parse_as_list [line | rest], pfx \\ "*" do

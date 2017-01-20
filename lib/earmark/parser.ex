@@ -21,7 +21,6 @@ defmodule Earmark.Parser do
 
   # @spec handle_footnotes( Block.ts, %Earmark.Options{}, ( Block.ts,
   def handle_footnotes(blocks, options, map_func) do
-    IO.inspect blocks
     { footnotes, blocks } = Enum.partition(blocks, &footnote_def?/1)
     { footnotes, undefined_footnotes } =
       map_func.(blocks, &find_footnote_links/1)
@@ -72,7 +71,10 @@ defmodule Earmark.Parser do
   defp create_footnote_blocks(blocks, []), do: blocks
 
   defp create_footnote_blocks(blocks, footnotes) do
-    footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number))}
+    lnb = footnotes
+      |> Stream.map(&(&1.lnb)) 
+      |> Enum.min()
+    footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number)), lnb: lnb}
     Enum.concat(blocks, [footnote_block])
   end
 

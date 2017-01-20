@@ -72,9 +72,9 @@ defmodule FootnoteTest do
              ]
 
     {result, _, _} = Parser.parse(lines)
-    expected = [%Block.Para{attrs: nil, lines: ["This is a footnote[^fn-1]"]},
-		%Block.Para{attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
-            	%Block.Code{attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "",
+    expected = [%Block.Para{lnb: 1, attrs: nil, lines: ["This is a footnote[^fn-1]"]},
+		%Block.Para{lnb: 3, attrs: nil, lines: ["[^fn-1]: line 1", "line 2"]},
+            	%Block.Code{lnb: 6, attrs: nil, language: nil, lines: ["Para 2 line 1", "Para 2 line 2", "",
 								       "* List Item 1", "  List Item 1 Cont", "* List Item 2"]
 		}]
     assert result == expected
@@ -123,11 +123,11 @@ defmodule FootnoteTest do
   test "parses footnote content" do
     {blocks, _, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
     {blocks, footnotes, _} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
-    fn_content = [%Earmark.Block.Para{lines: ["line 1", "line 2", "line 3"]}]
-    fn_def = %Earmark.Block.FnDef{id: "ref-id", number: 1, blocks: fn_content }
-    assert blocks == [%Earmark.Block.Para{lines: ["para[^ref-id]"]},
-                      %Earmark.Block.Para{lines: ["para"]},
-                      %Earmark.Block.FnList{blocks: [fn_def]}
+    fn_content = [%Earmark.Block.Para{lnb: 3, lines: ["line 1", "line 2", "line 3"]}]
+    fn_def = %Earmark.Block.FnDef{lnb: 3, id: "ref-id", number: 1, blocks: fn_content }
+    assert blocks == [%Earmark.Block.Para{lnb: 1, lines: ["para[^ref-id]"]},
+                      %Earmark.Block.Para{lnb: 7, lines: ["para"]},
+                      %Earmark.Block.FnList{lnb: 3, blocks: [fn_def]}
                      ]
     expect = Map.new |> Map.put("ref-id", fn_def)
     assert footnotes == expect

@@ -51,8 +51,8 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   """
   test "illdefined footnotes no not crash" do
     assert with_fn(@illdefined) == {~s{<p>foo[^1] again</p>\n<p>[^1]:bar baz</p>\n},
-     [{:error, 1, "footnote 1 undefined, reference to it ignored"},
-      {:error, 3, "footnote 1 undefined, reference to it ignored"}]}
+     [{:error, 3, "footnote 1 undefined, reference to it ignored"},
+      {:error, 1, "footnote 1 undefined, reference to it ignored"}]}
   end
   defp with_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: true})
   defp without_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: false})

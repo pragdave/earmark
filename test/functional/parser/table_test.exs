@@ -11,7 +11,7 @@ defmodule TableTest do
                 %Line.Blank{}
              ], options())
 
-    assert result == {[ %Block.Para{lines: ["a | b | c"]} ], options()}
+    assert result == {[ %Block.Para{lines: ["a | b | c"], lnb: 1} ], options()}
   end
 
   test "test two table lines make a table" do

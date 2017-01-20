@@ -1,5 +1,4 @@
 defmodule Earmark.Inline do
-  import Tools.Tracer
 
   @moduledoc """
   Match and render inline sequences, passing each to the
@@ -67,7 +66,7 @@ defmodule Earmark.Inline do
     case converter.(data, context.options.renderer) do
       nil                -> walk_converters(rest, data, all_converters)
       {:error, message}  -> walk_converters(rest, {src, context, prepend_to_errors(message, result)}, all_converters)
-      nd = {src, _, res} -> convert_each(nd, all_converters)
+      nd                 -> convert_each(nd, all_converters)
     end
   end
   
