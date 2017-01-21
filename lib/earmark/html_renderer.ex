@@ -1,11 +1,5 @@
 defmodule Earmark.HtmlRenderer do
 
-  defmodule EarmarkError do
-    defexception [:message]
-
-    def exception(msg), do: %__MODULE__{message: msg}
-  end
-
   alias  Earmark.Block
   alias  Earmark.Context
   alias  Earmark.Message

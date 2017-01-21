@@ -5,10 +5,11 @@ defmodule Earmark.Inline do
   renderer.
   """
 
+  alias  Earmark.Context
+  alias  Earmark.Error
+  alias  Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  alias Earmark.Context
-  alias Earmark.Helpers.LinkParser
 
   @doc false
   def convert(src, context) when is_list(src) do
@@ -50,7 +51,7 @@ defmodule Earmark.Inline do
         |> replace(~r{(</[^>]*>)‘}, "\\1’")
         |> replace(~r{(</[^>]*>)“}, "\\1”")
   end
-  defp convert_each(data ={s, _, _}, converters) do
+  defp convert_each(data, converters) do
     walk_converters(converters, data, converters)
   end
 
@@ -60,7 +61,7 @@ defmodule Earmark.Inline do
     # This should never happen
     raise Error, "Illegal State"
   end
-  defp walk_converters([{_converter_name, converter}|rest], data = { src, context, result}, all_converters) do
+  defp walk_converters([{_converter_name, converter}|rest], data = { _src, context, _result}, all_converters) do
     case converter.(data, context.options.renderer) do
       nil                -> walk_converters(rest, data, all_converters)
       # :error             -> walk_converters(rest, {src, context, result}, all_converters)

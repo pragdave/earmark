@@ -3,7 +3,7 @@ defmodule Unit.PluginTest do
 
   alias Earmark.Options, as: O
   alias Earmark.Plugin, as: P
-  alias Earmark.Plugin.Error, as: E
+  alias Earmark.Error, as: E
 
   doctest P
 
