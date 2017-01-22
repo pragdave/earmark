@@ -4,7 +4,7 @@ defmodule ListTest do
   alias Earmark.Line
   alias Earmark.Block
 
-  # TODO: These tests are heavily
+  # TODO: These tests are heavily unorthogonal, seperate functional from integration tests
   test "Basic UL" do
     result = Block.lines_to_blocks([
                %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
@@ -36,7 +36,7 @@ defmodule ListTest do
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
-                                %Block.Para{lines: ["line 2"]}],
+                                %Block.Para{lines: ["line 2"], lnb: 2}],
                                 spaced: false, type: :ul, bullet: "*"}
     ]}], options()}
     assert result == expected
@@ -51,7 +51,7 @@ defmodule ListTest do
              ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
          %Block.ListItem{blocks: [%Block.Para{lines: ["line 1"]},
-                                %Block.Para{lines: ["  line 2"]}],
+                                %Block.Para{lines: ["  line 2"], lnb: 2}],
                                 spaced: false, type: :ul, bullet: "*"}
     ]}], options()}
     assert result == expected
@@ -122,12 +122,12 @@ defmodule ListTest do
                %Line.Indent{level: 1, content: "line 2", lnb: 1},
              ], options())
 
-    expected = {[ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, blocks: [
-               %Block.Para{lines: ["line 1"]},
-               %Block.Code{language: nil, lines: ["code 1", "    code 2"]},
-               %Block.Para{lines: ["line 2"]}], spaced: false, bullet: "*"}
-    ]}], options()}
+    expected = {[ %Block.List{ lnb: 1, type: :ul, blocks: [
+       %Block.ListItem{lnb: 1, type: :ul, blocks: [
+               %Block.Para{lines: ["line 1"], lnb: 1},
+               %Block.Code{language: nil, lines: ["code 1", "    code 2"], lnb: 3},
+               %Block.Para{lines: ["line 2"], lnb: 6}], spaced: false, bullet: "*"}
+    ]}], options(1)}
 
     assert result == expected
   end
@@ -191,7 +191,7 @@ defmodule ListTest do
     "some file"
   end
 
-  defp options do
-    %Earmark.Options{file: filename, line: 0}
+  defp options(line \\ 0) do
+    %Earmark.Options{file: filename(), line: line}
   end
 end

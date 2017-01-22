@@ -13,10 +13,10 @@ defmodule Parser.WhitespaceTest do
       "para"])
 
     expected = [
-      %Block.Code{attrs: nil,
+      %Block.Code{lnb: 2, attrs: nil,
         language: nil,
         lines: ["line 1", "line 2"]},
-      %Block.Para{attrs: nil, lines: ["para"]}
+      %Block.Para{lnb: 6, attrs: nil, lines: ["para"]}
     ]
     assert result == expected
   end

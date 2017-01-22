@@ -1,5 +1,6 @@
 defmodule Earmark.Block do
 
+  # import Tools.Tracer
   use Earmark.Types
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
   import Earmark.Helpers.LineHelpers
@@ -16,24 +17,25 @@ defmodule Earmark.Block do
   alias Earmark.Parser
   alias Earmark.Options
 
-  defmodule Heading,     do: defstruct attrs: nil, content: nil, level: nil
-  defmodule Ruler,       do: defstruct attrs: nil, type: nil
-  defmodule BlockQuote,  do: defstruct attrs: nil, blocks: []
-  defmodule List,        do: defstruct attrs: nil, type: :ul, blocks:  [], start: ""
-  defmodule ListItem,    do: defstruct attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
-  defmodule Para,        do: defstruct attrs: nil, lines:  []
-  defmodule Code,        do: defstruct attrs: nil, lines:  [], language: nil
-  defmodule Html,        do: defstruct attrs: nil, html:   [], tag: nil
-  defmodule HtmlOther,   do: defstruct attrs: nil, html:   []
-  defmodule IdDef,       do: defstruct attrs: nil, id: nil, url: nil, title: nil
-  defmodule FnDef,       do: defstruct attrs: nil, id: nil, number: nil, blocks: []
-  defmodule FnList,      do: defstruct attrs: ".footnotes", blocks: []
-  defmodule Ial,         do: defstruct attrs: nil, content: nil
+  defmodule Heading,     do: defstruct lnb: 0, attrs: nil, content: nil, level: nil
+  defmodule Ruler,       do: defstruct lnb: 0, attrs: nil, type: nil
+  defmodule BlockQuote,  do: defstruct lnb: 0, attrs: nil, blocks: []
+  defmodule Para,        do: defstruct lnb: 0, attrs: nil, lines:  []
+  defmodule Code,        do: defstruct lnb: 0, attrs: nil, lines:  [], language: nil
+  defmodule Html,        do: defstruct lnb: 0, attrs: nil, html:   [], tag: nil
+  defmodule HtmlOther,   do: defstruct lnb: 0, attrs: nil, html:   []
+  defmodule IdDef,       do: defstruct lnb: 0, attrs: nil, id: nil, url: nil, title: nil
+  defmodule FnDef,       do: defstruct lnb: 0, attrs: nil, id: nil, number: nil, blocks: []
+  defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
+  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil
+  # List does not need line number
+  defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: ""
+  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
 
-  defmodule Plugin,      do: defstruct attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
+  defmodule Plugin,      do: defstruct lnb: 0, attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
 
   defmodule Table do
-    defstruct attrs: nil, rows: [], header: nil, alignments: []
+    defstruct lnb: 0, attrs: nil, rows: [], header: nil, alignments: []
 
     def new_for_columns(n) do
       %__MODULE__{alignments: Elixir.List.duplicate(:left, n)}
@@ -58,8 +60,9 @@ defmodule Earmark.Block do
   @doc false
   # Public to allow easier testing
   def lines_to_blocks(lines, options) do
-    with {blocks, options1} <- lines |> _parse([], options), do:
+    with {blocks, options1} <- lines |> _parse([], options) do
       { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
+    end
   end
 
 
@@ -71,58 +74,58 @@ defmodule Earmark.Block do
   ###################
 
   defp _parse([  %Line.Blank{},
-                %Line.Text{content: heading},
+                %Line.Text{content: heading, lnb: lnb},
                 %Line.SetextUnderlineHeading{level: level}
 
              |
                 rest
              ], result, options) do
 
-    _parse(rest, [ %Heading{content: heading, level: level} | result ], options)
+    _parse(rest, [ %Heading{content: heading, level: level, lnb: lnb} | result ], options)
   end
 
   defp _parse([  %Line.Blank{},
-                %Line.Text{content: heading},
+                %Line.Text{content: heading, lnb: lnb},
                 %Line.Ruler{type: "-"}
              |
                 rest
              ], result, options) do
 
-    _parse(rest, [ %Heading{content: heading, level: 2} | result ], options)
+    _parse(rest, [ %Heading{content: heading, level: 2, lnb: lnb} | result ], options)
   end
 
   #################
   # Other heading #
   #################
 
-  defp _parse([ %Line.Heading{content: content, level: level} | rest ], result, options) do
-    _parse(rest, [ %Heading{content: content, level: level} | result ], options)
+  defp _parse([ %Line.Heading{content: content, level: level, lnb: lnb} | rest ], result, options) do
+    _parse(rest, [ %Heading{content: content, level: level, lnb: lnb} | result ], options)
   end
 
   #########
   # Ruler #
   #########
 
-  defp _parse([ %Line.Ruler{type: type} | rest], result, options) do
-    _parse(rest, [ %Ruler{type: type} | result ], options)
+  defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options) do
+    _parse(rest, [ %Ruler{type: type, lnb: lnb} | result ], options)
   end
 
   ###############
   # Block Quote #
   ###############
 
-  defp _parse( lines = [ %Line.BlockQuote{} | _ ], result, options) do
+  defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
-    {blocks, _, options1} = Parser.parse(lines, options, true)
-    _parse(rest, [ %BlockQuote{blocks: blocks} | result ], options1)
+    {blocks, _, options1} = Parser.parse(lines, %{options | line: lnb}, true)
+    _parse(rest, [ %BlockQuote{blocks: blocks, lnb: lnb} | result ], options1)
   end
 
   #########
   # Table #
   #########
 
-  defp _parse( lines = [ %Line.TableLine{columns: cols1},
+  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1},
                         %Line.TableLine{columns: cols2}
                       | _rest
                       ], result, options)
@@ -130,30 +133,31 @@ defmodule Earmark.Block do
   do
     columns = length(cols1)
     { table, rest } = read_table(lines, columns, Table.new_for_columns(columns))
-    _parse(rest, [ table | result ], options)
+    table1          = %{table | lnb: lnb1}
+    _parse(rest, [ table1 | result ], options)
   end
 
   #############
   # Paragraph #
   #############
 
-  defp _parse( lines = [ %Line.TableLine{} | _ ], result, options) do
+  defp _parse( lines = [ %Line.TableLine{lnb: lnb} | _ ], result, options) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
-    _parse(rest, [ %Para{lines: line_text} | result ], options)
+    _parse(rest, [ %Para{lines: line_text, lnb: lnb + 1} | result ], options)
   end
 
-  defp _parse( lines = [ %Line.Text{} | _ ], result, options)
+  defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options)
   do
     {reversed_para_lines, rest, pending} = consolidate_para(lines)
     options1 =
       case pending do
         {nil, _} -> options
-        {pending, lnb} ->
-          Options.add_warning(options, lnb, "Closing unclosed backquotes #{pending} at end of input" )
+        {pending, lnb1} ->
+          Options.add_warning(options, lnb1, "Closing unclosed backquotes #{pending} at end of input" )
       end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
-    _parse(rest, [ %Para{lines: line_text} | result ], options1)
+    _parse(rest, [ %Para{lines: line_text, lnb: lnb} | result ], options1)
   end
 
   #########
@@ -162,72 +166,72 @@ defmodule Earmark.Block do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet} | rest ], result, options) do
-    {spaced, list_lines, rest, offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
+  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet, lnb: lnb} | rest ], result, options) do
+    {spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0)
     lines = [content | lines]
-    {blocks, _, options1} = Parser.parse(lines, %{options | line: offset}, true)
+    {blocks, _, options1} = Parser.parse(lines, %{options | line: lnb}, true)
 
-    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet} | result ], options1)
+    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1)
   end
 
   #################
   # Indented code #
   #################
 
-  defp _parse( list = [%Line.Indent{} | _], result, options) do
+  defp _parse( list = [%Line.Indent{lnb: lnb} | _], result, options) do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
-    _parse(rest, [ %Code{lines: code} | result ], options)
+    _parse(rest, [ %Code{lines: code, lnb: lnb} | result ], options)
   end
 
   ###############
   # Fenced code #
   ###############
 
-  defp _parse([%Line.Fence{delimiter: delimiter, language: language} | rest], result, options) do
+  defp _parse([%Line.Fence{delimiter: delimiter, language: language, lnb: lnb} | rest], result, options) do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
     rest = if length(rest) == 0, do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
-    _parse(rest, [ %Code{lines: code, language: language} | result ], options)
+    _parse(rest, [ %Code{lines: code, language: language, lnb: lnb} | result ], options)
   end
 
   ##############
   # HTML block #
   ##############
-  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag} | rest], result, options) do
+  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options) do
     {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
     options1 = unclosed
-      |> Enum.reduce(options, fn %{lnb: lnb, tag: tag}, acc ->
-        Options.add_warning(acc, lnb, "Failed to find closing <#{tag}>")
+      |> Enum.reduce(options, fn %{lnb: lnb1, tag: tag}, acc ->
+        Options.add_warning(acc, lnb1, "Failed to find closing <#{tag}>")
       end)
 
     html = (for line <- Enum.reverse(html_lines), do: line.line)
-    _parse(rest, [ %Html{tag: tag, html: html} | result ], options1)
+    _parse(rest, [ %Html{tag: tag, html: html, lnb: lnb} | result ], options1)
   end
 
   ####################
   # HTML on one line #
   ####################
 
-  defp _parse([ %Line.HtmlOneLine{line: line} | rest], result, options) do
-    _parse(rest, [ %HtmlOther{html: [ line ]} | result ], options)
+  defp _parse([ %Line.HtmlOneLine{line: line, lnb: lnb} | rest], result, options) do
+    _parse(rest, [ %HtmlOther{html: [ line ], lnb: lnb} | result ], options)
   end
 
   ################
   # HTML Comment #
   ################
 
-  defp _parse([ line = %Line.HtmlComment{complete: true} | rest], result, options) do
-    _parse(rest, [ %HtmlOther{html: [ line.line ]} | result ], options)
+  defp _parse([ line = %Line.HtmlComment{complete: true, lnb: lnb} | rest], result, options) do
+    _parse(rest, [ %HtmlOther{html: [ line.line ], lnb: lnb} | result ], options)
   end
 
-  defp _parse(lines = [ %Line.HtmlComment{complete: false} | _], result, options) do
+  defp _parse(lines = [ %Line.HtmlComment{complete: false, lnb: lnb} | _], result, options) do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
@@ -237,7 +241,7 @@ defmodule Earmark.Block do
       {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
-    _parse(rest, [ %HtmlOther{html: html} | result ], options)
+    _parse(rest, [ %HtmlOther{html: html, lnb: lnb} | result ], options)
   end
 
   #################
@@ -245,7 +249,7 @@ defmodule Earmark.Block do
   #################
 
   # the title may be on the line following the iddef
-  defp _parse( [ defn = %Line.IdDef{title: title}, maybe_title | rest ], result, options)
+  defp _parse( [ defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest ], result, options)
   when title == nil
   do
     title = case maybe_title do
@@ -254,31 +258,31 @@ defmodule Earmark.Block do
     end
 
     if title do
-      _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title} | result], options)
+      _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result], options)
     else
-      _parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url} | result], options)
+      _parse([maybe_title | rest], [ %IdDef{id: defn.id, url: defn.url, lnb: lnb} | result], options)
     end
   end
 
   # or not
-  defp _parse( [ defn = %Line.IdDef{} | rest ], result, options) do
-    _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title} | result], options)
+  defp _parse( [ defn = %Line.IdDef{lnb: lnb} | rest ], result, options) do
+    _parse(rest, [ %IdDef{id: defn.id, url: defn.url, title: defn.title, lnb: lnb} | result], options)
   end
 
   #######################
   # Footnote Definition #
   #######################
 
-  defp _parse( [ defn = %Line.FnDef{id: _id} | rest ], result , options) do
+  defp _parse( [ defn = %Line.FnDef{id: _id, lnb: lnb} | rest ], result , options) do
     {para_lines, rest} = Enum.split_while(rest, &text?/1)
-    first_line = %Line.Text{line: defn.content}
+    first_line = %Line.Text{line: defn.content, lnb: lnb}
     {para, options1} = _parse([ first_line | para_lines ], [], options)
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _, options2} = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
-                |> Parser.parse(options1, true)
+                |> Parser.parse(%{options1 | line: lnb + 1}, true)
     blocks = Enum.concat(para, blocks)
-    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks } | result ], options2)
+    _parse( rest, [ %FnDef{id: defn.id, blocks: blocks , lnb: lnb} | result ], options2)
   end
 
   ####################
@@ -292,7 +296,7 @@ defmodule Earmark.Block do
       do: options,
       else:
         Options.add_warning(options, lnb, "Illegal attributes #{inspect attr_errors} ignored in IAL")
-    _parse(rest, [ %Ial{attrs: attributes, content: attrs} | result ], options1)
+    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb} | result ], options1)
   end
 
   ###############
@@ -312,7 +316,7 @@ defmodule Earmark.Block do
     handler =  Options.plugin_for_prefix(options, prefix)
     {plugin_lines, rest1} = collect_plugin_lines(lines, prefix, [])
     if handler do
-      _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines}|result], options) 
+      _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines, lnb: lnb}|result], options) 
     else
       _parse(rest1, result,
         Options.add_warning(options, lnb, "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})")) 
@@ -323,8 +327,8 @@ defmodule Earmark.Block do
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
 
-  defp _parse( [ anything | rest ], result, options) do
-    _parse( [ %Line.Text{content: anything.line} | rest], result,
+  defp _parse( [ anything = %{lnb: lnb} | rest ], result, options) do
+    _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result,
             Options.add_warning(options, anything.lnb, "Unexpected line #{anything.line}" ))
   end
 
@@ -384,7 +388,7 @@ defmodule Earmark.Block do
   # We have an item, but no open list
   defp consolidate_list_items([ item = %ListItem{type: type} | rest], result) do
     start = extract_start(item)
-    consolidate_list_items([ %List{ type: type, blocks: [ item ], start: start } | rest ], result)
+    consolidate_list_items([ %List{ type: type, blocks: [ item ], start: start} | rest ], result)
   end
   # Nothing to see here, move on
   defp consolidate_list_items([ head | rest ], result) do

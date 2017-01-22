@@ -39,24 +39,13 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
     # IO.puts html_from_file("test/fixtures/i078_fixed.md")
   end
 
-  @markdown """
-  Hello `\\\\` \\
-      World
-  """
   @short_html """
   <p>Hello <code class="inline">\\\\</code> \\</p>\n<pre><code>World</code></pre>
   """
-  @expected_html """
-  <p>  Notice we had to escape the escape character <code class=\"inline\">\\\\</code>. By giving <code class=\"inline\">\\0</code>,
-
-  <pre><code>  iex&gt; String.replace(&quot;a,b,c&quot;, &quot;b&quot;, &quot;[]&quot;, insert_replaced: 1)\n      &quot;a,[b],c&quot;</code></pre>\n
-  """
   test "Issue https://github.com/pragdave/earmark/issues/78 correct blocks" do
-  # assert html_from_file("test/fixtures/i078_short.md") == @expected_html
-  # assert (@markdown |> String.split("\n") |> Earmark.Parser.parse()) ==
     assert blox_from_file("test/fixtures/i078_short.md") ==
-      {[%Earmark.Block.Para{attrs: nil, lines: ["Hello `\\\\` \\\\"]},
-        %Earmark.Block.Code{attrs: nil, language: nil, lines: ["World"]}], %{}, %Earmark.Options{}}
+      {[%Earmark.Block.Para{lnb: 1, attrs: nil, lines: ["Hello `\\\\` \\\\"]},
+        %Earmark.Block.Code{lnb: 2, attrs: nil, language: nil, lines: ["World"]}], %{}, %Earmark.Options{}}
   end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do

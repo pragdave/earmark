@@ -11,7 +11,7 @@ defmodule TableTest do
                 %Line.Blank{}
              ], options())
 
-    assert result == {[ %Block.Para{lines: ["a | b | c"]} ], options}
+    assert result == {[ %Block.Para{lines: ["a | b | c"], lnb: 1} ], options()}
   end
 
   test "test two table lines make a table" do
@@ -26,7 +26,7 @@ defmodule TableTest do
       alignments: [ :left, :left, :left ],
       header:     nil}
 
-    assert result == {[ expected ], options}
+    assert result == {[ expected ], options()}
   end
 
   test "test heading" do
@@ -42,7 +42,7 @@ defmodule TableTest do
       rows:       [ ~w{d e f} ],
       alignments: [ :left, :left, :left ]}
 
-    assert result == {[ expected ], options}
+    assert result == {[ expected ], options()}
   end
 
   test "test alignment" do
@@ -58,7 +58,7 @@ defmodule TableTest do
       rows:       [ ~w{d e f} ],
       alignments: [ :right, :center, :left ]}
 
-    assert result == {[ expected ], options}
+    assert result == {[ expected ], options()}
   end
 
 
