@@ -36,28 +36,33 @@ defmodule Earmark.Parser do
   defp footnote_def?(_block), do: false
 
   @spec find_footnote_links(Block.t) :: list(String.t)
-  defp find_footnote_links(%Block.Para{lines: lines}) do
-    Enum.flat_map(lines, &extract_footnote_links/1)
+  defp find_footnote_links(%Block.Para{lines: lines, lnb: lnb}) do
+    lines
+    |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
+    |> Enum.flat_map(&extract_footnote_links/1)
   end
   defp find_footnote_links(%{blocks: blocks}) do
     Enum.flat_map(blocks, &find_footnote_links/1)
   end
   defp find_footnote_links(_), do: []
 
-  @spec extract_footnote_links(String.t) :: list(String.t)
-  defp extract_footnote_links(line) do
+  @spec extract_footnote_links({String.t, number()}) :: list({String.t, number()})
+  defp extract_footnote_links({line, lnb}) do
     Regex.scan(~r{\[\^([^\]]+)\]}, line)
     |> Enum.map(&tl/1)
+    |> Enum.zip(Stream.cycle([lnb]))
   end
 
-  @spec get_footnote_numbers( list(String.t), Block.ts, %Earmark.Options{} ) :: Block.ts
+
+  @spec get_footnote_numbers( list({String.t, number()} ), Block.ts, %Earmark.Options{} ) :: Block.ts
   def get_footnote_numbers(refs, footnotes, options) do
-    Enum.reduce(refs, {[], []}, fn(ref, {defined, undefined}) ->
-      case Enum.find(footnotes, &(&1.id == ref)) do
+    Enum.reduce(refs, {[], []}, fn({ref, lnb}, {defined, undefined}) ->
+      r = hd(ref)
+      case Enum.find(footnotes, &(&1.id == r)) do
         note = %Block.FnDef{} -> number = length(defined) + options.footnote_offset
                                  note = %Block.FnDef{ note | number: number }
                                  {[ note | defined ], undefined}
-        _                     -> {defined, [{:error, 99999, "footnote #{ref} undefined, reference to it ignored"} | undefined]}
+        _                     -> {defined, [{:error, lnb, "footnote #{r} undefined, reference to it ignored"} | undefined]}
       end
     end)
   end
@@ -66,7 +71,10 @@ defmodule Earmark.Parser do
   defp create_footnote_blocks(blocks, []), do: blocks
 
   defp create_footnote_blocks(blocks, footnotes) do
-    footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number))}
+    lnb = footnotes
+      |> Stream.map(&(&1.lnb)) 
+      |> Enum.min()
+    footnote_block = %Block.FnList{blocks: Enum.sort_by(footnotes, &(&1.number)), lnb: lnb}
     Enum.concat(blocks, [footnote_block])
   end
 

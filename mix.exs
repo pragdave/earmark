@@ -22,7 +22,6 @@ defmodule Earmark.Mixfile do
 
   defp deps do
     [
-      { :poison,   "~> 3.0",   only: [ :dev, :test ] },
       { :credo,    "~> 0.4.0", only: [ :dev, :test ] },
       { :dialyxir, "~> 0.3.3", only: [ :dev, :test ] },
    ]

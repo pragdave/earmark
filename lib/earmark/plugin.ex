@@ -1,11 +1,6 @@
 defmodule Earmark.Plugin do
+  alias Earmark.Error
   alias Earmark.Options
-
-  defmodule Error do
-    defexception [:message]
-
-    def exception(msg), do: %__MODULE__{message: msg}
-  end
 
   @moduledoc """
   Plugins are modules that implement a render function. Right now that is `as_html`.

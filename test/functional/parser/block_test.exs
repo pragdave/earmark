@@ -39,21 +39,21 @@ defmodule BlockTest do
 
   test "Basic block quote" do
     result = Block.lines_to_blocks([
-               %Line.BlockQuote{content: "line 1"},
-               %Line.BlockQuote{content: "line 2"}
+               %Line.BlockQuote{content: "line 1", lnb: 1},
+               %Line.BlockQuote{content: "line 2", lnb: 2}
              ], options())
 
-    expected = {[%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}], options()}
+    expected = {[%Block.BlockQuote{lnb: 1, blocks: [%Block.Para{lines: ["line 1", "line 2"], lnb: 1}]}], options()}
     assert result == expected
   end
 
   test "Block quote where continuation lines don't start >" do
     result = Block.lines_to_blocks([
-               %Line.BlockQuote{content: "line 1"},
-               %Line.Text{content: "line 2"}
+               %Line.BlockQuote{content: "line 1", lnb: 1},
+               %Line.Text{content: "line 2", lnb: 2}
              ], options())
 
-    expected = {[%Block.BlockQuote{blocks: [%Block.Para{lines: ["line 1", "line 2"]}]}], options()}
+    expected = {[%Block.BlockQuote{lnb: 1, blocks: [%Block.Para{lines: ["line 1", "line 2"], lnb: 1}]}], options()}
     assert result == expected
   end
 
@@ -254,7 +254,7 @@ defmodule BlockTest do
                %Line.Indent{level: 1, content: "[id1]: url1  (title1)"},
              ], options())
 
-    defn = %Block.IdDef{id: "id1", title: "title1", url: "url1"}
+    defn = %Block.IdDef{id: "id1", title: "title1", url: "url1", lnb: 2}
 
     expected = [ %Block.List{ type: :ul, blocks: [
        %Block.ListItem{type: :ul, spaced: false, bullet: "*", blocks: [
