@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Docs do
 
   """
 
-  def run([]) do
+  def run(_) do
     ex_doc = "#{System.get_env |> Map.get("HOME")}/.mix/escripts/ex_doc"
     System.cmd("rm", ~w( -rf doc ))
     System.cmd(ex_doc,
