@@ -1,7 +1,7 @@
 defmodule Acceptance.AtxHeadersTest do
   use ExUnit.Case
   
-  describe "ATX headers" do
+  # describe "ATX headers" do
 
     test "from one to six" do
       markdown = "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
@@ -75,5 +75,5 @@ defmodule Acceptance.AtxHeadersTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

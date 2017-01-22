@@ -1,7 +1,7 @@
 defmodule Acceptance.HtmlBlocksTest do
   use ExUnit.Case
 
-  describe "HTML blocks" do
+  # describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
       html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
@@ -26,9 +26,9 @@ defmodule Acceptance.HtmlBlocksTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 
-  describe "HTML void elements" do
+  # describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
       html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
@@ -67,9 +67,9 @@ defmodule Acceptance.HtmlBlocksTest do
       messages = []
       assert Earmark.as_html(markdown) == {html, messages}
     end
-  end
+  # end
 
-  describe "HTML and paragraphs" do
+  # describe "HTML and paragraphs" do
     test "void elements close para" do
       markdown = "alpha\n<hr>beta"
       html     = "<p>alpha</p>\n<hr>beta"
@@ -158,5 +158,5 @@ defmodule Acceptance.HtmlBlocksTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

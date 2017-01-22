@@ -3,7 +3,7 @@ defmodule Acceptance.DiverseTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  describe "etc" do
+  # describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
       html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
@@ -29,5 +29,5 @@ defmodule Acceptance.DiverseTest do
     end
 
 
-  end
+  # end
 end

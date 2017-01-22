@@ -3,7 +3,7 @@ defmodule Acceptance.EscapeTest do
 
   import Support.Helpers, only: [as_html: 1, as_html: 2]
 
-  describe "Escapes" do
+  # describe "Escapes" do
     test "dizzy?" do
       markdown = "\\\\!\\\\\""
       html     = "<p>\\!\\“</p>\n"
@@ -53,5 +53,5 @@ defmodule Acceptance.EscapeTest do
       messages = []
       assert as_html(markdown) == {html, messages}
     end
-  end
+  # end
 end

@@ -3,7 +3,7 @@ defmodule Acceptance.InlineCodeTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  describe "Inline Code" do
+  # describe "Inline Code" do
 
     test "plain simple" do
       markdown = "`foo`\n"
@@ -35,5 +35,5 @@ defmodule Acceptance.InlineCodeTest do
       messages = []
       assert as_html(markdown) == {html, messages}
     end
-  end
+  # end
 end

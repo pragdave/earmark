@@ -1,7 +1,7 @@
 defmodule Acceptance.IndentedCodeBlocksTest do
   use ExUnit.Case
 
-  describe "Indented code blocks" do
+  # describe "Indented code blocks" do
     test "simple (but easy?)" do
       markdown = "    a simple\n      indented code block\n"
       html     = "<pre><code>a simple\n  indented code block</code></pre>\n"
@@ -40,5 +40,5 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       messages = []
       assert Earmark.as_html(markdown) == {html, messages}
     end
-  end
+  # end
 end

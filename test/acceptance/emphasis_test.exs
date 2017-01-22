@@ -3,7 +3,7 @@ defmodule Acceptance.EmphasisTest do
 
   import Support.Helpers, only: [as_html: 1, as_html: 2]
 
-  describe "Emphasis" do
+  # describe "Emphasis" do
     test "important" do
       markdown = "*foo bar*\n"
       html     = "<p><em>foo bar</em></p>\n"
@@ -100,5 +100,5 @@ defmodule Acceptance.EmphasisTest do
       assert as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

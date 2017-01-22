@@ -1,7 +1,7 @@
 defmodule Acceptance.BlockQuotesTest do
   use ExUnit.Case
 
-  describe "Block Quotes" do
+  # describe "Block Quotes" do
     test "quote my block" do
       markdown = "> Foo"
       html     = "<blockquote><p>Foo</p>\n</blockquote>\n"
@@ -34,5 +34,5 @@ defmodule Acceptance.BlockQuotesTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

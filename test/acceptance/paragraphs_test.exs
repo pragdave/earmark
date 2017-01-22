@@ -1,7 +1,7 @@
 defmodule Acceptance.ParagraphsTest do
   use ExUnit.Case
 
-  describe "Paragraphs" do
+  # describe "Paragraphs" do
     test "a para" do
       markdown = "aaa\n\nbbb\n"
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
@@ -18,5 +18,5 @@ defmodule Acceptance.ParagraphsTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

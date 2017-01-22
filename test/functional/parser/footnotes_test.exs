@@ -5,7 +5,7 @@ defmodule Functional.Parser.FootnotesTest do
   alias Earmark.Context
   alias Earmark.Options
 
-  describe "Defined" do
+  # describe "Defined" do
     @vanilla """
     foo[^1]
 
@@ -39,9 +39,9 @@ defmodule Functional.Parser.FootnotesTest do
       %Earmark.Block.FnList{attrs: ".footnotes", blocks: [%Earmark.Block.FnDef{attrs: nil, lnb: 3, blocks: [%Earmark.Block.Para{attrs: nil, lnb: 3, lines: ["bar baz"]}], id: "1", number: 1}], lnb: 3}], []}
     end
 
-  end
+  # end
 
-  describe "Undefined" do
+  # describe "Undefined" do
     @shorter_vanilla """
     foo[^1]
 
@@ -63,7 +63,7 @@ defmodule Functional.Parser.FootnotesTest do
       assert parse(@undefined_fn) == {[%Earmark.Block.Para{attrs: nil, lines: ["foo[^1]"], lnb: 1}], [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
 
     end
-  end
+  # end
 
   defp parse(str) do
     with {blocks, %Context{options: %Options{messages: messages}}} = Earmark.parse(str, %Options{footnotes: true}) do

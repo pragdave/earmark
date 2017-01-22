@@ -1,7 +1,7 @@
 defmodule Acceptance.ListTest do
   use ExUnit.Case
 
-  describe "List items" do
+  # describe "List items" do
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
       html     = "<ol>\n<li><p>A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"
@@ -106,5 +106,5 @@ defmodule Acceptance.ListTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

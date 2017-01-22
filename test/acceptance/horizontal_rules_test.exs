@@ -1,7 +1,7 @@
 defmodule Acceptance.HorizontalRulesTest do
   use ExUnit.Case
   
-  describe "Horizontal rules" do
+  # describe "Horizontal rules" do
 
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
@@ -73,5 +73,5 @@ defmodule Acceptance.HorizontalRulesTest do
       messages = []
       assert Earmark.as_html(markdown) == {html, messages}
     end
-  end
+  # end
 end

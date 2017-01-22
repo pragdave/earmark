@@ -1,7 +1,7 @@
 defmodule Acceptance.SetextHeadersTest do
   use ExUnit.Case
 
-  describe "Setext headers" do
+  # describe "Setext headers" do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
@@ -26,7 +26,7 @@ defmodule Acceptance.SetextHeadersTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
   # There is no consensus on this one, I prefer to not define the behavior of this unless
   # there is a real use case
   # c.f. http://johnmacfarlane.net/babelmark2/?text=%60Foo%0A----%0A%60%0A%0A%3Ca+title%3D%22a+lot%0A---%0Aof+dashes%22%2F%3E%0A

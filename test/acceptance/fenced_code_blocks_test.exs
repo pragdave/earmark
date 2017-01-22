@@ -5,7 +5,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
     %Earmark.Options{code_class_prefix: code_class_prefix}
   end
 
-  describe "Fenced code blocks" do
+  # describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
@@ -46,5 +46,5 @@ defmodule Acceptance.FencedCodeBlocksTest do
       assert Earmark.as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end

@@ -3,7 +3,7 @@ defmodule Acceptance.InlineAttributeListTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  describe "IAL" do
+  # describe "IAL" do
 
     test "Not associated" do
       markdown = "{:hello=world}"
@@ -61,5 +61,5 @@ defmodule Acceptance.InlineAttributeListTest do
       assert as_html(markdown) == {html, messages}
     end
 
-  end
+  # end
 end
