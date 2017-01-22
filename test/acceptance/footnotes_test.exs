@@ -1,7 +1,7 @@
 defmodule Acceptance.FootnotesTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  import Support.Helpers, only: [ as_html: 2]
 
   describe "Footnotes" do
 
