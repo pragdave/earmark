@@ -67,4 +67,4 @@ defmodule Earmark.Mixfile do
   def x(), do: "hello"
 end
 
-Code.eval_file "tasks/make_doc.exs"
+Code.eval_file "tasks/doc.exs"
