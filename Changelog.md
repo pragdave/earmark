@@ -1,4 +1,16 @@
-# 1.1.0 2017/??/??
+
+# 1.1.1 2017/??/??
+
+* PR from Natronium pointing out issue #123
+
+* Fixes for issues
+  - #123
+
+## Kudos:
+
+  [Natronium](https://github.com/Natronium)  
+
+# 1.1.0 2017/01/22
 
 * PR from Michael Pope
 * PR from Pragdave
