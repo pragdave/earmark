@@ -10,11 +10,18 @@ defmodule Earmark do
 
   ### API
 
-        {html_doc, error_messages} = Earmark.as_html(markdown)
+      * `Earmark.as_html`
+        {:ok, html_doc, []}                = Earmark.as_html(markdown)
+        {:error, html_doc, error_messages} = Earmark.as_html(markdown)
 
-        {html_doc, error_messages} = Earmark.as_html!(markdown, options)
+      * `Earmark.as_html!`
+        html_doc = Earmark.as_html!(markdown, options)
 
-  Options can be passed into `as_html` according to the documentation.
+        Any error messages are printed to _stderr_.
+
+  #### Options:
+  #
+  Options can be passed into `as_html` or `as_html!` according to the documentation.
 
         html_doc = Earmark.as_html!(markdown)
 
@@ -276,7 +283,10 @@ defmodule Earmark do
   """
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
-    _as_html(lines, options)
+    case _as_html(lines, options) do
+      { html, [] }     -> {:ok, html, []}
+      { html, errors } -> {:error, html, errors}
+    end
   end
 
   @doc """

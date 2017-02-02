@@ -77,7 +77,7 @@ defmodule Earmark.Plugin do
         ...>   "$$ line two",
         ...> ]
         ...> Earmark.as_html(lines, Earmark.Plugin.define(MyPlug))
-        {"<h1>Plugin Ahead</h1>\\n<p>first line</p>\\n<hr/>", [{ :error, 4, "line two"}]}
+        {:error, "<h1>Plugin Ahead</h1>\\n<p>first line</p>\\n<hr/>", [{ :error, 4, "line two"}]}
 
   #### Plugins, reusing Earmark
 
@@ -88,7 +88,7 @@ defmodule Earmark.Plugin do
         iex> defmodule Again do
         ...>   def as_html(lines) do
         ...>     text_lines = Enum.map(lines, fn {str, _} -> str end)
-        ...>     {html, errors} = Earmark.as_html(text_lines)
+        ...>     {_, html, errors} = Earmark.as_html(text_lines)
         ...>     { Enum.join([html | text_lines]), errors }
         ...>   end
         ...> end
@@ -97,7 +97,7 @@ defmodule Earmark.Plugin do
         ...>    "$$a * two",
         ...>  ]
         ...>  Earmark.as_html(lines, Earmark.Plugin.define({Again, "a"}))
-        {"<ul>\\n<li>one\\n</li>\\n<li>two\\n</li>\\n</ul>\\n* one* two", []}
+        {:ok, "<ul>\\n<li>one\\n</li>\\n<li>two\\n</li>\\n</ul>\\n* one* two", []}
   """
 
   @doc """

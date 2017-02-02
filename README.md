@@ -12,11 +12,18 @@
 
 ### API
 
-      {html_doc, error_messages} = Earmark.as_html(markdown)
+    * `Earmark.as_html`
+      {:ok, html_doc, []}                = Earmark.as_html(markdown)
+      {:error, html_doc, error_messages} = Earmark.as_html(markdown)
 
-      {html_doc, error_messages} = Earmark.as_html!(markdown, options)
+    * `Earmark.as_html!`
+      html_doc = Earmark.as_html!(markdown, options)
 
-Options can be passed into `as_html` according to the documentation.
+      Any error messages are printed to _stderr_.
+
+#### Options:
+#
+Options can be passed into `as_html` or `as_html!` according to the documentation.
 
       html_doc = Earmark.as_html!(markdown)
 
@@ -339,7 +346,7 @@ Where the tuples are of the form `{:error | :warning, line_number, descriptive_t
       ...>   "$$ line two",
       ...> ]
       ...> Earmark.as_html(lines, Earmark.Plugin.define(MyPlug))
-      {"<h1>Plugin Ahead</h1>\n<p>first line</p>\n<hr/>", [{ :error, 4, "line two"}]}
+      {:error, "<h1>Plugin Ahead</h1>\n<p>first line</p>\n<hr/>", [{ :error, 4, "line two"}]}
 
 #### Plugins, reusing Earmark
 
@@ -350,7 +357,7 @@ but just to demonstrate the possibilities):
       iex> defmodule Again do
       ...>   def as_html(lines) do
       ...>     text_lines = Enum.map(lines, fn {str, _} -> str end)
-      ...>     {html, errors} = Earmark.as_html(text_lines)
+      ...>     {_, html, errors} = Earmark.as_html(text_lines)
       ...>     { Enum.join([html | text_lines]), errors }
       ...>   end
       ...> end
@@ -359,7 +366,7 @@ but just to demonstrate the possibilities):
       ...>    "$$a * two",
       ...>  ]
       ...>  Earmark.as_html(lines, Earmark.Plugin.define({Again, "a"}))
-      {"<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n* one* two", []}
+      {:ok, "<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n* one* two", []}
 <!-- endmoduledoc: Earmark.Plugin -->
 
 

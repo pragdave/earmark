@@ -13,7 +13,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "the comment plugin" do 
     assert as_html(@comment_md, %Options{plugins: %{"" => CommentPlugin}}) ==
-      { "<!-- this is a comment -->\n", [] } end 
+      {:ok, "<!-- this is a comment -->\n", [] } end 
   @comments_md """
   $$c comment one
   $$c comment two
@@ -22,7 +22,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "more lines" do 
     assert as_html(@comments_md, Plugin.define({CommentPlugin, "c"})) ==
-    { "<!-- comment one\ncomment two -->\n<!-- comment three -->\n", [{ :warning, 3, "lines for undefined plugin prefix \"unregistered\" ignored (3..3)"}]}
+    {:error, "<!-- comment one\ncomment two -->\n<!-- comment three -->\n", [{ :warning, 3, "lines for undefined plugin prefix \"unregistered\" ignored (3..3)"}]}
   end
 
   @more_md """
@@ -33,7 +33,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "even more lines" do 
     assert as_html(@more_md, Plugin.define(%Options{}, [CommentPlugin])) ==
-    { "<p>line one</p>\n<!-- comment one -->\n<p>line two</p>\n", [{ :warning, 3, "lines for undefined plugin prefix \"c\" ignored (3..3)"}]}
+    {:error, "<p>line one</p>\n<!-- comment one -->\n<p>line two</p>\n", [{ :warning, 3, "lines for undefined plugin prefix \"c\" ignored (3..3)"}]}
   end
 
   @mix_errors """
@@ -43,7 +43,7 @@ defmodule Regressions.I106PluginTest do
   """
   test "a mix of errors" do 
     assert as_html(@mix_errors, Plugin.define(%Options{}, CommentPlugin)) ==
-    { "<!-- comment -->\n<p></p>\n",[{ :warning, 3, "Unexpected line ="},
+    {:error, "<!-- comment -->\n<p></p>\n",[{ :warning, 3, "Unexpected line ="},
           { :warning, 1, "lines for undefined plugin prefix \"unregistered\" ignored (1..1)"}]}
   end
 
@@ -57,7 +57,7 @@ defmodule Regressions.I106PluginTest do
   test "a plugin with errors" do
     options = Plugin.define(%Options{}, [ErrorPlugin, {CommentPlugin, "c"}])
     assert as_html(@error_plugin, options) ==
-    { "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [{:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"},
+    {:error, "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [{:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"},
           {:error, 4, "that is incorrect" }]}
   end
 end

@@ -1,5 +1,7 @@
 defmodule Acceptance.HtmlBlocksTest do
   use ExUnit.Case
+  
+  import Support.Helpers, only: [as_html: 1]
 
   # describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
@@ -7,7 +9,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "div (ine?)" do
@@ -15,7 +17,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<div>\n  *hello*\n         <foo><a>\n</div>"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "we are leaving html alone" do
@@ -23,7 +25,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<div>\n*Emphasized* text.\n</div>"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   # end
@@ -34,7 +36,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "we are outside the void now (lucky us)" do
@@ -42,7 +44,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<br><p><strong>emphasized</strong> text</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "high regards???" do
@@ -50,7 +52,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<hr><p><strong>emphasized</strong> text</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "img (a punless test)" do
@@ -58,14 +60,14 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "not everybode knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
       html = "<wbr><p><strong>emphasized</strong> text</p>\n"
       messages = []
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
   # end
 
@@ -75,7 +77,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<hr>beta"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "void elements close para but only at BOL" do
@@ -83,7 +85,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha\n <hr>beta</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para" do
@@ -91,7 +93,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<div/>beta"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para, atts do not matter" do
@@ -99,7 +101,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<div class=\"first\"/>beta"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para, atts and spaces do not matter" do
@@ -107,7 +109,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<div class=\"first\"   />beta<p>gamma</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para but only at BOL" do
@@ -115,7 +117,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha\n <div/>beta</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para but only at BOL, atts do not matter" do
@@ -123,7 +125,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha\ngamma<div class=\"fourty two\"/>beta</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para" do
@@ -131,7 +133,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<div></div>beta"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para, atts do not matter" do
@@ -139,7 +141,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha</p>\n<div class=\"first\"></div>beta"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para but only at BOL" do
@@ -147,7 +149,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha\n <div></div>beta</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para but only at BOL, atts do not matter" do
@@ -155,7 +157,7 @@ defmodule Acceptance.HtmlBlocksTest do
       html     = "<p>alpha\ngamma<div class=\"fourty two\"></div>beta</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   # end

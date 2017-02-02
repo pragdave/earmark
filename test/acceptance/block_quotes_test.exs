@@ -7,7 +7,7 @@ defmodule Acceptance.BlockQuotesTest do
       html     = "<blockquote><p>Foo</p>\n</blockquote>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "and block my quotes" do
@@ -15,7 +15,7 @@ defmodule Acceptance.BlockQuotesTest do
       html     = "<blockquote><h1>Foo</h1>\n<p>bar\nbaz</p>\n</blockquote>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "linient we are" do
@@ -23,7 +23,7 @@ defmodule Acceptance.BlockQuotesTest do
       html     = "<blockquote><p>bar\nbaz\nfoo</p>\n</blockquote>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "lists in blockquotes? Coming up Sir" do
@@ -31,7 +31,7 @@ defmodule Acceptance.BlockQuotesTest do
       html     = "<blockquote><ul>\n<li>foo\n</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar\n</li>\n</ul>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
   # end

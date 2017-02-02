@@ -1,6 +1,8 @@
 defmodule Acceptance.HorizontalRulesTest do
   use ExUnit.Case
   
+  import Support.Helpers, only: [as_html: 1]
+
   # describe "Horizontal rules" do
 
     test "thick, thin & medium" do
@@ -8,7 +10,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "not a rule" do
@@ -16,7 +18,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<p>+++</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "not in code" do
@@ -24,7 +26,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<pre><code>***\n\n a</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "not in code, second line" do
@@ -32,7 +34,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<p>Foo</p>\n<pre><code>***</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "medium, long" do
@@ -40,7 +42,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<hr class=\"medium\"/>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "emmed, so to speak" do
@@ -48,7 +50,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<p> <em>-</em></p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "in lists" do
@@ -56,7 +58,7 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<ul>\n<li>foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar\n</li>\n</ul>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "setext rules over rules (why am I soo witty?)" do
@@ -64,14 +66,14 @@ defmodule Acceptance.HorizontalRulesTest do
       html     = "<h2>Foo</h2>\n<p>bar</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "in lists, thick this time (why am I soo good to you?)" do
       markdown = "* Foo\n* * *\n* Bar\n"
       html = "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar\n</li>\n</ul>\n"
       messages = []
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
   # end
 end
