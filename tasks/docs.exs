@@ -1,11 +1,14 @@
-defmodule Mix.Tasks.MakeDoc do
+defmodule Mix.Tasks.Docs do
   use Mix.Task
 
   @shortdoc "Build docs with globally installed ex_doc to avoid conflicts"
 
   @moduledoc """
-    We are using `ex_doc` not as a dependency of the application, but as an installed escript
-    to create the docs for `Earmark` thusly avoiding circular dependency issues.
+
+    ex_doc uses earmark. This means we can't have a dependency from
+    earmark back to ex_doc, as this would be circular.
+
+    Instead, we run ex_doc from the command line.
     
     ## Prerequisite
     
@@ -13,11 +16,12 @@ defmodule Mix.Tasks.MakeDoc do
 
         mix escript.install hex ex_doc
 
-    N.B. Launch the above command form anywhere else than your `Earmark` root directory.
+    N.B. Launch the above command form anywhere else than your
+    `Earmark` root directory.
 
   """
 
-  def run([]) do
+  def run(_) do
     ex_doc = "#{System.get_env |> Map.get("HOME")}/.mix/escripts/ex_doc"
     System.cmd("rm", ~w( -rf doc ))
     System.cmd(ex_doc,
