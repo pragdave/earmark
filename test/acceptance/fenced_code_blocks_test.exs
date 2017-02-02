@@ -1,9 +1,7 @@
 defmodule Acceptance.FencedCodeBlocksTest do
   use ExUnit.Case
 
-  def options(code_class_prefix) do
-    %Earmark.Options{code_class_prefix: code_class_prefix}
-  end
+  import Support.Helpers, only: [as_html: 1, as_html: 2]
 
   # describe "Fenced code blocks" do
     test "no lang" do
@@ -11,7 +9,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "still no lang" do
@@ -19,7 +17,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "elixir 's the name" do
@@ -27,7 +25,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       html     = "<pre><code class=\"elixir\">aaa\n~~~</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "with a code_class_prefix" do
@@ -35,7 +33,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       html     = "<pre><code class=\"elixir lang-elixir\">aaa\n~~~</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown, options("lang-")) == {html, messages}
+      assert as_html(markdown, code_class_prefix: "lang-") == {:ok, html, messages}
     end
 
     test "look mam, more lines" do
@@ -43,7 +41,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       html     = "<pre><code class=\"\">aaa\nb</code></pre>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   # end

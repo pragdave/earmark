@@ -9,10 +9,10 @@ defmodule Acceptance.EscapeTest do
       html     = "<p>\\!\\“</p>\n"
       messages = []
 
-      assert as_html(markdown, smartypants: true) == {html, messages}
+      assert as_html(markdown, smartypants: true) == {:ok, html, messages}
 
       html     = "<p>\\!\\&quot;</p>\n"
-      assert as_html(markdown, smartypants: false) == {html, messages}
+      assert as_html(markdown, smartypants: false) == {:ok, html, messages}
     end
 
     test "obviously" do
@@ -20,7 +20,7 @@ defmodule Acceptance.EscapeTest do
       html     = "<p>`no code</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "less obviously - escpe the escapes" do
@@ -28,7 +28,7 @@ defmodule Acceptance.EscapeTest do
       html     = "<p>\\<code class=\"inline\">code</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "don't ask me" do
@@ -36,7 +36,7 @@ defmodule Acceptance.EscapeTest do
       html     = "<p>\\ \\</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "a plenty of nots" do
@@ -44,14 +44,14 @@ defmodule Acceptance.EscapeTest do
       html     = "<p>*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url &quot;not a reference&quot;</p>\n"
       messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input" }]
 
-      assert as_html(markdown, smartypants: false) == {html, messages}
+      assert as_html(markdown, smartypants: false) == {:error, html, messages}
     end
 
     test "let us escape (again)" do
       markdown = "\\\\*emphasis*\n"
       html = "<p>\\<em>emphasis</em></p>\n"
       messages = []
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
   # end
 end

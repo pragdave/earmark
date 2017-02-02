@@ -9,7 +9,7 @@ defmodule Acceptance.DiverseTest do
       html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "spaec preserving" do
@@ -17,7 +17,7 @@ defmodule Acceptance.DiverseTest do
       html     = "<p>Multiple     spaces</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "syntax errors" do
@@ -25,7 +25,7 @@ defmodule Acceptance.DiverseTest do
       html     = "<p>A\nB</p>\n<p></p>\n"
       messages = [{:warning, 3, "Unexpected line =" }]
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:error, html, messages}
     end
 
 

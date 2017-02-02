@@ -10,7 +10,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p>{:hello=world}</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "Not associated and incorrect" do
@@ -18,7 +18,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p>{:hello}</p>\n"
       messages = [{:warning, 1, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:error, html, messages}
     end
 
     test "Associated" do
@@ -26,7 +26,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p hello=\"world\">Before</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "Associated in between" do
@@ -34,7 +34,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p hello=\"world\">Before</p>\n<p>After</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "Associated and incorrect" do
@@ -42,7 +42,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p>Before</p>\n"
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:error, html, messages}
     end
 
     test "Associated and partly incorrect" do
@@ -50,7 +50,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p title=\"world\">Before</p>\n"
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:error, html, messages}
     end
 
     test "Associated and partly incorrect and shortcuts" do
@@ -58,7 +58,7 @@ defmodule Acceptance.InlineAttributeListTest do
       html     = "<p class=\"gamma beta alpha\" id=\"hello\" title=\"class world\">Before</p>\n"
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:error, html, messages}
     end
 
   # end

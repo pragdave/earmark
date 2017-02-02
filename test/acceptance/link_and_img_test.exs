@@ -10,7 +10,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<p><a href=\"/url\" title=\"title\">foo</a></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "this ain't no link" do
@@ -18,7 +18,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<p>[bar]</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "img with title" do
@@ -26,7 +26,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "this ain't no img (and no link)" do
@@ -34,7 +34,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<p>![bar]</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "strange syntaxes exist in Markdown" do
@@ -42,7 +42,7 @@ defmodule Acceptance.LinkAndImgTest do
       html = "<p><a href=\"url\" title=\"\">foo</a></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "sometimes strange text is just strange text" do
@@ -50,10 +50,10 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<p>[foo]: /url &quot;title&quot; ok</p>\n"
       messages = []
 
-      assert as_html(markdown, smartypants: false) == {html, messages}
+      assert as_html(markdown, smartypants: false) == {:ok, html, messages}
 
       html     = "<p>[foo]: /url “title” ok</p>\n"
-      assert as_html(markdown, smartypants: true) == {html, messages}
+      assert as_html(markdown, smartypants: true) == {:ok, html, messages}
     end
 
     test "guess how this one is rendered?" do
@@ -61,7 +61,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = ""
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "or this one, but you might be wrong" do
@@ -69,7 +69,7 @@ defmodule Acceptance.LinkAndImgTest do
       html     = "<h1><a href=\"/url\" title=\"\">Foo</a></h1>\n<blockquote><p>bar</p>\n</blockquote>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     # end
@@ -81,7 +81,7 @@ defmodule Acceptance.LinkAndImgTest do
         html     = ""
         messages = []
 
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
 
       test "inner is a link, not outer" do
@@ -89,7 +89,7 @@ defmodule Acceptance.LinkAndImgTest do
         html     = "<p>[<a href=\"inner\">text</a>]outer</p>\n"
         messages = []
 
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
 
       test "unless your outer is syntactically a link of course" do
@@ -97,7 +97,7 @@ defmodule Acceptance.LinkAndImgTest do
         html = "<p><a href=\"outer\">[text](inner)</a></p>\n"
         messages = []
 
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
 
       test "as with this img" do
@@ -105,7 +105,7 @@ defmodule Acceptance.LinkAndImgTest do
         html     = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
         messages = []
 
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
 
       test "headaches ahead (and behind us)" do
@@ -113,14 +113,14 @@ defmodule Acceptance.LinkAndImgTest do
         html     = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\"/></a></p>\n"
         messages = []
 
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
 
       test "lost in space" do
         markdown = "![![moon](moon.jpg)](sun.jpg)\n"
         html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
         messages = []
-        assert as_html(markdown) == {html, messages}
+        assert as_html(markdown) == {:ok, html, messages}
       end
       # end
 
@@ -130,7 +130,7 @@ defmodule Acceptance.LinkAndImgTest do
           html     = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
           messages = []
 
-          assert as_html(markdown) == {html, messages}
+          assert as_html(markdown) == {:ok, html, messages}
         end
 
         test "no title" do
@@ -138,7 +138,7 @@ defmodule Acceptance.LinkAndImgTest do
           html     = "<p><a href=\"/uri\">link</a>)</p>\n"
           messages = []
 
-          assert as_html(markdown) == {html, messages}
+          assert as_html(markdown) == {:ok, html, messages}
         end
 
         test "let's go nowhere" do
@@ -146,14 +146,14 @@ defmodule Acceptance.LinkAndImgTest do
           html = "<p><a href=\"\">link</a></p>\n"
           messages = []
 
-          assert as_html(markdown) == {html, messages}
+          assert as_html(markdown) == {:ok, html, messages}
         end
 
         test "nowhere in a bottle" do
           markdown = "[link](())\n"
           html = "<p><a href=\"()\">link</a></p>\n"
           messages = []
-          assert as_html(markdown) == {html, messages}
+          assert as_html(markdown) == {:ok, html, messages}
         end
         # end
 
@@ -163,7 +163,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           test "ti tle (why not)" do
@@ -171,7 +171,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti tle\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           test "titles become strange" do
@@ -179,7 +179,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti() tle\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           test "as does everything else" do
@@ -187,7 +187,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url\" alt=\"f[]oo\" title=\"ti() tle\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           test "alt goes crazy" do
@@ -195,7 +195,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           test "url escapes of coure" do
@@ -203,7 +203,7 @@ defmodule Acceptance.LinkAndImgTest do
             html     = "<p><img src=\"/url%20no%20title\" alt=\"foo\"/></p>\n"
             messages = []
 
-            assert as_html(markdown) == {html, messages}
+            assert as_html(markdown) == {:ok, html, messages}
           end
 
           # end
@@ -214,7 +214,7 @@ defmodule Acceptance.LinkAndImgTest do
               html     = "<p><a href=\"http://foo.bar.baz\">http://foo.bar.baz</a></p>\n"
               messages = []
 
-              assert as_html(markdown) == {html, messages}
+              assert as_html(markdown) == {:ok, html, messages}
             end
 
             test "as was this" do
@@ -222,7 +222,7 @@ defmodule Acceptance.LinkAndImgTest do
               html     = "<p><a href=\"irc://foo.bar:2233/baz\">irc://foo.bar:2233/baz</a></p>\n"
               messages = []
 
-              assert as_html(markdown) == {html, messages}
+              assert as_html(markdown) == {:ok, html, messages}
             end
 
             test "good ol' mail" do
@@ -230,7 +230,7 @@ defmodule Acceptance.LinkAndImgTest do
               html     = "<p><a href=\"mailto:foo@bar.baz\">foo@bar.baz</a></p>\n"
               messages = []
 
-              assert as_html(markdown) == {html, messages}
+              assert as_html(markdown) == {:ok, html, messages}
             end
 
             test "we know what mail is" do
@@ -238,14 +238,14 @@ defmodule Acceptance.LinkAndImgTest do
               html     = "<p><a href=\"mailto:foo@bar.example.com\">foo@bar.example.com</a></p>\n"
               messages = []
 
-              assert as_html(markdown) == {html, messages}
+              assert as_html(markdown) == {:ok, html, messages}
             end
 
             test "not really a link" do
               markdown = "<>\n"
               html = "<p>&lt;&gt;</p>\n"
               messages = []
-              assert as_html(markdown) == {html, messages}
+              assert as_html(markdown) == {:ok, html, messages}
             end
             # end
 end

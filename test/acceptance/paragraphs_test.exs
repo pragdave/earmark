@@ -1,5 +1,7 @@
 defmodule Acceptance.ParagraphsTest do
   use ExUnit.Case
+  
+  import Support.Helpers, only: [as_html: 1]
 
   # describe "Paragraphs" do
     test "a para" do
@@ -7,7 +9,7 @@ defmodule Acceptance.ParagraphsTest do
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "and another one" do
@@ -15,7 +17,7 @@ defmodule Acceptance.ParagraphsTest do
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   # end

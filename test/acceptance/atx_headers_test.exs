@@ -8,7 +8,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "seven? kidding, right?" do
@@ -16,7 +16,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<p>####### foo</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "sticky (better than to have no glue)" do
@@ -24,7 +24,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<p>#5 bolt</p>\n<p>#foobar</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "close escape" do
@@ -32,7 +32,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<p>## foo</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "position is so important" do
@@ -40,7 +40,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<h1>foo <em>bar</em> *baz*</h1>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "spacy" do
@@ -48,7 +48,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<h1>foo</h1>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "code comes first" do
@@ -56,7 +56,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<pre><code># foo</code></pre>\n<p>next</p>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "some prefer to close their headers" do
@@ -64,7 +64,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<h1>foo</h1>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
     test "yes, they do (prefer closing their header)" do
@@ -72,7 +72,7 @@ defmodule Acceptance.AtxHeadersTest do
       html     = "<h3>foo ###</h3>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {html, messages}
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
   # end

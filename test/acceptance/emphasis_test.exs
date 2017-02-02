@@ -9,7 +9,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><em>foo bar</em></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "imporatant quotes" do
@@ -17,7 +17,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p>a<em>&quot;foo&quot;</em></p>\n"
       messages = []
 
-      assert as_html(markdown, smartypants: false) == {html, messages}
+      assert as_html(markdown, smartypants: false) == {:ok, html, messages}
     end
 
     test "important _" do
@@ -25,7 +25,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><em>foo bar</em></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "dont get confused" do
@@ -33,7 +33,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p>_foo*</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "that should make you smile" do
@@ -41,7 +41,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><em>foo_bar_baz</em></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "stronger" do
@@ -49,7 +49,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><strong>foo bar</strong></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "stronger insisde" do
@@ -57,7 +57,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p>foo<strong>bar</strong></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "stronger together" do
@@ -65,7 +65,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><strong>foo bar</strong></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "let no evil underscores divide us" do
@@ -73,7 +73,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><strong>foo__bar</strong></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "strong **and** stronger" do
@@ -81,7 +81,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><em>(<strong>foo</strong>)</em></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "stronger **and** strong" do
@@ -89,7 +89,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p><strong>(<em>foo</em>)</strong></p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "one is not strong enough" do
@@ -97,7 +97,7 @@ defmodule Acceptance.EmphasisTest do
       html     = "<p>foo*</p>\n"
       messages = []
 
-      assert as_html(markdown) == {html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   # end
