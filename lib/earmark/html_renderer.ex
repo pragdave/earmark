@@ -92,10 +92,10 @@ defmodule Earmark.HtmlRenderer do
   # Code #
   ########
 
-  defp render_block(%Block.Code{lines: lines, language: language, attrs: attrs}, %Earmark.Context{options: options}) do
+  defp render_block(%Block.Code{language: language, attrs: attrs} = block, %Context{options: options}) do
     class = if language, do: ~s{ class="#{code_classes( language, options.code_class_prefix)}"}, else: ""
     tag = ~s[<pre><code#{class}>]
-    lines = lines |> Enum.map(&(escape(&1, true))) |> Enum.join("\n") # |> String.strip
+    lines = options.render_code.(block)
     html = ~s[#{tag}#{lines}</code></pre>\n]
     { add_attrs(html, attrs), [] }
   end
@@ -263,6 +263,10 @@ defmodule Earmark.HtmlRenderer do
 
   def append_footnote_link(block, fnlink) do
     [block, %Block.Para{lines: fnlink}]
+  end
+
+  def render_code(%Block.Code{lines: lines}) do
+    lines |> Enum.join("\n") |> escape(true)
   end
 
   defp code_classes(language, prefix) do
