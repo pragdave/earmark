@@ -1,5 +1,13 @@
+# 1.1.2 
 
-# 1.1.1 2017/??/??
+*  [PR](//https://github.com/pragdave/earmark/pull/125) from vyachkonovalov 
+
+
+## Kudos:
+
+  [vyachkonovalov](https://github.com/vyachkonovalov)
+
+# 1.1.1 2017/02/03
 
 * PR from Natronium pointing out issue #123
 
