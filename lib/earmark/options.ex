@@ -19,6 +19,8 @@ defmodule Earmark.Options do
              # serial
              mapper: &Earmark.pmap/2,
 
+             render_code: &Earmark.HtmlRenderer.render_code/1,
+
              # Filename and initial line number of the markdown block passed in
              # for meaningfull error messages
              file: "<no file>",
@@ -30,14 +32,14 @@ defmodule Earmark.Options do
   @doc """
     Add an error message at the head of the messages list of the options struct
   """
-  def add_error options, line, text do 
+  def add_error options, line, text do
     %{options|messages: [Message.new_error(line, text) | options.messages]}
   end
 
   @doc """
     Add a warning message at the head of the messages list of the options struct
   """
-  def add_warning options, line, text do 
+  def add_warning options, line, text do
     %{options|messages: [Message.new_warning(line, text) | options.messages]}
   end
 
@@ -46,4 +48,3 @@ defmodule Earmark.Options do
   end
 
 end
-
