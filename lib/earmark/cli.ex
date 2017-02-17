@@ -54,7 +54,7 @@ defmodule Earmark.CLI do
   defp process({io_device, options}) do
     options = struct(Earmark.Options, booleanify(options))
     content = IO.stream(io_device, :line) |> Enum.to_list
-    Earmark.to_html(content, options)
+    Earmark.as_html!(content, options)
     |> IO.puts
   end
 
