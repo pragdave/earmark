@@ -83,7 +83,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   end
   # List items with same indent than last one
   defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], res=[%Line.ListItem{initial_indent: old_indent} | _],
-    params=%{pending: nil, initial_indent: initial_indent, min_indent: min_indent})
+    params=%{pending: nil})
   when li_indent == old_indent do
     with {pending1, pending_lnb1} = opens_inline_code(line), do:
     _read_list_lines(rest, [ line | res ], %{params | pending: pending1, pending_lnb: pending_lnb1, min_indent: li_indent})
