@@ -1,9 +1,33 @@
 defmodule Acceptance.ListTest do
   use ExUnit.Case
-  
+
   import Support.Helpers, only: [as_html: 1]
 
   # describe "List items" do
+    test "Unnumbered" do
+      markdown = "* one\n* two"
+      html     = "<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "Unnumbered Indented" do
+      markdown = "  * one\n  * two"
+      html     = "<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "Unnumbered Indent taken into account" do
+      markdown = "   * one\n     one.one\n   * two"
+      html     = "<ul>\n<li>one\n one.one\n</li>\n<li>two\n</li>\n</ul>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+
+    end
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
       html     = "<ol>\n<li><p>A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"

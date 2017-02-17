@@ -24,6 +24,7 @@ defmodule Earmark.Mixfile do
     [
       { :credo,    "~> 0.4.0", only: [ :dev, :test ] },
       { :dialyxir, "~> 0.3.3", only: [ :dev, :test ] },
+      { :floki, "~> 0.14.0", only: [ :dev, :test ] },
    ]
   end
 

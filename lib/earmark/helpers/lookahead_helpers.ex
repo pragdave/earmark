@@ -74,12 +74,19 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   @spec _read_list_lines(Line.ts, Line.ts, read_list_info) :: {boolean, Line.ts, Line.ts, number}
   # List items with initial_indent + 2
-  defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], [],
+  defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], result,
     params=%{pending: nil, initial_indent: initial_indent, min_indent: min_indent})
-  when li_indent == initial_indent + 2 do
+  when li_indent > initial_indent + 1 do
     with {pending1, pending_lnb1} = opens_inline_code(line),
          min_indent1 = new_min_indent(min_indent, 2), do:
-    _read_list_lines(rest, [ line ], %{params | pending: pending1, pending_lnb: pending_lnb1, min_indent: min_indent1})
+    _read_list_lines(rest, [ line | result ], %{params | pending: pending1, pending_lnb: pending_lnb1, min_indent: min_indent1})
+  end
+  # List items with same indent than last one
+  defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], res=[%Line.ListItem{initial_indent: old_indent} | _],
+    params=%{pending: nil, initial_indent: initial_indent, min_indent: min_indent})
+  when li_indent == old_indent do
+    with {pending1, pending_lnb1} = opens_inline_code(line), do:
+    _read_list_lines(rest, [ line | res ], %{params | pending: pending1, pending_lnb: pending_lnb1, min_indent: li_indent})
   end
   # text immediately after the start
   defp _read_list_lines([ line = %Line.Text{} | rest ], [], params=%{pending: nil}) do
@@ -154,9 +161,9 @@ defmodule Earmark.Helpers.LookaheadHelpers do
     { spaced, rest, lines, pending_lnb, min_indent }
   end
 
-  defp new_min_indent(nil,           new_min_indent),                                     do: new_min_indent
+  defp new_min_indent(nil,            new_min_indent),                                       do: new_min_indent
   defp new_min_indent(old_min_indent, new_min_indent) when old_min_indent <= new_min_indent, do: old_min_indent
-  defp new_min_indent(_,             new_min_indent),                                     do: new_min_indent
+  defp new_min_indent(_,              new_min_indent),                                       do: new_min_indent
 
   # Convenience wrapper around `opens_inline_code` into a map
   defp _opens_inline_code( line, params ) do
