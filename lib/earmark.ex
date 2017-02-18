@@ -38,6 +38,7 @@ defmodule Earmark do
   Some options defined in the `Earmark.Options` struct can be specified as command line switches.
 
   Use
+
       $ ./earmark --help
 
   to find out more, but here is a short example
@@ -59,7 +60,7 @@ defmodule Earmark do
 
   ### Tables
 
-  Github Flavored Markdown tables are supported
+  Github Flavored Markdown tables are supported as long as they are preceeded by an empty line.
 
           State | Abbrev | Capital
           ----: | :----: | -------
