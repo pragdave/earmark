@@ -9,7 +9,6 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Helpers.AttrParser
 
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
-    File.write!(System.get_env("DUMP_FILE") || "xxx.tmp", inspect( blocks ))
     {html, messages} =
       mapper.(blocks, &(render_block(&1, context))) |>
       Enum.unzip()
