@@ -1,6 +1,6 @@
-%{"bunt": {:hex, :bunt, "0.1.6", "5d95a6882f73f3b9969fdfd1953798046664e6f77ec4e486e6fafc7caad97c6f", [:mix], []},
-  "credo": {:hex, :credo, "0.4.14", "594a965ae2224997fae9e705e881983911a052c701b05bd3bcf89af44b5f6b45", [:mix], [{:bunt, "~> 0.1.6", [hex: :bunt, optional: false]}]},
-  "dialyxir": {:hex, :dialyxir, "0.3.5", "eaba092549e044c76f83165978979f60110dc58dd5b92fd952bf2312f64e9b14", [:mix], []},
+%{"bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], []},
+  "credo": {:hex, :credo, "0.6.1", "a941e2591bd2bd2055dc92b810c174650b40b8290459c89a835af9d59ac4a5f8", [:mix], [{:bunt, "~> 0.2.0", [hex: :bunt, optional: false]}]},
+  "dialyxir": {:hex, :dialyxir, "0.5.0", "5bc543f9c28ecd51b99cc1a685a3c2a1a93216990347f259406a910cf048d1d7", [:mix], []},
   "floki": {:hex, :floki, "0.14.0", "91a6be57349e10a63cf52d7890479a19012cef9185fa93c305d4fe42e6a50dee", [:mix], [{:mochiweb, "~> 2.15", [hex: :mochiweb, optional: false]}]},
   "mochiweb": {:hex, :mochiweb, "2.15.0", "e1daac474df07651e5d17cc1e642c4069c7850dc4508d3db7263a0651330aacc", [:rebar3], []},
   "poison": {:hex, :poison, "3.0.0", "625ebd64d33ae2e65201c2c14d6c85c27cc8b68f2d0dd37828fde9c6920dd131", [:mix], []}}
