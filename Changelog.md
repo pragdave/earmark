@@ -1,5 +1,8 @@
+
+
 # 1.1.2 
 
+*  [PR](https://github.com/pragdave/earmark/pull/130) from [eksperimental](https://github.com/eksperimental)
 *  [PR](https://github.com/pragdave/earmark/pull/129) from [Alekx](https://github.com/alkx)
 *  [PR](//https://github.com/pragdave/earmark/pull/125) from [vyachkonovalov](https://github.com/vyachkonovalov)
 
@@ -8,7 +11,7 @@
 
 ## Kudos:
 
-  [vyachkonovalov](https://github.com/vyachkonovalov), [Alekx](https://github.com/alkx)
+  [vyachkonovalov](https://github.com/vyachkonovalov), [Alekx](https://github.com/alkx), [eksperimental](https://github.com/eksperimental)
 
 # 1.1.1 2017/02/03
 
