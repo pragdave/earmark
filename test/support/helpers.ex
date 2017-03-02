@@ -11,8 +11,12 @@ defmodule Support.Helpers do
     %Earmark.Context{}
   end
 
-  def as_html(markdown, options \\ []) do 
+  def as_html(markdown, options \\ []) do
     Earmark.as_html(markdown, struct(Earmark.Options, options))
+  end
+
+  def as_html!(markdown, options \\ []) do
+    Earmark.as_html!(markdown, struct(Earmark.Options, options))
   end
 
   def test_links do
