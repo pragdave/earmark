@@ -1,4 +1,4 @@
-defmodule Earmark.Inline do
+ defmodule Earmark.Inline do
 
   @moduledoc """
   Match and render inline sequences, passing each to the
@@ -10,12 +10,14 @@ defmodule Earmark.Inline do
   alias  Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
+  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 2]
 
   @doc false
+  def convert(src, context)
+
   def convert(src, context) when is_list(src) do
     convert(Enum.join(src, "\n"), context)
   end
-
   def convert(src, context) do
     convert_each({src, context, []}, all_converters())
   end
@@ -37,6 +39,7 @@ defmodule Earmark.Inline do
       converter_for_em:                 &converter_for_em/2,
       converter_for_code:               &converter_for_code/2,
       converter_for_br:                 &converter_for_br/2,
+      converter_for_inline_ial:         &converter_for_inline_ial/2,
       converter_for_text:               &converter_for_text/2
     ]
   end
@@ -52,6 +55,7 @@ defmodule Earmark.Inline do
         |> replace(~r{(</[^>]*>)“}, "\\1”")
   end
   defp convert_each(data, converters) do
+    # IO.inspect( data |> Tuple.to_list() |> Enum.at(0) )
     walk_converters(converters, data, converters)
   end
 
@@ -63,9 +67,10 @@ defmodule Earmark.Inline do
   end
   defp walk_converters([{_converter_name, converter}|rest], data = { _src, context, _result}, all_converters) do
     case converter.(data, context.options.renderer) do
+      # This has not been the correct converter, move on
       nil                -> walk_converters(rest, data, all_converters)
-      # :error             -> walk_converters(rest, {src, context, result}, all_converters)
       nd                 ->
+        # IO.inspect {_converter_name, nd |> Tuple.to_list() |> Enum.at(2)}
         convert_each(nd, all_converters)
     end
   end
@@ -199,6 +204,18 @@ defmodule Earmark.Inline do
       { behead(src, match), context, [out | result] }
     end
   end
+
+  defp converter_for_inline_ial(conv_data, renderer)
+  defp converter_for_inline_ial({src, context, [maybe_tag|result]}, _renderer) do 
+    if match = Regex.run(context.rules.inline_ial, src) do
+      [match, ial] = match
+      case augment_tag_with_ial(maybe_tag, ial) do
+        nil     -> nil
+        new_tag -> { behead(src, match), context, [new_tag|result] }
+      end
+    end
+  end
+  defp converter_for_inline_ial(_conv_data, _renderer), do: nil
 
   defp converter_for_br({src, context, result}, renderer) do
     if match = Regex.run(context.rules.br, src, return: :index) do
@@ -343,14 +360,15 @@ defmodule Earmark.Inline do
         '[^'<]*' |
         [^'"<>])*?>}x,
 
-     link:     ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
-     reflink:  ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
-     nolink:   ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
-     strong:   ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
-     em:       ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
-     code:     @code,
-     br:       ~r<^ {2,}\n(?!\s*$)>,
-     text:     ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
+     inline_ial: ~r<^\{:\s*(.*?)\s*}>,
+     link:       ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
+     reflink:    ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
+     nolink:     ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
+     strong:     ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
+     em:         ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
+     code:       @code,
+     br:         ~r<^ {2,}\n(?!\s*$)>,
+     text:       ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
 
      strikethrough: ~r{\z\A}   # noop
     ]

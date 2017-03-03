@@ -6,7 +6,7 @@ defmodule Earmark.HtmlRenderer do
   alias  Earmark.Options
   import Earmark.Inline,  only: [ convert: 2 ]
   import Earmark.Helpers, only: [ escape: 2 ]
-  import Earmark.Helpers.AttrParser
+  import Earmark.Helpers.HtmlHelpers
 
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
     {html, messages} =
@@ -211,37 +211,6 @@ defmodule Earmark.HtmlRenderer do
     |> Enum.reverse
   end
 
-  ##############################################
-  # add attributes to the outer tag in a block #
-  ##############################################
-
-  def add_attrs(text, attrs_as_string_or_map, default_attrs \\ [])
-
-  def add_attrs(text, nil, []), do: text
-
-  def add_attrs(text, nil, default), do: add_attrs(text, %{}, default)
-
-  # TODO: Check if the binary form of attrs can be eliminated by parsing attrs in
-  #       the parser, as done in the Ial case.
-  def add_attrs(text, attrs, default) when is_binary(attrs) do
-    with {attrs,_} <- parse_attrs( attrs ), do: add_attrs(text, attrs, default)
-  end
-  def add_attrs(text, attrs, default) do
-    default
-    |> Enum.into(attrs)
-    |> attrs_to_string
-    |> add_to(text)
-  end
-
-  def attrs_to_string(attrs) do
-    (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-                                                  |> Enum.join(" ")
-  end
-
-  def add_to(attrs, text) do
-    attrs = if attrs == "", do: "", else: " #{attrs}"
-    String.replace(text, ~r{\s?/?>}, "#{attrs}\\0", global: false)
-  end
 
   ###############################
   # Append Footnote Return Link #

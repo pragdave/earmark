@@ -15,8 +15,7 @@ defmodule Regressions.I131MaybeInlineIalTest do
   @inline_level """
   [link](url){: .shiny }
   """
-  @tag :wip
   test "inline level IAL on link" do
-    assert as_html!(@inline_level) == ~s{<p><a class="shiny" href="url">link</a></p>\n}
+    assert as_html!(@inline_level) == ~s{<p><a href="url" class="shiny">link</a></p>\n}
   end
 end
