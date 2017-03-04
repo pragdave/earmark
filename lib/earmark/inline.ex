@@ -13,12 +13,19 @@
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 2]
 
   @doc false
-  def convert(src, context)
-
-  def convert(src, context) when is_list(src) do
-    convert(Enum.join(src, "\n"), context)
-  end
   def convert(src, context) do
+    {out, _} = _convert(src, context)
+    out
+  end
+
+  def convert_with_messages(src, context), do: _convert(src, context)
+
+  defp _convert(src, context)
+
+  defp _convert(src, context) when is_list(src) do
+    _convert(Enum.join(src, "\n"), context)
+  end
+  defp _convert(src, context) do
     convert_each({src, context, []}, all_converters())
   end
 
@@ -47,15 +54,14 @@
 
   defp convert_each(data, converters)
 
-  defp convert_each({"", _context, result}, _converters) do
-    result
+  defp convert_each({"", context, result}, _converters) do
+    with result1 <- result
         |> Enum.reverse()
         |> IO.iodata_to_binary
         |> replace(~r{(</[^>]*>)‘}, "\\1’")
-        |> replace(~r{(</[^>]*>)“}, "\\1”")
+        |> replace(~r{(</[^>]*>)“}, "\\1”"), do: {result1, context.options.messages}
   end
   defp convert_each(data, converters) do
-    # IO.inspect( data |> Tuple.to_list() |> Enum.at(0) )
     walk_converters(converters, data, converters)
   end
 
@@ -70,7 +76,6 @@
       # This has not been the correct converter, move on
       nil                -> walk_converters(rest, data, all_converters)
       nd                 ->
-        # IO.inspect {_converter_name, nd |> Tuple.to_list() |> Enum.at(2)}
         convert_each(nd, all_converters)
     end
   end
@@ -111,7 +116,6 @@
   #                 [...](url "((((((")
   defp converter_for_link({src, context, result}, _renderer) do
     if match = LinkParser.parse_link(src) do
-      # TODO: Write a parser for links and a parser for images
       unless is_image?(match) do
         {match, text, href, title} = match
         out = output_link(context, text, href, title)
@@ -124,7 +128,6 @@
 
   defp converter_for_img({src, context, result}, _renderer) do
     if match = LinkParser.parse_link(src) do
-      # TODO: Write a parser for links and a parser for images
       if is_image?(match) do
         {match, text, href, title} = match
         out = output_image(context.options.renderer, text, href, title)
@@ -210,8 +213,9 @@
     if match = Regex.run(context.rules.inline_ial, src) do
       [match, ial] = match
       case augment_tag_with_ial(maybe_tag, ial) do
-        nil     -> nil
-        new_tag -> { behead(src, match), context, [new_tag|result] }
+        nil               -> nil
+        {new_tag, errors} ->
+        { behead(src, match), Context.add_messages(context, errors), [new_tag|result] }
       end
     end
   end
@@ -275,9 +279,9 @@
   end
 
   defp output_link(context, text, href, title) do
-    href  = encode(href)
-    title = if title, do: escape(title), else: nil
-    link  = convert_each({text, context, []},
+    href       = encode(href)
+    title      = if title, do: escape(title), else: nil
+    {link, _}  = convert_each({text, context, []},
                         Keyword.drop(all_converters(), @linky_converter_names))
     context.options.renderer.link(href, link, title)
   end
@@ -360,7 +364,7 @@
         '[^'<]*' |
         [^'"<>])*?>}x,
 
-     inline_ial: ~r<^\{:\s*(.*?)\s*}>,
+     inline_ial: ~r<^\s*\{:\s*(.*?)\s*}>,
      link:       ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
      reflink:    ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
      nolink:     ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},

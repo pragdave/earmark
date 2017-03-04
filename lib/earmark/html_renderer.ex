@@ -4,7 +4,7 @@ defmodule Earmark.HtmlRenderer do
   alias  Earmark.Context
   alias  Earmark.Message
   alias  Earmark.Options
-  import Earmark.Inline,  only: [ convert: 2 ]
+  import Earmark.Inline,  only: [ convert_with_messages: 2 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
 
@@ -19,8 +19,8 @@ defmodule Earmark.HtmlRenderer do
   # Paragraph #
   #############
   defp render_block(%Block.Para{lines: lines, attrs: attrs}, context) do
-    lines = convert(lines, context)
-    { add_attrs("<p>#{lines}</p>\n", attrs), [] }
+    {lines, messages} = convert_with_messages(lines, context)
+    { add_attrs!("<p>#{lines}</p>\n", attrs), messages }
   end
 
   ########
@@ -38,23 +38,24 @@ defmodule Earmark.HtmlRenderer do
   # Ruler #
   #########
   defp render_block(%Block.Ruler{type: "-", attrs: attrs}, _context) do
-    { add_attrs("<hr/>\n", attrs, [{"class", ["thin"]}]), [] }
+    { add_attrs!("<hr/>\n", attrs, [{"class", ["thin"]}]), [] }
   end
 
   defp render_block(%Block.Ruler{type: "_", attrs: attrs}, _context) do
-    { add_attrs("<hr/>\n", attrs, [{"class", ["medium"]}]), [] }
+    { add_attrs!("<hr/>\n", attrs, [{"class", ["medium"]}]), [] }
   end
 
   defp render_block(%Block.Ruler{type: "*", attrs: attrs}, _context) do
-    { add_attrs("<hr/>\n", attrs, [{"class", ["thick"]}]), [] }
+    { add_attrs!("<hr/>\n", attrs, [{"class", ["thick"]}]), [] }
   end
 
   ###########
   # Heading #
   ###########
   defp render_block(%Block.Heading{level: level, content: content, attrs: attrs}, context) do
-    html = "<h#{level}>#{convert(content,context)}</h#{level}>\n"
-    { add_attrs(html, attrs), [] }
+    {converted, _messages} = convert_with_messages(content, context)
+    html = "<h#{level}>#{converted}</h#{level}>\n"
+    { add_attrs!(html, attrs), [] }
   end
 
   ##############
@@ -64,7 +65,7 @@ defmodule Earmark.HtmlRenderer do
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context) do
     {body, messages} = render(blocks, context)
     html = "<blockquote>#{body}</blockquote>\n"
-    { add_attrs(html, attrs), messages }
+    { add_attrs!(html, attrs), messages }
   end
 
   #########
@@ -73,7 +74,7 @@ defmodule Earmark.HtmlRenderer do
 
   defp render_block(%Block.Table{header: header, rows: rows, alignments: aligns, attrs: attrs}, context) do
     cols = for _align <- aligns, do: "<col>\n"
-    html = [ add_attrs("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
+    html = [ add_attrs!("<table>\n", attrs), "<colgroup>\n", cols, "</colgroup>\n" ]
 
     html = if header do
       [ html, "<thead>\n",
@@ -97,7 +98,7 @@ defmodule Earmark.HtmlRenderer do
     tag = ~s[<pre><code#{class}>]
     lines = options.render_code.(block)
     html = ~s[#{tag}#{lines}</code></pre>\n]
-    { add_attrs(html, attrs), [] }
+    { add_attrs!(html, attrs), [] }
   end
 
   #########
@@ -107,7 +108,7 @@ defmodule Earmark.HtmlRenderer do
   defp render_block(%Block.List{type: type, blocks: items, attrs: attrs, start: start}, context) do
     {content, messages} = render(items, context)
     html = "<#{type}#{start}>\n#{content}</#{type}>\n"
-    { add_attrs(html, attrs), messages }
+    { add_attrs!(html, attrs), messages }
   end
 
   # format a single paragraph list item, and remove the para tags
@@ -116,14 +117,14 @@ defmodule Earmark.HtmlRenderer do
     {content, messages}  = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
     html = "<li>#{content}</li>\n"
-    { add_attrs(html, attrs), messages }
+    { add_attrs!(html, attrs), messages }
   end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
     {content, messages} = render(blocks, context)
     html = "<li>#{content}</li>\n"
-    { add_attrs(html, attrs), messages }
+    { add_attrs!(html, attrs), messages }
   end
 
   ##################
@@ -144,7 +145,8 @@ defmodule Earmark.HtmlRenderer do
   #######################################
 
   defp render_block(%Block.Ial{content: content}, context) do
-    { "<p>#{convert(["{:#{content}}"], context)}</p>\n", [] }
+    {converted, _messages} = convert_with_messages(["{:#{content}}"], context)
+    { "<p>#{converted}</p>\n", [] }
   end
 
   ####################
@@ -197,7 +199,13 @@ defmodule Earmark.HtmlRenderer do
   end
 
   def add_tds(context, row, tag, aligns \\ []) do
-    Enum.reduce(1..length(row), {[], row}, fn(n, {acc, row}) ->
+    Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns))
+    |> elem(0)
+    |> Enum.reverse
+  end
+
+  defp add_td_fn(context, row, tag, aligns) do 
+    fn n, {acc, row} ->
       style = cond do
         align = Enum.at(aligns, n - 1) ->
           " style=\"text-align: #{align}\""
@@ -205,10 +213,9 @@ defmodule Earmark.HtmlRenderer do
           ""
       end
       col = Enum.at(row, n - 1)
-      {["<#{tag}#{style}>#{convert(col, context)}</#{tag}>" | acc], row}
-    end)
-    |> elem(0)
-    |> Enum.reverse
+      {converted, _messages} = convert_with_messages(col, context)
+      {["<#{tag}#{style}>#{converted}</#{tag}>" | acc], row}
+    end
   end
 
 
