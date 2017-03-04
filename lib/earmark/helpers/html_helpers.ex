@@ -1,16 +1,15 @@
 defmodule Earmark.Helpers.HtmlHelpers do
 
   import Earmark.Helpers.AttrParser
-  alias Earmark.Message
   
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
 
-  def augment_tag_with_ial(tag, ial) do 
+  def augment_tag_with_ial(tag, ial, lnb) do 
     case Regex.run( @simple_tag, tag) do 
       nil -> nil
-      [_, inner] -> add_attrs(tag, ial)
+      _   -> add_attrs(tag, ial, [], lnb)
     end
     
   end
@@ -21,22 +20,22 @@ defmodule Earmark.Helpers.HtmlHelpers do
   ##############################################
 
   @doc false
-  def add_attrs!(text, attrs_as_string_or_map, default_attrs \\ []) do
-    with {text, _errors} <- add_attrs(text, attrs_as_string_or_map, default_attrs), do: text
+  def add_attrs!(text, attrs_as_string_or_map, default_attrs, lnb ) do
+    with {text, _errors} <- add_attrs(text, attrs_as_string_or_map, default_attrs, lnb), do: text
   end
 
-  defp add_attrs(text, attrs_as_string_or_map, default_attrs \\ [])
+  defp add_attrs(text, attrs_as_string_or_map, default_attrs, lnb )
 
-  defp add_attrs(text, nil, []), do: text
+  defp add_attrs(text, nil, [], _lnb), do: text
 
-  defp add_attrs(text, nil, default), do: add_attrs(text, %{}, default)
+  defp add_attrs(text, nil, default, lnb), do: add_attrs(text, %{}, default, lnb)
 
-  defp add_attrs(text, attrs, default) when is_binary(attrs) do
-    with {attrs, errors} <- parse_attrs( attrs ) do
-      {add_attrs(text, attrs, default), format(errors)}
-    end
+  defp add_attrs(text, attrs, default, lnb) when is_binary(attrs) do
+    attrs = parse_attrs( attrs, lnb )
+    add_attrs(text, attrs, default, lnb)
   end
-  defp add_attrs(text, attrs, default) do
+
+  defp add_attrs(text, attrs, default, _lnb) do
     default
     |> Enum.into(attrs)
     |> attrs_to_string()
@@ -53,10 +52,4 @@ defmodule Earmark.Helpers.HtmlHelpers do
     String.replace(text, ~r{\s?/?>}, "#{attrs}\\0", global: false)
   end
 
-  defp format(errors, line \\ 0) do 
-    errors
-    |> Enum.map(fn error ->
-      Message.new_warning(line, error)
-    end)
-  end
 end

@@ -111,7 +111,7 @@ defmodule FootnoteTest do
             %Block.FnDef{id: "ref-2", blocks: [%Block.Para{lines: ["ref 2"]}]},
             %Block.FnDef{id: "ref-1", blocks: [%Block.Para{lines: ["ref 1"]}]}]
     opts = put_in(options().footnote_offset, 3)
-    { blocks, footnotes, _ } = Parser.handle_footnotes(text, opts, &Enum.map/2)
+    { blocks, footnotes } = Parser.handle_footnotes(text, opts, &Enum.map/2)
     output_fnotes = [%Block.FnDef{id: "ref-1", number: 3, blocks: [%Block.Para{lines: ["ref 1"]}]},
                      %Block.FnDef{id: "ref-2", number: 4, blocks: [%Block.Para{lines: ["ref 2"]}]}]
     expected_blocks = [para, %Block.FnList{blocks: output_fnotes}]
@@ -122,7 +122,7 @@ defmodule FootnoteTest do
 
   test "parses footnote content" do
     {blocks, _, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
-    {blocks, footnotes, _} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
+    {blocks, footnotes} = Parser.handle_footnotes(blocks, options(), &Enum.map/2)
     fn_content = [%Earmark.Block.Para{lnb: 3, lines: ["line 1", "line 2", "line 3"]}]
     fn_def = %Earmark.Block.FnDef{lnb: 3, id: "ref-id", number: 1, blocks: fn_content }
     assert blocks == [%Earmark.Block.Para{lnb: 1, lines: ["para[^ref-id]"]},

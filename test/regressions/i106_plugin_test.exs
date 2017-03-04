@@ -43,8 +43,9 @@ defmodule Regressions.I106PluginTest do
   """
   test "a mix of errors" do 
     assert as_html(@mix_errors, Plugin.define(%Options{}, CommentPlugin)) ==
-    {:error, "<!-- comment -->\n<p></p>\n",[{ :warning, 3, "Unexpected line ="},
-          { :warning, 1, "lines for undefined plugin prefix \"unregistered\" ignored (1..1)"}]}
+    {:error, "<!-- comment -->\n<p></p>\n",[
+          { :warning, 1, "lines for undefined plugin prefix \"unregistered\" ignored (1..1)"},
+            { :warning, 3, "Unexpected line ="}]}
   end
 
   @error_plugin """
@@ -57,7 +58,8 @@ defmodule Regressions.I106PluginTest do
   test "a plugin with errors" do
     options = Plugin.define(%Options{}, [ErrorPlugin, {CommentPlugin, "c"}])
     assert as_html(@error_plugin, options) ==
-    {:error, "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [{:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"},
-          {:error, 4, "that is incorrect" }]}
+    {:error, "<!-- comment -->\n<p>data</p>\n<strong>correct</strong>", [
+          {:error, 4, "that is incorrect" },
+          {:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"}]}
   end
 end

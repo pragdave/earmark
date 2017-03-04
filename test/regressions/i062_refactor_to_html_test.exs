@@ -1,11 +1,10 @@
 defmodule Regressions.I062RefactorToHtmlTest do
   use ExUnit.Case
-  import ExUnit.CaptureIO
 
   test "deprecation warning for to_html" do 
-    assert capture_io( :stderr, fn->
+    assert_raise(UndefinedFunctionError, ~r{function Earmark\.to_html/1 is undefined or private.*}, fn ->
       Earmark.to_html("* hello")
-    end) == "warning: usage of `Earmark.to_html` is deprecated.\nUse `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, errors}`\n"
+    end)
   end
 
   test "as_html! takes place" do 

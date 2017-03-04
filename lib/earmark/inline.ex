@@ -10,15 +10,10 @@
   alias  Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 2]
+  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 3]
 
   @doc false
-  def convert(src, context) do
-    {out, _} = _convert(src, context)
-    out
-  end
-
-  def convert_with_messages(src, context), do: _convert(src, context)
+  def convert(src, context), do: _convert(src, context)
 
   defp _convert(src, context)
 
@@ -54,13 +49,14 @@
 
   defp convert_each(data, converters)
 
-  defp convert_each({"", context, result}, _converters) do
-    with result1 <- result
+  defp convert_each({"", _context, result}, _converters) do
+    result
         |> Enum.reverse()
         |> IO.iodata_to_binary
         |> replace(~r{(</[^>]*>)‘}, "\\1’")
-        |> replace(~r{(</[^>]*>)“}, "\\1”"), do: {result1, context.options.messages}
+        |> replace(~r{(</[^>]*>)“}, "\\1”")
   end
+
   defp convert_each(data, converters) do
     walk_converters(converters, data, converters)
   end
@@ -98,10 +94,11 @@
   end
 
   defp converter_for_tag({src, context, result}, _renderer) do
-    if match = Regex.run(context.rules.tag, src) do
-      [ match ] = match
-      out = context.options.do_sanitize.(match)
-      { behead(src, match), context, [out | result] }
+    case Regex.run(context.rules.tag, src) do
+      [ match ] ->
+        out = context.options.do_sanitize.(match)
+        { behead(src, match), context, [out | result] }
+        _       -> nil
     end
   end
 
@@ -150,22 +147,24 @@
     end
 
   defp converter_for_footnote({src, context, result}, _renderer) do
-    if match = Regex.run(context.rules.footnote, src) do
-      [match, id] = match
-      case footnote_link(context, match, id) do
-        {:ok, out} -> { behead(src, match), context, [out | result] }
-        _          -> nil
-      end
+    case Regex.run(context.rules.footnote, src) do
+      [match, id] -> 
+        case footnote_link(context, match, id) do
+          {:ok, out} -> { behead(src, match), context, [out | result] }
+          _          -> nil
+        end
+      _           -> nil
     end
   end
 
   defp converter_for_nolink({src, context, result}, _renderer) do
-    if match = Regex.run(context.rules.nolink, src) do
-      [ match, id ] = match
-      case reference_link(context, match, id, id) do
-          {:ok, out} -> { behead(src, match), context, [out | result] }
-          _          -> nil
-      end
+    case Regex.run(context.rules.nolink, src) do
+      [ match, id ] -> 
+        case reference_link(context, match, id, id) do
+            {:ok, out} -> { behead(src, match), context, [out | result] }
+            _          -> nil
+        end
+      _             -> nil
     end
   end
 
@@ -212,10 +211,10 @@
   defp converter_for_inline_ial({src, context, [maybe_tag|result]}, _renderer) do 
     if match = Regex.run(context.rules.inline_ial, src) do
       [match, ial] = match
-      case augment_tag_with_ial(maybe_tag, ial) do
-        nil               -> nil
-        {new_tag, errors} ->
-        { behead(src, match), Context.add_messages(context, errors), [new_tag|result] }
+      case augment_tag_with_ial(maybe_tag, ial, 0) do
+        nil     -> nil
+        new_tag ->
+          { behead(src, match), context, [new_tag|result] }
       end
     end
   end
@@ -281,7 +280,7 @@
   defp output_link(context, text, href, title) do
     href       = encode(href)
     title      = if title, do: escape(title), else: nil
-    {link, _}  = convert_each({text, context, []},
+    link       = convert_each({text, context, []},
                         Keyword.drop(all_converters(), @linky_converter_names))
     context.options.renderer.link(href, link, title)
   end
