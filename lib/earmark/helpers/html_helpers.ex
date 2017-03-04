@@ -33,7 +33,6 @@ defmodule Earmark.Helpers.HtmlHelpers do
 
   defp add_attrs(text, attrs, default) when is_binary(attrs) do
     with {attrs, errors} <- parse_attrs( attrs ) do
-      IO.inspect errors
       {add_attrs(text, attrs, default), format(errors)}
     end
   end
