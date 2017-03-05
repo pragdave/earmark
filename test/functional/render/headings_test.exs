@@ -8,11 +8,10 @@ defmodule HeadingsTest do
 
 
   defp render [level: level, content: content] do
-    {html, _} = Renderer.render([
+    Renderer.render([
       %Heading{attrs: nil, level: level, content: content}],
       inline_context()
     )
-    html
   end
 
   defp inline_context do

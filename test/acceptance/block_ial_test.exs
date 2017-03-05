@@ -1,13 +1,21 @@
-defmodule Acceptance.InlineAttributeListTest do
+defmodule Acceptance.BlockIalTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "IAL" do
+   describe "IAL" do
 
     test "Not associated" do
       markdown = "{:hello=world}"
       html     = "<p>{:hello=world}</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "Not associated means verbatim" do
+      markdown = "{: hello=world  }"
+      html     = "<p>{: hello=world  }</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -61,5 +69,5 @@ defmodule Acceptance.InlineAttributeListTest do
       assert as_html(markdown) == {:error, html, messages}
     end
 
-  # end
+  end
 end

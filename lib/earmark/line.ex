@@ -61,7 +61,7 @@ defmodule Earmark.Line do
   defmodule SetextUnderlineHeading,
                           do: defstruct lnb: 0, line: "", level: 1, inside_code: false, inside_code: false
   defmodule TableLine,    do: defstruct lnb: 0, line: "", content: "", columns: 0, inside_code: false
-  defmodule Ial,          do: defstruct lnb: 0, line: "", attrs:   "", inside_code: false
+  defmodule Ial,          do: defstruct lnb: 0, line: "", attrs:   "", inside_code: false, verbatim: ""
   defmodule Text,         do: defstruct lnb: 0, line: "", content: "", inside_code: false
 
   defmodule Plugin,       do: defstruct lnb: 0, line: "", content: "", prefix: "$$"
@@ -205,9 +205,9 @@ defmodule Earmark.Line do
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
         %SetextUnderlineHeading{level: level }
 
-      match = Regex.run(~r<^\s{0,3}{:\s*([^}]+)}\s*$>, line) ->
+      match = Regex.run(~r<^\s{0,3}{:(\s*[^}]+)}\s*$>, line) ->
         [ _, ial ] = match
-        %Ial{attrs: String.strip(ial)}
+        %Ial{attrs: String.strip(ial), verbatim: ial}
 
       match = Regex.run(~r<^\$\$(\w*)$>, line) ->
         [_, prefix] = match

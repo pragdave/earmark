@@ -231,18 +231,8 @@ defmodule Earmark do
   alias Earmark.Options
   alias Earmark.Context
   import Earmark.Message, only: [emit_messages: 2]
-
-  if (Elixir.Version.compare(vsn = Elixir.System.version, "1.3.0")) == :lt, do:
-    IO.puts( :stderr, "Usage of Elixir versions < 1.3.0 is deprecated, please upgrade from your version #{vsn}" )
-
-  @to_html_deprecation_warning """
-  warning: usage of `Earmark.to_html` is deprecated.
-  Use `Earmark.as_html!` instead, or use `Earmark.as_html` which returns a tuple `{html, errors}`
-  """
-  def to_html(lines, options \\ %Options{}) do
-    IO.puts( :stderr, String.strip(@to_html_deprecation_warning) )
-    as_html!(lines, options)
-  end
+  import Earmark.Global.Messages
+  
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -284,9 +274,10 @@ defmodule Earmark do
   """
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
-    case _as_html(lines, options) do
-      { html, [] }     -> {:ok, html, []}
-      { html, errors } -> {:error, html, errors}
+    html = _as_html(lines, options)
+    case get_all_messages() do
+      []       -> {:ok, html, []}
+      messages -> {:error, html, messages}
     end
   end
 
@@ -299,16 +290,15 @@ defmodule Earmark do
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-    {html, messages} = _as_html(lines, options)
-    emit_messages(options.file, messages)
+    html = _as_html(lines, options)
+    emit_messages(options.file, get_all_messages())
     html
   end
 
   defp _as_html(lines, options) do
+    start_link()
     {blocks, context} = parse(lines, options)
-    parser_messages = Context.messages(context)
-    {html, render_messages} = options.renderer.render(blocks, context)
-    {html, List.flatten(parser_messages ++ render_messages)}
+    options.renderer.render(blocks, context)
   end
 
   @doc """
@@ -323,17 +313,15 @@ defmodule Earmark do
   @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links, %{messages: messages} } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, _ } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
               |> Earmark.Inline.update_context()
-              |> Context.add_messages(messages)
 
     if options.footnotes do
-      { blocks, footnotes, undefined } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
+      { blocks, footnotes} = Earmark.Parser.handle_footnotes(blocks, options, mapper)
       context = 
-        put_in(context.footnotes, footnotes) |>
-        Context.add_messages(undefined)
+        put_in(context.footnotes, footnotes)
       { blocks, context }
     else
       { blocks, context }

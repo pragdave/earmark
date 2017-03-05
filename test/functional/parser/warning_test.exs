@@ -3,6 +3,11 @@ defmodule Parser.WarningTest do
 
   alias Earmark.Options
 
+  setup do
+    Earmark.Global.Messages.start_link()
+    :ok
+  end
+
   test "Unexpected line" do
     warnings = messages_from_parse( "A\nB\n=")
     assert warnings == [{ :warning, 3, "Unexpected line ="}]
@@ -79,6 +84,7 @@ defmodule Parser.WarningTest do
   end
 
   defp messages_from_parse(str, options \\ %Earmark.Options{}) do 
-    with {_, %{options: %{messages: messages}}} <- Earmark.parse(str, options), do: messages
+    Earmark.parse(str, options)
+    Earmark.Global.Messages.get_all_messages()
   end
 end

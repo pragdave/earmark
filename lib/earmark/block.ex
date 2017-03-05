@@ -6,6 +6,7 @@ defmodule Earmark.Block do
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.ReparseHelpers
+  import Earmark.Global.Messages, only: [add_message: 1, add_messages: 1]
 
   @moduledoc """
   Given a list of parsed lines, convert them into blocks.
@@ -27,7 +28,7 @@ defmodule Earmark.Block do
   defmodule IdDef,       do: defstruct lnb: 0, attrs: nil, id: nil, url: nil, title: nil
   defmodule FnDef,       do: defstruct lnb: 0, attrs: nil, id: nil, number: nil, blocks: []
   defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
-  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil
+  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil, verbatim: ""
   # List does not need line number
   defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: ""
   defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
@@ -154,7 +155,7 @@ defmodule Earmark.Block do
       case pending do
         {nil, _} -> options
         {pending, lnb1} ->
-          Options.add_warning(options, lnb1, "Closing unclosed backquotes #{pending} at end of input" )
+          add_message({:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
       end
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text, lnb: lnb} | result ], options1)
@@ -206,13 +207,14 @@ defmodule Earmark.Block do
   ##############
   defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options) do
     {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
-    options1 = unclosed
-      |> Enum.reduce(options, fn %{lnb: lnb1, tag: tag}, acc ->
-        Options.add_warning(acc, lnb1, "Failed to find closing <#{tag}>")
+    unclosed
+      |> Enum.map(fn %{lnb: lnb1, tag: tag} ->
+        {:warning, lnb1, "Failed to find closing <#{tag}>"}
       end)
+      |> add_messages()
 
     html = (for line <- Enum.reverse(html_lines), do: line.line)
-    _parse(rest, [ %Html{tag: tag, html: html, lnb: lnb} | result ], options1)
+    _parse(rest, [ %Html{tag: tag, html: html, lnb: lnb} | result ], options)
   end
 
   ####################
@@ -289,14 +291,9 @@ defmodule Earmark.Block do
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb} | rest ], result, options) do
-    {attributes, attr_errors} = parse_attrs( attrs )
-    options1 =
-      if Enum.empty?( attr_errors ),
-      do: options,
-      else:
-        Options.add_warning(options, lnb, "Illegal attributes #{inspect attr_errors} ignored in IAL")
-    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb} | result ], options1)
+  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options) do
+    attributes = parse_attrs( attrs, lnb )
+    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options)
   end
 
   ###############
@@ -318,8 +315,8 @@ defmodule Earmark.Block do
     if handler do
       _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines, lnb: lnb}|result], options) 
     else
-      _parse(rest1, result,
-        Options.add_warning(options, lnb, "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})")) 
+      add_message({:warning, lnb,  "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})"})
+      _parse(rest1, result, options)
     end
   end
 
@@ -328,8 +325,8 @@ defmodule Earmark.Block do
   ##############################################################
 
   defp _parse( [ anything = %{lnb: lnb} | rest ], result, options) do
-    _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result,
-            Options.add_warning(options, anything.lnb, "Unexpected line #{anything.line}" ))
+    add_message({:warning, anything.lnb, "Unexpected line #{anything.line}"})
+    _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result, options)
   end
 
   #######################################################

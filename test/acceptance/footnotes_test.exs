@@ -33,8 +33,8 @@ defmodule Acceptance.FootnotesTest do
       markdown = "foo[^1]\nhello\n\n[^1]:bar baz"
       html     = ~s{<p>foo[^1]\nhello</p>\n<p>[^1]:bar baz</p>\n}
       messages = [
-        {:error, 4, "footnote 1 undefined, reference to it ignored"},
-        {:error, 1, "footnote 1 undefined, reference to it ignored"}]
+        {:error, 1, "footnote 1 undefined, reference to it ignored"},
+        {:error, 4, "footnote 1 undefined, reference to it ignored"}]
 
       assert as_html(markdown, footnotes: true) == {:error, html, messages}
     end
