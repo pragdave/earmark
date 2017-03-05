@@ -28,7 +28,7 @@ defmodule Earmark.Block do
   defmodule IdDef,       do: defstruct lnb: 0, attrs: nil, id: nil, url: nil, title: nil
   defmodule FnDef,       do: defstruct lnb: 0, attrs: nil, id: nil, number: nil, blocks: []
   defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
-  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil
+  defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil, verbatim: ""
   # List does not need line number
   defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: ""
   defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
@@ -291,9 +291,9 @@ defmodule Earmark.Block do
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb} | rest ], result, options) do
+  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options) do
     attributes = parse_attrs( attrs, lnb )
-    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb} | result ], options)
+    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options)
   end
 
   ###############

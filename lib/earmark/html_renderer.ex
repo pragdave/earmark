@@ -3,7 +3,7 @@ defmodule Earmark.HtmlRenderer do
   alias  Earmark.Block
   alias  Earmark.Context
   alias  Earmark.Options
-  import Earmark.Inline,  only: [ convert: 2 ]
+  import Earmark.Inline,  only: [ convert: 3 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
 
@@ -17,7 +17,7 @@ defmodule Earmark.HtmlRenderer do
   # Paragraph #
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
-    lines = convert(lines, context)
+    lines = convert(lines, lnb, context)
     add_attrs!("<p>#{lines}</p>\n", attrs, [], lnb)
   end
 
@@ -51,7 +51,7 @@ defmodule Earmark.HtmlRenderer do
   # Heading #
   ###########
   defp render_block(%Block.Heading{lnb: lnb, level: level, content: content, attrs: attrs}, context) do
-    converted = convert(content, context)
+    converted = convert(content, lnb, context)
     html = "<h#{level}>#{converted}</h#{level}>\n"
     add_attrs!(html, attrs, [], lnb)
   end
@@ -76,13 +76,13 @@ defmodule Earmark.HtmlRenderer do
 
     html = if header do
       [ html, "<thead>\n",
-        add_table_rows(context, [header], "th", aligns),
+        add_table_rows(context, [header], "th", aligns, lnb),
         "</thead>\n" ]
     else
       html
     end
 
-    [ html, add_table_rows(context, rows, "td", aligns), "</table>\n" ]
+    [ html, add_table_rows(context, rows, "td", aligns, lnb), "</table>\n" ]
   end
 
   ########
@@ -140,9 +140,8 @@ defmodule Earmark.HtmlRenderer do
   # Isolated IALs are rendered as paras #
   #######################################
 
-  defp render_block(%Block.Ial{content: content}, context) do
-    converted = convert(["{:#{content}}"], context)
-    "<p>#{converted}</p>\n"
+  defp render_block(%Block.Ial{verbatim: verbatim}, _context) do
+    "<p>{:#{verbatim}}</p>\n"
   end
 
   ####################
@@ -163,10 +162,6 @@ defmodule Earmark.HtmlRenderer do
     end
   end
 
-  defp emit_messages(html, errors) do 
-    Earmark.Global.Messages.add_messages(errors)
-    html
-  end
   #####################################
   # And here are the inline renderers #
   #####################################
@@ -192,17 +187,19 @@ defmodule Earmark.HtmlRenderer do
   def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
-  def add_table_rows(context, rows, tag, aligns \\ []) do
-    for row <- rows, do: "<tr>\n#{add_tds(context, row, tag, aligns)}\n</tr>\n"
+  defp add_table_rows(context, rows, tag, aligns, lnb) do
+    numbered_rows = rows
+      |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
+    for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
   end
 
-  def add_tds(context, row, tag, aligns \\ []) do
-    Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns))
+  defp add_tds(context, row, tag, aligns, lnb) do
+    Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns, lnb))
     |> elem(0)
     |> Enum.reverse
   end
 
-  defp add_td_fn(context, row, tag, aligns) do 
+  defp add_td_fn(context, row, tag, aligns, lnb) do 
     fn n, {acc, _row} ->
       style = cond do
         align = Enum.at(aligns, n - 1) ->
@@ -211,7 +208,7 @@ defmodule Earmark.HtmlRenderer do
           ""
       end
       col = Enum.at(row, n - 1)
-      converted = convert(col, context)
+      converted = convert(col, lnb,  context)
       {["<#{tag}#{style}>#{converted}</#{tag}>" | acc], row}
     end
   end
@@ -247,5 +244,15 @@ defmodule Earmark.HtmlRenderer do
    ["" | String.split( prefix || "" )]
      |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
      |> Enum.join(" ")
+  end
+
+
+  #################
+  # Other Helpers #
+  #################
+
+  defp emit_messages(html, errors) do 
+    Earmark.Global.Messages.add_messages(errors)
+    html
   end
 end

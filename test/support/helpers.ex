@@ -41,12 +41,12 @@ defmodule Support.Helpers do
     Inline.update_context(context())
   end
 
-  def convert_pedantic(string) do
-    Inline.convert(string, pedantic_context())
+  def convert_pedantic(string, lnb \\ 0) do
+    Inline.convert(string, lnb, pedantic_context())
   end
 
-  def convert_gfm(string) do
-    Inline.convert(string, gfm_context())
+  def convert_gfm(string, lnb \\ 0) do
+    Inline.convert(string, lnb, gfm_context())
   end
 
 end

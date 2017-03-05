@@ -22,7 +22,7 @@ defmodule FootnoteTest do
   end
 
   def convert(string) do
-    Inline.convert(string, context())
+    Inline.convert(string, 0, context())
   end
 
   test "handles FnDef blocks without Footnotes enabled" do

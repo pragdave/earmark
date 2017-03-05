@@ -13,15 +13,12 @@
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 3]
 
   @doc false
-  def convert(src, context), do: _convert(src, context)
+  def convert(src, lnb, context)
+  def convert(list, lnb, context) when is_list(list), do: _convert(Enum.join(list, "\n"), lnb, context)
+  def convert(src, lnb, context),                     do: _convert(src, lnb, context)
 
-  defp _convert(src, context)
-
-  defp _convert(src, context) when is_list(src) do
-    _convert(Enum.join(src, "\n"), context)
-  end
-  defp _convert(src, context) do
-    convert_each({src, context, []}, all_converters())
+  defp _convert(src, current_lnb, context) do
+    convert_each({src, context, [], current_lnb}, all_converters())
   end
 
   @linky_converter_names [:converter_for_link, :converter_for_reflink, :converter_for_footnote, :converter_for_nolink]
@@ -49,7 +46,7 @@
 
   defp convert_each(data, converters)
 
-  defp convert_each({"", _context, result}, _converters) do
+  defp convert_each({"", _context, result, _lnb}, _converters) do
     result
         |> Enum.reverse()
         |> IO.iodata_to_binary
@@ -61,43 +58,44 @@
     walk_converters(converters, data, converters)
   end
 
+
   defp walk_converters(converters, data, all_converters)
 
   defp walk_converters([], _, _) do
     # This should never happen
     raise Error, "Illegal State"
   end
-  defp walk_converters([{_converter_name, converter}|rest], data = { _src, context, _result}, all_converters) do
+  defp walk_converters([{_converter_name, converter}|rest], data = { _src, context, _result, _lnb}, all_converters) do
     case converter.(data, context.options.renderer) do
       # This has not been the correct converter, move on
       nil                -> walk_converters(rest, data, all_converters)
       nd                 ->
-        convert_each(nd, all_converters)
+        convert_each(update_lnb(nd), all_converters)
     end
   end
-  
 
-  defp converter_for_escape({src, context, result}, _renderer) do
+
+  defp converter_for_escape({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.escape, src) do
       [ match, escaped ] = match
-      {behead(src, match), context, [escaped | result]}
+      {behead(src, match), context, [escaped | result], lnb}
     end
   end
 
-  defp converter_for_autolink({src, context, result}, renderer) do
+  defp converter_for_autolink({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.autolink, src) do
       [ match, link, protocol ] = match
       { href, text } = convert_autolink(link, protocol)
       out = renderer.link(href, text)
-      { behead(src, match), context, [out | result] }
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
-  defp converter_for_tag({src, context, result}, _renderer) do
+  defp converter_for_tag({src, context, result, lnb}, _renderer) do
     case Regex.run(context.rules.tag, src) do
       [ match ] ->
         out = context.options.do_sanitize.(match)
-        { behead(src, match), context, [out | result] }
+        { behead(src, match), context, [out | result], lnb }
         _       -> nil
     end
   end
@@ -111,128 +109,126 @@
   #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
   #       Oh yes and of course I cannot even preparse the url part because of this e.g.
   #                 [...](url "((((((")
-  defp converter_for_link({src, context, result}, _renderer) do
+  defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src) do
       unless is_image?(match) do
         {match, text, href, title} = match
-        out = output_link(context, text, href, title)
-        { behead(src, match), context, [out | result] }
+        out = output_link(context, text, href, title, lnb)
+        { behead(src, match), context, [out | result], lnb }
       end
     end
   end
 
-  defp is_image?( {match_text, _, _, _} ), do: String.starts_with?(match_text, "!")
-
-  defp converter_for_img({src, context, result}, _renderer) do
+  defp converter_for_img({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src) do
       if is_image?(match) do
         {match, text, href, title} = match
         out = output_image(context.options.renderer, text, href, title)
-        { behead(src, match), context, [out | result] }
+        { behead(src, match), context, [out | result], lnb }
       end
     end
   end
 
-  defp converter_for_reflink({src, context, result}, _renderer) do
+  defp converter_for_reflink({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.reflink, src) do
       { match, alt_text, id } = case match do
         [ match, id, "" ]       -> { match, id, id  }
         [ match, alt_text, id ] -> { match, alt_text, id }
       end
-      case reference_link(context, match, alt_text, id) do
-        {:ok, out} -> { behead(src, match), context, [out | result] }
+      case reference_link(context, match, alt_text, id, lnb) do
+        {:ok, out} -> { behead(src, match), context, [out | result], lnb }
         _          -> nil
         end
       end
     end
 
-  defp converter_for_footnote({src, context, result}, _renderer) do
+  defp converter_for_footnote({src, context, result, lnb}, _renderer) do
     case Regex.run(context.rules.footnote, src) do
-      [match, id] -> 
+      [match, id] ->
         case footnote_link(context, match, id) do
-          {:ok, out} -> { behead(src, match), context, [out | result] }
+          {:ok, out} -> { behead(src, match), context, [out | result], lnb }
           _          -> nil
         end
       _           -> nil
     end
   end
 
-  defp converter_for_nolink({src, context, result}, _renderer) do
+  defp converter_for_nolink({src, context, result, lnb}, _renderer) do
     case Regex.run(context.rules.nolink, src) do
-      [ match, id ] -> 
-        case reference_link(context, match, id, id) do
-            {:ok, out} -> { behead(src, match), context, [out | result] }
+      [ match, id ] ->
+        case reference_link(context, match, id, id, lnb) do
+            {:ok, out} -> { behead(src, match), context, [out | result], lnb }
             _          -> nil
         end
       _             -> nil
     end
   end
 
-  defp converter_for_strikethrough_gfm({src, context, result}, renderer) do
+  defp converter_for_strikethrough_gfm({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.strikethrough, src) do
       [ match, content ] = match
-      out = renderer.strikethrough(convert(content, context))
-      { behead(src, match), context, [out | result] }
+      out = renderer.strikethrough(convert(content, lnb, context))
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
-  defp converter_for_strong({src, context, result}, renderer) do
+  defp converter_for_strong({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.strong, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
         [ m, c ]    -> {m, c}
       end
-      out = renderer.strong(convert(content, context))
-      { behead(src, match), context, [out | result] }
+      out = renderer.strong(convert(content, lnb, context))
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
-  defp converter_for_em({src, context, result}, renderer) do
+  defp converter_for_em({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.em, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
         [ m, c ]    -> {m, c}
       end
-      out = renderer.em(convert(content, context))
-      { behead(src, match), context, [out | result] }
+      out = renderer.em(convert(content, lnb, context))
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
-  defp converter_for_code({src, context, result}, renderer) do
+  defp converter_for_code({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.code, src) do
       [match, _, content] = match
       content = String.strip(content)  # this from Gruber
       out = renderer.codespan(escape(content, true))
-      { behead(src, match), context, [out | result] }
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
   defp converter_for_inline_ial(conv_data, renderer)
-  defp converter_for_inline_ial({src, context, [maybe_tag|result]}, _renderer) do 
+  defp converter_for_inline_ial({src, context, [maybe_tag|result], lnb}, _renderer) do
     if match = Regex.run(context.rules.inline_ial, src) do
       [match, ial] = match
-      case augment_tag_with_ial(maybe_tag, ial, 0) do
+      case augment_tag_with_ial(maybe_tag, ial, lnb) do
         nil     -> nil
         new_tag ->
-          { behead(src, match), context, [new_tag|result] }
+          { behead(src, match), context, [new_tag|result], lnb }
       end
     end
   end
   defp converter_for_inline_ial(_conv_data, _renderer), do: nil
 
-  defp converter_for_br({src, context, result}, renderer) do
+  defp converter_for_br({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.br, src, return: :index) do
       out = renderer.br()
       [ {0, match_len} ] = match
-      { behead(src, match_len), context, [out | result] }
+      { behead(src, match_len), context, [out | result], lnb }
     end
   end
 
-  defp converter_for_text({src, context, result}, _renderer) do
+  defp converter_for_text({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
       out = escape(context.options.do_smartypants.(match))
-      { behead(src, match), context, [out | result] }
+      { behead(src, match), context, [out | result], lnb }
     end
   end
 
@@ -269,18 +265,18 @@
     link
   end
 
-  defp output_image_or_link(context, "!" <> _, text, href, title) do
+  defp output_image_or_link(context, "!" <> _, text, href, title, _lnb) do
     output_image(context.options.renderer, text, href, title)
   end
 
-  defp output_image_or_link(context, _, text, href, title) do
-    output_link(context, text, href, title)
+  defp output_image_or_link(context, _, text, href, title, lnb) do
+    output_link(context, text, href, title, lnb)
   end
 
-  defp output_link(context, text, href, title) do
+  defp output_link(context, text, href, title, lnb) do
     href       = encode(href)
     title      = if title, do: escape(title), else: nil
-    link       = convert_each({text, context, []},
+    link       = convert_each({text, context, [], lnb},
                         Keyword.drop(all_converters(), @linky_converter_names))
     context.options.renderer.link(href, link, title)
   end
@@ -297,11 +293,11 @@
     renderer.image(href, escape(text), title)
   end
 
-  defp reference_link(context, match, alt_text, id) do
+  defp reference_link(context, match, alt_text, id, lnb) do
     id = id |> replace(~r{\s+}, " ") |> String.downcase
 
     case Map.fetch(context.links, id) do
-      {:ok, link } -> {:ok, output_image_or_link(context, match, alt_text, link.url, link.title)}
+      {:ok, link } -> {:ok, output_image_or_link(context, match, alt_text, link.url, link.title, lnb)}
       _            -> nil
       end
   end
@@ -313,6 +309,8 @@
     end
   end
 
+
+  defp is_image?( {match_text, _, _, _} ), do: String.starts_with?(match_text, "!")
 
   ##############################################################################
   # Handle adding option specific rules and processors                         #
@@ -408,5 +406,13 @@
     rule_updates = Keyword.merge(rule_updates, [footnote: footnote])
     Keyword.merge(basic_rules(), rule_updates)
     |> Enum.into(%{})
+  end
+
+  @trailing_newlines ~r{\n*\z}
+
+  defp update_lnb(data = {_, _, [], _}), do: data
+  defp update_lnb({rest, context, result= [head|_], lnb}) do
+    [suffix] = Regex.run(@trailing_newlines, head)
+    { rest, context, result, lnb + String.length(suffix) }
   end
 end

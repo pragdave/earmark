@@ -13,6 +13,14 @@ defmodule Acceptance.BlockIalTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "Not associated means verbatim" do
+      markdown = "{: hello=world  }"
+      html     = "<p>{: hello=world  }</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "Not associated and incorrect" do
       markdown = "{:hello}"
       html     = "<p>{:hello}</p>\n"
