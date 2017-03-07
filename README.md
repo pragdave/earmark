@@ -87,6 +87,8 @@ bars. It isn't clear what the expectation is.
 
 ### Adding HTML attributes with the IAL extension
 
+#### To block elements
+
 HTML attributes can be added to any block-level element. We use
 the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
 
@@ -96,18 +98,6 @@ _attrs_ can be one or more of:
 * `#id`
 * name=value, name="value", or name='value'
 
-
-Malformed attributes are ignored and a warning is issued to stderr.
-
-If you need to render IAL-like test verbatim escape it:
-
-`{:alpha, 42}`
-
-This of course is not necessary in code blocks or text lines
-containing an IAL-like string, as in
-
-`the returned tuple should be {:error, "I wish you hadn't done that"}`
-
 For example:
 
         # Warning
@@ -116,6 +106,37 @@ For example:
         Do not turn off the engine
         if you are at altitude.
         {: .boxed #warning spellcheck="true"}
+
+
+#### To links or images
+
+It is possible to add IAL attributes to genertated links or images in the following
+format.
+
+      iex> markdown = "[link](url) {: .classy}"
+      ...> Earmark.as_html(markdown)
+      { :ok, "<p><a href=\"url\" class=\"classy\">link</a></p>\n", []}
+
+
+For both cases, malformed attributes are ignored and warnings are issued.
+
+      iex> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
+      {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+
+
+It is possible to escape the IAL in both forms if necessary
+
+      iex> markdown = "[link](url)\\{: .classy}"
+      ...> Earmark.as_html(markdown)
+      {:ok, "<p><a href=\"url\">link</a>{: .classy}</p>\n", []}
+
+
+This of course is not necessary in code blocks or text lines
+containing an IAL-like string, as in the following example
+
+      iex> markdown = "hello {:world}"
+      ...> Earmark.as_html!(markdown)
+      "<p>hello {:world}</p>\n"
 
 ## Limitations
 
@@ -189,13 +210,15 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-      ```elixir
-         @tag :hello
-      ```
+      iex> code = [
+      ...> "```elixir",
+      ...> " @tag :hello",
+      ...> "```" ] |> Enum.join("\n")
+      ...> Earmark.as_html!(code)
+      "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
 
 will be rendered as
 
-       <pre><code class="elixir">...
 
 If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
 put before the language string.
@@ -219,7 +242,7 @@ As for all other options `code_class_prefix` can be passed into the `earmark` ex
 
   Please be aware that Markdown is not a secure format. It produces
   HTML from Markdown and HTML. It is your job to sanitize and or
-  filter the output of `Markdown.html` if you cannot trust the input
+  filter the output of `Earmark.as_html` if you cannot trust the input
   and are to serve the produced HTML on the Web.
 
 ## Author
