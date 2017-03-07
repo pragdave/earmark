@@ -31,6 +31,9 @@ defmodule Earmark.Global.Messages do
   defp sorted_messages(messages) do 
     messages
     |> Enum.sort(fn( {_, llnb, _}, {_, rlnb, _}) -> llnb <= rlnb end)
+    |> Enum.uniq()  # This kludge makes for easier implementation of 
+                    # deprecation warnings in 1.2, can be removed in
+                    # 1.3
   end
 
 end

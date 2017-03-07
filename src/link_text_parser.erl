@@ -14,7 +14,7 @@ make_image_tuple({L, R}) -> {L, string:concat("!", R)}.
 
 title_tuple({Title, Parsed}) -> {Title, string:join(["[", Parsed, "]"], "")}.
 
--file("/usr/local/Cellar/erlang/19.0.2/lib/erlang/lib/parsetools-2.1.2/include/yeccpre.hrl", 0).
+-file("/home/robert/.asdf/installs/erlang/19.1/lib/erlang/lib/parsetools-2.1.3/include/yeccpre.hrl", 0).
 %%
 %% %CopyrightBegin%
 %%
@@ -72,7 +72,7 @@ return_error(Line, Message) ->
 
 yeccpars0(Tokens, Tzr, State, States, Vstack) ->
     try yeccpars1(Tokens, Tzr, State, States, Vstack)
-    catch
+    catch 
         error: Error ->
             Stacktrace = erlang:get_stacktrace(),
             try yecc_error_type(Error, Stacktrace) of
@@ -515,6 +515,7 @@ yeccpars2_34(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  NewStack = yeccpars2_34_(Stack),
  yeccgoto_link_or_image(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_anything/7}).
 yeccgoto_anything(8, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_20(20, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_anything(20, Cat, Ss, Stack, T, Ts, Tzr) ->
@@ -522,6 +523,7 @@ yeccgoto_anything(20, Cat, Ss, Stack, T, Ts, Tzr) ->
 yeccgoto_anything(31, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_20(20, Cat, Ss, Stack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_inside_brackets/7}).
 yeccgoto_inside_brackets(4, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_6(6, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_inside_brackets(5=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
@@ -529,6 +531,7 @@ yeccgoto_inside_brackets(5=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 yeccgoto_inside_brackets(12, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_16(16, Cat, Ss, Stack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_inside_brackets_part/7}).
 yeccgoto_inside_brackets_part(4, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_5(5, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_inside_brackets_part(5, Cat, Ss, Stack, T, Ts, Tzr) ->
@@ -536,14 +539,17 @@ yeccgoto_inside_brackets_part(5, Cat, Ss, Stack, T, Ts, Tzr) ->
 yeccgoto_inside_brackets_part(12, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_5(5, Cat, Ss, Stack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_link/7}).
 yeccgoto_link(0=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_2(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_link(3=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_34(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_link_or_image/7}).
 yeccgoto_link_or_image(0, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_1(1, Cat, Ss, Stack, T, Ts, Tzr).
 
+-dialyzer({nowarn_function, yeccgoto_rest/7}).
 yeccgoto_rest(8=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_19(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_rest(20=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
