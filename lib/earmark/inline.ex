@@ -100,12 +100,12 @@
     end
   end
 
-  # TODO: v1.2 Fix this `mess` where mess in
+  # TODO: v1.3 Fix this `mess` where mess in
   #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
   #       the later two are _home made_)
-  #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.2)
+  #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.3)
   #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
-  #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!
+  #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!)
   #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
   #       Oh yes and of course I cannot even preparse the url part because of this e.g.
   #                 [...](url "((((((")
@@ -244,22 +244,6 @@
     { link, link }
   end
 
-  @doc """
-  Smartypants transformations convert quotes to the appropriate curly
-  variants, and -- and ... to – and …
-  """
-
-  def smartypants(text) do
-    text
-    |> replace(~r{--}, "—")
-    |> replace(~r{(^|[-—/\(\[\{"”“\s])'}, "\\1‘")
-    |> replace(~r{\'}, "’")
-    |> replace(~r{(^|[-—/\(\[\{‘\s])\"}, "\\1“")
-    |> replace(~r{"}, "”")
-    |> replace(~r{\.\.\.}, "…")
-  end
-
-
   @doc false
   def mangle_link(link) do
     link
@@ -311,103 +295,6 @@
 
 
   defp is_image?( {match_text, _, _, _} ), do: String.starts_with?(match_text, "!")
-
-  ##############################################################################
-  # Handle adding option specific rules and processors                         #
-  ##############################################################################
-
-  defp noop(text), do: text
-
-  @doc false
-  # this is called by the command line processor to update
-  # the inline-specific rules in light of any options
-  def update_context(context =  %Context{options: options}) do
-    context = %{ context | rules: rules_for(options) }
-    context = if options.smartypants do
-      put_in(context.options.do_smartypants, &smartypants/1)
-    else
-      put_in(context.options.do_smartypants, &noop/1)
-    end
-
-    if options.sanitize do
-      put_in(context.options.do_sanitize, &escape/1)
-    else
-      put_in(context.options.do_sanitize, &noop/1)
-    end
-  end
-
-
-  @link_text  ~S{(?:\[[^]]*\]|[^][]|\])*}
-  @href       ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}  #"
-
-  @code ~r{^
-   (`+)		# $1 = Opening run of `
-   (.+?)		# $2 = The code block
-   (?<!`)
-   \1			# Matching closer
-   (?!`)
-    }xs
-
-
-  defp basic_rules do
-    [
-      escape:   ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
-      autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},
-      url:      ~r{\z\A},  # noop
-
-      tag:      ~r{
-        ^<!--[\s\S]*?--> |
-        ^<\/?\w+(?: "[^"<]*" | # < inside an attribute is illegal, luckily
-        '[^'<]*' |
-        [^'"<>])*?>}x,
-
-     inline_ial: ~r<^\s*\{:\s*(.*?)\s*}>,
-     link:       ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
-     reflink:    ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
-     nolink:     ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
-     strong:     ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},
-     em:         ~r{^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)},
-     code:       @code,
-     br:         ~r<^ {2,}\n(?!\s*$)>,
-     text:       ~r<^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)>,
-
-     strikethrough: ~r{\z\A}   # noop
-    ]
-  end
-
-  defp rules_for(options) do
-    rule_updates = if options.gfm do
-      rules = [
-        escape:        ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>~|])},
-        url:           ~r{^(https?:\/\/[^\s<]+[^<.,:;\"\')\]\s])},
-        strikethrough: ~r{^~~(?=\S)([\s\S]*?\S)~~},
-        text:          ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| \{2,\}\n|$)}
-      ]
-      if options.breaks do
-        break_updates = [
-          br:    ~r{^ *\n(?!\s*$)},
-          text:  ~r{^[\s\S]+?(?=[\\<!\[_*`~]|https?://| *\n|$)}
-         ]
-         Keyword.merge(rules, break_updates)
-      else
-        rules
-      end
-    else
-      if options.pedantic do
-        [
-          strong: ~r{^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)},
-          em:     ~r{^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)}
-        ]
-      else
-        []
-      end
-    end
-    footnote = if options.footnotes, do: ~r{^\[\^(#{@link_text})\]}, else: ~r{\z\A}
-    rule_updates = Keyword.merge(rule_updates, [footnote: footnote])
-    Keyword.merge(basic_rules(), rule_updates)
-    |> Enum.into(%{})
-  end
-
   @trailing_newlines ~r{\n*\z}
 
   defp update_lnb(data = {_, _, [], _}), do: data
