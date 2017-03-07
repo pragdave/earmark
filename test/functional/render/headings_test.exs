@@ -10,12 +10,12 @@ defmodule HeadingsTest do
   defp render [level: level, content: content] do
     Renderer.render([
       %Heading{attrs: nil, level: level, content: content}],
-      inline_context()
+      updated_context()
     )
   end
 
-  defp inline_context do
-   Earmark.Inline.update_context( context() )
+  defp updated_context do
+   Earmark.Context.update_context( context() )
   end
 
 

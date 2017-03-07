@@ -316,7 +316,7 @@ defmodule Earmark do
     { blocks, links, _ } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options, links: links }
-              |> Earmark.Inline.update_context()
+              |> Earmark.Context.update_context()
 
     if options.footnotes do
       { blocks, footnotes} = Earmark.Parser.handle_footnotes(blocks, options, mapper)
@@ -346,6 +346,6 @@ defmodule Earmark do
   def pmap(collection, func) do
    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-   |> Enum.map(&Task.await/1)
+    |> Enum.map(&Task.await/1)
   end
 end

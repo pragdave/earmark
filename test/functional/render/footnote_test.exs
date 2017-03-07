@@ -1,10 +1,11 @@
 defmodule FootnoteTest do
   use ExUnit.Case
 
-  alias Earmark.Parser
-  alias Earmark.Inline
   alias Earmark.Block
+  alias Earmark.Context
+  alias Earmark.Inline
   alias Earmark.Line
+  alias Earmark.Parser
 
   def test_footnotes do
     [ {"fn-a", %Block.FnDef{id: "fn-a", number: 1}} ]
@@ -18,7 +19,7 @@ defmodule FootnoteTest do
   def context do
     ctx = put_in(%Earmark.Context{}.options, options())
     ctx = put_in(ctx.footnotes, test_footnotes())
-    Inline.update_context(ctx)
+    Context.update_context(ctx)
   end
 
   def convert(string) do

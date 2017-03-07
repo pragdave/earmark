@@ -1,7 +1,8 @@
 defmodule Support.Helpers do
 
-  alias Earmark.Inline
   alias Earmark.Block.IdDef
+  alias Earmark.Context
+  alias Earmark.Inline
 
   ###############
   # Helpers.... #
@@ -34,11 +35,11 @@ defmodule Support.Helpers do
     ctx = put_in(context().options.gfm, false)
     ctx = put_in(ctx.options.pedantic, true)
     ctx = put_in(ctx.links, test_links())
-    Inline.update_context(ctx)
+    Context.update_context(ctx)
   end
 
   def gfm_context do
-    Inline.update_context(context())
+    Context.update_context(context())
   end
 
   def convert_pedantic(string, lnb \\ 0) do
