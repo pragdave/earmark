@@ -3,7 +3,7 @@ defmodule Acceptance.ListIndentTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "different levels of indent" do
+  describe "different levels of indent" do
 
     test "ordered two levels, indented by two" do
       markdown = "1. One\n  2. two"
@@ -52,5 +52,5 @@ defmodule Acceptance.ListIndentTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+  end
 end

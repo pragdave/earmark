@@ -110,7 +110,7 @@
   #       Oh yes and of course I cannot even preparse the url part because of this e.g.
   #                 [...](url "((((((")
   defp converter_for_link({src, context, result, lnb}, _renderer) do
-    if match = LinkParser.parse_link(src) do
+    if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do
         {match, text, href, title} = match
         out = output_link(context, text, href, title, lnb)
@@ -120,7 +120,7 @@
   end
 
   defp converter_for_img({src, context, result, lnb}, _renderer) do
-    if match = LinkParser.parse_link(src) do
+    if match = LinkParser.parse_link(src, lnb) do
       if is_image?(match) do
         {match, text, href, title} = match
         out = output_image(context.options.renderer, text, href, title)

@@ -3,7 +3,7 @@ defmodule Acceptance.LinkAndImgTest do
 
   import Support.Helpers, only: [as_html: 1, as_html: 2]
 
-  # describe "Link reference definitions" do
+  describe "Link reference definitions" do
 
     test "link with title" do
       markdown = "[foo]: /url \"title\"\n\n[foo]\n"
@@ -72,180 +72,198 @@ defmodule Acceptance.LinkAndImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    # end
+  end
 
-    # describe "Link and Image imbrication" do
+  describe "Link and Image imbrication" do
 
-      test "empty (remains such)" do
-        markdown = ""
-        html     = ""
-        messages = []
+    test "empty (remains such)" do
+      markdown = ""
+      html     = ""
+      messages = []
 
-        assert as_html(markdown) == {:ok, html, messages}
-      end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-      test "inner is a link, not outer" do
-        markdown = "[[text](inner)]outer"
-        html     = "<p>[<a href=\"inner\">text</a>]outer</p>\n"
-        messages = []
+    test "inner is a link, not outer" do
+      markdown = "[[text](inner)]outer"
+      html     = "<p>[<a href=\"inner\">text</a>]outer</p>\n"
+      messages = []
 
-        assert as_html(markdown) == {:ok, html, messages}
-      end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-      test "unless your outer is syntactically a link of course" do
-        markdown = "[[text](inner)](outer)"
-        html = "<p><a href=\"outer\">[text](inner)</a></p>\n"
-        messages = []
+    test "unless your outer is syntactically a link of course" do
+      markdown = "[[text](inner)](outer)"
+      html = "<p><a href=\"outer\">[text](inner)</a></p>\n"
+      messages = []
 
-        assert as_html(markdown) == {:ok, html, messages}
-      end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-      test "as with this img" do
-        markdown = "![[text](inner)](outer)"
-        html     = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
-        messages = []
+    test "as with this img" do
+      markdown = "![[text](inner)](outer)"
+      html     = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
+      messages = []
 
-        assert as_html(markdown) == {:ok, html, messages}
-      end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-      test "headaches ahead (and behind us)" do
-        markdown = "[![moon](moon.jpg)](/uri)\n"
-        html     = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\"/></a></p>\n"
-        messages = []
+    test "headaches ahead (and behind us)" do
+      markdown = "[![moon](moon.jpg)](/uri)\n"
+      html     = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\"/></a></p>\n"
+      messages = []
 
-        assert as_html(markdown) == {:ok, html, messages}
-      end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-      test "lost in space" do
-        markdown = "![![moon](moon.jpg)](sun.jpg)\n"
-        html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
-        messages = []
-        assert as_html(markdown) == {:ok, html, messages}
-      end
-      # end
+    test "lost in space" do
+      markdown = "![![moon](moon.jpg)](sun.jpg)\n"
+      html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
+      messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 
-      # describe "Links" do
-        test "titled link" do
-          markdown = "[link](/uri \"title\")\n"
-          html     = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
-          messages = []
+  describe "Links" do
+    test "titled link" do
+      markdown = "[link](/uri \"title\")\n"
+      html     = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
+      messages = []
 
-          assert as_html(markdown) == {:ok, html, messages}
-        end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-        test "no title" do
-          markdown = "[link](/uri))\n"
-          html     = "<p><a href=\"/uri\">link</a>)</p>\n"
-          messages = []
+    test "titled link, with depreacted quote missmatch" do
+      markdown = "[link](/uri \"title')\n"
+      html     = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
+      messages = [{:warning, 1, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
 
-          assert as_html(markdown) == {:ok, html, messages}
-        end
+      assert as_html(markdown) == {:error, html, messages}
+    end
 
-        test "let's go nowhere" do
-          markdown = "[link]()\n"
-          html = "<p><a href=\"\">link</a></p>\n"
-          messages = []
+    test "no title" do
+      markdown = "[link](/uri))\n"
+      html     = "<p><a href=\"/uri\">link</a>)</p>\n"
+      messages = []
 
-          assert as_html(markdown) == {:ok, html, messages}
-        end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-        test "nowhere in a bottle" do
-          markdown = "[link](())\n"
-          html = "<p><a href=\"()\">link</a></p>\n"
-          messages = []
-          assert as_html(markdown) == {:ok, html, messages}
-        end
-        # end
+    test "let's go nowhere" do
+      markdown = "[link]()\n"
+      html = "<p><a href=\"\">link</a></p>\n"
+      messages = []
 
-        # describe "Images" do
-          test "title" do
-            markdown = "![foo](/url \"title\")\n"
-            html     = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
-            messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+    test "nowhere in a bottle" do
+      markdown = "[link](())\n"
+      html = "<p><a href=\"()\">link</a></p>\n"
+      messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 
-          test "ti tle (why not)" do
-            markdown = "![foo](/url \"ti tle\")\n"
-            html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti tle\"/></p>\n"
-            messages = []
+  describe "Images" do
+    test "title" do
+      markdown = "![foo](/url \"title\")\n"
+      html     = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
+      messages = []
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-          test "titles become strange" do
-            markdown = "![foo](/url \"ti() tle\")\n"
-            html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti() tle\"/></p>\n"
-            messages = []
+    test "ti tle (why not)" do
+      markdown = "![foo](/url \"ti tle\")\n"
+      html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti tle\"/></p>\n"
+      messages = []
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-          test "as does everything else" do
-            markdown = "![f[]oo](/url \"ti() tle\")\n"
-            html     = "<p><img src=\"/url\" alt=\"f[]oo\" title=\"ti() tle\"/></p>\n"
-            messages = []
+    test "titles become strange" do
+      markdown = "![foo](/url \"ti() tle\")\n"
+      html     = "<p><img src=\"/url\" alt=\"foo\" title=\"ti() tle\"/></p>\n"
+      messages = []
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-          test "alt goes crazy" do
-            markdown = "![foo[([])]](/url 'title')\n"
-            html     = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
-            messages = []
+    test "as does everything else" do
+      markdown = "![f[]oo](/url \"ti() tle\")\n"
+      html     = "<p><img src=\"/url\" alt=\"f[]oo\" title=\"ti() tle\"/></p>\n"
+      messages = []
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-          test "url escapes of coure" do
-            markdown = "![foo](/url no title)\n"
-            html     = "<p><img src=\"/url%20no%20title\" alt=\"foo\"/></p>\n"
-            messages = []
+    test "alt goes crazy" do
+      markdown = "![foo[([])]](/url 'title')\n"
+      html     = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
+      messages = []
 
-            assert as_html(markdown) == {:ok, html, messages}
-          end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-          # end
+    test "alt goes crazy, with deprecation warnings" do
+      markdown = "\n![foo[([])]](/url 'title\")\n"
+      html     = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
+      messages = [{:warning, 2, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
 
-          # describe "Autolinks" do
-            test "that was easy" do
-              markdown = "<http://foo.bar.baz>\n"
-              html     = "<p><a href=\"http://foo.bar.baz\">http://foo.bar.baz</a></p>\n"
-              messages = []
+      assert as_html(markdown) == {:error, html, messages}
+    end
 
-              assert as_html(markdown) == {:ok, html, messages}
-            end
+    test "url escapes of course" do
+      markdown = "![foo](/url no title)\n"
+      html     = "<p><img src=\"/url%20no%20title\" alt=\"foo\"/></p>\n"
+      messages = []
 
-            test "as was this" do
-              markdown = "<irc://foo.bar:2233/baz>\n"
-              html     = "<p><a href=\"irc://foo.bar:2233/baz\">irc://foo.bar:2233/baz</a></p>\n"
-              messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-              assert as_html(markdown) == {:ok, html, messages}
-            end
+  end
 
-            test "good ol' mail" do
-              markdown = "<mailto:foo@bar.baz>\n"
-              html     = "<p><a href=\"mailto:foo@bar.baz\">foo@bar.baz</a></p>\n"
-              messages = []
+  describe "Autolinks" do
+    test "that was easy" do
+      markdown = "<http://foo.bar.baz>\n"
+      html     = "<p><a href=\"http://foo.bar.baz\">http://foo.bar.baz</a></p>\n"
+      messages = []
 
-              assert as_html(markdown) == {:ok, html, messages}
-            end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-            test "we know what mail is" do
-              markdown = "<foo@bar.example.com>\n"
-              html     = "<p><a href=\"mailto:foo@bar.example.com\">foo@bar.example.com</a></p>\n"
-              messages = []
+    test "as was this" do
+      markdown = "<irc://foo.bar:2233/baz>\n"
+      html     = "<p><a href=\"irc://foo.bar:2233/baz\">irc://foo.bar:2233/baz</a></p>\n"
+      messages = []
 
-              assert as_html(markdown) == {:ok, html, messages}
-            end
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
-            test "not really a link" do
-              markdown = "<>\n"
-              html = "<p>&lt;&gt;</p>\n"
-              messages = []
-              assert as_html(markdown) == {:ok, html, messages}
-            end
-            # end
+    test "good ol' mail" do
+      markdown = "<mailto:foo@bar.baz>\n"
+      html     = "<p><a href=\"mailto:foo@bar.baz\">foo@bar.baz</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "we know what mail is" do
+      markdown = "<foo@bar.example.com>\n"
+      html     = "<p><a href=\"mailto:foo@bar.example.com\">foo@bar.example.com</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "not really a link" do
+      markdown = "<>\n"
+      html = "<p>&lt;&gt;</p>\n"
+      messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+  end
+
 end
