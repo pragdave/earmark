@@ -5,7 +5,6 @@
   renderer.
   """
 
-  alias  Earmark.Context
   alias  Earmark.Error
   alias  Earmark.Helpers.LinkParser
   import Earmark.Helpers

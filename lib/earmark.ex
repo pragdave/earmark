@@ -120,7 +120,6 @@ defmodule Earmark do
 
         iex> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
         {:error, "<p>Some text</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
-        
 
   It is possible to escape the IAL in both forms if necessary
 
@@ -208,7 +207,6 @@ defmodule Earmark do
 
   For example:
 
-        iex> code = [ 
         ...> "```elixir",
         ...> " @tag :hello",
         ...> "```" ] |> Enum.join("\\n")

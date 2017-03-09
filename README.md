@@ -120,6 +120,9 @@ format.
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
+      iex> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
+      {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+
 It is possible to escape the IAL in both forms if necessary
 
       iex> markdown = "[link](url)\\{: .classy}"
@@ -206,7 +209,6 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-      iex> code = [ 
       ...> "```elixir",
       ...> " @tag :hello",
       ...> "```" ] |> Enum.join("\n")

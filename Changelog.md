@@ -1,13 +1,14 @@
 
 
-# 1.1.2 
+# 1.2 
 
-*  [PR](https://github.com/pragdave/earmark/pull/130) from [eksperimental](https://github.com/eksperimental)
-*  [PR](https://github.com/pragdave/earmark/pull/129) from [Alekx](https://github.com/alkx)
-*  [PR](//https://github.com/pragdave/earmark/pull/125) from [vyachkonovalov](https://github.com/vyachkonovalov)
+*  [PR #130](https://github.com/pragdave/earmark/pull/130) from [eksperimental](https://github.com/eksperimental)
+*  [PR #129](https://github.com/pragdave/earmark/pull/129) from [Alekx](https://github.com/alkx)
+*  [PR #125](//https://github.com/pragdave/earmark/pull/125) from [vyachkonovalov](https://github.com/vyachkonovalov)
 
 * Fixes for issues
   - #127
+  - #131
 
 ## Kudos:
 
