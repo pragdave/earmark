@@ -1,6 +1,13 @@
 
+# 1.2.1
 
-# 1.2 
+* [PR #136](https://github.com/pragdave/earmark/pull/136) from [chrisalley](https://github.com/chrisalley)
+
+## Kudos:
+
+  [chrisalley](https://github.com/chrisalley)
+
+# 1.2 2017/03/10
 
 *  [PR #130](https://github.com/pragdave/earmark/pull/130) from [eksperimental](https://github.com/eksperimental)
 *  [PR #129](https://github.com/pragdave/earmark/pull/129) from [Alekx](https://github.com/alkx)
