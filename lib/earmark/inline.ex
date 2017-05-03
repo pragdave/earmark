@@ -223,10 +223,11 @@
     end
   end
 
-  defp converter_for_text({src, context, result, lnb}, _renderer) do
+  defp converter_for_text({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
-      out = escape(context.options.do_smartypants.(match))
+      out = escape(context.options.do_smartypants.(match)) 
+      |> hard_line_breaks(context.options.gfm, renderer)
       { behead(src, match), context, [out | result], lnb }
     end
   end
@@ -242,6 +243,15 @@
     link = encode(link)
     { link, link }
   end
+
+  @gfm_hard_line_break ~r{\\\n}
+  defp hard_line_breaks(text, gfm)
+  defp hard_line_breaks(text, false, _renderer), do: text
+  defp hard_line_breaks(text, nil, _renderer),   do: text
+  defp hard_line_breaks(text, _, renderer) do
+    with br = renderer.br(), do: Regex.replace(@gfm_hard_line_break, text, br <> "\n")
+  end
+
 
   @doc false
   def mangle_link(link) do
