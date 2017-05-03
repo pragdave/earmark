@@ -4,7 +4,7 @@ defmodule Earmark.Mixfile do
   use Mix.Project
 
   @version   "1.2.1"
-  
+
   @deps  [
     { :credo,    "~> 0.6", only: [ :dev, :test ] },
     { :dialyxir, "~> 0.4", only: [ :dev, :test ] },
@@ -21,7 +21,7 @@ defmodule Earmark.Mixfile do
     """
 
   ############################################################
-  
+
   def project do
     [
       app:           :earmark,
