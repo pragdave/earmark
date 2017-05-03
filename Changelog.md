@@ -3,6 +3,9 @@
 
 * [PR #136](https://github.com/pragdave/earmark/pull/136) from [chrisalley](https://github.com/chrisalley)
 
+* Fixes for issues
+  - [#139](https://github.com/pragdave/earmark/issues/139)
+
 ## Kudos:
 
   [chrisalley](https://github.com/chrisalley)
