@@ -1,5 +1,3 @@
-Code.eval_file "tasks/readme.exs"
-
 defmodule Earmark.Mixfile do
   use Mix.Project
 
@@ -32,6 +30,7 @@ defmodule Earmark.Mixfile do
       deps:          @deps,
       description:   @description,
       package:       package(),
+      aliases:       [docs: &docs/1, readme: &readme/1]
     ]
   end
 
@@ -40,8 +39,6 @@ defmodule Earmark.Mixfile do
       applications: []
     ]
   end
-
-
 
   defp package do
     [
@@ -67,6 +64,14 @@ defmodule Earmark.Mixfile do
 
   defp elixirc_paths(:test), do: [ "lib", "test/support" ]
   defp elixirc_paths(_),     do: [ "lib" ]
-end
 
-Code.eval_file "tasks/docs.exs"
+  defp docs(args) do
+    Code.load_file "tasks/docs.exs"
+    Mix.Tasks.Docs.run(args)
+  end
+
+  defp readme(args) do
+    Code.load_file "tasks/readme.exs"
+    Mix.Tasks.Readme.run(args)
+  end
+end
