@@ -1,3 +1,9 @@
+* one
+* two
+
+        code
+
+
 # Earmark—A Pure Elixir Markdown Processor
 
 [![Build Status](https://travis-ci.org/pragdave/earmark.svg?branch=master)](https://travis-ci.org/pragdave/earmark)
