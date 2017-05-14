@@ -245,7 +245,7 @@
   end
 
   @gfm_hard_line_break ~r{\\\n}
-  defp hard_line_breaks(text, gfm)
+  defp hard_line_breaks(text, gfm, renderer)
   defp hard_line_breaks(text, false, _renderer), do: text
   defp hard_line_breaks(text, nil, _renderer),   do: text
   defp hard_line_breaks(text, _, renderer) do
