@@ -1,8 +1,3 @@
-* one
-* two
-
-        code
-
 
 # Earmark—A Pure Elixir Markdown Processor
 
