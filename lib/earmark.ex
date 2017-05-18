@@ -296,7 +296,7 @@ defmodule Earmark do
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     html = _as_html(lines, options)
-    case get_all_messages() do
+    case pop_all_messages() do
       []       -> {:ok, html, []}
       messages -> {:error, html, messages}
     end
@@ -312,7 +312,7 @@ defmodule Earmark do
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
     html = _as_html(lines, options)
-    emit_messages(options.file, get_all_messages())
+    emit_messages(options.file, pop_all_messages())
     html
   end
 
