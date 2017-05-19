@@ -10,7 +10,7 @@ defmodule Earmark.Global.Messages do
   end
 
   @doc """
-  Retrieve all messages and clears the cache for the next file.
+  Retrieve all messages and clear the cache for the next file.
   """
   def pop_all_messages do
     Agent.get_and_update(__MODULE__, &{sorted_messages(&1), []})
