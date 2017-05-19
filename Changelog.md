@@ -1,4 +1,12 @@
 
+# 1.2.2 
+
+* [PR #144](https://github.com/pragdave/earmark/pull/144) from [KronicDeth](https://github.com/KronicDeth)  
+
+## Kudos:
+
+  [KronicDeth](https://github.com/KronicDeth)  
+
 # 1.2.1 2017/05/03
 
 * [PR #136](https://github.com/pragdave/earmark/pull/136) from [chrisalley](https://github.com/chrisalley)
