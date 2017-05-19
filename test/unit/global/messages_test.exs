@@ -9,20 +9,20 @@ defmodule Unit.Global.MessagesTest do
   end
 
   test "empty" do
-    assert M.get_all_messages() == []
+    assert M.pop_all_messages() == []
   end
 
   describe "sequential updates" do
     test "one" do
       M.add_message({:error, 1, "unknown"})
-      assert M.get_all_messages() == [{:error, 1, "unknown"}]
+      assert M.pop_all_messages() == [{:error, 1, "unknown"}]
     end
     test "more" do
       M.add_message({:error, 43, "known"})
       M.add_message({:error, 1, "unknown"})
       M.add_message({:error, 42, "secret"})
 
-      assert M.get_all_messages() == [
+      assert M.pop_all_messages() == [
         {:error, 1, "unknown"},
         {:error, 42, "secret"},
         {:error, 43, "known"},
@@ -44,11 +44,11 @@ defmodule Unit.Global.MessagesTest do
       |> Enum.reverse()
       |> Earmark.pmap(&M.add_message/1)
 
-      assert M.get_all_messages() == expected_messages
+      assert M.pop_all_messages() == expected_messages
     end
 
     test "many with add_message and add_all_messages" do
-      messages = 
+      messages =
       [{:error, 11, "eleven"},
        [{:error, 2, "two"}, {:error, 1, "one"}],
        {:error, 42, "answer"},
@@ -59,11 +59,11 @@ defmodule Unit.Global.MessagesTest do
       messages
       |> Earmark.pmap(&add_message_or_messages/1)
 
-      assert M.get_all_messages() == (
+      assert M.pop_all_messages() == (
         messages
         |> List.flatten()
         |> Enum.sort(&compare/2))
-        
+
     end
   end
 

@@ -78,9 +78,9 @@ defmodule EarmarkHelpersTests.AttrParserTest do
     errors = if is_list(errors), do: errors, else: [errors]
     result = parse_attrs( str, 0 )
     assert attrs == result
-    unless Enum.empty?(errors) do 
+    unless Enum.empty?(errors) do
       expected = [{:warning, 0, "Illegal attributes #{inspect errors} ignored in IAL"}]
-      assert M.get_all_messages() == expected
+      assert M.pop_all_messages() == expected
     end
   end
 end

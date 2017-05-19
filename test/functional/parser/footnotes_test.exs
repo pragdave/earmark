@@ -52,7 +52,7 @@ defmodule Functional.Parser.FootnotesTest do
     [^1]: bar
     """
     test "Shorter Vanilla is not a Footnote" do
-      assert parse(@shorter_vanilla) == 
+      assert parse(@shorter_vanilla) ==
       {[%Earmark.Block.Para{attrs: nil, lnb: 1, lines: ["foo[^1]"]},
         %Earmark.Block.IdDef{attrs: nil, lnb: 3, id: "^1", title: "", url: "bar"}], [{:error, 1, "footnote 1 undefined, reference to it ignored"}]}
 
@@ -71,6 +71,6 @@ defmodule Functional.Parser.FootnotesTest do
 
   defp parse(str) do
     {blocks, _} = Earmark.parse(str, %Options{footnotes: true})
-    {blocks, Earmark.Global.Messages.get_all_messages()}
+    {blocks, Earmark.Global.Messages.pop_all_messages()}
   end
 end

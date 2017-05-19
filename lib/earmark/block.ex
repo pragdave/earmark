@@ -151,14 +151,15 @@ defmodule Earmark.Block do
   defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options)
   do
     {reversed_para_lines, rest, pending} = consolidate_para(lines)
-    options1 =
-      case pending do
-        {nil, _} -> options
-        {pending, lnb1} ->
-          add_message({:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
-      end
+
+    case pending do
+      {nil, _} -> :ok
+      {pending, lnb1} ->
+        add_message({:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
+    end
+
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
-    _parse(rest, [ %Para{lines: line_text, lnb: lnb} | result ], options1)
+    _parse(rest, [ %Para{lines: line_text, lnb: lnb} | result ], options)
   end
 
   #########
@@ -308,12 +309,12 @@ defmodule Earmark.Block do
   ##########
   # Plugin #
   ##########
-  
+
   defp _parse( lines = [%Line.Plugin{prefix: prefix, lnb: lnb}|_], result, options) do
     handler =  Options.plugin_for_prefix(options, prefix)
     {plugin_lines, rest1} = collect_plugin_lines(lines, prefix, [])
     if handler do
-      _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines, lnb: lnb}|result], options) 
+      _parse(rest1, [%Plugin{handler: handler, prefix: prefix, lines: plugin_lines, lnb: lnb}|result], options)
     else
       add_message({:warning, lnb,  "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})"})
       _parse(rest1, result, options)
@@ -567,7 +568,7 @@ defmodule Earmark.Block do
 
   defp extract_start(%{bullet: "1."}), do: ""
   defp extract_start(%{bullet: bullet}) do
-    case Regex.run(~r{^(\d+)\.}, bullet) do 
+    case Regex.run(~r{^(\d+)\.}, bullet) do
       nil -> ""
       [_, start] -> ~s{ start="#{start}"}
     end

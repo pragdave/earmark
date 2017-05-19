@@ -83,8 +83,8 @@ defmodule Parser.WarningTest do
     assert warnings == []
   end
 
-  defp messages_from_parse(str, options \\ %Earmark.Options{}) do 
+  defp messages_from_parse(str, options \\ %Earmark.Options{}) do
     Earmark.parse(str, options)
-    Earmark.Global.Messages.get_all_messages()
+    Earmark.Global.Messages.pop_all_messages()
   end
 end
