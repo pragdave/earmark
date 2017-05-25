@@ -255,11 +255,11 @@ Licensed under the same terms as Elixir, which is Apache 2.0.
 # Details
 <!-- doc: Earmark.as_html -->
 Given a markdown document (as either a list of lines or
-a string containing newlines), returns a tuple containing either
-`{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
-Where `html_doc` is an HTML representation of the markdown document and
-`error_messages` is a list of strings representing information concerning
+a string containing newlines), returns the tuple `{html_doc, error_messages}`
+Where `html_doc` is an HTML representation of the markdown document
+and `error_messages` is a list of strings representing information concerning
 the errors that occurred during parsing.
+`error_messages` will be `[]` if there were no errors.
 
 The options are a `%Earmark.Options{}` structure:
 
