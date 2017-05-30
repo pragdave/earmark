@@ -78,12 +78,12 @@ defmodule Earmark.Helpers.LinkParser do
   defp title(remaining_text, lnb) do
     case Regex.run(@title_end_rgx, remaining_text) do
       nil             -> nil
-      [parsed, inner] -> maybe_emit_depreaction(parsed, lnb)
+      [parsed, inner] -> maybe_emit_deprecation(parsed, lnb)
                          {parsed, inner}
     end
   end
 
-  defp maybe_emit_depreaction(string, lnb) do 
+  defp maybe_emit_deprecation(string, lnb) do
    with stripped <- String.strip(string),
         opening  <- String.first(stripped),
         closing  <- String.last(stripped), do: maybe_add_deprecation_message(opening, closing, lnb)
