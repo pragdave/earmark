@@ -318,7 +318,8 @@ defmodule Earmark do
 
   defp _as_html(lines, options) do
     start_link()
-    {blocks, context} = parse(lines, options)
+    ast = {blocks, context} = parse(lines, options)
+    IO.inspect(ast)
     options.renderer.render(blocks, context)
   end
 

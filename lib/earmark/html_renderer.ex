@@ -10,6 +10,7 @@ defmodule Earmark.HtmlRenderer do
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
     html =
       mapper.(blocks, &(render_block(&1, context)))
+      IO.inspect(html)
     IO.iodata_to_binary(html)
   end
 
