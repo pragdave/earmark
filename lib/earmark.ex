@@ -296,7 +296,7 @@ defmodule Earmark do
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     html = _as_html(lines, options)
-    case pop_all_messages() do
+    case options.messages() do
       []       -> {:ok, html, []}
       messages -> {:error, html, messages}
     end
@@ -340,9 +340,11 @@ defmodule Earmark do
               |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes} = Earmark.Parser.handle_footnotes(blocks, options, mapper)
+      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
       context =
         put_in(context.footnotes, footnotes)
+      context =
+        put_in(context.options, options1)
       { blocks, context }
     else
       { blocks, context }
