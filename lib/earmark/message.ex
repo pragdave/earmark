@@ -6,7 +6,7 @@ defmodule Earmark.Message do
   @type message_type :: :error | :warning
   @type t :: {message_type, number, binary}
   @type ts:: list(t)
-  @type container_type :: %Options{} | %Context{}
+  @type container_type :: Options.t | Context.t
 
   @spec add_messages(container_type, ts) :: container_type
   def add_messages(container, messages), do:
