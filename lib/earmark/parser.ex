@@ -2,7 +2,7 @@ defmodule Earmark.Parser do
 
   alias Earmark.Line
   alias Earmark.Block
-  import Earmark.Message, only: [add_message: 2]
+  import Earmark.Message, only: [add_messages: 2]
 
 
   @spec parse(list(String.t), %Earmark.Options{}, boolean) :: {Block.ts(), %{}}
@@ -27,7 +27,7 @@ defmodule Earmark.Parser do
         |> get_footnote_numbers(footnotes, options)
     blocks = create_footnote_blocks(blocks, footnotes)
     footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(Map.new)
-    options1 = Enum.reduce(undefined_footnotes, options, &(add_message(&2, &1)))
+    options1 = add_messages(options, undefined_footnotes)
     { blocks, footnotes, options1 }
   end
 

@@ -6,14 +6,18 @@ defmodule Earmark.Message do
   @type message_type :: :error | :warning
   @type t :: {message_type, number, binary}
   @type ts:: list(t)
-  @type container_type :: %Options{} | %Context{}
+  @type container_type :: Options.t | Context.t
 
-  @spec add_message(container_type, ts) :: container_type
+  @spec add_messages(container_type, ts) :: container_type
+  def add_messages(container, messages), do:
+    Enum.reduce(messages, container, &(add_message(&2, &1)))
+
+  @spec add_message(container_type, t) :: container_type
   def add_message(container, message)
-  def add_message(options = %Options{}, message) do 
+  def add_message(options = %Options{}, message) do
     %{options | messages: [message | options.messages]}
   end
-  def add_message(context = %Context{}, message) do 
+  def add_message(context = %Context{}, message) do
     %{context | options: %{context.options | messages: [message | context.options.messages]}}
   end
 

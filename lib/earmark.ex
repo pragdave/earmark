@@ -340,7 +340,7 @@ defmodule Earmark do
               |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, options, mapper)
+      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
       context =
         put_in(context.footnotes, footnotes)
       context =
