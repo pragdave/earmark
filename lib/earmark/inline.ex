@@ -9,7 +9,7 @@
   alias  Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 3]
+  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
 
   @doc false
   def convert(src, lnb, context)
@@ -206,10 +206,10 @@
   defp converter_for_inline_ial({src, context, [maybe_tag|result], lnb}, _renderer) do
     if match = Regex.run(context.rules.inline_ial, src) do
       [match, ial] = match
-      case augment_tag_with_ial(maybe_tag, ial, lnb) do
-        nil     -> nil
-        new_tag ->
-          { behead(src, match), context, [new_tag|result], lnb }
+      case augment_tag_with_ial(context, maybe_tag, ial, lnb) do
+        nil                 -> nil
+        {context1, new_tag} ->
+          { behead(src, match), context1, [new_tag|result], lnb }
       end
     end
   end

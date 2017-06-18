@@ -251,7 +251,7 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
-  import Earmark.Message, only: [emit_messages: 2]
+  import Earmark.Message, only: [emit_messages: 2, get_messages: 1]
   import Earmark.Global.Messages
 
 
@@ -295,8 +295,8 @@ defmodule Earmark do
   """
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
-    html = _as_html(lines, options)
-    case options.messages() do
+    {context, html} = _as_html(lines, options)
+    case get_messages(context) do
       []       -> {:ok, html, []}
       messages -> {:error, html, messages}
     end
@@ -311,8 +311,8 @@ defmodule Earmark do
   @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
-    html = _as_html(lines, options)
-    emit_messages(options.file, pop_all_messages())
+    {options1, html} = _as_html(lines, options)
+    emit_messages(options1.file, options1.messages)
     html
   end
 

@@ -6,11 +6,16 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 3 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
+  import Earmark.Message, only: [ add_messages: 2 ]
 
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
-    html =
-      mapper.(blocks, &(render_block(&1, context)))
-    IO.iodata_to_binary(html)
+    {contexts, html} =
+      mapper.(blocks, &(render_block(&1, context))) |> Enum.unzip()
+
+    errors = contexts
+      |> Enum.flat_map(&(&1.options.messages))
+    context1 = add_messages(context, errors) 
+    {context1, IO.iodata_to_binary(html)}
   end
 
   #############
@@ -18,7 +23,7 @@ defmodule Earmark.HtmlRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     lines = convert(lines, lnb, context)
-    add_attrs!("<p>#{lines}</p>\n", attrs, [], lnb)
+    add_attrs!(context, "<p>#{lines}</p>\n", attrs, [], lnb)
   end
 
   ########
@@ -35,16 +40,16 @@ defmodule Earmark.HtmlRenderer do
   #########
   # Ruler #
   #########
-  defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, _context) do
-    add_attrs!("<hr/>\n", attrs, [{"class", ["thin"]}], lnb)
+  defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, context) do
+    add_attrs!(context, "<hr/>\n", attrs, [{"class", ["thin"]}], lnb)
   end
 
-  defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, _context) do
-    add_attrs!("<hr/>\n", attrs, [{"class", ["medium"]}], lnb)
+  defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, context) do
+    add_attrs!(context, "<hr/>\n", attrs, [{"class", ["medium"]}], lnb)
   end
 
-  defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, _context) do
-    add_attrs!("<hr/>\n", attrs, [{"class", ["thick"]}], lnb)
+  defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, context) do
+    add_attrs!(context, "<hr/>\n", attrs, [{"class", ["thick"]}], lnb)
   end
 
   ###########
@@ -53,7 +58,7 @@ defmodule Earmark.HtmlRenderer do
   defp render_block(%Block.Heading{lnb: lnb, level: level, content: content, attrs: attrs}, context) do
     converted = convert(content, lnb, context)
     html = "<h#{level}>#{converted}</h#{level}>\n"
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context, html, attrs, [], lnb)
   end
 
   ##############
@@ -61,9 +66,9 @@ defmodule Earmark.HtmlRenderer do
   ##############
 
   defp render_block(%Block.BlockQuote{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
-    body = render(blocks, context)
+    {context1, body} = render(blocks, context)
     html = "<blockquote>#{body}</blockquote>\n"
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context1, html, attrs, [], lnb)
   end
 
   #########
@@ -72,7 +77,7 @@ defmodule Earmark.HtmlRenderer do
 
   defp render_block(%Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs}, context) do
     cols = for _align <- aligns, do: "<col>\n"
-    html = [ add_attrs!("<table>\n", attrs, [], lnb), "<colgroup>\n", cols, "</colgroup>\n" ]
+    html = [ add_attrs!(context, "<table>\n", attrs, [], lnb), "<colgroup>\n", cols, "</colgroup>\n" ]
 
     html = if header do
       [ html, "<thead>\n",
@@ -89,12 +94,12 @@ defmodule Earmark.HtmlRenderer do
   # Code #
   ########
 
-  defp render_block(%Block.Code{lnb: lnb, language: language, attrs: attrs} = block, %Context{options: options}) do
+  defp render_block(%Block.Code{lnb: lnb, language: language, attrs: attrs} = block, context = %Context{options: options}) do
     class = if language, do: ~s{ class="#{code_classes( language, options.code_class_prefix)}"}, else: ""
     tag = ~s[<pre><code#{class}>]
     lines = options.render_code.(block)
     html = ~s[#{tag}#{lines}</code></pre>\n]
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context, html, attrs, [], lnb)
   end
 
   #########
@@ -102,25 +107,25 @@ defmodule Earmark.HtmlRenderer do
   #########
 
   defp render_block(%Block.List{lnb: lnb, type: type, blocks: items, attrs: attrs, start: start}, context) do
-    content = render(items, context)
+    {context1, content} = render(items, context)
     html = "<#{type}#{start}>\n#{content}</#{type}>\n"
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context1, html, attrs, [], lnb)
   end
 
   # format a single paragraph list item, and remove the para tags
   defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, spaced: false, attrs: attrs}, context)
   when length(blocks) == 1 do
-    content = render(blocks, context)
+    {context1, content} = render(blocks, context)
     content = Regex.replace(~r{</?p>}, content, "")
     html = "<li>#{content}</li>\n"
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context1, html, attrs, [], lnb)
   end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
-    content = render(blocks, context)
+    {context1, content} = render(blocks, context)
     html = "<li>#{content}</li>\n"
-    add_attrs!(html, attrs, [], lnb)
+    add_attrs!(context1, html, attrs, [], lnb)
   end
 
   ##################

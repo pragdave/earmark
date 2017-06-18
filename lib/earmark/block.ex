@@ -152,11 +152,12 @@ defmodule Earmark.Block do
   do
     {reversed_para_lines, rest, pending} = consolidate_para(lines)
 
-    case pending do
-      {nil, _} -> :ok
-      {pending, lnb1} ->
-        options1 =  add_message(options, {:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
-    end
+    options1 =
+      case pending do
+        {nil, _} -> options
+        {pending, lnb1} ->
+          add_message(options, {:warning, lnb1, "Closing unclosed backquotes #{pending} at end of input"})
+      end
 
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
     _parse(rest, [ %Para{lines: line_text, lnb: lnb} | result ], options1)
@@ -291,8 +292,8 @@ defmodule Earmark.Block do
   ####################
 
   defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options) do
-    attributes = parse_attrs( attrs, lnb )
-    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options)
+    {options1, attributes} = parse_attrs( options, attrs, lnb )
+    _parse(rest, [ %Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options1)
   end
 
   ###############
