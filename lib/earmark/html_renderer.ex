@@ -15,7 +15,7 @@ defmodule Earmark.HtmlRenderer do
     errors = contexts
       |> Enum.flat_map(&(&1.options.messages))
     context1 = add_messages(context, errors) 
-    {context1, IO.iodata_to_binary(html)}
+    {context1, html |> IO.iodata_to_binary()}
   end
 
   #############
@@ -29,12 +29,12 @@ defmodule Earmark.HtmlRenderer do
   ########
   # Html #
   ########
-  defp render_block(%Block.Html{html: html}, _context) do
-    Enum.intersperse(html, ?\n)
+  defp render_block(%Block.Html{html: html}, context) do
+    {context, Enum.intersperse(html, ?\n)}
   end
 
-  defp render_block(%Block.HtmlOther{html: html}, _context) do
-    Enum.intersperse(html, ?\n)
+  defp render_block(%Block.HtmlOther{html: html}, context) do
+    {context, Enum.intersperse(html, ?\n)}
   end
 
   #########
@@ -77,7 +77,8 @@ defmodule Earmark.HtmlRenderer do
 
   defp render_block(%Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs}, context) do
     cols = for _align <- aligns, do: "<col>\n"
-    html = [ add_attrs!(context, "<table>\n", attrs, [], lnb), "<colgroup>\n", cols, "</colgroup>\n" ]
+    {context1, html} = add_attrs!(context, "<table>\n", attrs, [], lnb)
+    html = [ html , "<colgroup>\n", cols, "</colgroup>\n" ]
 
     html = if header do
       [ html, "<thead>\n",
@@ -87,7 +88,7 @@ defmodule Earmark.HtmlRenderer do
       html
     end
 
-    [ html, add_table_rows(context, rows, "td", aligns, lnb), "</table>\n" ]
+    {context, [ html, add_table_rows(context, rows, "td", aligns, lnb), "</table>\n" ]}
   end
 
   ########
@@ -137,33 +138,33 @@ defmodule Earmark.HtmlRenderer do
       blocks = append_footnote_link(note)
       %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
     end)
-    html = render_block(%Block.List{type: :ol, blocks: items}, context)
-    Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")
+    {context1, html} = render_block(%Block.List{type: :ol, blocks: items}, context)
+    {context1, Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")}
   end
 
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
 
-  defp render_block(%Block.Ial{verbatim: verbatim}, _context) do
-    "<p>{:#{verbatim}}</p>\n"
+  defp render_block(%Block.Ial{verbatim: verbatim}, context) do
+    {context, "<p>{:#{verbatim}}</p>\n"}
   end
 
   ####################
   # IDDef is ignored #
   ####################
 
-  defp render_block(%Block.IdDef{}, _context), do: ""
+  defp render_block(%Block.IdDef{}, context), do: {context, ""}
 
   ###########
   # Plugins #
   ###########
 
-  defp render_block(%Block.Plugin{lines: lines, handler: handler}, _context) do
+  defp render_block(%Block.Plugin{lines: lines, handler: handler}, context) do
     case handler.as_html(lines) do
-      html when is_list(html) -> html
-      {html, errors}          -> emit_messages(html, errors)
-      html                    -> [html]
+      html when is_list(html) -> {context, html}
+      {html, errors}          -> {add_messages(context, errors), html}
+      html                    -> {context, [html]}
     end
   end
 
@@ -251,13 +252,4 @@ defmodule Earmark.HtmlRenderer do
      |> Enum.join(" ")
   end
 
-
-  #################
-  # Other Helpers #
-  #################
-
-  defp emit_messages(html, errors) do 
-    Earmark.Global.Messages.add_messages(errors)
-    html
-  end
 end

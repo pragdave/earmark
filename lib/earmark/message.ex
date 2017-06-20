@@ -18,7 +18,7 @@ defmodule Earmark.Message do
     %{options | messages: [message | options.messages]}
   end
   def add_message(context = %Context{}, message) do
-    %{context | options: %{context.options | messages: [message | context.options.messages]}}
+    %{context | options: %{context.options | messages: [message | get_messages(context)]}}
   end
 
   @spec get_messages( container_type ) :: ts
@@ -26,7 +26,10 @@ defmodule Earmark.Message do
   def get_messages(%Context{options: %{messages: messages}}), do: messages
   def get_messages(%Options{messages: messages}),             do: messages
 
-  def emit_messages(filename, messages, device \\ :stderr), do:
+  def emit_messages(%Context{options: options}), do: emit_messages(options)
+  def emit_messages(%Options{file: file, messages: messages}), do: emit_messages(file, messages)
+
+  defp emit_messages(filename, messages, device \\ :stderr), do:
     Enum.each(messages, &(emit_message(filename, &1, device)))
 
   defp emit_message(filename, msg, device), do:

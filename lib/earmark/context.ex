@@ -8,12 +8,7 @@ defmodule Earmark.Context do
             rules:    nil,
             footnotes: Map.new
 
-  @doc """
-  Access `context.options.messages`
-  """
-  def messages(context), do: context.options.messages
-
-  ##############################################################################
+##############################################################################
   # Handle adding option specific rules and processors                         #
   ##############################################################################
 
