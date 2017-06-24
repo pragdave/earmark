@@ -15,6 +15,19 @@ defmodule Earmark.Context do
 
   defp noop(text), do: text
 
+  # @doc """
+  # Convenience method to append to the value list
+  # """
+  # def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  @doc """
+  Convenience method to prepend to the value list
+  """
+  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  @doc """
+  Convenience method to prepend to the value list
+  """
+  def set_value(%__MODULE__{} = ctx, value), do: %{ctx | value: value}
+
   @doc false
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options

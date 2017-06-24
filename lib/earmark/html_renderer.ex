@@ -23,7 +23,7 @@ defmodule Earmark.HtmlRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     lines = convert(lines, lnb, context)
-    add_attrs!(context, "<p>#{lines}</p>\n", attrs, [], lnb)
+    add_attrs!(context, "<p>#{lines.value}</p>\n", attrs, [], lnb)
   end
 
   ########
@@ -57,8 +57,8 @@ defmodule Earmark.HtmlRenderer do
   ###########
   defp render_block(%Block.Heading{lnb: lnb, level: level, content: content, attrs: attrs}, context) do
     converted = convert(content, lnb, context)
-    html = "<h#{level}>#{converted}</h#{level}>\n"
-    add_attrs!(context, html, attrs, [], lnb)
+    html = "<h#{level}>#{converted.value}</h#{level}>\n"
+    add_attrs!(converted, html, attrs, [], lnb)
   end
 
   ##############
@@ -220,7 +220,7 @@ defmodule Earmark.HtmlRenderer do
       end
       col = Enum.at(row, n - 1)
       converted = convert(col, lnb,  context)
-      {["<#{tag}#{style}>#{converted}</#{tag}>" | acc], row}
+      {["<#{tag}#{style}>#{converted.value}</#{tag}>" | acc], row}
     end
   end
 
