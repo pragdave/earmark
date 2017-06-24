@@ -80,16 +80,15 @@ defmodule Earmark.HtmlRenderer do
     {context1, html} = add_attrs!(context, "<table>\n", attrs, [], lnb)
     html = [ html , "<colgroup>\n", cols, "</colgroup>\n" ]
 
-    context1 = if header do
-      [ html, "<thead>\n",
-        add_table_rows(context, [header], "th", aligns, lnb),
-        "</thead>\n" ]
+    context2 = if header do
+      ctx = add_table_rows(context1, [header], "th", aligns, lnb)
+      %{ctx | value: [ html, "<thead>\n", ctx.value, "</thead>\n" ] }
     else
-      %{context | value: html}
+      %{context1 | value: html}
     end
 
-    context2 =  add_table_rows(context1, rows, "td", aligns, lnb)
-    {context2, [context2.value, "</table>\n" ]}
+    context3 =  add_table_rows(context2, rows, "td", aligns, lnb)
+    {context3, [context3.value, "</table>\n" ]}
   end
 
   ########
@@ -197,13 +196,18 @@ defmodule Earmark.HtmlRenderer do
   defp add_table_rows(context, rows, tag, aligns, lnb) do
     numbered_rows = rows
       |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
-    for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
+    # for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
+    numbered_rows
+      |> Enum.reduce(context, fn {row, lnb}, ctxt ->
+        inner_context = add_tds(ctxt, row, tag, aligns, lnb)
+        %{inner_context | value:  "<tr>\n#{inner_context.value}\n</tr>\n"}
+      end)
   end
 
   defp add_tds(context, row, tag, aligns, lnb) do
-    Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns, lnb))
+    %{context | value: (Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns, lnb))
     |> elem(0)
-    |> Enum.reverse
+    |> Enum.reverse ) }
   end
 
   defp add_td_fn(context, row, tag, aligns, lnb) do 
