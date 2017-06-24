@@ -80,15 +80,16 @@ defmodule Earmark.HtmlRenderer do
     {context1, html} = add_attrs!(context, "<table>\n", attrs, [], lnb)
     html = [ html , "<colgroup>\n", cols, "</colgroup>\n" ]
 
-    html = if header do
+    context1 = if header do
       [ html, "<thead>\n",
         add_table_rows(context, [header], "th", aligns, lnb),
         "</thead>\n" ]
     else
-      html
+      %{context | value: html}
     end
 
-    {context, [ html, add_table_rows(context, rows, "td", aligns, lnb), "</table>\n" ]}
+    context2 =  add_table_rows(context1, rows, "td", aligns, lnb)
+    {context2, [context2.value, "</table>\n" ]}
   end
 
   ########

@@ -6,9 +6,10 @@ defmodule Earmark.Context do
   defstruct options:  %Earmark.Options{},
             links:    Map.new,
             rules:    nil,
-            footnotes: Map.new
+            footnotes: Map.new,
+            value:    nil
 
-##############################################################################
+  ##############################################################################
   # Handle adding option specific rules and processors                         #
   ##############################################################################
 
