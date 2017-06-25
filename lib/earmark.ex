@@ -251,7 +251,7 @@ defmodule Earmark do
 
   alias Earmark.Options
   alias Earmark.Context
-  import Earmark.Message, only: [emit_messages: 1, get_messages: 1]
+  import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -294,7 +294,7 @@ defmodule Earmark do
   @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     {context, html} = _as_html(lines, options)
-    case get_messages(context) do
+    case sort_messages(context) do
       []       -> {:ok, html, []}
       messages -> {:error, html, messages}
     end

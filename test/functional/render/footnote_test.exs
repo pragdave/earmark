@@ -39,7 +39,7 @@ defmodule FootnoteTest do
 
   test "basic footnote link" do
     result = convert(~s{a footnote[^fn-a] in text})
-    assert result == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
+    assert result.value == ~s[a footnote<a href="#fn:1" id="fnref:1" class="footnote" title="see footnote">1</a> in text]
   end
 
   test "pulls one-line footnote bodies" do

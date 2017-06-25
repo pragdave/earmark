@@ -4,10 +4,6 @@ defmodule Functional.Parser.FootnotesTest do
   alias Earmark.Block
   alias Earmark.Options
 
-  setup do
-    Earmark.Global.Messages.start_link()
-    :ok
-  end
 
   describe "Defined" do
     @vanilla """
@@ -70,7 +66,7 @@ defmodule Functional.Parser.FootnotesTest do
   end
 
   defp parse(str) do
-    {blocks, _} = Earmark.parse(str, %Options{footnotes: true})
-    {blocks, Earmark.Global.Messages.pop_all_messages()}
+    {blocks, context} = Earmark.parse(str, %Options{footnotes: true})
+    {blocks, context.options.messages}
   end
 end

@@ -8,10 +8,12 @@ defmodule HeadingsTest do
 
 
   defp render [level: level, content: content] do
-    Renderer.render([
+    with {_, value} <- Renderer.render([
       %Heading{attrs: nil, level: level, content: content}],
       updated_context()
-    )
+    ) do
+      value
+    end
   end
 
   defp updated_context do

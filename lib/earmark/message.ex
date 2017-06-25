@@ -32,16 +32,27 @@ defmodule Earmark.Message do
   def get_messages(%Options{messages: messages}),             do: messages
 
   def emit_messages(%Context{options: options}), do: emit_messages(options)
-  def emit_messages(%Options{file: file, messages: messages}), do: emit_messages(file, messages)
+  def emit_messages(options = %Options{file: file}) do
+    options
+    |> sort_messages()
+    |> Enum.each(&(emit_message(file, &1)))
+  end
 
-  defp emit_messages(filename, messages, device \\ :stderr), do:
-    Enum.each(messages, &(emit_message(filename, &1, device)))
+  @doc """
+  For final output
+  """
+  def sort_messages(container) do
+    container
+    |> get_messages()
+    |> Enum.sort( fn ({_,l,_}, {_,r,_}) -> r >= l end )
+  end
 
-  defp emit_message(filename, msg, device), do:
-    IO.puts(device, format_message(filename, msg))
+  defp emit_message(filename, msg), do:
+    IO.puts(:stderr, format_message(filename, msg))
 
   @spec format_message( String.t, t ) :: String.t
   defp format_message filename, {type, line, text} do
     "#{filename}:#{line}: #{type}: #{text}"
   end
+
 end

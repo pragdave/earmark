@@ -52,8 +52,7 @@
         |> Enum.reverse()
         |> IO.iodata_to_binary
         |> replace(~r{(</[^>]*>)‘}, "\\1’")
-        |> replace(~r{(</[^>]*>)“}, "\\1”"), do:
-        %{context | value: result1}
+        |> replace(~r{(</[^>]*>)“}, "\\1”"), do: set_value(context, result1)
   end
 
   defp convert_each(data, converters) do
