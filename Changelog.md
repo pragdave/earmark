@@ -1,5 +1,10 @@
 
-# 1.2.2 
+# 1.2.3
+
+* Fixes for issues
+  - [#147](https://github.com/pragdave/earmark/issues/147)
+  
+# 1.2.2 2017/05/11
 
 * [PR #144](https://github.com/pragdave/earmark/pull/144) from [KronicDeth](https://github.com/KronicDeth)  
 
