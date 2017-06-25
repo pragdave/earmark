@@ -6,15 +6,15 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 3 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
-  import Earmark.Message, only: [ add_messages: 2 ]
+  import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2 ]
+  import Earmark.Context, only: [ append: 2, set_value: 2 ]
 
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
     {contexts, html} =
-      mapper.(blocks, &(render_block(&1, context))) |> Enum.unzip()
+    mapper.(blocks, &(render_block(&1, context))) |> Enum.unzip()
 
-    errors = contexts
-      |> Enum.flat_map(&(&1.options.messages))
-    context1 = add_messages(context, errors) 
+    context1 = contexts
+                |> List.last()
     {context1, html |> IO.iodata_to_binary()}
   end
 
@@ -23,7 +23,7 @@ defmodule Earmark.HtmlRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     lines = convert(lines, lnb, context)
-    add_attrs!(context, "<p>#{lines.value}</p>\n", attrs, [], lnb)
+    add_attrs!(lines, "<p>#{lines.value}</p>\n", attrs, [], lnb)
   end
 
   ########
@@ -79,16 +79,18 @@ defmodule Earmark.HtmlRenderer do
     cols = for _align <- aligns, do: "<col>\n"
     {context1, html} = add_attrs!(context, "<table>\n", attrs, [], lnb)
     html = [ html , "<colgroup>\n", cols, "</colgroup>\n" ]
+    context2 = set_value( context1, html )
 
-    context2 = if header do
-      ctx = add_table_rows(context1, [header], "th", aligns, lnb)
-      %{ctx | value: [ html, "<thead>\n", ctx.value, "</thead>\n" ] }
+    context3 = if header do
+      append( add_trs(append(context2, "<thead>\n"), [header], "th", aligns, lnb), "</thead>\n" )
     else
-      %{context1 | value: html}
+      # Maybe an error, needed append(context, html)
+      context2
     end
 
-    context3 =  add_table_rows(context2, rows, "td", aligns, lnb)
-    {context3, [context3.value, "</table>\n" ]}
+    context4 =  add_trs(context3, rows, "td", aligns, lnb)
+    
+    {context4, [ context4.value, "</table>\n" ]}
   end
 
   ########
@@ -193,34 +195,30 @@ defmodule Earmark.HtmlRenderer do
   def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
-  defp add_table_rows(context, rows, tag, aligns, lnb) do
+  def add_trs(context, rows, tag, aligns, lnb) do
     numbered_rows = rows
-      |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
+                    |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
     # for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
     numbered_rows
-      |> Enum.reduce(context, fn {row, lnb}, ctxt ->
-        inner_context = add_tds(ctxt, row, tag, aligns, lnb)
-        %{inner_context | value:  "<tr>\n#{inner_context.value}\n</tr>\n"}
+      |> Enum.reduce(context, fn {row, lnb}, ctx ->
+       append( add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n" )
       end)
   end
 
   defp add_tds(context, row, tag, aligns, lnb) do
-    %{context | value: (Enum.reduce(1..length(row), {[], row}, add_td_fn(context, row, tag, aligns, lnb))
-    |> elem(0)
-    |> Enum.reverse ) }
+    Enum.reduce(1..length(row), context, add_td_fn(row, tag, aligns, lnb))
   end
 
-  defp add_td_fn(context, row, tag, aligns, lnb) do 
-    fn n, {acc, _row} ->
-      style = cond do
-        align = Enum.at(aligns, n - 1) ->
-          " style=\"text-align: #{align}\""
-        true ->
-          ""
+  defp add_td_fn(row, tag, aligns, lnb) do 
+    fn n, ctx ->
+      style =
+      case Enum.at(aligns, n - 1, :default) do
+        :default -> ""
+        align    -> " style=\"text-align: #{align}\""
       end
       col = Enum.at(row, n - 1)
-      converted = convert(col, lnb,  context)
-      {["<#{tag}#{style}>#{converted.value}</#{tag}>" | acc], row}
+      converted = convert(col, lnb,  ctx)
+      append(add_messages_from(ctx, converted), "<#{tag}#{style}>#{converted.value}</#{tag}>")
     end
   end
 
@@ -252,9 +250,9 @@ defmodule Earmark.HtmlRenderer do
   end
 
   defp code_classes(language, prefix) do
-   ["" | String.split( prefix || "" )]
-     |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
-     |> Enum.join(" ")
+    ["" | String.split( prefix || "" )]
+    |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
+    |> Enum.join(" ")
   end
 
 end

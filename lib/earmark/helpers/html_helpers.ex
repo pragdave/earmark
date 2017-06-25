@@ -21,7 +21,9 @@ defmodule Earmark.Helpers.HtmlHelpers do
 
   @doc false
   def add_attrs!(context, text, attrs_as_string_or_map, default_attrs, lnb ) do
-    with {context, {text, _errors}} <- add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb), do: {context, text}
+    with {context, {text, _errors}} <- add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb) do
+      {context, text}
+    end
   end
 
   defp add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb )

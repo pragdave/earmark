@@ -64,7 +64,7 @@ defmodule Earmark.Helpers.LinkParser do
     with remaining_text <- ts |> Enum.map(&text_of_token/1) |> Enum.join("") do
       case title(remaining_text, lnb) do
         nil -> nil
-        {title_text, inner_title} -> add_title( result, {title_text, inner_title} )
+        {title_text, inner_title, messages} -> add_title( result, {title_text, inner_title, messages} )
       end
     end
   end
@@ -78,32 +78,32 @@ defmodule Earmark.Helpers.LinkParser do
   defp title(remaining_text, lnb) do
     case Regex.run(@title_end_rgx, remaining_text) do
       nil             -> nil
-      [parsed, inner] -> maybe_emit_depreaction(parsed, lnb)
-                         {parsed, inner}
+      [parsed, inner] -> {parsed, inner, depreactions(parsed, lnb)}
     end
   end
 
-  defp maybe_emit_depreaction(string, lnb) do 
+  defp depreactions(string, lnb) do 
    with stripped <- String.strip(string),
         opening  <- String.first(stripped),
-        closing  <- String.last(stripped), do: maybe_add_deprecation_message(opening, closing, lnb)
+        closing  <- String.last(stripped), do: _deprecations(opening, closing, lnb)
   end
 
-  defp maybe_add_deprecation_message(opening, closing, _lnb) when opening == closing, do: nil
-  defp maybe_add_deprecation_message(_opening, _closing, lnb) do
-    Earmark.Global.Messages.add_message({:warning, lnb, "deprecated, missmatching quotes will not be parsed as matching in v1.3"})
+  defp _deprecations(opening, closing, _lnb) when opening == closing, do: []
+  defp _deprecations(_opening, _closing, lnb) do
+    [ {:warning, lnb, "deprecated, missmatching quotes will not be parsed as matching in v1.3"} ]
   end
 
   defp make_result(nil, _, _), do: nil
-  defp make_result({parsed, url, title}, link_text, "!" <> _) do
-    { "![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title }
+  defp make_result({parsed, url, title}, text, img), do: make_result({parsed, url, title, []}, text, img)
+  defp make_result({parsed, url, title, messages}, link_text, "!" <> _) do
+    { "![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages }
   end
-  defp make_result({parsed, url, title}, link_text, _) do
-    { "[#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title }
+  defp make_result({parsed, url, title, messages}, link_text, _) do
+    { "[#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages }
   end
 
   defp add({parsed_text, url_text, nil}, text), do: {[text|parsed_text], [text|url_text], nil}
-  defp add_title({parsed_text, url_text, _}, {parsed,inner}), do: {[parsed|parsed_text], url_text, inner}
+  defp add_title({parsed_text, url_text, _}, {parsed,inner,messages}), do: {[parsed|parsed_text], url_text, inner, messages}
 
   defp list_to_text(lst), do: lst |> Enum.reverse() |> Enum.join("")
 end

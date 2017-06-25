@@ -11,6 +11,7 @@
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
   import Earmark.Context, only: [prepend: 2, set_value: 2]
+  import Earmark.Message, only: [add_messages: 2]
 
   @doc false
   def convert(src, lnb, context)
@@ -113,9 +114,9 @@
   defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do
-        {match, text, href, title} = match
+        {match, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
-        { behead(src, match), context, prepend(result, out), lnb }
+        { behead(src, match), add_messages(context, messages), prepend(result, out), lnb }
       end
     end
   end
@@ -123,9 +124,9 @@
   defp converter_for_img({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       if is_image?(match) do
-        {match, text, href, title} = match
+        {match, text, href, title, messages} = match
         out = output_image(context.options.renderer, text, href, title)
-        { behead(src, match), context, prepend(result,  out), lnb }
+        { behead(src, match), add_messages(context, messages), prepend(result,  out), lnb }
       end
     end
   end
@@ -306,6 +307,7 @@
 
 
   defp is_image?( {match_text, _, _, _} ), do: String.starts_with?(match_text, "!")
+  defp is_image?( {match_text, _, _, _, _} ), do: String.starts_with?(match_text, "!")
   @trailing_newlines ~r{\n*\z}
 
   defp update_lnb(data = {_, _, %{value: []}, _}), do: data

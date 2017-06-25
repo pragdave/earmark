@@ -7,7 +7,7 @@ defmodule Earmark.Context do
             links:    Map.new,
             rules:    nil,
             footnotes: Map.new,
-            value:    nil
+            value:    []
 
   ##############################################################################
   # Handle adding option specific rules and processors                         #
@@ -15,10 +15,10 @@ defmodule Earmark.Context do
 
   defp noop(text), do: text
 
-  # @doc """
-  # Convenience method to append to the value list
-  # """
-  # def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  @doc """
+  Convenience method to append to the value list
+  """
+  def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [value | prep]}
   @doc """
   Convenience method to prepend to the value list
   """
@@ -27,6 +27,14 @@ defmodule Earmark.Context do
   Convenience method to prepend to the value list
   """
   def set_value(%__MODULE__{} = ctx, value), do: %{ctx | value: value}
+  @doc """
+  Convenience method to get a context with cleared value and messages
+  """
+  def clear(%__MODULE__{} = ctx) do
+    ctx
+    |> set_value([])
+    put_in(ctx.options.messages, [])
+  end
 
   @doc false
   # this is called by the command line processor to update

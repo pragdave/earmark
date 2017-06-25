@@ -20,6 +20,11 @@ defmodule Earmark.Message do
   def add_message(context = %Context{}, message) do
     %{context | options: %{context.options | messages: [message | get_messages(context)]}}
   end
+  
+  @spec add_messages_from(Context.t, Context.t) :: Context.t
+  def add_messages_from(context, message_container) do
+    add_messages(context, message_container.options.messages)
+  end
 
   @spec get_messages( container_type ) :: ts
   def get_messages(container)

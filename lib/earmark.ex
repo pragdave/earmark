@@ -252,8 +252,6 @@ defmodule Earmark do
   alias Earmark.Options
   alias Earmark.Context
   import Earmark.Message, only: [emit_messages: 1, get_messages: 1]
-  import Earmark.Global.Messages
-
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -317,9 +315,11 @@ defmodule Earmark do
   end
 
   defp _as_html(lines, options) do
-    start_link()
     {blocks, context} = parse(lines, options)
-    options.renderer.render(blocks, context)
+    case blocks do 
+      [] -> {context, ""}  
+      _  -> options.renderer.render(blocks, context)
+    end
   end
 
   @doc """
@@ -334,9 +334,9 @@ defmodule Earmark do
   @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links, _ } = Earmark.Parser.parse(lines, options, false)
+    { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
 
-    context = %Earmark.Context{options: options, links: links }
+    context = %Earmark.Context{options: options1, links: links }
               |> Earmark.Context.update_context()
 
     if options.footnotes do
