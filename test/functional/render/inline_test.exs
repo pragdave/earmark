@@ -53,7 +53,7 @@ defmodule InlineTest do
 
   test "asterisks surrounded by spaces are emphasis in gfm mode" do
     result = convert_gfm("un * frigging * believable")
-    assert result == "un <em> frigging </em> believable"
+    assert result.value == "un <em> frigging </em> believable"
   end
 
   test "backslashes stop asterisks being significant" do
@@ -63,7 +63,7 @@ defmodule InlineTest do
 
   test "tilde mean strikethrough" do
     result = convert_gfm("this ~~not this~~")
-    assert result == "this <del>not this</del>"
+    assert result.value == "this <del>not this</del>"
   end
 
   #################

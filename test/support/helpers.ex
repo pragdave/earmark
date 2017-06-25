@@ -43,7 +43,7 @@ defmodule Support.Helpers do
   end
 
   def convert_pedantic(string, lnb \\ 0) do
-    Inline.convert(string, lnb, pedantic_context())
+    Inline.convert(string, lnb, pedantic_context()).value
   end
 
   def convert_gfm(string, lnb \\ 0) do

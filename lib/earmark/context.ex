@@ -6,18 +6,35 @@ defmodule Earmark.Context do
   defstruct options:  %Earmark.Options{},
             links:    Map.new,
             rules:    nil,
-            footnotes: Map.new
-
-  @doc """
-  Access `context.options.messages`
-  """
-  def messages(context), do: context.options.messages
+            footnotes: Map.new,
+            value:    []
 
   ##############################################################################
   # Handle adding option specific rules and processors                         #
   ##############################################################################
 
   defp noop(text), do: text
+
+  @doc """
+  Convenience method to append to the value list
+  """
+  def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [value | prep]}
+  @doc """
+  Convenience method to prepend to the value list
+  """
+  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  @doc """
+  Convenience method to prepend to the value list
+  """
+  def set_value(%__MODULE__{} = ctx, value), do: %{ctx | value: value}
+  @doc """
+  Convenience method to get a context with cleared value and messages
+  """
+  def clear(%__MODULE__{} = ctx) do
+    ctx
+    |> set_value([])
+    put_in(ctx.options.messages, [])
+  end
 
   @doc false
   # this is called by the command line processor to update
