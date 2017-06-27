@@ -9,7 +9,7 @@ defmodule Acceptance.SetextHeadersTest do
       ast = [{"h1", [], ["Foo ", {"em", [], ["bar"]}]}, {"h2", [], ["Foo ", {"em", [], ["bar"]}]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "and levels two and one" do
@@ -18,7 +18,7 @@ defmodule Acceptance.SetextHeadersTest do
       ast = [{"h2", [], ["Foo"]}, {"h1", [], ["Foo"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "narrow escape" do
@@ -26,7 +26,7 @@ defmodule Acceptance.SetextHeadersTest do
       # html = "<h2>Foo\\</h2>\n"
       ast = {"h2", [], ["Foo\\"]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end

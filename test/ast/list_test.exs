@@ -8,7 +8,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["one"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "Unnumbered Indented" do
@@ -17,7 +17,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["one"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "Unnumbered Indent taken into account" do
@@ -26,7 +26,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["one one.one"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
 
     end
     test "Numbered" do
@@ -35,7 +35,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [], [{"li", [],   [{"p", [], ["A paragraphwith two lines."]},    {"pre", [], [{"code", [], ["indented code"]}]},    {"blockquote", [], [{"p", [], ["A block quote."]}]}]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "More numbers" do
@@ -44,7 +44,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [], [{"li", [], [{"p", [], ["space one"]}]},  {"li", [], [{"p", [], ["space two"]}]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "can't count" do
@@ -53,7 +53,7 @@ defmodule Acceptance.ListTest do
       ast = [{"ul", [], [{"li", [], ["one"]}]}, {"p", [], [" two"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "still not" do
@@ -62,7 +62,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["one"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "the second one is not one" do
@@ -71,7 +71,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [], [{"li", [], ["one"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "where shall we start" do
@@ -80,7 +80,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [{"start", "2"}], [{"li", [], ["one\n"]}, {"li", [], ["two"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "one?" do
@@ -89,7 +89,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [{"start", "2"}], [{"li", [], ["one\n"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "count or no count?" do
@@ -98,7 +98,7 @@ defmodule Acceptance.ListTest do
       ast = [{"p", [], ["-one"]}, {"p", [], ["2.two"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "list or no list?" do
@@ -107,7 +107,7 @@ defmodule Acceptance.ListTest do
       ast = {"p", [], ["-1. not ok"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "no count or count?" do
@@ -116,7 +116,7 @@ defmodule Acceptance.ListTest do
       ast = {"ol", [], [{"li", [], ["foobar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "where does it end?" do
@@ -125,7 +125,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["a\nb\nc"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "tables in lists? Maybe not" do
@@ -134,7 +134,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["x\na\n| A | B |"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "nice try, but naah" do
@@ -143,7 +143,7 @@ defmodule Acceptance.ListTest do
       ast = {"ul", [], [{"li", [], ["x\n | A | B |"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end

@@ -8,7 +8,7 @@ defmodule Acceptance.ParagraphsTest do
       ast = [{"p", [], ["aaa"]}, {"p", [], ["bbb"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "and another one" do
@@ -17,7 +17,7 @@ defmodule Acceptance.ParagraphsTest do
       ast = [{"p", [], ["aaa"]}, {"p", [], ["bbb"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end

@@ -10,11 +10,11 @@ defmodule Acceptance.EscapeTest do
       ast = {"p", [], ["\\!\\“"]}
       messages = []
 
-      assert Earmark.as_ast(markdown, smartypants: true) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: true) == {:ok, ast, messages}
 
       # html     = "<p>\\!\\&quot;</p>\n"
       ast = {"p", [], ["\\!\\&quot;"]}
-      assert Earmark.as_ast(markdown, smartypants: false) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: false) == {:ok, ast, messages}
     end
 
     test "obviously" do
@@ -23,7 +23,7 @@ defmodule Acceptance.EscapeTest do
       ast = {"p", [], ["`no code"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "less obviously - escpe the escapes" do
@@ -32,7 +32,7 @@ defmodule Acceptance.EscapeTest do
       ast = {"p", [], ["\\", {"code", [{"class", "inline"}], ["code"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "don't ask me" do
@@ -41,7 +41,7 @@ defmodule Acceptance.EscapeTest do
       ast = {"p", [], ["\\ \\"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "a plenty of nots" do
@@ -50,7 +50,7 @@ defmodule Acceptance.EscapeTest do
       ast = {"p", [], ["*not emphasized*\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a header\n[foo]: /url &quot;not a reference&quot;"]}
       messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input" }]
 
-      assert Earmark.as_ast(markdown, smartypants: false) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: false) == {:error, ast, messages}
     end
 
     test "let us escape (again)" do
@@ -58,7 +58,7 @@ defmodule Acceptance.EscapeTest do
       # html = "<p>\\<em>emphasis</em></p>\n"
       ast = {"p", [], ["\\", {"em", [], ["emphasis"]}]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
   # end
 end

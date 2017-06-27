@@ -8,7 +8,7 @@ defmodule Acceptance.BlockQuotesTest do
       ast = {"blockquote", [], [{"p", [], ["Foo"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "and block my quotes" do
@@ -17,7 +17,7 @@ defmodule Acceptance.BlockQuotesTest do
       ast = {"blockquote", [], [{"h1", [], ["Foo"]}, {"p", [], ["barbaz"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "linient we are" do
@@ -26,7 +26,7 @@ defmodule Acceptance.BlockQuotesTest do
       ast = {"blockquote", [], [{"p", [], ["barbazfoo"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "lists in blockquotes? Coming up Sir" do
@@ -35,7 +35,7 @@ defmodule Acceptance.BlockQuotesTest do
       ast = [{"blockquote", [], [{"ul", [], [{"li", [], ["foo"]}]}]}, {"ul", [], [{"li", [], ["bar"]}]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   # end

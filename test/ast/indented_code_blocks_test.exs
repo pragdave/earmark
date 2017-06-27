@@ -8,7 +8,7 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       ast = {"pre", [], [{"code", [], ["a simple\n  indented code block"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "code is soo verbatim" do
@@ -17,7 +17,7 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       ast = {"pre", [], [{"code", [], ["&lt;a/&gt;*hi*\n\n- one"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "chunky bacon (RIP: Why)" do
@@ -26,7 +26,7 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       ast = {"pre", [], [{"code", [], ["chunk1\n\nchunk2\n\n\nchunk3"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "foo and bar (now you are surprised!)" do
@@ -35,7 +35,7 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       ast = [{"pre", [], [{"code", [], ["foo"]}]}, {"p", [], ["bar"]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "not the alpha, not the omega (gamma maybe?)" do
@@ -43,7 +43,7 @@ defmodule Acceptance.IndentedCodeBlocksTest do
       # html = "<pre><code>foo</code></pre>\n"
       ast = {"pre", [], [{"code", [], ["foo"]}]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
   # end
 end

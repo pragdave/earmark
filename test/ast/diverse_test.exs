@@ -10,7 +10,7 @@ defmodule Acceptance.DiverseTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["f&amp;ouml;&amp;ouml;"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "spaec preserving" do
@@ -19,7 +19,7 @@ defmodule Acceptance.DiverseTest do
       ast = {"p", [], ["Multiple     spaces"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "syntax errors" do
@@ -28,7 +28,7 @@ defmodule Acceptance.DiverseTest do
       ast = [{"p", [], ["A\nB"]}, {"p", [], []}]
       messages = [{:warning, 3, "Unexpected line =" }]
 
-      assert Earmark.as_ast(markdown) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
     end
    end
 

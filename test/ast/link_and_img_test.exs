@@ -9,7 +9,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "this ain't no link" do
@@ -18,7 +18,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], ["[bar]"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "img with title" do
@@ -27,7 +27,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo"}, {"title", "title"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "this ain't no img (and no link)" do
@@ -36,7 +36,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], ["![bar]"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "strange syntaxes exist in Markdown" do
@@ -45,7 +45,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "url"}, {"title", ""}], ["foo"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "sometimes strange text is just strange text" do
@@ -54,11 +54,11 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], ["[foo]: /url &quot;title&quot; ok"]}
       messages = []
 
-      assert Earmark.as_ast(markdown, smartypants: false) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: false) == {:ok, ast, messages}
 
       # html     = "<p>[foo]: /url “title” ok</p>\n"
       ast = {"p", [], ["[foo]: /url “title” ok"]}
-      assert Earmark.as_ast(markdown, smartypants: true) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: true) == {:ok, ast, messages}
     end
 
     test "guess how this one is rendered?" do
@@ -67,7 +67,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = []
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "or this one, but you might be wrong" do
@@ -76,7 +76,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = [{"h1", [], [{"a", [{"href", "/url"}, {"title", ""}], ["Foo"]}]}, {"blockquote", [], [{"p", [], ["bar"]}]}]
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end
@@ -89,7 +89,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = []
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "inner is a link, not outer" do
@@ -98,7 +98,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], ["[", {"a", [{"href", "inner"}], ["text"]}, "]outer"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "unless your outer is syntactically a link of course" do
@@ -107,7 +107,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "outer"}], ["[text](inner)"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "as with this img" do
@@ -116,7 +116,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "outer"}, {"alt", "[text](inner)"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "headaches ahead (and behind us)" do
@@ -125,7 +125,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "/uri"}], [{"img", [{"src", "moon.jpg"}, {"alt", "moon"}], []}]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "lost in space" do
@@ -133,7 +133,7 @@ defmodule Acceptance.LinkAndImgTest do
       # html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
       ast = {"p", [], [{"img", [{"src", "sun.jpg"}, {"alt", "![moon](moon.jpg)"}], []}]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -144,7 +144,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "/uri"}, {"title", "title"}], ["link"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "titled link, with depreacted quote missmatch" do
@@ -153,7 +153,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "/uri"}, {"title", "title"}], ["link"]}]}
       messages = [{:warning, 1, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
 
-      assert Earmark.as_ast(markdown) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
     end
 
     test "no title" do
@@ -162,7 +162,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "/uri"}], ["link"]}, ")"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "let's go nowhere" do
@@ -171,7 +171,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", ""}], ["link"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "nowhere in a bottle" do
@@ -179,7 +179,7 @@ defmodule Acceptance.LinkAndImgTest do
       # html = "<p><a href=\"()\">link</a></p>\n"
       ast = {"p", [], [{"a", [{"href", "()"}], ["link"]}]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -190,7 +190,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo"}, {"title", "title"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "ti tle (why not)" do
@@ -199,7 +199,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo"}, {"title", "ti tle"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "titles become strange" do
@@ -208,7 +208,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo"}, {"title", "ti() tle"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "as does everything else" do
@@ -217,7 +217,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "f[]oo"}, {"title", "ti() tle"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "alt goes crazy" do
@@ -226,7 +226,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo[([])]"}, {"title", "title"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "alt goes crazy, with deprecation warnings" do
@@ -235,7 +235,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url"}, {"alt", "foo[([])]"}, {"title", "title"}], []}]}
       messages = [{:warning, 2, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
 
-      assert Earmark.as_ast(markdown) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
     end
 
     test "url escapes of course" do
@@ -244,7 +244,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"img", [{"src", "/url%20no%20title"}, {"alt", "foo"}], []}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end
@@ -256,7 +256,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "http://foo.bar.baz"}], ["http://foo.bar.baz"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "as was this" do
@@ -265,7 +265,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "irc://foo.bar:2233/baz"}], ["irc://foo.bar:2233/baz"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "good ol' mail" do
@@ -274,7 +274,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "mailto:foo@bar.baz"}], ["foo@bar.baz"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "we know what mail is" do
@@ -283,7 +283,7 @@ defmodule Acceptance.LinkAndImgTest do
       ast = {"p", [], [{"a", [{"href", "mailto:foo@bar.example.com"}], ["foo@bar.example.com"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "not really a link" do
@@ -291,7 +291,7 @@ defmodule Acceptance.LinkAndImgTest do
       # html = "<p>&lt;&gt;</p>\n"
       ast = {"p", [], ["&lt;&gt;"]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   end

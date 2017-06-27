@@ -9,7 +9,7 @@ defmodule Acceptance.FootnotesTest do
       ast = [{"p", [],  ["foo",   {"a",    [{"href", "#fn:1"}, {"id", "fnref:1"}, {"class", "footnote"},     {"title", "see footnote"}], ["1"]}, " again"]}, {"div", [{"class", "footnotes"}],  [{"hr", [], []},   {"ol", [],    [{"li", [{"id", "fn:1"}],      [{"p", [],        ["bar baz&nbsp;",         {"a",          [{"href", "#fnref:1"}, {"title", "return to article"},           {"class", "reversefootnote"}], ["&#x21A9;"]}]}]}]}]}]
       messages = []
 
-      assert Earmark.as_ast(markdown, footnotes: true) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, footnotes: true) == {:ok, ast, messages}
     end
 
     test "undefined footnotes" do
@@ -18,7 +18,7 @@ defmodule Acceptance.FootnotesTest do
       ast = {"p", [], ["foo[^1]\nhello"]}
       messages = [{:error, 1, "footnote 1 undefined, reference to it ignored"}]
 
-      assert Earmark.as_ast(markdown, footnotes: true) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown, footnotes: true) == {:error, ast, messages}
     end
 
     test "undefined footnotes (none at all)" do
@@ -27,7 +27,7 @@ defmodule Acceptance.FootnotesTest do
       ast = {"p", [], ["foo[^1]\nhello"]}
       messages = [{:error, 1, "footnote 1 undefined, reference to it ignored"}]
 
-      assert Earmark.as_ast(markdown, footnotes: true) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown, footnotes: true) == {:error, ast, messages}
     end
 
     test "illdefined footnotes" do
@@ -38,7 +38,7 @@ defmodule Acceptance.FootnotesTest do
         {:error, 1, "footnote 1 undefined, reference to it ignored"},
         {:error, 4, "footnote 1 undefined, reference to it ignored"}]
 
-      assert Earmark.as_ast(markdown, footnotes: true) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown, footnotes: true) == {:error, ast, messages}
     end
 
 

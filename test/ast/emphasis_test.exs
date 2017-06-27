@@ -10,7 +10,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"em", [], ["foo bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "imporatant quotes" do
@@ -19,7 +19,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], ["a", {"em", [], ["&quot;foo&quot;"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown, smartypants: false) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, smartypants: false) == {:ok, ast, messages}
     end
 
     test "important _" do
@@ -28,7 +28,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"em", [], ["foo bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "dont get confused" do
@@ -37,7 +37,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], ["_foo*"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "that should make you smile" do
@@ -46,7 +46,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"em", [], ["foo_bar_baz"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "stronger" do
@@ -55,7 +55,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"strong", [], ["foo bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "stronger insisde" do
@@ -64,7 +64,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], ["foo", {"strong", [], ["bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "stronger together" do
@@ -73,7 +73,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"strong", [], ["foo bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "let no evil underscores divide us" do
@@ -82,7 +82,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"strong", [], ["foo__bar"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "strong **and** stronger" do
@@ -91,7 +91,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"em", [], ["(", {"strong", [], ["foo"]}, ")"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "stronger **and** strong" do
@@ -100,7 +100,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], [{"strong", [], ["(", {"em", [], ["foo"]}, ")"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "one is not strong enough" do
@@ -109,7 +109,7 @@ defmodule Acceptance.EmphasisTest do
       ast = {"p", [], ["foo*"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   # end

@@ -9,7 +9,7 @@ defmodule Acceptance.InlineCodeTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["foo"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "plain simple, right?" do
@@ -18,7 +18,7 @@ defmodule Acceptance.InlineCodeTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["hi"]}, "lo`"]}
       messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
 
-      assert Earmark.as_ast(markdown) == {:error, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
     end
 
     test "this time you got it right" do
@@ -27,7 +27,7 @@ defmodule Acceptance.InlineCodeTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["ab"]}, "c"]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "and again!!!" do
@@ -35,7 +35,7 @@ defmodule Acceptance.InlineCodeTest do
       # html = "<ul>\n<li><code class=\"inline\">a `\n`\n b</code>c\n</li>\n</ul>\n"
       ast = {"ul", [], [{"li", [], [{"code", [{"class", "inline"}], ["a `\n`\n b"]}, "c"]}]}
       messages = []
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
   # end
 end

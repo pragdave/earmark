@@ -8,7 +8,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       ast = {"pre", [], [{"code", [{"class", ""}], ["&lt;\n &gt;"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "still no lang" do
@@ -17,7 +17,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       ast = {"pre", [], [{"code", [{"class", ""}], ["&lt;\n &gt;"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "elixir 's the name" do
@@ -26,7 +26,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       ast = {"pre", [], [{"code", [{"class", "elixir"}], ["aaa~~~"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
     test "with a code_class_prefix" do
@@ -35,7 +35,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       ast = {"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["aaa~~~"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown, code_class_prefix: "lang-") == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown, code_class_prefix: "lang-") == {:ok, ast, messages}
     end
 
     test "look mam, more lines" do
@@ -44,7 +44,7 @@ defmodule Acceptance.FencedCodeBlocksTest do
       ast = {"pre", [], [{"code", [{"class", ""}], ["aaa\nb"]}]}
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
     end
 
   # end
