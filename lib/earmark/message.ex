@@ -31,6 +31,10 @@ defmodule Earmark.Message do
   def get_messages(%Context{options: %{messages: messages}}), do: messages
   def get_messages(%Options{messages: messages}),             do: messages
 
+  @spec set_messages( Context.t, ts ) :: Context.t
+  def set_messages(container, messages)
+  def set_messages(c = %Context{}, messages), do: put_in(c.options.messages, messages)
+
   def emit_messages(%Context{options: options}), do: emit_messages(options)
   def emit_messages(options = %Options{file: file}) do
     options

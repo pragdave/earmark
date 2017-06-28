@@ -6,16 +6,20 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline,  only: [ convert: 3 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
-  import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2 ]
+  import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2, get_messages: 1 ]
   import Earmark.Context, only: [ append: 2, set_value: 2 ]
 
   def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
-    {contexts, html} =
-    mapper.(blocks, &(render_block(&1, context))) |> Enum.unzip()
+    messages = get_messages(context)
 
-    context1 = contexts
-                |> List.last()
-    {context1, html |> IO.iodata_to_binary()}
+    {contexts, html} =
+    mapper.(blocks, &(render_block(&1, put_in(context.options.messages, [])))) |> Enum.unzip()
+
+    all_messages = 
+      contexts 
+      |> Enum.reduce( messages, fn (ctx, messages1) ->  messages1 ++ get_messages(ctx) end) 
+
+    {put_in(context.options.messages, all_messages), html |> IO.iodata_to_binary()}
   end
 
   #############
