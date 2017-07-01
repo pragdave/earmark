@@ -5,7 +5,7 @@ defmodule Earmark.Helpers.LeexHelpers do
   """
   def lex text, with: lexer do
     case text
-      |> String.to_char_list()
+      |> String.to_charlist()
       |> lexer.string() do
         {:ok, tokens, _} -> tokens
       end
@@ -14,7 +14,7 @@ defmodule Earmark.Helpers.LeexHelpers do
   def tokenize line, with: lexer do
     {:ok, tokens, _} =
     line
-    |> to_char_list()
+    |> to_charlist()
     |> lexer.string()
     elixirize_tokens(tokens,[])
     |> Enum.reverse()

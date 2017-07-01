@@ -126,7 +126,7 @@ defmodule Earmark.Line do
 
       match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) ->
         [ _, level, heading ] = match
-        %Heading{level: String.length(level), content: String.strip(heading) }
+        %Heading{level: String.length(level), content: String.trim(heading) }
 
       match = Regex.run(~r/^>(?|(\s*)$|\s(.*))/, line) ->
         [ _, quote ] = match
@@ -191,8 +191,8 @@ defmodule Earmark.Line do
       match = Regex.run(~r/^ \s{0,3} \| (?: [^|]+ \|)+ \s* $ /x, line) ->
         [ body ] = match
         body = body
-               |> String.strip
-               |> String.strip(?|)
+               |> String.trim
+               |> String.trim("|")
         columns = split_table_columns(body)
         %TableLine{content: line, columns: columns}
 
@@ -207,7 +207,7 @@ defmodule Earmark.Line do
 
       match = Regex.run(~r<^\s{0,3}{:(\s*[^}]+)}\s*$>, line) ->
         [ _, ial ] = match
-        %Ial{attrs: String.strip(ial), verbatim: ial}
+        %Ial{attrs: String.trim(ial), verbatim: ial}
 
       match = Regex.run(~r<^\$\$(\w*)$>, line) ->
         [_, prefix] = match
@@ -230,7 +230,7 @@ defmodule Earmark.Line do
   defp split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})
-    |> Enum.map(&String.strip/1)
+    |> Enum.map(&String.trim/1)
     |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
   end
 
