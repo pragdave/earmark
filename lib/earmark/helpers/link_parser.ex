@@ -83,7 +83,7 @@ defmodule Earmark.Helpers.LinkParser do
   end
 
   defp depreactions(string, lnb) do 
-   with stripped <- String.strip(string),
+   with stripped <- String.trim(string),
         opening  <- String.first(stripped),
         closing  <- String.last(stripped), do: _deprecations(opening, closing, lnb)
   end

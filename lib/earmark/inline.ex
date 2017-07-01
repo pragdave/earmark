@@ -198,7 +198,7 @@
   defp converter_for_code({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.code, src) do
       [match, _, content] = match
-      content = String.strip(content)  # this from Gruber
+      content = String.trim(content)  # this from Gruber
       out = renderer.codespan(escape(content, true))
       { behead(src, match), context, prepend(result,  out), lnb }
     end

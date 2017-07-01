@@ -17,35 +17,35 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
   test "text with escapes" do
     str = "[hello\\[]"
-    assert {'hello[', String.to_char_list(str)} == parse(str)
+    assert {'hello[', String.to_charlist(str)} == parse(str)
   end
   test "text with many parts" do
     str = "[hello( world\\])]"
-    assert {'hello( world])', String.to_char_list(str)} == parse(str)
+    assert {'hello( world])', String.to_charlist(str)} == parse(str)
   end
   test "simple imbrication" do
     str = "[[hello]]"
-    assert {'[hello]', String.to_char_list(str)} == parse(str)
+    assert {'[hello]', String.to_charlist(str)} == parse(str)
   end
   test "complex imbrication" do
     str = "[pre[iniside]suff]"
-    assert {'pre[iniside]suff', String.to_char_list(str)} == parse(str)
+    assert {'pre[iniside]suff', String.to_charlist(str)} == parse(str)
   end
   test "deep imbrication" do
     str = "[pre[[in\\]]side])]"
-    assert {'pre[[in]]side])', String.to_char_list(str)} == parse(str)
+    assert {'pre[[in]]side])', String.to_charlist(str)} == parse(str)
   end
   test "with quotes" do
     str = ~s<["hello']>
-    assert {'"hello\'', String.to_char_list(str)} == parse(str)
+    assert {'"hello\'', String.to_charlist(str)} == parse(str)
   end
   test "with open_title token" do
     str = ~s<[hello "world"]>
-    assert {'hello "world"', String.to_char_list(str)} == parse(str)
+    assert {'hello "world"', String.to_charlist(str)} == parse(str)
   end
   test "with quotes and escapes" do
     str = ~s<["hell\\o']>
-    assert {'"hello\'', String.to_char_list(str)} == parse("#{str}(url\\))")
+    assert {'"hello\'', String.to_charlist(str)} == parse("#{str}(url\\))")
   end
   test "missing closing brackets" do
     assert nil ==  parse("[pre[[in\\]side])]")

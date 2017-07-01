@@ -21,6 +21,6 @@ defmodule Regressions.I103NestedUnclosedTagsTest do
       <no file>:1: warning: Failed to find closing <x>
       <no file>:3: warning: Failed to find closing <y>
       <no file>:6: warning: Failed to find closing <z>
-      """ |> String.lstrip()
+      """ |> String.trim_leading()
   end
 end

@@ -16,7 +16,7 @@ defmodule Earmark.Helpers do
   Remove newlines at end of line
   """
   def remove_line_ending(line) do
-    line |> String.rstrip(?\n) |> String.rstrip(?\r)
+    line |> String.trim_trailing("\n") |> String.trim_trailing("\r")
   end
 
   defp pad(1), do: " "
