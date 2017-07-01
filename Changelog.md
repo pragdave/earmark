@@ -1,9 +1,16 @@
 
 # 1.2.3
 
+* [PR151](https://github.com/pragdave/earmark/pull/151) from [joshuawscott](https://github.com/joshuawscott)  
+
 * Fixes for issues
+  - [#150](https://github.com/pragdave/earmark/issues/150)
   - [#147](https://github.com/pragdave/earmark/issues/147)
   
+## Kudos:
+
+   [joshuawscott](https://github.com/joshuawscott)  
+
 # 1.2.2 2017/05/11
 
 * [PR #144](https://github.com/pragdave/earmark/pull/144) from [KronicDeth](https://github.com/KronicDeth)  
