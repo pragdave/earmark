@@ -12,6 +12,7 @@ elixir:
 otp_release:
   - 19.1
   - 19.2
+  - 20.0
 
 matrix:
   include:
@@ -33,3 +34,5 @@ matrix:
       otp_release: 19.2
     - elixir: 1.5.1
       otp_release: 19.2
+    - elixir: 1.5.1
+      otp_release: 20.0

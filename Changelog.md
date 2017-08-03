@@ -1,5 +1,8 @@
 
-# 1.2.3
+# 1.2.4
+
+
+# 1.2.3 2017/07/26
 
 * [PR151](https://github.com/pragdave/earmark/pull/151) from [joshuawscott](https://github.com/joshuawscott)  
 
