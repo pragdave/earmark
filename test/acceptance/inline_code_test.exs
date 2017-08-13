@@ -3,7 +3,7 @@ defmodule Acceptance.InlineCodeTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "Inline Code" do
+  describe "Inline Code" do
 
     test "plain simple" do
       markdown = "`foo`\n"
@@ -33,7 +33,35 @@ defmodule Acceptance.InlineCodeTest do
       markdown = "+ ``a `\n`\n b``c"
       html = "<ul>\n<li><code class=\"inline\">a `\n`\n b</code>c\n</li>\n</ul>\n"
       messages = []
+
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+
+  end
+
+  describe "Inline Code with escapes" do
+    test "a lone escaped backslash" do
+      markdown = "`\\\\`"
+      html ="<p><code class=\"inline\">\\\\</code></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "with company" do
+      markdown = "`hello \\\\ world`"
+      html ="<p><code class=\"inline\">hello \\\\ world</code></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "unescaped escape" do
+      markdown = "`\\`"
+      html = "<p><code class=\"inline\">\\</code></p>\n"
+      messages =  [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
+
+      assert as_html(markdown) == {:error, html, messages}
+    end
+  end
 end
