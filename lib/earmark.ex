@@ -137,7 +137,7 @@ defmodule Earmark do
 
   ## Limitations
 
-  * Nested block-level HTML is correctly handled only if each HTML
+  * Block-level HTML is correctly handled only if each HTML
     tag appears on its own line. So
 
           <div>
@@ -148,9 +148,8 @@ defmodule Earmark do
 
     will work. However. the following won't
 
-          <div><div>
-          hello
-          </div></div>
+          <div>
+          hello</div>
 
   * John Gruber's tests contain an ambiguity when it comes to
     lines that might be the start of a list inside paragraphs.

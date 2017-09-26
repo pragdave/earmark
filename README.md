@@ -140,7 +140,7 @@ containing an IAL-like string, as in the following example
 
 ## Limitations
 
-* Nested block-level HTML is correctly handled only if each HTML
+* Block-level HTML is correctly handled only if each HTML
   tag appears on its own line. So
 
         <div>
@@ -151,9 +151,8 @@ containing an IAL-like string, as in the following example
 
   will work. However. the following won't
 
-        <div><div>
-        hello
-        </div></div>
+        <div>
+        hello</div>
 
 * John Gruber's tests contain an ambiguity when it comes to
   lines that might be the start of a list inside paragraphs.
@@ -374,7 +373,7 @@ Where the tuples are of the form `{:error | :warning, line_number, descriptive_t
 #### Plugins, reusing Earmark
 
 As long as you avoid endless recursion there is absolutely no problem to call `Earmark.as_html` in your plugin, consider the following
-example in which the plugin will parse markdown and render html verbatim (which is stupid, that is what Earmark already does for you,
+example in which the plugin will parse markdown and render html verbatim (which uis stupid, that is what Earmark already does for you,
 but just to demonstrate the possibilities):
 
       iex> defmodule Again do
