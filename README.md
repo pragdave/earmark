@@ -350,7 +350,7 @@ Where the tuples are of the form `{:error | :warning, line_number, descriptive_t
       ...>   end
       ...>
       ...>   defp render(lines) do
-      ...>     Enum.map(lines, &render_line/1) |> Enum.partition(&ok?/1)
+      ...>     Enum.map(lines, &render_line/1) |> Enum.split_with(&ok?/1)
       ...>   end
       ...>
       ...>   defp render_line({"", _}), do: "<hr/>"
