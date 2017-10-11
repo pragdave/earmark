@@ -82,7 +82,7 @@ defmodule Earmark.Plugin do
   #### Plugins, reusing Earmark
 
   As long as you avoid endless recursion there is absolutely no problem to call `Earmark.as_html` in your plugin, consider the following
-  example in which the plugin will parse markdown and render html verbatim (which uis stupid, that is what Earmark already does for you,
+  example in which the plugin will parse markdown and render html verbatim (which is stupid, that is what Earmark already does for you,
   but just to demonstrate the possibilities):
 
         iex> defmodule Again do
