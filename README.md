@@ -269,7 +269,12 @@ The options are a `%Earmark.Options{}` structure:
 
 * `gfm`: boolean
 
-  True by default. Turns on Github Flavored Markdown extensions
+  True by default. Turns on the following _Github Flavored Markdown_ extensions
+
+    - enables the `breaks` option below. 
+    - `*` surrounded by spaces trigger &lt;em>
+    - enables strike-through markup with `~~`
+    - Tables, as mentioned above, are always supported if preceeded by an empty line
 
 * `breaks`: boolean
 
