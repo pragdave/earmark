@@ -133,10 +133,10 @@ defmodule Acceptance.LinkAndImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    test "titled link, with depreacted quote missmatch" do
+    test "titled link, with deprecated quote mismatch" do
       markdown = "[link](/uri \"title')\n"
       html     = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
-      messages = [{:warning, 1, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
+      messages = [{:warning, 1, "deprecated, mismatching quotes will not be parsed as matching in v1.3"}]
 
       assert as_html(markdown) == {:error, html, messages}
     end
@@ -209,7 +209,7 @@ defmodule Acceptance.LinkAndImgTest do
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
       html     = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
-      messages = [{:warning, 2, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
+      messages = [{:warning, 2, "deprecated, mismatching quotes will not be parsed as matching in v1.3"}]
 
       assert as_html(markdown) == {:error, html, messages}
     end
