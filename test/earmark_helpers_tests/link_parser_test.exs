@@ -109,7 +109,7 @@ defmodule EarmarkHelpersTests.LinkParserTest do
   end
 
   defp deprecation_errors do
-    [{:warning, 0, "deprecated, missmatching quotes will not be parsed as matching in v1.3"}]
+    [{:warning, 0, "deprecated, mismatching quotes will not be parsed as matching in v1.3"}]
   end
   defp parse_link(markdown) do
     Earmark.Helpers.LinkParser.parse_link(markdown, 0)
