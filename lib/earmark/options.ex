@@ -1,5 +1,7 @@
 defmodule Earmark.Options do
 
+  @type t :: %__MODULE__{}
+
   # What we use to render
   defstruct  renderer: Earmark.HtmlRenderer,
              # Inline style options

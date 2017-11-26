@@ -3,6 +3,14 @@ defmodule Earmark.Context do
   use Earmark.Types
   import Earmark.Helpers
 
+  @type t :: %__MODULE__{
+    options: Earmark.Options.t,
+    links: map(),
+    rules: Keyword.t() | nil,
+    footnotes: map(),
+    value: String.t | [String.t]
+  }
+
   defstruct options:  %Earmark.Options{},
             links:    Map.new,
             rules:    nil,
@@ -33,7 +41,7 @@ defmodule Earmark.Context do
   def clear(%__MODULE__{} = ctx) do
     ctx
     |> set_value([])
-    put_in(ctx.options.messages, [])
+    |> put_in([:options, :messages], [])
   end
 
   @doc false
