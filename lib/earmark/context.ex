@@ -41,7 +41,7 @@ defmodule Earmark.Context do
   def clear(%__MODULE__{} = ctx) do
     ctx
     |> set_value([])
-    put_in(ctx.options.messages, [])
+    |> put_in([:options, :messages], [])
   end
 
   @doc false
