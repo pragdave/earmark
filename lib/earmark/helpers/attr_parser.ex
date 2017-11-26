@@ -7,7 +7,7 @@ defmodule Earmark.Helpers.AttrParser do
 
   @type errorlist :: list(String.t)
 
-  @spec parse_attrs(Context.t, String.t, number()) :: {Map.t, errorlist}
+  @spec parse_attrs(Context.t, String.t, number()) :: {map, errorlist}
   def parse_attrs(context, attrs, lnb) do
     { attrs, errors } = _parse_attrs(%{}, attrs, [], lnb)
     { add_errors(context, errors, lnb), attrs }
@@ -55,5 +55,5 @@ defmodule Earmark.Helpers.AttrParser do
 
   defp add_errors(context, [], _lnb), do: context
   defp add_errors(context, errors, lnb), do: add_message(context, {:warning, lnb, "Illegal attributes #{inspect errors} ignored in IAL"})
-    
+
 end
