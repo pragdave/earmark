@@ -290,7 +290,7 @@ defmodule Earmark do
       Earmark.as_html(original, %Options{smartypants: false})
 
   """
-  @spec as_html(String.t | list(String.t), %Options{}) :: {String.t, list(String.t)}
+  @spec as_html(String.t | list(String.t), %Options{}) :: {:ok, String.t, list()} | {:error, String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     {context, html} = _as_html(lines, options)
     case sort_messages(context) do
@@ -313,10 +313,11 @@ defmodule Earmark do
     html
   end
 
+  @spec _as_html(String.t | list(String.t), %Options{}) :: {%Context{}, String.t}
   defp _as_html(lines, options) do
     {blocks, context} = parse(lines, options)
-    case blocks do 
-      [] -> {context, ""}  
+    case blocks do
+      [] -> {context, ""}
       _  -> options.renderer.render(blocks, context)
     end
   end
