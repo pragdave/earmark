@@ -6,7 +6,7 @@ defmodule Earmark.Context do
   @type t :: %__MODULE__{
     options: Earmark.Options.t,
     links: map(),
-    rules: Keyword.t(),
+    rules: Keyword.t() | nil,
     footnotes: map(),
     value: String.t | [String.t]
   }
