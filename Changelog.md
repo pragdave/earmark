@@ -1,6 +1,15 @@
 
 # 1.2.4
 
+* [PR160](https://github.com/pragdave/earmark/pull/160) from [simonwebdesign](https://github.com/simonewebdesign)
+* [PR163](https://github.com/pragdave/earmark/pull/163) from [nscyclone](https://github.com/nscyclone)  
+* [PR164](https://github.com/pragdave/earmark/pull/164) from [joshsmith](https://github.com/joshsmith)  
+* [PR165](https://github.com/pragdave/earmark/pull/165) from [asummers](https://github.com/asummers)  
+
+## Kudos:
+   [simonwebdesign](https://github.com/simonewebdesign), [nscyclone](https://github.com/nscyclone),
+   [joshsmith](https://github.com/joshsmith),  [asummers](https://github.com/asummers)  
+
 
 # 1.2.3 2017/07/26
 
