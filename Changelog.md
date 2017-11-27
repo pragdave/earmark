@@ -1,6 +1,9 @@
 
 # 1.2.4
 
+* Fix for issue
+  - [#166]( https://github.com/pragdave/earmark/issues/166 ) 
+
 * [PR160](https://github.com/pragdave/earmark/pull/160) from [simonwebdesign](https://github.com/simonewebdesign)
 * [PR163](https://github.com/pragdave/earmark/pull/163) from [nscyclone](https://github.com/nscyclone)  
 * [PR164](https://github.com/pragdave/earmark/pull/164) from [joshsmith](https://github.com/joshsmith)  
