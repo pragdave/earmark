@@ -2,12 +2,8 @@
 # Earmark—A Pure Elixir Markdown Processor
 
 [![Build Status](https://travis-ci.org/pragdave/earmark.svg?branch=master)](https://travis-ci.org/pragdave/earmark)
-
-<!-- Waiting for hex badges to work again, no info how to fix this so far: 
-  Solution should come with [this issue](https://github.com/badges/shields/issues/1285)
-  [Fix hex badge in README](https://github.com/pragdave/earmark/issues/167)  -->
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
--->
+[![Hex.pm](https://img.shields.io/hexpm/dw/earmark.svg)](https://hex.pm/packages/earmark)
 
 <!-- moduledoc: Earmark -->
 
