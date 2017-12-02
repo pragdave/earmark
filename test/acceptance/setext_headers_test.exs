@@ -3,7 +3,7 @@ defmodule Acceptance.SetextHeadersTest do
   
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "Setext headers" do
+  describe "Setext headers" do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
@@ -25,13 +25,45 @@ defmodule Acceptance.SetextHeadersTest do
       markdown = "Foo\\\n----\n"
       html = "<h2>Foo\\</h2>\n"
       messages = []
+
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
   # There is no consensus on this one, I prefer to not define the behavior of this unless
   # there is a real use case
   # c.f. http://johnmacfarlane.net/babelmark2/?text=%60Foo%0A----%0A%60%0A%0A%3Ca+title%3D%22a+lot%0A---%0Aof+dashes%22%2F%3E%0A
   #    html = "<h2>`Foo</h2>\n<p>`</p>\n<h2>&lt;a title=&quot;a lot</h2>\n<p>of dashes&quot;/&gt;</p>\n"
   #    markdown = "`Foo\n----\n`\n\n<a title=\"a lot\n---\nof dashes\"/>\n"
+  #
+  describe "Setext headers with some context" do 
+    test "h1 after an unordered list" do 
+      markdown = "* foo\n\nbar\n==="
+      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h1>bar</h1>\n"
+      messages = []
+      
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "h2 after an unordered list" do 
+      markdown = "* foo\n\nbar\n---"
+      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n"
+      messages = []
+      
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "h1 after an ordered list and pending text" do 
+      markdown = "1. foo\n\nbar\n===\ntext"
+      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n"
+      messages = []
+      
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "h2 between two lists" do 
+      markdown = "* foo\n\nbar\n---\n\n1. baz"
+      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n<ol>\n<li>baz\n</li>\n</ol>\n"
+      messages = []
+      
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 end
