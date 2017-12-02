@@ -1,5 +1,8 @@
 
-# 1.2.4
+# 1.2.5
+
+
+# 1.2.4 2017/11/28
 
 * Fix for issue
   - [#166]( https://github.com/pragdave/earmark/issues/166 ) 
