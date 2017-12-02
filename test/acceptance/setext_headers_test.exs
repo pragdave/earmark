@@ -3,7 +3,35 @@ defmodule Acceptance.SetextHeadersTest do
   
   import Support.Helpers, only: [as_html: 1]
 
-  describe "Setext headers" do
+  describe "Base cases" do
+
+    test "Level one" do 
+      markdown = "foo\n==="
+      html     = "<h1>foo</h1>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "Level two" do 
+      markdown = "foo\n---"
+      html     = "<h2>foo</h2>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "narrow escape" do
+      markdown = "Foo\\\n----\n"
+      html = "<h2>Foo\\</h2>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+  end
+
+  describe "Combinations" do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
@@ -21,14 +49,6 @@ defmodule Acceptance.SetextHeadersTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    test "narrow escape" do
-      markdown = "Foo\\\n----\n"
-      html = "<h2>Foo\\</h2>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
   end
   # There is no consensus on this one, I prefer to not define the behavior of this unless
   # there is a real use case
@@ -37,6 +57,7 @@ defmodule Acceptance.SetextHeadersTest do
   #    markdown = "`Foo\n----\n`\n\n<a title=\"a lot\n---\nof dashes\"/>\n"
   #
   describe "Setext headers with some context" do 
+
     test "h1 after an unordered list" do 
       markdown = "* foo\n\nbar\n==="
       html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h1>bar</h1>\n"
@@ -44,6 +65,7 @@ defmodule Acceptance.SetextHeadersTest do
       
       assert as_html(markdown) == {:ok, html, messages}
     end
+
     test "h2 after an unordered list" do 
       markdown = "* foo\n\nbar\n---"
       html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n"
@@ -51,6 +73,7 @@ defmodule Acceptance.SetextHeadersTest do
       
       assert as_html(markdown) == {:ok, html, messages}
     end
+
     test "h1 after an ordered list and pending text" do 
       markdown = "1. foo\n\nbar\n===\ntext"
       html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n<p>text</p>\n"
@@ -58,6 +81,7 @@ defmodule Acceptance.SetextHeadersTest do
       
       assert as_html(markdown) == {:ok, html, messages}
     end
+
     test "h2 between two lists" do 
       markdown = "* foo\n\nbar\n---\n\n1. baz"
       html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n<ol>\n<li>baz\n</li>\n</ol>\n"
@@ -65,5 +89,25 @@ defmodule Acceptance.SetextHeadersTest do
       
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "h2 between two lists more blank lines" do
+      markdown = "1. foo\n\n\nbar\n---\n\n\n* baz"
+      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h2>bar</h2>\n<ul>\n<li>baz\n</li>\n</ul>\n"
+      messages = []
+      
+      assert as_html(markdown) == {:ok, html, messages}
+    end
   end
+
+  describe "after a table" do 
+    
+    test "h2 after a table" do
+      markdown = "|a|b|\n|d|e|\nbar\n---"
+      html     = "<table>\n<colgroup>\n<col>\n<col>\n</colgroup>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n<h2>bar</h2>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
+
 end
