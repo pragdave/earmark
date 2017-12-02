@@ -217,6 +217,20 @@ defmodule Earmark.Line do
         [_, prefix, content] = match
         %Plugin{ content: content, prefix: prefix }
 
+        # Hmmmm in case of perf problems
+        # Assuming that text lines are the most frequent would it not boost performance (which seems to be good anyway)
+        # it would be great if we could come up with a regex that is a superset of all the regexen above and then
+        # we could match as follows
+        #       
+        #       cond 
+        #       nil = Regex.run(superset, line) -> %Text
+        #       ...
+        #       # all other matches from above
+        #       ...
+        #       # Catch the case were the supergx was too wide
+        #       true -> %Text
+        #
+        #
       true ->
         %Text{content: line }
     end

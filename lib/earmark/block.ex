@@ -177,7 +177,9 @@ defmodule Earmark.Block do
     lines = [content | lines]
     {blocks, _, options1} = Parser.parse(lines, %{options | line: lnb}, true)
 
-    _parse(rest, [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1)
+    # This fixes #168 but would it not be better to let read_list_lines return the blank line in the first
+    # place?
+    _parse([%Line.Blank{lnb: 0} | rest], [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1)
   end
 
   #################

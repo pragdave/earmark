@@ -53,7 +53,7 @@ defmodule Acceptance.SetextHeadersTest do
     end
     test "h1 after an ordered list and pending text" do 
       markdown = "1. foo\n\nbar\n===\ntext"
-      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n"
+      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n<p>text</p>\n"
       messages = []
       
       assert as_html(markdown) == {:ok, html, messages}
