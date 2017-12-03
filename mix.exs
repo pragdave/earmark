@@ -30,7 +30,8 @@ defmodule Earmark.Mixfile do
       deps:          @deps,
       description:   @description,
       package:       package(),
-      aliases:       [docs: &docs/1, readme: &readme/1]
+      aliases:       [docs: &docs/1, readme: &readme/1],
+      dialyzer:      [ignore_warnings: "dialyzer.ignore-warnings"]
     ]
   end
 

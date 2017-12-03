@@ -75,7 +75,7 @@ defmodule Earmark.Line do
   # proceeding
 
   # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
-  @spec scan_lines( list(String.t), %Earmark.Options{}, boolean ) :: ts
+#   @spec scan_lines( list(String.t), %Earmark.Options{}, boolean ) :: ts
   def scan_lines lines, options \\ %Earmark.Options{}, recursive \\ false
   def scan_lines lines, options, recursive do
     lines_with_count( lines, options.line - 1)
@@ -237,9 +237,9 @@ defmodule Earmark.Line do
   end
 
 
-  @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video> |>
-    Enum.into( MapSet.new() )
-  defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
+  @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video> 
+
+  defp block_tag?(tag), do: MapSet.member?(MapSet.new(@block_tags), tag)
 
   defp split_table_columns(line) do
     line

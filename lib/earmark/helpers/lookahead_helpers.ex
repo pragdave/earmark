@@ -14,7 +14,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   Otherwise `{nil, 0}` is returned
   """
-  @spec opens_inline_code(numbered_line) :: inline_code_continuation
+#   @spec opens_inline_code(numbered_line) :: inline_code_continuation
   def opens_inline_code( %{line: line, lnb: lnb} ) do
     case tokenize(line, with: :string_lexer) |> has_still_opening_backtix(nil) do
       nil      -> {nil, 0}
@@ -30,7 +30,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   opening backtix
   """
   # (#{},{_,_}) -> {_,_}
-  @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
+#   @spec still_inline_code(numbered_line, inline_code_continuation) :: inline_code_continuation
   def still_inline_code( %{line: line, lnb: lnb}, old = {pending, _pending_lnb} ) do
     case tokenize(line, with: :string_lexer) |> has_still_opening_backtix({:old, pending}) do
       nil -> {nil, 0}
@@ -58,7 +58,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   #######################################################################################
   # read_list_lines
   #######################################################################################
-  @spec read_list_lines( Line.ts, inline_code_continuation, number ) :: {boolean, Line.ts, Line.ts, number, number}
+#   @spec read_list_lines( Line.ts, inline_code_continuation, number ) :: {boolean, Line.ts, Line.ts, number, number}
   @doc """
   Called to slurp in the lines for a list item.
   basically, we allow indents and blank lines, and
@@ -72,7 +72,7 @@ defmodule Earmark.Helpers.LookaheadHelpers do
 
   @type read_list_info :: %{pending: maybe(String.t), pending_lnb: number, initial_indent: number, min_indent: maybe(number)}
 
-  @spec _read_list_lines(Line.ts, Line.ts, read_list_info) :: {boolean, Line.ts, Line.ts, number}
+#   @spec _read_list_lines(Line.ts, Line.ts, read_list_info) :: {boolean, Line.ts, Line.ts, number}
   # List items with initial_indent + 2
   defp _read_list_lines([ line = %Line.ListItem{initial_indent: li_indent} | rest ], result,
     params=%{pending: nil, initial_indent: initial_indent, min_indent: min_indent})

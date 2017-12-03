@@ -51,7 +51,7 @@ defmodule Earmark.Block do
   # Then extract any id definitions, and build a map from them. Not
   # for external consumption.
 
-  @spec parse( Line.ts, Options.t ) :: {ts, %{}, Options.t}
+#   @spec parse( Line.ts, Options.t ) :: {ts, %{}, Options.t}
   def parse(lines, options) do
     {blocks, options} = lines |> remove_trailing_blank_lines() |> lines_to_blocks(options)
     links  = links_from_blocks(blocks)
@@ -67,7 +67,7 @@ defmodule Earmark.Block do
   end
 
 
-  @spec _parse(Line.ts, ts, Options.t) :: {ts, Earmark.Message.ts}
+#   @spec _parse(Line.ts, ts, Options.t) :: {ts, Earmark.Message.ts}
   defp _parse([], result, options), do: {result, options}
 
   ###################
@@ -333,7 +333,7 @@ defmodule Earmark.Block do
   # Assign attributes that follow a block to that block #
   #######################################################
 
-  @spec assign_attributes_to_blocks( ts, ts ) :: ts
+#   @spec assign_attributes_to_blocks( ts, ts ) :: ts
   def assign_attributes_to_blocks([], result), do: Enum.reverse(result)
 
   def assign_attributes_to_blocks([ %Ial{attrs: attrs}, block | rest], result) do
@@ -352,7 +352,7 @@ defmodule Earmark.Block do
   # @spec consolidate_para( ts ) :: { ts, ts, {nil | String.t, number} }
   defp consolidate_para( lines ), do: _consolidate_para( lines, [], @not_pending )
 
-  @spec _consolidate_para( ts, ts, inline_code_continuation ) :: { ts, ts, inline_code_continuation }
+#   @spec _consolidate_para( ts, ts, inline_code_continuation ) :: { ts, ts, inline_code_continuation }
   defp _consolidate_para( [], result, pending ) do
     {result, [], pending}
   end
@@ -369,7 +369,7 @@ defmodule Earmark.Block do
   # Consolidate one or more list items into a list #
   ##################################################
 
-  @spec consolidate_list_items( ts, ts ) :: ts
+#   @spec consolidate_list_items( ts, ts ) :: ts
   defp consolidate_list_items([], result) do
     result |> Enum.map(&compute_list_spacing/1)  # no need to reverse
   end
@@ -410,7 +410,7 @@ defmodule Earmark.Block do
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
-  @spec read_table( ts, number, %Table{} ) :: { %Table{}, ts }
+#   @spec read_table( ts, number, %Table{} ) :: { %Table{}, ts }
   defp read_table([ %Line.TableLine{columns: cols} | rest ],
                     col_count,
                     table = %Table{})
@@ -432,7 +432,7 @@ defmodule Earmark.Block do
   end
 
 
-  @spec look_for_alignments( [String.t] ) :: atom
+#   @spec look_for_alignments( [String.t] ) :: atom
   defp look_for_alignments([ _first, second | _rest ]) do
     if Enum.all?(second, fn row -> row =~ ~r{^:?-+:?$} end) do
       second
@@ -458,7 +458,7 @@ defmodule Earmark.Block do
     visit(blocks, Map.new, &link_extractor/2)
   end
 
-  @spec link_extractor(t, %{}) :: %{}
+#   @spec link_extractor(t, %{}) :: %{}
   defp link_extractor(item = %IdDef{id: id}, result) do
     Map.put(result, String.downcase(id), item)
   end
@@ -470,7 +470,7 @@ defmodule Earmark.Block do
   # Visitor pattern for each block #
   ##################################
 
-  @spec visit(ts, %{}, (t, %{} -> %{})) :: %{}
+#   @spec visit(ts, %{}, (t, %{} -> %{})) :: %{}
   defp visit([], result, _func), do: result
 
   # Structural node BlockQuote -> descend
@@ -543,7 +543,7 @@ defmodule Earmark.Block do
 
 
   # (_,{'nil' | binary(),number()}) -> #{}jj
-  @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
+#   @spec inline_or_text?( Line.t, inline_code_continuation ) :: %{pending: String.t, continue: boolean}
   defp inline_or_text?(line, pending)
   defp inline_or_text?(line = %Line.Text{}, @not_pending) do
     pending = opens_inline_code(line)
