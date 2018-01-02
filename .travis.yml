@@ -31,3 +31,46 @@ matrix:
       otp_release: 19.2
     - elixir: 1.5.0
       otp_release: 20.0
+language: elixir
+sudo: false
+
+branches:
+  only:
+    - master
+    - development
+
+elixir:
+  - 1.5.1
+  - 1.5.2
+  - 1.5.5
+otp_release:
+  - 19.1
+  - 19.2
+  - 20.0
+  - 20.1
+  - 20.2
+
+matrix:
+  include:
+    - elixir: 1.4.0
+      otp_release: 19.1
+    - elixir: 1.4.0
+      otp_release: 20.2
+    - elixir: 1.4.4
+      otp_release: 19.2
+    - elixir: 1.4.4
+      otp_release: 20.2
+    - elixir: 1.5.0
+      otp_release: 19.2
+    - elixir: 1.5.0
+      otp_release: 20.2
+    - elixir: 1.5.1
+      otp_release: 20.2
+    - elixir: 1.5.2
+      otp_release: 20.2
+    - elixir: 1.5.3
+      otp_release: 20.0
+    - elixir: 1.5.3
+      otp_release: 20.1
+    - elixir: 1.5.3
+      otp_release: 20.2
