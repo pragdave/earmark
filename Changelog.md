@@ -3,6 +3,7 @@
 
 * Fix for issue
   - [#168]( https://github.com/pragdave/earmark/issues/168 )
+  - [#172]( https://github.com/pragdave/earmark/issues/172 )
 
 # 1.2.4 2017/11/28
 

@@ -52,6 +52,7 @@ defmodule Mix.Tasks.Readme do
   defp doc_for("module", name) do
     module = String.to_atom("Elixir." <> name)
 
+    A
     docs = case Code.ensure_loaded(module) do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
@@ -98,7 +99,7 @@ defmodule Mix.Tasks.Readme do
       (case File.write("README.md", readme) do
         :ok -> "README.md updated"
         {:error, reason} ->
-           "README.md: #{:file.explain_error(reason)}"
+           "README.md: #{:file.format_error(reason)}"
       end)
   end
 end
