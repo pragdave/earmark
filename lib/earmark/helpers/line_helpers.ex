@@ -1,10 +1,9 @@
 defmodule Earmark.Helpers.LineHelpers do
-
   alias Earmark.Line
 
-  @spec blank?(Line.t) :: boolean
-  def blank?(%Line.Blank{}),   do: true
-  def blank?(_),               do: false
+  @spec blank?(Line.t()) :: boolean
+  def blank?(%Line.Blank{}), do: true
+  def blank?(_), do: false
 
   # Gruber's tests have
   #
@@ -21,19 +20,18 @@ defmodule Earmark.Helpers.LineHelpers do
   # I think the second is a better interpretation, so I commented
   # out the 2nd match below.
 
-  def text?(%Line.Text{}),      do: true
+  def text?(%Line.Text{}), do: true
   def text?(%Line.TableLine{}), do: true
-#  def text?(%Line.ListItem{}), do: true
-  def text?(_),                 do: false
+  #  def text?(%Line.ListItem{}), do: true
+  def text?(_), do: false
 
   def blockquote_or_text?(%Line.BlockQuote{}), do: true
-  def blockquote_or_text?(struct),             do: text?(struct)
+  def blockquote_or_text?(struct), do: text?(struct)
 
   def indent_or_blank?(%Line.Indent{}), do: true
-  def indent_or_blank?(line),           do: blank?(line)
+  def indent_or_blank?(line), do: blank?(line)
 
-  def blank_line_in?([]),                    do: false
-  def blank_line_in?([ %Line.Blank{} | _ ]), do: true
-  def blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
-
+  def blank_line_in?([]), do: false
+  def blank_line_in?([%Line.Blank{} | _]), do: true
+  def blank_line_in?([_ | rest]), do: blank_line_in?(rest)
 end

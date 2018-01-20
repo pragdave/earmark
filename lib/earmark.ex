@@ -1,5 +1,4 @@
 defmodule Earmark do
-
   @moduledoc """
 
   ## Dependency
@@ -290,11 +289,13 @@ defmodule Earmark do
       Earmark.as_html(original, %Options{smartypants: false})
 
   """
-  @spec as_html(String.t | list(String.t), %Options{}) :: {:ok, String.t, list()} | {:error, String.t, list(String.t)}
+  @spec as_html(String.t() | list(String.t()), %Options{}) ::
+          {:ok, String.t(), list()} | {:error, String.t(), list(String.t())}
   def as_html(lines, options \\ %Options{}) do
     {context, html} = _as_html(lines, options)
+
     case sort_messages(context) do
-      []       -> {:ok, html, []}
+      [] -> {:ok, html, []}
       messages -> {:error, html, messages}
     end
   end
@@ -305,20 +306,22 @@ defmodule Earmark do
 
   Otherwise it behaves exactly as `as_html`.
   """
-  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
+  @spec as_html!(String.t() | list(String.t()), %Options{}) :: String.t()
   def as_html!(lines, options \\ %Options{})
+
   def as_html!(lines, options = %Options{}) do
     {context, html} = _as_html(lines, options)
     emit_messages(context)
     html
   end
 
-  @spec _as_html(String.t | list(String.t), %Options{}) :: {%Context{}, String.t}
+  @spec _as_html(String.t() | list(String.t()), %Options{}) :: {%Context{}, String.t()}
   defp _as_html(lines, options) do
     {blocks, context} = parse(lines, options)
+
     case blocks do
       [] -> {context, ""}
-      _  -> options.renderer.render(blocks, context)
+      _ -> options.renderer.render(blocks, context)
     end
   end
 
@@ -331,25 +334,28 @@ defmodule Earmark do
   for more details.
   """
 
-  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
+  @spec parse(String.t() | list(String.t()), %Options{}) :: {Earmark.Block.ts(), %Context{}}
   def parse(lines, options \\ %Earmark.Options{})
-  def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
-    { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
 
-    context = %Earmark.Context{options: options1, links: links }
-              |> Earmark.Context.update_context()
+  def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
+    {blocks, links, options1} = Earmark.Parser.parse(lines, options, false)
+
+    context =
+      %Earmark.Context{options: options1, links: links}
+      |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
-      context =
-        put_in(context.footnotes, footnotes)
-      context =
-        put_in(context.options, options1)
-      { blocks, context }
+      {blocks, footnotes, options1} =
+        Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
+
+      context = put_in(context.footnotes, footnotes)
+      context = put_in(context.options, options1)
+      {blocks, context}
     else
-      { blocks, context }
+      {blocks, context}
     end
   end
+
   def parse(lines, options) when is_binary(lines) do
     lines
     |> String.split(~r{\r\n?|\n})
@@ -365,9 +371,9 @@ defmodule Earmark do
   end
 
   @doc false
-  @spec pmap( list(A), (A -> Earmark.Line.t) ) :: Earmark.Line.ts
+  @spec pmap(list(A), (A -> Earmark.Line.t())) :: Earmark.Line.ts()
   def pmap(collection, func) do
-   collection
+    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Enum.map(&Task.await/1)
   end

@@ -1,5 +1,4 @@
 defmodule Earmark.Helpers do
-
   @doc """
   Expand tabs to multiples of 4 columns
   """
@@ -55,11 +54,9 @@ defmodule Earmark.Helpers do
 
   defp _escape(html) do
     html
-    |> String.replace("<",  "&lt;")
-    |> String.replace(">",  "&gt;")
+    |> String.replace("<", "&lt;")
+    |> String.replace(">", "&gt;")
     |> String.replace("\"", "&quot;")
-    |> String.replace("'",  "&#39;")
+    |> String.replace("'", "&#39;")
   end
-
-
 end
