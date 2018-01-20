@@ -1,5 +1,4 @@
 defmodule Support.Helpers do
-
   alias Earmark.Block.IdDef
   alias Earmark.Context
   alias Earmark.Inline
@@ -22,13 +21,12 @@ defmodule Support.Helpers do
 
   def test_links do
     [
-     {"id1", %IdDef{url: "url 1", title: "title 1"}},
-     {"id2", %IdDef{url: "url 2"}},
-
-     {"img1", %IdDef{url: "img 1", title: "image 1"}},
-     {"img2", %IdDef{url: "img 2"}},
+      {"id1", %IdDef{url: "url 1", title: "title 1"}},
+      {"id2", %IdDef{url: "url 2"}},
+      {"img1", %IdDef{url: "img 1", title: "image 1"}},
+      {"img2", %IdDef{url: "img 2"}}
     ]
-    |> Enum.into(Map.new)
+    |> Enum.into(Map.new())
   end
 
   def pedantic_context do
@@ -49,5 +47,4 @@ defmodule Support.Helpers do
   def convert_gfm(string, lnb \\ 0) do
     Inline.convert(string, lnb, gfm_context())
   end
-
 end
