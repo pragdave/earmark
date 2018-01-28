@@ -25,3 +25,5 @@ defmodule Earmark.Helpers.LeexHelpers do
   defp elixirize_tokens([{token, _, text}|rest], result), do: elixirize_tokens(rest, [{token,to_string(text)}|result])
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

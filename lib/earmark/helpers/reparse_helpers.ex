@@ -51,3 +51,5 @@ defmodule Earmark.Helpers.ReparseHelpers do
     line.content
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

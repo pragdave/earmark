@@ -63,3 +63,5 @@ defmodule Earmark.Helpers do
 
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -580,3 +580,5 @@ defmodule Earmark.Block do
     |> Enum.reverse
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

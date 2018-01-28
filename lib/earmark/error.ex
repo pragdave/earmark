@@ -8,3 +8,5 @@ defmodule Earmark.Error do
   def exception(msg), do: %__MODULE__{message: msg}
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

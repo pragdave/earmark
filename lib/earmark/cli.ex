@@ -93,3 +93,5 @@ defmodule Earmark.CLI do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

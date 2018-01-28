@@ -35,3 +35,4 @@ defmodule Mix.Tasks.Docs do
 end
 
 
+# SPDX-License-Identifier: Apache-2.0
