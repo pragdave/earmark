@@ -58,3 +58,5 @@ defmodule EscapeLtTest do
     assert result ==  ~s[<span class="red">a&amp;b</span> &lt;color]
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

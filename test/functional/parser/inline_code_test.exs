@@ -153,3 +153,5 @@ defmodule Parser.InlineCodeTest do
     assert_list_with result, lines, type: :ol
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

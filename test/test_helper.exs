@@ -3,3 +3,5 @@
 # ExUnit.start( timeout: 3000)
 ExUnit.configure(exclude: [:wip, :later])
 ExUnit.start()
+
+# SPDX-License-Identifier: Apache-2.0

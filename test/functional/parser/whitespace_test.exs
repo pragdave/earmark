@@ -22,3 +22,4 @@ defmodule Parser.WhitespaceTest do
   end
 end
 
+# SPDX-License-Identifier: Apache-2.0

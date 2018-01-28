@@ -70,3 +70,5 @@ defmodule Functional.Parser.FootnotesTest do
     {blocks, context.options.messages}
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -18,3 +18,5 @@ defmodule Regressions.I099IalRenderingTest do
     end ) == "<no file>:2: warning: Illegal attributes [\"hello\", \"world*\"] ignored in IAL\n"
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -3,3 +3,5 @@ defmodule Acceptance.ReadmeTest do
   
   doctest Earmark
 end
+
+# SPDX-License-Identifier: Apache-2.0

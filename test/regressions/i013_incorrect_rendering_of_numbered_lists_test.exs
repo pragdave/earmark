@@ -22,3 +22,5 @@ defmodule Regressions.I013IncorrectRenderingOfNumberedLists do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

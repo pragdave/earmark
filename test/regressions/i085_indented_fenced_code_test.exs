@@ -58,3 +58,5 @@ defmodule Regressions.I085IndentedFencedCodeTest do
     assert result == "<ol>\n<li><p>one</p>\n<pre><code class=\"elixir\">    defmodule</code></pre>\n</li>\n</ol>\n"
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

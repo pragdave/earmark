@@ -9,3 +9,5 @@ defmodule Regressions.I072QuotesInLinx do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

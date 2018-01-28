@@ -10,3 +10,5 @@ defmodule Regressions.I123ReturnvalAsHtmlTest do
   end
   
 end
+
+# SPDX-License-Identifier: Apache-2.0

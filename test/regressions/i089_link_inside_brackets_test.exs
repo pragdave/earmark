@@ -18,3 +18,5 @@ defmodule Regressions.I089LinkInsideBracketsTest do
     assert ~s{<p><a href="outer">[text](inner)</a></p>\n} == Earmark.as_html!(str)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

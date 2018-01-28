@@ -195,3 +195,5 @@ defmodule InlineTest do
     assert result == ~s[a <span class="red">a&amp;b</span> color]
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

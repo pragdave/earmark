@@ -7,3 +7,5 @@ defmodule Regressions.I070AutolinkWithParentheses do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

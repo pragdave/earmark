@@ -19,3 +19,5 @@ defmodule Regressions.I131MaybeInlineIalTest do
     assert as_html!(@inline_level) == ~s{<p><a href="url" class="shiny">link</a></p>\n}
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -26,3 +26,5 @@ defmodule Helpers.InlineCodeTest.OpensInlineCodeTest do
            end
          end)
 end
+
+# SPDX-License-Identifier: Apache-2.0

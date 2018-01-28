@@ -3,3 +3,5 @@ defmodule Support.Parser do
     Earmark.Parser.parse(%Earmark.Options{}, lines, false)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

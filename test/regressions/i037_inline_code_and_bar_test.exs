@@ -15,3 +15,5 @@ defmodule Regressions.I037InlineCodeAndBarTest do
                      """
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

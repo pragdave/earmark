@@ -51,3 +51,5 @@ defmodule Support.Helpers do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

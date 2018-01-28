@@ -102,3 +102,5 @@ defmodule CodeTest do
     assert result == ~s(<pre><code class="elixir">  # Hello\nend</code></pre>\n)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

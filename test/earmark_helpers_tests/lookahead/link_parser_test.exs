@@ -74,3 +74,5 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

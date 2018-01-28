@@ -26,3 +26,5 @@ defmodule Regressions.I066ErrorContextTest do
     end) == "<no file>:43: warning: Closing unclosed backquotes ` at end of input\n"
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

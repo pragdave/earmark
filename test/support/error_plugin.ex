@@ -12,3 +12,5 @@ defmodule Support.ErrorPlugin do
   defp correct?({line, _}), do: line == "correct"
   defp make_error({_, lnb}), do: {:error, lnb, "that is incorrect"}
 end
+
+# SPDX-License-Identifier: Apache-2.0

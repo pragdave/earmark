@@ -28,3 +28,5 @@ defmodule Regressions.I114OrderedListTest do
     assert Earmark.as_html!(@scoped) == ~s{<ol start="2">\n<li><p>hello</p>\n<ol start="4">\n<li><p>world</p>\n<ol start="42">\n<li>again\n</li>\n</ol>\n</li>\n</ol>\n</li>\n</ol>\n}
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

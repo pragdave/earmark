@@ -19,3 +19,5 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   defp with_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: true})
   defp without_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: false})
 end
+
+# SPDX-License-Identifier: Apache-2.0
