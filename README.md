@@ -402,3 +402,5 @@ Copyright © 2014 Dave Thomas, The Pragmatic Programmers
 # LICENSE
 
 Same as Elixir, which is Apache License v2.0. Please refer to [LICENSE](LICENSE) for details.
+
+SPDX-License-Identifier: Apache-2.0
