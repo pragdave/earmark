@@ -34,3 +34,5 @@ defmodule Regressions.I093LastLiNotWrappedInPTest do
     assert "<ul>\n<li><p>a</p>\n</li>\n<li><p>b</p>\n</li>\n</ul>\n<p>Meaningless Text</p>\n" == Earmark.as_html!( @longer )
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

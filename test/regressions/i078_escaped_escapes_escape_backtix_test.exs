@@ -52,3 +52,5 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
     assert html_from_file("test/fixtures/i078_short.md") == @short_html
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

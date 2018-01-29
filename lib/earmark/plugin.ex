@@ -135,3 +135,5 @@ defmodule Earmark.Plugin do
   end
   def define(options, plugin), do: define(options, {plugin, ""})
 end
+
+# SPDX-License-Identifier: Apache-2.0

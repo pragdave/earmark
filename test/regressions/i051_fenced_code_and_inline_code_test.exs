@@ -38,3 +38,5 @@ defmodule Regressions.I051FencedCodeAndInlineCodeTest do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

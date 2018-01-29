@@ -115,3 +115,5 @@ defmodule EarmarkHelpersTests.LinkParserTest do
     Earmark.Helpers.LinkParser.parse_link(markdown, 0)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

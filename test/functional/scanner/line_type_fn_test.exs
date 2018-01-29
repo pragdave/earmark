@@ -82,3 +82,5 @@ defmodule Functional.Scanner.LineTypeFnTest do
   end)
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

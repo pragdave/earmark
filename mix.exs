@@ -75,3 +75,5 @@ defmodule Earmark.Mixfile do
     Mix.Tasks.Readme.run(args)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

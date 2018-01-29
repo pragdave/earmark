@@ -62,3 +62,5 @@ defmodule Acceptance.HardLineBreaksTest do
 
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

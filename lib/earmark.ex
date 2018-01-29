@@ -372,3 +372,5 @@ defmodule Earmark do
     |> Enum.map(&Task.await/1)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

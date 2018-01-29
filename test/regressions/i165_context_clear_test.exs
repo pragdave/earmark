@@ -12,3 +12,5 @@ defmodule Regressions.I165ContextClearTest do
     assert cleared_context.options.messages == []
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

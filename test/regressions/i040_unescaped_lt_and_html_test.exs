@@ -7,3 +7,5 @@ defmodule Regressions.I040UnescpaedLtAndHtmlTest do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

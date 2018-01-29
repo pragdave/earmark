@@ -13,3 +13,5 @@ defmodule Regressions.I139GfmHardBreaksTest do
     assert {:ok, "<p>a\\</p>\n<p>b</p>\n", []} == Earmark.as_html("a\\\n\nb")
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

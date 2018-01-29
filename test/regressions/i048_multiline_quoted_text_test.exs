@@ -19,3 +19,5 @@ defmodule Regressions.I048MultilineQuotedTextTest do
     assert result == ~s[<ul>\n<li><code class="inline">a\n* b</code>\n</li>\n</ul>\n]
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

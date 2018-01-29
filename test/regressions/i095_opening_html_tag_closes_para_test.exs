@@ -36,3 +36,5 @@ defmodule Regressions.I095OpeningHtmlTagClosesParaTest do
     assert Earmark.as_html!("foo\nbaz <h5>bar</h5>") == expected
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

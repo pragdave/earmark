@@ -171,3 +171,5 @@ defmodule Earmark.Helpers.LookaheadHelpers do
       %{ params | pending: pending, pending_lnb: pending_lnb }
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -24,3 +24,5 @@ defmodule Regressions.I103NestedUnclosedTagsTest do
       """ |> String.trim_leading()
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

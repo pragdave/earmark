@@ -10,3 +10,5 @@ defmodule Regressions.I043CodeBlockLosesIndentTest do
     assert result == ~s[<pre><code>    alpha\nbeta</code></pre>\n]
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

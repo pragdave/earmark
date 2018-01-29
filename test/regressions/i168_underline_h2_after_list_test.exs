@@ -24,3 +24,5 @@ defmodule Regressions.I168UnderlineH2AfterListTest do
     assert result == "<ul>\n<li>para\n</li>\n</ul>\n<h2>hl2</h2>\n"
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -111,3 +111,5 @@ defmodule Acceptance.SetextHeadersTest do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

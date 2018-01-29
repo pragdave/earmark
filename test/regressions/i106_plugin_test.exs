@@ -63,3 +63,5 @@ defmodule Regressions.I106PluginTest do
           {:warning, 5, "lines for undefined plugin prefix \"undef\" ignored (5..5)"}]}
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

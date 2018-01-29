@@ -50,3 +50,5 @@ defmodule SmartyTest do
     assert result == ~s(for <code class="inline">key</code> in <code class="inline">app</code>’s environment)
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

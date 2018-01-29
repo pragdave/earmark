@@ -36,3 +36,5 @@ defmodule Earmark.Options do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -82,3 +82,5 @@ defmodule Parser.WarningTest do
     with {_, context} <- Earmark.parse(str, options), do: context.options.messages
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0

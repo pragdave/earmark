@@ -37,3 +37,5 @@ defmodule Earmark.Helpers.LineHelpers do
   def blank_line_in?([ _ | rest ]),          do: blank_line_in?(rest)
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

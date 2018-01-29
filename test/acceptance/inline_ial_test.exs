@@ -56,3 +56,5 @@ defmodule Acceptance.InlineIalTest do
   end
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

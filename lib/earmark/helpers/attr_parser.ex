@@ -57,3 +57,5 @@ defmodule Earmark.Helpers.AttrParser do
   defp add_errors(context, errors, lnb), do: add_message(context, {:warning, lnb, "Illegal attributes #{inspect errors} ignored in IAL"})
 
 end
+
+# SPDX-License-Identifier: Apache-2.0

@@ -107,3 +107,5 @@ defmodule Earmark.Helpers.LinkParser do
 
   defp list_to_text(lst), do: lst |> Enum.reverse() |> Enum.join("")
 end
+
+# SPDX-License-Identifier: Apache-2.0
