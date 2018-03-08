@@ -58,18 +58,6 @@ defmodule Earmark do
 
   ## Extensions
 
-  ### Github Flavored Markdown
-  
-
-  As GFM is a moving target, Earmark does not support all of GFM, here is a list of what is supported:
-
-  * Syntax Highlightening
-
-  Yes the generated code blocks have a corresponding `class` attribute:
-
-    iex(1)> Earmark.as_html "```elixir\n   [] |> Enum.into(%{})"
-    {:ok, "<pre><code class=\"elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n",
-
 
   ### Tables
 
@@ -102,7 +90,7 @@ defmodule Earmark do
 
   HTML attributes can be added to any block-level element. We use
   the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
-
+ 
   _attrs_ can be one or more of:
 
   * `.className`
