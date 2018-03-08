@@ -58,10 +58,37 @@ defmodule Earmark do
 
   ## Extensions
 
+  ### Github Flavored Markdown
+  
 
-  ### Tables
+  GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
 
-  Github Flavored Markdown tables are supported as long as they are preceeded by an empty line.
+  * StrikeThrough
+
+        iex(13)> Earmark.as_html! ["~~hello~~"]
+        "<p><del>hello</del></p>\\n"
+
+  * Syntax Highlightening
+
+  The generated code blocks have a corresponding `class` attribute:
+
+
+
+        iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]                                               
+        "<pre><code class=\\"elixir\\">   [] |&gt; Enum.into(%{})</code></pre>\\n"
+
+
+  which can be customized with the `code_class_prefix` option
+
+
+        iex(12)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
+        "<pre><code class=\\"elixir lang-elixir\\">   [] |&gt; Enum.into(%{})</code></pre>\\n"
+
+
+
+  * Tables
+
+  Are supported as long as they are preceeded by an empty line.
 
           State | Abbrev | Capital
           ----: | :----: | -------
