@@ -73,7 +73,7 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
       iex(13)> Earmark.as_html! ["~~hello~~"]
       "<p><del>hello</del></p>\n"
 
-* Syntax Highlightening
+* Syntax Highlighting
 
 The generated code blocks have a corresponding `class` attribute:
 
@@ -93,7 +93,7 @@ which can be customized with the `code_class_prefix` option
 
 * Tables
 
-Are supported as long as they are preceeded by an empty line.
+Are supported as long as they are preceded by an empty line.
 
         State | Abbrev | Capital
         ----: | :----: | -------
@@ -141,7 +141,7 @@ For example:
 
 #### To links or images
 
-It is possible to add IAL attributes to genertated links or images in the following
+It is possible to add IAL attributes to generated links or images in the following
 format.
 
       iex> markdown = "[link](url) {: .classy}"
@@ -232,7 +232,7 @@ containing an IAL-like string, as in the following example
 
 ## Integration
 
-### Syntax Highlightning
+### Syntax Highlighting
 
 All backquoted or fenced code blocks with a language string are rendered with the given
 language as a _class_ attribute of the _code_ tag.
