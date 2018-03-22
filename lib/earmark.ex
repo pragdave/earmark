@@ -59,7 +59,7 @@ defmodule Earmark do
   ## Extensions
 
   ### Github Flavored Markdown
-  
+
 
   GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
 
@@ -68,13 +68,13 @@ defmodule Earmark do
         iex(13)> Earmark.as_html! ["~~hello~~"]
         "<p><del>hello</del></p>\\n"
 
-  * Syntax Highlightening
+  * Syntax Highlighting
 
   The generated code blocks have a corresponding `class` attribute:
 
 
 
-        iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]                                               
+        iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
         "<pre><code class=\\"elixir\\">   [] |&gt; Enum.into(%{})</code></pre>\\n"
 
 
@@ -88,7 +88,7 @@ defmodule Earmark do
 
   * Tables
 
-  Are supported as long as they are preceeded by an empty line.
+  Are supported as long as they are preceded by an empty line.
 
           State | Abbrev | Capital
           ----: | :----: | -------
@@ -117,7 +117,7 @@ defmodule Earmark do
 
   HTML attributes can be added to any block-level element. We use
   the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
- 
+
   _attrs_ can be one or more of:
 
   * `.className`
@@ -136,7 +136,7 @@ defmodule Earmark do
 
   #### To links or images
 
-  It is possible to add IAL attributes to genertated links or images in the following
+  It is possible to add IAL attributes to generated links or images in the following
   format.
 
         iex> markdown = "[link](url) {: .classy}"
@@ -227,20 +227,21 @@ defmodule Earmark do
 
   ## Integration
 
-  ### Syntax Highlightning
+  ### Syntax Highlighting
 
   All backquoted or fenced code blocks with a language string are rendered with the given
   language as a _class_ attribute of the _code_ tag.
 
   For example:
 
-        ...> "```elixir",
-        ...> " @tag :hello",
-        ...> "```" ] |> Enum.join("\\n")
-        ...> Earmark.as_html!(code)
+        iex> [
+        ...>    "```elixir",
+        ...>    " @tag :hello",
+        ...>    "```"
+        ...> ] |> Earmark.as_html!()
         "<pre><code class=\\"elixir\\"> @tag :hello</code></pre>\\n"
 
-  will be rendered as
+  will be rendered as shown in the doctest above.
 
 
   If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be

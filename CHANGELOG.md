@@ -7,40 +7,45 @@
   - [#172]( https://github.com/pragdave/earmark/issues/172 )
   - [#175]( https://github.com/pragdave/earmark/issues/175 )
 
+* [#178](https://github.com/pragdave/earmark/pull/178) from [jwworth](https://github.com/jwworth)
+
+## Kudos:
+  [jwworth](https://github.com/jwworth)
+
 # 1.2.4 2017/11/28
 
 * Fix for issue
-  - [#166]( https://github.com/pragdave/earmark/issues/166 ) 
+  - [#166]( https://github.com/pragdave/earmark/issues/166 )
 
 * [PR160](https://github.com/pragdave/earmark/pull/160) from [simonwebdesign](https://github.com/simonewebdesign)
-* [PR163](https://github.com/pragdave/earmark/pull/163) from [nscyclone](https://github.com/nscyclone)  
-* [PR164](https://github.com/pragdave/earmark/pull/164) from [joshsmith](https://github.com/joshsmith)  
-* [PR165](https://github.com/pragdave/earmark/pull/165) from [asummers](https://github.com/asummers)  
+* [PR163](https://github.com/pragdave/earmark/pull/163) from [nscyclone](https://github.com/nscyclone)
+* [PR164](https://github.com/pragdave/earmark/pull/164) from [joshsmith](https://github.com/joshsmith)
+* [PR165](https://github.com/pragdave/earmark/pull/165) from [asummers](https://github.com/asummers)
 
 ## Kudos:
    [simonwebdesign](https://github.com/simonewebdesign), [nscyclone](https://github.com/nscyclone),
-   [joshsmith](https://github.com/joshsmith),  [asummers](https://github.com/asummers)  
+   [joshsmith](https://github.com/joshsmith),  [asummers](https://github.com/asummers)
 
 
 # 1.2.3 2017/07/26
 
-* [PR151](https://github.com/pragdave/earmark/pull/151) from [joshuawscott](https://github.com/joshuawscott)  
+* [PR151](https://github.com/pragdave/earmark/pull/151) from [joshuawscott](https://github.com/joshuawscott)
 
 * Fixes for issues
   - [#150](https://github.com/pragdave/earmark/issues/150)
   - [#147](https://github.com/pragdave/earmark/issues/147)
-  
+
 ## Kudos:
 
-   [joshuawscott](https://github.com/joshuawscott)  
+   [joshuawscott](https://github.com/joshuawscott)
 
 # 1.2.2 2017/05/11
 
-* [PR #144](https://github.com/pragdave/earmark/pull/144) from [KronicDeth](https://github.com/KronicDeth)  
+* [PR #144](https://github.com/pragdave/earmark/pull/144) from [KronicDeth](https://github.com/KronicDeth)
 
 ## Kudos:
 
-  [KronicDeth](https://github.com/KronicDeth)  
+  [KronicDeth](https://github.com/KronicDeth)
 
 # 1.2.1 2017/05/03
 
@@ -76,7 +81,7 @@
 
 ## Kudos:
 
-  [Natronium](https://github.com/Natronium)  
+  [Natronium](https://github.com/Natronium)
 
 # 1.1.0 2017/01/22
 

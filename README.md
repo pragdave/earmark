@@ -79,7 +79,7 @@ The generated code blocks have a corresponding `class` attribute:
 
 
 
-      iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]                                               
+      iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
       "<pre><code class=\"elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n"
 
 
@@ -239,13 +239,14 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-      iex> ["```elixir",
-      ...> " @tag :hello",
-      ...> "```" ] |> Enum.join("\n") |> Earmark.as_html!()
-
-will be rendered as
-
+      iex> [
+      ...>    "```elixir",
+      ...>    " @tag :hello",
+      ...>    "```"
+      ...> ] |> Earmark.as_html!()
       "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
+
+will be rendered as shown in the doctest above.
 
 
 If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
