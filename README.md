@@ -239,13 +239,13 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-      ...> "```elixir",
+      iex> ["```elixir",
       ...> " @tag :hello",
-      ...> "```" ] |> Enum.join("\n")
-      ...> Earmark.as_html!(code)
-      "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
+      ...> "```" ] |> Enum.join("\n") |> Earmark.as_html!()
 
 will be rendered as
+
+      "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
 
 
 If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
