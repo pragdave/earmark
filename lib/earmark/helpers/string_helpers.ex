@@ -17,7 +17,6 @@ defmodule Earmark.Helpers.StringHelpers do
         iex> behead_tuple("prefixpostfix", "prefix")
         {"prefix", "postfix"}
   """
-  @spec behead_tuple( String.t, String.t ) :: {String.t, String.t}
   def behead_tuple(str, lead) do
     {lead, behead(str, lead)}
   end
