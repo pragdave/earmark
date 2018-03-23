@@ -73,10 +73,10 @@ defmodule Earmark.Scanner do
         [_content, ws, id, rest ] = matches
         prefixed_with_ws(line, ws) ||
           {%IdOpen{id: id}, rest, false}
-      matches = Regex.run( @under_l1_head_rgx, line ) ->
+      _matches = Regex.run( @under_l1_head_rgx, line ) ->
         {%UnderHeadline{level: 1}, "", false}
 
-      matches = Regex.run( @under_l2_head_rgx, line ) ->
+      _matches = Regex.run( @under_l2_head_rgx, line ) ->
         {%UnderHeadline{level: 2}, "", false}
 
       matches = Regex.run( @code_fence_rgx, line ) ->

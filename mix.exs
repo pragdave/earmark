@@ -4,8 +4,8 @@ defmodule Earmark.Mixfile do
   @version   "1.2.5"
 
   @deps  [
-    { :credo,    "~> 0.6", only: [ :dev, :test ] },
-    { :dialyxir, "~> 0.4", only: [ :dev, :test ] },
+    { :credo,    "~> 0.8", only: [ :dev, :test ] },
+#    { :dialyxir, "~> 0.5", only: [ :dev, :test ] },
   ]
 
   @description """
