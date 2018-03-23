@@ -319,7 +319,6 @@ defmodule Earmark do
       Earmark.as_html(original, %Options{smartypants: false})
 
   """
-  @spec as_html(String.t | list(String.t), %Options{}) :: {:ok, String.t, list()} | {:error, String.t, list(String.t)}
   def as_html(lines, options \\ %Options{}) do
     {context, html} = _as_html(lines, options)
     case sort_messages(context) do
@@ -334,7 +333,6 @@ defmodule Earmark do
 
   Otherwise it behaves exactly as `as_html`.
   """
-  @spec as_html!(String.t | list(String.t), %Options{}) :: String.t
   def as_html!(lines, options \\ %Options{})
   def as_html!(lines, options = %Options{}) do
     {context, html} = _as_html(lines, options)
@@ -342,7 +340,6 @@ defmodule Earmark do
     html
   end
 
-  @spec _as_html(String.t | list(String.t), %Options{}) :: {%Context{}, String.t}
   defp _as_html(lines, options) do
     {blocks, context} = parse(lines, options)
     case blocks do
@@ -360,7 +357,6 @@ defmodule Earmark do
   for more details.
   """
 
-  @spec parse(String.t | list(String.t), %Options{}) :: { Earmark.Block.ts, %Context{} }
   def parse(lines, options \\ %Earmark.Options{})
   def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
     { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
@@ -394,7 +390,6 @@ defmodule Earmark do
   end
 
   @doc false
-  @spec pmap( list(A), (A -> Earmark.Line.t) ) :: Earmark.Line.ts
   def pmap(collection, func) do
    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)

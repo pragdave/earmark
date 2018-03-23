@@ -5,7 +5,6 @@ defmodule Earmark.Parser do
   import Earmark.Message, only: [add_messages: 2]
 
 
-  @spec parse(list(String.t), %Earmark.Options{}, boolean) :: {Block.ts(), %{}}
   def parse(text_lines), do: parse(text_lines, %Earmark.Options{}, false)
 
   def parse(text_lines, options = %Earmark.Options{}, recursive) do
@@ -31,11 +30,9 @@ defmodule Earmark.Parser do
     { blocks, footnotes, options1 }
   end
 
-  @spec footnote_def?( Block.t )::boolean
   defp footnote_def?(%Block.FnDef{}), do: true
   defp footnote_def?(_block), do: false
 
-  @spec find_footnote_links(Block.t) :: list(String.t)
   defp find_footnote_links(%Block.Para{lines: lines, lnb: lnb}) do
     lines
     |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
@@ -46,7 +43,6 @@ defmodule Earmark.Parser do
   end
   defp find_footnote_links(_), do: []
 
-  @spec extract_footnote_links({String.t, number()}) :: list({String.t, number()})
   defp extract_footnote_links({line, lnb}) do
     Regex.scan(~r{\[\^([^\]]+)\]}, line)
     |> Enum.map(&tl/1)
@@ -54,7 +50,6 @@ defmodule Earmark.Parser do
   end
 
 
-  @spec get_footnote_numbers( list({String.t, number()} ), Block.ts, %Earmark.Options{} ) :: Block.ts
   def get_footnote_numbers(refs, footnotes, options) do
     Enum.reduce(refs, {[], []}, fn({ref, lnb}, {defined, undefined}) ->
       r = hd(ref)
@@ -67,7 +62,6 @@ defmodule Earmark.Parser do
     end)
   end
 
-  @spec create_footnote_blocks(Block.ts, Block.ts) :: Block.ts
   defp create_footnote_blocks(blocks, []), do: blocks
 
   defp create_footnote_blocks(blocks, footnotes) do

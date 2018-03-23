@@ -6,6 +6,7 @@
   - [#168]( https://github.com/pragdave/earmark/issues/168 )
   - [#172]( https://github.com/pragdave/earmark/issues/172 )
   - [#175]( https://github.com/pragdave/earmark/issues/175 )
+  - [#181]( https://github.com/pragdave/earmark/issues/181 )
 
 * [#178](https://github.com/pragdave/earmark/pull/178) from [jwworth](https://github.com/jwworth)
 
