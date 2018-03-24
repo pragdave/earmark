@@ -269,12 +269,6 @@ defmodule Earmark do
     filter the output of `Earmark.as_html` if you cannot trust the input
     and are to serve the produced HTML on the Web.
 
-  ## Author
-
-  Copyright © 2014 Dave Thomas, The Pragmatic Programmers
-  @/+pragdave,  dave@pragprog.com
-
-  Licensed under the same terms as Elixir, which is Apache 2.0.
   """
 
   alias Earmark.Options

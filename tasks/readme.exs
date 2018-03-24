@@ -24,6 +24,7 @@ defmodule Mix.Tasks.Readme do
     File.read!("README.md")
     |> remove_old_doc
     |> add_updated_doc
+    |> make_toc
     |> write_back
   end
 
@@ -52,7 +53,6 @@ defmodule Mix.Tasks.Readme do
   defp doc_for("module", name) do
     module = String.to_atom("Elixir." <> name)
 
-    A
     docs = case Code.ensure_loaded(module) do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
@@ -93,6 +93,52 @@ defmodule Mix.Tasks.Readme do
     markdown || "No function documentation available for #{name}\n"
   end
 
+  @existing_toc ~R{
+    (?:^|\n)( <!-- \s+ make \s TOC \s+ --> )
+    (?: .*?\n )+?
+    ( <!-- \s+ endmake \s TOC \s+ --> \s* \n )
+  }x
+  defp remove_toc(readme) do
+    Regex.replace(@existing_toc, readme, fn _, begin_marker, end_marker ->
+      [
+        "",
+        begin_marker,
+        end_marker
+      ] |> Enum.join("\n")
+    end) 
+  end
+  defp replace_toc(readme, new_toc) do
+    Regex.replace(@existing_toc, readme, fn _, begin_marker, end_marker ->
+      [
+        "",
+        begin_marker,
+        "## Table Of Contents\n",
+        Enum.intersperse(new_toc, "\n"),
+        end_marker
+      ] |> Enum.join("\n")
+    end) 
+  end
+
+  @h2_line_rgx ~r{\A\##\s+}
+  defp make_toc(readme) do
+    readme = readme |> remove_toc()
+    h2s = readme |> String.split("\n") |> extract_h2s
+    readme |> replace_toc(h2s)
+  end
+
+  defp extract_h2s(lines) do
+    for line <- lines, Regex.match?(@h2_line_rgx, line), do: make_h2_link(line)
+  end
+
+  defp make_h2_anchor(title) do
+    title |> String.downcase() |> String.replace(~r{\s+}, "-")
+  end
+
+  defp make_h2_link(h2_line) do
+    with title <- String.replace(h2_line, @h2_line_rgx, "") |> String.trim() do
+      "* [#{title}](##{make_h2_anchor(title)})"
+    end
+  end
 
   defp write_back(readme) do
     IO.puts :stderr,
