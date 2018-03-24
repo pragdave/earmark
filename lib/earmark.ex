@@ -278,7 +278,6 @@ defmodule Earmark do
   """
 
   alias Earmark.Options
-  alias Earmark.Context
   import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
 
   @doc """

@@ -3,8 +3,6 @@ defmodule Earmark.Helpers.AttrParser do
   import Earmark.Helpers.StringHelpers, only: [ behead: 2 ]
   import Earmark.Message, only: [add_message: 2]
 
-  alias Earmark.Context
-
   @type errorlist :: list(String.t)
 
   def parse_attrs(context, attrs, lnb) do
