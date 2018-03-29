@@ -16,13 +16,19 @@ defmodule Mix.Tasks.Docs do
 
         mix escript.install hex ex_doc
 
+    ### For ASDF
+
+        Provide the location of where the ex_doc escript is by means of the
+        EX_DOC_ESCRIPT environment variable.
+
     N.B. Launch the above command form anywhere else than your
     `Earmark` root directory.
 
   """
 
   def run(_) do
-    ex_doc = "#{System.get_env |> Map.get("HOME")}/.mix/escripts/ex_doc"
+    ex_doc = System.get_env("EX_DOC_ESCRIPT") ||
+      "#{System.get_env("HOME")}/.mix/escripts/ex_doc"
     System.cmd("rm", ~w( -rf doc ))
     System.cmd(ex_doc,
       ~w( Earmark #{current_version()} _build/dev/lib/earmark/ebin -m Earmark 
