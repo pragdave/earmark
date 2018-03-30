@@ -2,12 +2,6 @@ defmodule Earmark do
 
   @moduledoc """
 
-  ## Dependency
-
-      { :earmark, "> x.y.z" }
-
-  ## Usage
-
   ### API
 
       * `Earmark.as_html`
@@ -20,7 +14,7 @@ defmodule Earmark do
         Any error messages are printed to _stderr_.
 
   #### Options:
-  #
+
   Options can be passed into `as_html` or `as_html!` according to the documentation.
 
         html_doc = Earmark.as_html!(markdown)

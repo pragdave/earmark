@@ -1,56 +1,50 @@
 defmodule Mix.Tasks.Readme do
   use Mix.Task
 
-  @shortdoc "Build README.md by including module docs"
+  @shortdoc "Build README.md from README.template by including module docs"
 
   @moduledoc """
-  Imagine a README.md that contains
+  README.md is generated from README.template by expanding the following special
+  lines, all triggered by the regex `~r{\A%\w+}` where:
 
-      # Overview
+  * `%toc` creates the Table Of Contents section
 
-      <!-- moduledoc: Earmark -->
+  * `%moduledoc module` inserts the corresponding moduledoc
 
-      # Typical calling sequence
+  * `%functiondoc function` inserts the corresponding functiondoc
 
-      <!-- doc: Earmark.to_html -->
-
-  Run this task, and the README will be updated with the appropriate
-  documentation. Markers are also added, so running it again
-  will update the doc in place.
+  As the `README.md` is now regenerated every time no markers are needed in the `README.md` anymore,
+  however to be able to trace the origin of any part that needs to changed appropriate comments
+  are inserted anyway.
   """
 
   def run([]) do
     Mix.Task.run "compile", []
-    File.read!("README.md")
-    |> remove_old_doc
-    |> add_updated_doc
-    |> make_toc
-    |> write_back
+    File.read!("README.template")
+    |> String.split("\n")
+    |> expand_docs([])
+    |> make_toc()
+    |> write_lines_to_readme_md()
   end
 
-  @new_doc ~R/(\s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n/x
 
-  @existing_doc ~R/
-     (?:^|\n+)(\s* <!-- \s+ (module)?doc: \s* (\S+?) \s+ -->).*\n
-     (?: .*?\n )+?
-     \s* <!-- \s end(?:module)?doc: \s+ \3 \s+ --> \s*?
-  /x
 
-  defp remove_old_doc(readme) do
-    Regex.replace(@existing_doc, readme, fn (_, hdr, _, _) ->
-        hdr
-    end)
+  defp expand_docs( lines, result )
+  defp expand_docs( [], result ), do: result
+  defp expand_docs( ["%toc" | rest], result), do: expand_docs(rest, ["%toc" | result])
+  defp expand_docs( ["%" <> line | rest], result), do: expand_docs(rest, [add_doc(line) | result])
+  defp expand_docs( [line | rest], result ), do: expand_docs(rest, [line | result])
+
+  defp add_doc(line) do
+    [ "<!-- BEGIN inserted #{line} -->",
+      line 
+      |> String.split()
+      |> doc_for(),
+      "<!-- END inserted #{line} -->" ]
+     |> Enum.join("\n")
   end
 
-  defp add_updated_doc(readme) do
-    Regex.replace(@new_doc, readme, fn (_, hdr, type, name) ->
-      "\n" <> hdr <> "\n" <>
-      doc_for(type, name) <>
-      Regex.replace(~r/!-- /, hdr, "!-- end") <> "\n"
-    end)
-  end
-
-  defp doc_for("module", name) do
+  defp doc_for(["moduledoc", name]) do
     module = String.to_atom("Elixir." <> name)
 
     docs = case Code.ensure_loaded(module) do
@@ -59,18 +53,17 @@ defmodule Mix.Tasks.Readme do
           case Code.get_docs(module, :moduledoc) do
             {_, docs} when is_binary(docs) ->
               docs
-            _ -> nil
+              _ -> nil
           end
         else
           nil
         end
-      _ -> nil
+        _ -> nil
     end
 
     docs # || "No module documentation available for #{name}\n"
   end
-
-  defp doc_for("", name) do
+  defp doc_for(["functiondoc", name]) do
     names = String.split(name, ".")
     [ func | modules ] = Enum.reverse(names)
     module = Enum.reverse(modules) |> Enum.join(".")
@@ -87,43 +80,16 @@ defmodule Mix.Tasks.Readme do
         else
           nil
         end
-      _ -> nil
+        _ -> nil
     end
 
     markdown || "No function documentation available for #{name}\n"
   end
 
-  @existing_toc ~R{
-    (?:^|\n)( <!-- \s+ make \s TOC \s+ --> )
-    (?: .*?\n )+?
-    ( <!-- \s+ endmake \s TOC \s+ --> \s* \n )
-  }x
-  defp remove_toc(readme) do
-    Regex.replace(@existing_toc, readme, fn _, begin_marker, end_marker ->
-      [
-        "",
-        begin_marker,
-        end_marker
-      ] |> Enum.join("\n")
-    end) 
-  end
-  defp replace_toc(readme, new_toc) do
-    Regex.replace(@existing_toc, readme, fn _, begin_marker, end_marker ->
-      [
-        "",
-        begin_marker,
-        "## Table Of Contents\n",
-        Enum.intersperse(new_toc, "\n"),
-        end_marker
-      ] |> Enum.join("\n")
-    end) 
-  end
 
   @h2_line_rgx ~r{\A\##\s+}
   defp make_toc(readme) do
-    readme = readme |> remove_toc()
-    h2s = readme |> String.split("\n") |> extract_h2s
-    readme |> replace_toc(h2s)
+    readme
   end
 
   defp extract_h2s(lines) do
@@ -140,15 +106,20 @@ defmodule Mix.Tasks.Readme do
     end
   end
 
-  defp write_back(readme) do
+  defp write_lines_to_readme_md(lines) do
+    lines
+    |> Enum.reverse()
+    |> Enum.join("\n")
+    |> write_string_to_readme_md()
+  end
+  defp write_string_to_readme_md(content) do
     IO.puts :stderr,
-      (case File.write("README.md", readme) do
-        :ok -> "README.md updated"
-        {:error, reason} ->
-           "README.md: #{:file.format_error(reason)}"
-      end)
+    (case File.write("README.md", content) do
+      :ok -> "README.md regenerated"
+      {:error, reason} ->
+        "README.md: #{:file.format_error(reason)}"
+    end)
   end
 end
-
 
 # SPDX-License-Identifier: Apache-2.0
