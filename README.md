@@ -9,7 +9,14 @@
 
 ## Table Of Contents
 
-%toc
+<!-- BEGIN generated TOC -->
+* [Dependency](#dependency)
+* [Usage](#usage)
+* [Details](#details)
+* [Plugins](#plugins)
+* [Contributing](#contributing)
+* [Author](#author)
+<!-- END generated TOC -->
 
 ## Dependency
 
@@ -438,7 +445,7 @@ docstrings by means of `%moduledoc` or `%functiondoc` directives.
 Please check from where the generated text you want to correct comes from and then
 change the source.
 
-After accepting the PR we will regenerate the `README.md` (which can do too, if you want to
+After accepting the PR we will regenerate the `README.md` (which you can do too, if you want to
 check the result of course).
 
 ## Author

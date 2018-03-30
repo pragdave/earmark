@@ -23,10 +23,9 @@ defmodule Mix.Tasks.Readme do
     File.read!("README.template")
     |> String.split("\n")
     |> expand_docs([])
-    |> make_toc()
+    |> extract_tocs({[], []})
     |> write_lines_to_readme_md()
   end
-
 
 
   defp expand_docs( lines, result )
@@ -34,6 +33,15 @@ defmodule Mix.Tasks.Readme do
   defp expand_docs( ["%toc" | rest], result), do: expand_docs(rest, ["%toc" | result])
   defp expand_docs( ["%" <> line | rest], result), do: expand_docs(rest, [add_doc(line) | result])
   defp expand_docs( [line | rest], result ), do: expand_docs(rest, [line | result])
+
+  defp extract_tocs(lines, result)
+  defp extract_tocs([], {lines, _}), do: lines
+  defp extract_tocs([ hl2 = "## " <> title | before ], { body, tocs }),
+    do: extract_tocs(before, { [hl2 | body], [make_toc_entry( title) | tocs] })
+  defp extract_tocs([ "%toc" | before ], {body, tocs}),
+    do: extract_tocs(before, { [make_toc_string(tocs) | body], [] })
+  defp extract_tocs( [line | before], {body, tocs}),
+    do: extract_tocs(before, {[line|body], tocs})
 
   defp add_doc(line) do
     [ "<!-- BEGIN inserted #{line} -->",
@@ -86,32 +94,23 @@ defmodule Mix.Tasks.Readme do
     markdown || "No function documentation available for #{name}\n"
   end
 
+  defp make_h2_anchor(title), do: title |> String.downcase() |> String.replace(~r{\s+}, "-")
 
-  @h2_line_rgx ~r{\A\##\s+}
-  defp make_toc(readme) do
-    readme
-  end
+  defp make_toc_entry(title), do: "* [#{title}](##{make_h2_anchor(title)})"
 
-  defp extract_h2s(lines) do
-    for line <- lines, Regex.match?(@h2_line_rgx, line), do: make_h2_link(line)
-  end
-
-  defp make_h2_anchor(title) do
-    title |> String.downcase() |> String.replace(~r{\s+}, "-")
-  end
-
-  defp make_h2_link(h2_line) do
-    with title <- String.replace(h2_line, @h2_line_rgx, "") |> String.trim() do
-      "* [#{title}](##{make_h2_anchor(title)})"
-    end
-  end
+  defp make_toc_string(tocs),
+    do: 
+      [ "<!-- BEGIN generated TOC -->",
+        tocs |> Enum.join("\n"),
+        "<!-- END generated TOC -->"
+      ] |> Enum.join("\n")
 
   defp write_lines_to_readme_md(lines) do
     lines
-    |> Enum.reverse()
     |> Enum.join("\n")
     |> write_string_to_readme_md()
   end
+
   defp write_string_to_readme_md(content) do
     IO.puts :stderr,
     (case File.write("README.md", content) do
