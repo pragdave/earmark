@@ -2,12 +2,6 @@ defmodule Earmark do
 
   @moduledoc """
 
-  ## Dependency
-
-      { :earmark, "> x.y.z" }
-
-  ## Usage
-
   ### API
 
       * `Earmark.as_html`
@@ -20,7 +14,7 @@ defmodule Earmark do
         Any error messages are printed to _stderr_.
 
   #### Options:
-  #
+
   Options can be passed into `as_html` or `as_html!` according to the documentation.
 
         html_doc = Earmark.as_html!(markdown)
@@ -269,12 +263,6 @@ defmodule Earmark do
     filter the output of `Earmark.as_html` if you cannot trust the input
     and are to serve the produced HTML on the Web.
 
-  ## Author
-
-  Copyright © 2014 Dave Thomas, The Pragmatic Programmers
-  @/+pragdave,  dave@pragprog.com
-
-  Licensed under the same terms as Elixir, which is Apache 2.0.
   """
 
   alias Earmark.Options

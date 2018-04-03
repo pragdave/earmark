@@ -5,7 +5,7 @@ defmodule Earmark.Plugin do
   @moduledoc """
   Plugins are modules that implement a render function. Right now that is `as_html`.
 
-  ### API
+  ### Plugin API
 
   #### Plugin Registration
 
