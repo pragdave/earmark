@@ -1,7 +1,7 @@
-defmodule Acceptance.DiverseTest do
+defmodule Ast.DiverseTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Helpers, only: [as_ast: 1]
 
   describe "etc" do
     test "entiy" do
@@ -10,7 +10,7 @@ defmodule Acceptance.DiverseTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["f&amp;ouml;&amp;ouml;"]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "spaec preserving" do
@@ -19,7 +19,7 @@ defmodule Acceptance.DiverseTest do
       ast = {"p", [], ["Multiple     spaces"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "syntax errors" do
@@ -28,7 +28,7 @@ defmodule Acceptance.DiverseTest do
       ast = [{"p", [], ["A\nB"]}, {"p", [], []}]
       messages = [{:warning, 3, "Unexpected line =" }]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
    end
 

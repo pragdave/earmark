@@ -1,6 +1,8 @@
-defmodule Acceptance.InlineCodeTest do
+defmodule Ast.InlineCodeTest do
   use ExUnit.Case
 
+  import Support.Helpers, only: [as_ast: 1]
+  
   # describe "Inline Code" do
 
     test "plain simple" do
@@ -9,7 +11,7 @@ defmodule Acceptance.InlineCodeTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["foo"]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "plain simple, right?" do
@@ -18,16 +20,16 @@ defmodule Acceptance.InlineCodeTest do
       ast = {"p", [], [{"code", [{"class", "inline"}], ["hi"]}, "lo`"]}
       messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "this time you got it right" do
       markdown = "`a\nb`c\n"
       # html     = "<p><code class=\"inline\">a\nb</code>c</p>\n"
-      ast = {"p", [], [{"code", [{"class", "inline"}], ["ab"]}, "c"]}
+      ast = {"p", [], [{"code", [{"class", "inline"}], ["a\nb"]}, "c"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "and again!!!" do
@@ -35,7 +37,7 @@ defmodule Acceptance.InlineCodeTest do
       # html = "<ul>\n<li><code class=\"inline\">a `\n`\n b</code>c\n</li>\n</ul>\n"
       ast = {"ul", [], [{"li", [], [{"code", [{"class", "inline"}], ["a `\n`\n b"]}, "c"]}]}
       messages = []
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   # end
 end

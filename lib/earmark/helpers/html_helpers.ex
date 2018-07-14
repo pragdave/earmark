@@ -6,7 +6,21 @@ defmodule Earmark.Helpers.HtmlHelpers do
 
   @doc false
 
-  def augment_tag_with_ial(tag, ial, lnb) do 
+  def augment_tag_with_ial(tag, ial, lnb, ast \\ false)
+  def augment_tag_with_ial(ast, ial, lnb, true) when not is_binary(ast) do
+    { tag, attrs, content } = ast
+
+    attrs =
+      parse_attrs(ial, lnb)
+      |> Enum.map(fn { k, v } ->
+          { k, Enum.join(v, " ") }
+        end)
+      |> Enum.concat(Enum.reverse(attrs))
+      |> Enum.reverse()
+    
+    { tag, attrs, content }
+  end
+  def augment_tag_with_ial(tag, ial, lnb, _ast) do 
     case Regex.run( @simple_tag, tag) do 
       nil -> nil
       _   -> add_attrs(tag, ial, [], lnb)

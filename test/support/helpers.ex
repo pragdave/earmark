@@ -20,6 +20,10 @@ defmodule Support.Helpers do
     Earmark.as_html!(markdown, struct(Earmark.Options, options))
   end
 
+  def as_ast(markdown, options \\ []) do
+    Earmark.ASTRenderer.render(markdown, struct(Earmark.Options, options))
+  end
+
   def test_links do
     [
      {"id1", %IdDef{url: "url 1", title: "title 1"}},

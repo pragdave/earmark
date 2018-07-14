@@ -1,5 +1,7 @@
-defmodule Acceptance.StructuralTest do
+defmodule Ast.StructuralTest do
   use ExUnit.Case
+
+  import Support.Helpers, only: [as_ast: 1]
 
   describe "complex rendering inside tables:" do 
     test "table with link with inline ial, no errors" do 
@@ -9,7 +11,7 @@ defmodule Acceptance.StructuralTest do
       ast = {"table", [], [{"colgroup", [], [{"col", [], []}, {"col", [], []}, {"col", [], []}]},  {"tr", [],   [{"td", [{"style", "text-align: left"}], ["a"]},    {"td", [{"style", "text-align: left"}], ["b"]},    {"td", [{"style", "text-align: left"}], ["c"]}]},  {"tr", [],   [{"td", [{"style", "text-align: left"}], ["d"]},    {"td", [{"style", "text-align: left"}], ["e"]},    {"td", [{"style", "text-align: left"}],     [{"a", [{"href", "url"}, {"target", "blank"}], ["link"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "table with link with inline ial, errors" do 
@@ -19,7 +21,7 @@ defmodule Acceptance.StructuralTest do
       ast = {"table", [], [{"colgroup", [], [{"col", [], []}, {"col", [], []}, {"col", [], []}]},  {"tr", [],   [{"td", [{"style", "text-align: left"}], ["a"]},    {"td", [{"style", "text-align: left"}], ["b"]},    {"td", [{"style", "text-align: left"}], ["c"]}]},  {"tr", [],   [{"td", [{"style", "text-align: left"}], ["d"]},    {"td", [{"style", "text-align: left"}], ["e"]},    {"td", [{"style", "text-align: left"}],     [{"a", [{"href", "url"}, {"target", "blank"}], ["link"]}]}]}]}
       messages = [{:warning, 2, "Illegal attributes [\"xxx\"] ignored in IAL"}]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
   end
 end

@@ -1,5 +1,7 @@
-defmodule Acceptance.ListIndentTest do
+defmodule Ast.ListIndentTest do
   use ExUnit.Case
+
+  import Support.Helpers, only: [as_ast: 1]
 
   describe "different levels of indent" do
 
@@ -9,7 +11,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ol", [], [{"li", [],   [{"p", [], ["One"]}, {"ol", [{"start", "2"}], [{"li", [], ["two"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed two levels (by 2)" do
@@ -18,7 +20,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ol", [], [{"li", [],   [{"p", [], ["One"]},    {"ul", [], [{"li", [], ["two"]}, {"li", [], ["three"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed two levels (by 4)" do
@@ -27,7 +29,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ol", [], [{"li", [],   [{"p", [], ["One"]},    {"ul", [], [{"li", [], ["two"]}, {"li", [], ["three"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "2 level correct pop up" do
@@ -36,7 +38,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ul", [], [{"li", [],   [{"p", [], ["1"]},    {"ul", [],     [{"li", [], [{"p", [], ["1.1"]}, {"ul", [], [{"li", [], ["1.1.1"]}]}]},      {"li", [], ["1.2"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed level correct pop up" do
@@ -45,7 +47,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ul", [], [{"li", [],   [{"p", [], ["1"]},    {"ul", [],     [{"li", [], [{"p", [], ["1.1"]}, {"ul", [], [{"li", [], ["1.1.1"]}]}]},      {"li", [], ["1.2"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "4 level correct pop up" do
@@ -54,7 +56,7 @@ defmodule Acceptance.ListIndentTest do
       ast = {"ul", [], [{"li", [],   [{"p", [], ["1"]},    {"ul", [],     [{"li", [], [{"p", [], ["1.1"]}, {"ul", [], [{"li", [], ["1.1.1"]}]}]},      {"li", [], ["1.2"]}]}]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 end

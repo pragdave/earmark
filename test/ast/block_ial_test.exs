@@ -1,7 +1,9 @@
-defmodule Acceptance.BlockIalTest do
+defmodule Ast.BlockIalTest do
   use ExUnit.Case
+  
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
 
-   describe "IAL" do
+  describe "IAL" do
 
     test "Not associated" do
       markdown = "{:hello=world}"
@@ -9,7 +11,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [], ["{:hello=world}"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Not associated means verbatim" do
@@ -18,7 +20,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [], ["{: hello=world  }"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Not associated and incorrect" do
@@ -27,7 +29,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [], ["{:hello}"]}
       messages = [{:warning, 1, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "Associated" do
@@ -36,7 +38,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [{"hello", "world"}], ["Before"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Associated in between" do
@@ -45,7 +47,7 @@ defmodule Acceptance.BlockIalTest do
       ast = [{"p", [{"hello", "world"}], ["Before"]}, {"p", [], ["After"]}]
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Associated and incorrect" do
@@ -54,7 +56,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [], ["Before"]}
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "Associated and partly incorrect" do
@@ -63,7 +65,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [{"title", "world"}], ["Before"]}
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
     test "Associated and partly incorrect and shortcuts" do
@@ -72,7 +74,7 @@ defmodule Acceptance.BlockIalTest do
       ast = {"p", [{"class", "gamma beta alpha"}, {"id", "hello"}, {"title", "class world"}], ["Before"]}
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
-      assert Earmark.Interface.html(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, ast, messages}
     end
 
   end

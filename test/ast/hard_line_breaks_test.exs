@@ -1,7 +1,8 @@
-defmodule Acceptance.HardLineBreaksTest do
+defmodule Ast.HardLineBreaksTest do
   use ExUnit.Case
   
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+
   describe "gfm" do 
     test "hard line breaks are enabled" do 
       
@@ -10,7 +11,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = {"p", [], ["line 1\nline 2", {"br", [], []}, "line 3"]}
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "hard line breaks are enabled only inside paras" do 
@@ -20,7 +21,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = [{"p", [], ["line 1\nline 2\\"]}, {"p", [], ["line 3"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "hard line breaks are not enabled at the end" do 
@@ -30,7 +31,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = {"p", [], ["line 1\nline 2\\"]}
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
@@ -42,7 +43,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = {"p", [], ["line 1\nline 2\\\nline 3"]}
       messages = []
 
-      assert as_html(markdown, gfm: false) == {:ok, html, messages}
+      assert as_ast(markdown, gfm: false) == {:ok, ast, messages}
     end
 
     test "hard line breaks are enabled only inside paras" do 
@@ -52,7 +53,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = [{"p", [], ["line 1\nline 2\\"]}, {"p", [], ["line 3"]}]
       messages = []
 
-      assert as_html(markdown, gfm: false) == {:ok, html, messages}
+      assert as_ast(markdown, gfm: false) == {:ok, ast, messages}
     end
 
     test "hard line breaks are not enabled at the end" do 
@@ -62,7 +63,7 @@ defmodule Acceptance.HardLineBreaksTest do
       ast = {"p", [], ["line 1\nline 2\\"]}
       messages = []
 
-      assert as_html(markdown, gfm: false) == {:ok, html, messages}
+      assert as_ast(markdown, gfm: false) == {:ok, ast, messages}
     end
   end
 

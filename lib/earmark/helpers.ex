@@ -47,7 +47,6 @@ defmodule Earmark.Helpers do
   `encode` is true, convert ampersands, too, otherwise only
    convert non-entity ampersands.
   """
-
   def escape(html, encode \\ false)
 
   def escape(html, false), do: _escape(Regex.replace(~r{&(?!#?\w+;)}, html, "&amp;"))
@@ -61,5 +60,14 @@ defmodule Earmark.Helpers do
     |> String.replace("'",  "&#39;")
   end
 
+  @doc """
+  Escapes html entities such as &nbsp;. Similar to escape/2
+  but no other escaping is performed. This is useful for 
+  AST transformations, as all other HTML will be parsed.
+  """
+  def escape_entities(html) do
+    html
+    |> String.replace("&", "&amp;")
+  end
 
 end

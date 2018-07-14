@@ -1,6 +1,8 @@
-defmodule Acceptance.HorizontalRulesTest do
+defmodule Ast.HorizontalRulesTest do
   use ExUnit.Case
   
+  import Support.Helpers, only: [as_ast: 1]
+
   # describe "Horizontal rules" do
 
     test "thick, thin & medium" do
@@ -9,7 +11,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = [{"hr", [{"class", "thick"}], []}, {"hr", [{"class", "thin"}], []}, {"hr", [{"class", "medium"}], []}]
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not a rule" do
@@ -18,7 +20,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = {"p", [], ["+++"]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not in code" do
@@ -27,7 +29,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = {"pre", [], [{"code", [], ["***\n\n a"]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "not in code, second line" do
@@ -36,7 +38,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = [{"p", [], ["Foo"]}, {"pre", [], [{"code", [], ["***"]}]}]
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "medium, long" do
@@ -45,16 +47,16 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = {"hr", [{"class", "medium"}], []}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
       # html     = "<p> <em>-</em></p>\n"
-      ast = {"p", [], [{"em", [], ["-"]}]}
+      ast = {"p", [], [" ", {"em", [], ["-"]}]}
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "in lists" do
@@ -63,7 +65,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = [{"ul", [], [{"li", [], ["foo"]}]}, {"hr", [{"class", "thick"}], []}, {"ul", [], [{"li", [], ["bar"]}]}]
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "setext rules over rules (why am I soo witty?)" do
@@ -72,7 +74,7 @@ defmodule Acceptance.HorizontalRulesTest do
       ast = [{"h2", [], ["Foo"]}, {"p", [], ["bar"]}]
       messages = []
 
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "in lists, thick this time (why am I soo good to you?)" do
@@ -80,7 +82,7 @@ defmodule Acceptance.HorizontalRulesTest do
       # html = "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar\n</li>\n</ul>\n"
       ast = [{"ul", [], [{"li", [], ["Foo"]}]}, {"hr", [{"class", "thick"}], []}, {"ul", [], [{"li", [], ["Bar"]}]}]
       messages = []
-      assert Earmark.Interface.html(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   # end
 end
