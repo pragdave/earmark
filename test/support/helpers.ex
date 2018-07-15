@@ -2,7 +2,7 @@ defmodule Support.Helpers do
 
   alias Earmark.Block.IdDef
   alias Earmark.Context
-  alias Earmark.Inline
+  alias Earmark.Renderers.Html.Inline
 
   ###############
   # Helpers.... #

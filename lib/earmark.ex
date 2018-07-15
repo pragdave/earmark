@@ -281,7 +281,7 @@ defmodule Earmark do
   * `renderer`: ModuleName
 
     The module used to render the final document. Defaults to
-    `Earmark.HtmlRenderer`
+    `Earmark.Renderers.Html.Renderer`
 
   * `gfm`: boolean
 

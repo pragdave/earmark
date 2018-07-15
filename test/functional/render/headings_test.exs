@@ -1,7 +1,7 @@
 defmodule HeadingsTest do
   use ExUnit.Case
 
-  alias Earmark.HtmlRenderer, as: Renderer
+  alias Earmark.Renderers.Html.Renderer
   alias Earmark.Block.Heading
 
   import Support.Helpers

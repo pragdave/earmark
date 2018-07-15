@@ -1,9 +1,9 @@
-defmodule Earmark.HtmlRenderer do
+defmodule Earmark.Renderers.Html.Renderer do
 
   alias  Earmark.Block
   alias  Earmark.Context
   alias  Earmark.Options
-  import Earmark.Inline,  only: [ convert: 3 ]
+  import Earmark.Renderers.Html.Inline,  only: [ convert: 3 ]
   import Earmark.Helpers, only: [ escape: 2 ]
   import Earmark.Helpers.HtmlHelpers
   import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2, get_messages: 1 ]

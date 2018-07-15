@@ -1,4 +1,4 @@
- defmodule Earmark.Inline do
+ defmodule Earmark.Renderers.Html.Inline do
 
   @moduledoc """
   Match and render inline sequences, passing each to the
