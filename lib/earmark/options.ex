@@ -12,6 +12,9 @@ defmodule Earmark.Options do
              # additional prefies for class of code blocks
              code_class_prefix: nil,
 
+             # Add possibility to specify a timeout for Task.await
+             timeout: nil,
+
              # Internal—only override if you're brave
              do_smartypants: nil, do_sanitize: nil,
 
@@ -20,6 +23,7 @@ defmodule Earmark.Options do
              # to keep processing in process and
              # serial
              mapper: &Earmark.pmap/2,
+             mapper_with_timeout: &Earmark.pmap/3,
 
              render_code: &Earmark.HtmlRenderer.render_code/1,
 
@@ -30,6 +34,14 @@ defmodule Earmark.Options do
              messages: [], # [{:error|:warning, lnb, text},...]
              plugins: %{}
 
+  # Only here we are aware of which mapper function to use!
+  def get_mapper(options) do
+    if options.timeout do
+      &(options.mapper_with_timeout.(&1, &2, options.timeout))
+    else
+      options.mapper
+    end
+  end
 
   def plugin_for_prefix(options, plugin_name) do
     Map.get(options.plugins, plugin_name, false)
