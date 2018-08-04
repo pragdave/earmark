@@ -13,7 +13,10 @@ defmodule Earmark.HtmlRenderer do
     messages = get_messages(context)
 
     {contexts, html} =
-    mapper.(blocks, &(render_block(&1, put_in(context.options.messages, [])))) |> Enum.unzip()
+      blocks
+      |> mapper.( &(render_block(&1, put_in(context.options.messages, []))),
+                  context.options.timeout)
+      |> Enum.unzip()
 
     all_messages = 
       contexts 

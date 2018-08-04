@@ -377,10 +377,10 @@ defmodule Earmark do
   end
 
   @doc false
-  def pmap(collection, func) do
+  def pmap(collection, func, timeout) do
    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Enum.map(&Task.await/1)
+    |> Enum.map(&Task.await(&1, timeout))
   end
 end
 

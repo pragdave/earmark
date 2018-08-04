@@ -9,8 +9,11 @@ defmodule Earmark.Options do
              smartypants: true, sanitize: false,
              footnotes: false, footnote_offset: 1,
 
-             # additional prefies for class of code blocks
+             # additional prefixes for class of code blocks
              code_class_prefix: nil,
+
+             # Timeout for pmap to wait for its children
+             timeout: 5000,
 
              # Internal—only override if you're brave
              do_smartypants: nil, do_sanitize: nil,
@@ -19,7 +22,7 @@ defmodule Earmark.Options do
              # parallel rendering. Set to &Enum.map/2
              # to keep processing in process and
              # serial
-             mapper: &Earmark.pmap/2,
+             mapper: &Earmark.pmap/3,
 
              render_code: &Earmark.HtmlRenderer.render_code/1,
 

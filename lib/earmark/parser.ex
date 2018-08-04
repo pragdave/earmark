@@ -18,14 +18,14 @@ defmodule Earmark.Parser do
   ################################################################
 
   # @spec handle_footnotes( Block.ts, %Earmark.Options{}, ( Block.ts,
-  def handle_footnotes(blocks, options, map_func) do
+  def handle_footnotes(blocks, options, mapper) do
     { footnotes, blocks } = Enum.split_with(blocks, &footnote_def?/1)
     { footnotes, undefined_footnotes } =
-      map_func.(blocks, &find_footnote_links/1)
+      mapper.(blocks, &find_footnote_links/1, options.timeout)
         |> List.flatten()
         |> get_footnote_numbers(footnotes, options)
     blocks = create_footnote_blocks(blocks, footnotes)
-    footnotes = map_func.(footnotes, &({&1.id, &1})) |> Enum.into(Map.new)
+    footnotes = mapper.(footnotes, &({&1.id, &1}), options.timeout) |> Enum.into(Map.new)
     options1 = add_messages(options, undefined_footnotes)
     { blocks, footnotes, options1 }
   end

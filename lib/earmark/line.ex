@@ -78,7 +78,7 @@ defmodule Earmark.Line do
   def scan_lines lines, options \\ %Earmark.Options{}, recursive \\ false
   def scan_lines lines, options, recursive do
     lines_with_count( lines, options.line - 1)
-    |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end)
+    |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end, options.timeout )
   end
 
   defp lines_with_count lines, offset do
