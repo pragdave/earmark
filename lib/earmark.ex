@@ -345,14 +345,14 @@ defmodule Earmark do
   """
 
   def parse(lines, options \\ %Earmark.Options{})
-  def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
+  def parse(lines, options = %Options{}) when is_list(lines) do
     { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options1, links: links }
               |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
+      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options)
       context =
         put_in(context.footnotes, footnotes)
       context =
@@ -377,10 +377,10 @@ defmodule Earmark do
   end
 
   @doc false
-  def pmap(collection, func) do
+  def pmap(collection, func, timeout \\ nil) do
    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Enum.map(&Task.await/1)
+    |> Enum.map(&Task.await(&1, timeout || 5000))
   end
 end
 
