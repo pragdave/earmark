@@ -16,11 +16,11 @@ defmodule Earmark.CLI do
   convert file from Markdown to HTML.
 
      where options can be any of:
-       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks
+       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks --timeout
 
   """
 
-  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks]
+  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks, :timeout]
 
   defp parse_args(argv) do
     switches = [
@@ -53,12 +53,21 @@ defmodule Earmark.CLI do
 
   defp process({io_device, options}) do
     options = struct(Earmark.Options, booleanify(options))
+      |> adapt_timeout_mapper_function()
+
     content = IO.stream(io_device, :line) |> Enum.to_list
     Earmark.as_html!(content, options)
     |> IO.puts
   end
 
 
+  defp adapt_timeout_mapper_function(options) do
+    if options.timeout do
+      %{options | mapper_with_timeout: &Earmark.pmap/3}
+    else
+      options
+    end
+  end
 
   defp booleanify( keywords ), do: Enum.map(keywords, &booleanify_option/1)
   defp booleanify_option({k, v}) do
