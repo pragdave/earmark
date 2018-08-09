@@ -16,11 +16,11 @@ defmodule Earmark.CLI do
   convert file from Markdown to HTML.
 
      where options can be any of:
-       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks
+       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks --timeout
 
   """
 
-  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks]
+  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks, :timeout]
 
   defp parse_args(argv) do
     switches = [
@@ -52,7 +52,9 @@ defmodule Earmark.CLI do
   end
 
   defp process({io_device, options}) do
-    options = struct(Earmark.Options, booleanify(options))
+    options = struct(Earmark.Options,
+                 booleanify(options) |> numberize_options([:timeout]))
+
     content = IO.stream(io_device, :line) |> Enum.to_list
     Earmark.as_html!(content, options)
     |> IO.puts
@@ -72,6 +74,21 @@ defmodule Earmark.CLI do
         _     -> v
       end
     }
+  end
+
+  defp numberize_options(keywords, option_names), do: Enum.map(keywords, &numberize_option(&1, option_names))
+  defp numberize_option({k, v}, option_names) do
+    if Enum.member?(option_names, k) do
+      case Integer.parse(v) do
+        {int_val, ""}   -> {k, int_val}
+        {int_val, rest} -> IO.puts(:stderr, "Warning, non numerical suffix in option #{k} ignored (#{inspect rest})")
+                           {k, int_val}
+        :error          -> IO.puts(:stderr, "ERROR, non numerical value #{v} for option #{k} ignored, value is set to nil")
+                           {k, nil}
+      end
+    else
+      {k, v}
+    end
   end
 
   defp open_file(filename), do: io_device(File.open(filename, [:utf8]), filename)

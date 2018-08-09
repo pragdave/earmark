@@ -1,6 +1,9 @@
 defmodule Earmark.Line do
 
   alias Earmark.Helpers
+  alias Earmark.Options
+
+  import Options, only: [ get_mapper: 1 ]
 
   @moduledoc """
   Give a line of text, return its context-free type. Not for external consumption
@@ -75,10 +78,10 @@ defmodule Earmark.Line do
   # proceeding
 
   # (_,atom() | tuple() | #{},_) -> ['Elixir.B']
-  def scan_lines lines, options \\ %Earmark.Options{}, recursive \\ false
+  def scan_lines lines, options \\ %Options{}, recursive \\ false
   def scan_lines lines, options, recursive do
     lines_with_count( lines, options.line - 1)
-    |> Earmark.pmap( fn (line) ->  type_of(line, options, recursive) end, options.timeout)
+    |> get_mapper(options).( fn (line) ->  type_of(line, options, recursive) end)
   end
 
   defp lines_with_count lines, offset do
@@ -86,9 +89,9 @@ defmodule Earmark.Line do
   end
 
   def type_of(line, recursive)
-  when is_boolean(recursive), do: type_of(line, %Earmark.Options{}, recursive)
+  when is_boolean(recursive), do: type_of(line, %Options{}, recursive)
 
-  def type_of({line, lnb}, options = %Earmark.Options{}, recursive) do
+  def type_of({line, lnb}, options = %Options{}, recursive) do
     line = line |> Helpers.expand_tabs |> Helpers.remove_line_ending
     %{ _type_of(line, options, recursive) | line: line, lnb: lnb }
   end
@@ -103,7 +106,7 @@ defmodule Earmark.Line do
     end
   end
 
-  defp _type_of(line, options=%Earmark.Options{}, recursive) do
+  defp _type_of(line, options=%Options{}, recursive) do
     cond do
       line =~ ~r/^\s*$/ ->
         %Blank{}
