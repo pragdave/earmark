@@ -1,8 +1,14 @@
 # 1.2.6
 
 * Fix for issues
+  - [#191]( https://github.com/pragdave/earmark/issues/191 )
   - [#190]( https://github.com/pragdave/earmark/issues/190 )
 
+* [#195](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai ) 
+
+## Kudos:
+
+  [Benjamin Milde]( https://github.com/LostKobrakai )
 
 # 1.2.5 2018/04/02
 
