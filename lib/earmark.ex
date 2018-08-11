@@ -280,6 +280,7 @@ defmodule Earmark do
 
   """
 
+  alias Earmark.Error
   alias Earmark.Options
   import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
 
@@ -391,12 +392,21 @@ defmodule Earmark do
     with {:ok, version} = :application.get_key(:earmark, :vsn), do: version
   end
 
+  @default_timeout_in_ms 5000
   @doc false
-  def pmap(collection, func, timeout \\ nil) do
-   collection
+  def pmap(collection, func, timeout \\ @default_timeout_in_ms) do
+    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Enum.map(&Task.await(&1, timeout || 5000))
+    |> Task.yield_many(timeout)
+    |> Enum.map(&join_pmap_results_or_raise(&1, timeout))
   end
+
+  defp join_pmap_results_or_raise(yield_tuples, timeout)
+  defp join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
+  defp join_pmap_results_or_raise({task, {:error, reason}}, _timeout), do:
+    raise Error, "#{inspect task} has died with reason #{inspect reason}"
+  defp join_pmap_results_or_raise({task, nil}, timeout), do:
+    raise Error, "#{inspect task} has not responded within the set timeout of #{timeout}ms, consider increasing it"
 end
 
 # SPDX-License-Identifier: Apache-2.0
