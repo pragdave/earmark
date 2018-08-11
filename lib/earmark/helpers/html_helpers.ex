@@ -8,8 +8,13 @@ defmodule Earmark.Helpers.HtmlHelpers do
 
   def augment_tag_with_ial(context, tag, ial, lnb) do 
     case Regex.run( @simple_tag, tag) do 
-      nil -> nil
-      _   -> add_attrs(context, tag, ial, [], lnb)
+      nil ->
+        nil
+      ["<code class=\"inline\">", "code class=\"inline\""] ->
+        tag = String.replace(tag, ~s{ class="inline"}, "")
+        add_attrs(context, tag, ial, [{"class", ["inline"]}], lnb)
+      _   ->
+        add_attrs(context, tag, ial, [], lnb)
     end
     
   end
@@ -40,7 +45,8 @@ defmodule Earmark.Helpers.HtmlHelpers do
   defp add_attrs(context, text, attrs, default, _lnb) do
     {context, 
       default
-      |> Enum.into(attrs)
+      |> Map.new()
+      |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
       |> attrs_to_string()
       |> add_to(text)}
   end
