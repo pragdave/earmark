@@ -1,7 +1,7 @@
 Definitions.
 
 BACKSLASH   = \\
-BACKTICKS   = `+
+BACKTICKS   = ``*
 CARET       = \^
 COLON       = :
 DASHES      = -+
@@ -24,9 +24,9 @@ TILDES      = ~+
 UNDERSCORES = _+
 WHITESPACE  = \s+
 
-REST        = [^\][\(\)-><*_+\s"'\\\{\}&|@$?;,%!§]
-ALPHANUM    = {REST}({REST}|[0-9_-])*
-
+REST        = [[^\][\(\)-><*_+\s"'\\\{\}&|@$?;,%!§]
+TRAILING    = [^\][\(\)><*+\s"'\\\{\}&|@^$?;,%!§]
+ALPHANUM    = {REST}{TRAILING}*
 
 Rules.
 

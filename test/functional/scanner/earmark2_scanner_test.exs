@@ -2,6 +2,7 @@ defmodule Functional.Scanner.Earmark2ScannerTest do
   use ExUnit.Case
 
   import Earmark2.Scanner, only: [scan: 1]
+  # doctest Earmark2.Scanner, import: true
 
   [
     { " ",     [{:whitespace, " "}]},
@@ -24,6 +25,7 @@ defmodule Functional.Scanner.Earmark2ScannerTest do
     { "[](){}", [{:lbracket, "["}, {:rbracket, "]"}, {:lparen, "("}, {:rparen, ")"}, {:laccolade, "{"}, {:raccolade, "}"}]},
     { ":^", [{:colon, ":"}, {:caret, "^"}]},
     { "&@|%§", [{:symbols, "&@|%§"}]},
+    { "42", [{:verbatim, "42"}]},
     # UTF-8?
     { "éλ", [{:verbatim, "éλ"}]},
   ]
