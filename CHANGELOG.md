@@ -1,14 +1,11 @@
 # 1.2.6
 
 * Fix for issues
-  - [#191]( https://github.com/pragdave/earmark/issues/191 )
-  - [#190]( https://github.com/pragdave/earmark/issues/190 )
+  - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/191 )
+  - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
+  - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
 
-* [#195](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai ) 
-
-## Kudos:
-
-  [Benjamin Milde]( https://github.com/LostKobrakai )
+* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai ) 
 
 # 1.2.5 2018/04/02
 

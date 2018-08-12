@@ -58,11 +58,13 @@ defmodule Mix.Tasks.Readme do
     docs = case Code.ensure_loaded(module) do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
-          case Code.get_docs(module, :moduledoc) do
-            {_, docs} when is_binary(docs) ->
-              docs
-              _ -> nil
-          end
+          {:docs_v1, _, :elixir, _, %{"en" => module_doc}, _, _} = Code.fetch_docs(module)
+          module_doc
+          # case Code.get_docs(module, :moduledoc) do
+          #   {_, docs} when is_binary(docs) ->
+          #     docs
+          #     _ -> nil
+          # end
         else
           nil
         end
@@ -74,17 +76,16 @@ defmodule Mix.Tasks.Readme do
   defp doc_for(["functiondoc", name]) do
     names = String.split(name, ".")
     [ func | modules ] = Enum.reverse(names)
-    module = Enum.reverse(modules) |> Enum.join(".")
-    module = String.to_atom("Elixir." <> module)
-    func   = String.to_atom(func)
+    module = ["Elixir" | Enum.reverse(modules)] |> Enum.join(".") |> String.to_atom()
+    [ function_name, arity ]  = String.split(func, "/")
+    function_name = String.to_atom(function_name)
+    {arity, _}    = Integer.parse(arity)
 
     markdown = case Code.ensure_loaded(module) do
       {:module, _} ->
         if function_exported?(module, :__info__, 1) do
-          docs = Code.get_docs(module, :docs)
-          Enum.find_value(docs, fn ({{fun, _}, _line, _kind, _args, doc}) ->
-            fun == func && doc
-          end)
+          {:docs_v1, _, :elixir, _, _, _, docs} = Code.fetch_docs(module)
+          Enum.find_value(docs, &find_function_doc(&1, function_name, arity))
         else
           nil
         end
@@ -92,6 +93,13 @@ defmodule Mix.Tasks.Readme do
     end
 
     markdown || "No function documentation available for #{name}\n"
+  end
+
+  defp find_function_doc(doctuple, function_name, arity) do
+    case doctuple do
+      {{:function, ^function_name, ^arity}, _anno, _sign, %{"en" => doc}, _metadata} -> doc
+      _                                                                          -> nil
+    end
   end
 
   defp make_h2_anchor(title), do: title |> String.downcase() |> String.replace(~r{\s+}, "-")
