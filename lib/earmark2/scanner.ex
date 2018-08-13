@@ -108,18 +108,27 @@ defmodule Earmark2.Scanner do
     with {token, rest} <- get_token(line, "", 0), do: tokenize(rest, table, [token|tokens])
   end
 
+  @digit ~r{\d}
   def get_token(codepoints, acc, state)
-  def get_token(["+"|tail], _acc, 0), do: {{:plus, "+"}, tail}
-  def get_token(["#"|tail], _acc, 0), do: {{:hash, "#"}, tail}
-  def get_token([" "|tail], _acc, 0), do: get_token(tail, [" "], 1) 
-  def get_token(["0"|tail], _acc, 0), do: get_token(tail, [" "], 3) 
-  def get_token(["1"|tail], _acc, 0), do: get_token(tail, [" "], 3) 
-  def get_token([cp|tail], _acc, 0), do: get_token(tail, [cp], 2)
-  def get_token([" "|tail], acc, 1), do: get_token(tail, [" "|acc], 1)
-  def get_token(codepoints, acc, 1), do: {{:ws, acc |> Enum.reverse | Enum.join}, codepoints} 
-
-    
+  def get_token([cp|tail], [], :init) do
+    cond do
+      cp == "+" -> {{:plus, "+"}, tail}
+      cp == "#" -> {{:hash, "#"}, tail}
+      Regex.match?(@digit)
+    end
   end
+  def get_token(["+"|tail], _acc, :init), do: {{:plus, "+"}, tail}
+  def get_token(["#"|tail], _acc, :init), do: {{:hash, "#"}, tail}
+  def get_token([" "|tail], _acc, :init), do: get_token(tail, [" "], :ws) 
+  def get_token([cp|tail], _acc, :init) do
+    cond do
+      Set.member?(Set.new(["0","1","2","3","4","5","6","7","8","9"]), cp ) -> get_token(tail, [cp], :num)
+      _                                                                    -> get_token(tail, [cp], :alnum) 
+
+    end
+  end
+  def get_token([" "|tail], acc, :ws), do: get_token(tail, [" "|acc], :ws)
+  def get_token(codepoints, acc, :ws), do: {{:ws, acc}, codepoints}
 
 end
 
@@ -132,13 +141,13 @@ end
 #
 #         state |   +       |  #       | space     | tab       | alpha   | digit| EOL
 #         ------+-----------+----------+-----------+-----------+---------+------+-----
-#           <0> | p(:plus)  | p(:hash) | g(1)      | g(1)      | g(2)    | g(3) | p(:eol); g(:end)
+#         :init | p(:plus)  | p(:hash) | g(1)      | g(1)      | g(2)    | g(3) | p(:eol); g(:end)
 #         ------+-----------+----------+-----------+-----------+---------+------+-----
-#           <1> | s(:ws)    | s(:sw)   | g(1)      | g(1)      | s(:ws)  |s(:ws)| s(:ws)
+#         :ws   | s(:ws)    | s(:sw)   | g(1)      | g(1)      | s(:ws)  |s(:ws)| s(:ws)
 #         ------+-----------+----------+-----------+-----------+---------+------+-----
-#           <2> | s(:ident) | s(:ident)| s(:ident) | s(:ident) | g(2)    | g(2) | s(:ident)
+#         :ident| s(:ident) | s(:ident)| s(:ident) | s(:ident) | g(2)    | g(2) | s(:ident)
 #         ------+-----------+----------+-----------+-----------+---------+------+-----
-#           <3> | s(:num)   | s(:num)  | s(:num)   | s(:num)   | s(:num) | g(3) | s(:num)
+#         :num  | s(:num)   | s(:num)  | s(:num)   | s(:num)   | s(:num) | g(3) | s(:num)
 #
 #
 # p(token) push char to acc return {token, acc} reset acc and goto state<0>
