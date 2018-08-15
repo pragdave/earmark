@@ -12,6 +12,14 @@ defmodule Acceptance.LinkAndImgTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+    
+    test "link with utf8 title" do
+      markdown = "[foo]: /url \"Überschrift\"\n\n[foo]\n"
+      html     = "<p><a href=\"/url\" title=\"Überschrift\">foo</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
     test "this ain't no link" do
       markdown = "[foo]: /url \"title\"\n\n[bar]\n"

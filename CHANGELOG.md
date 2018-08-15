@@ -1,7 +1,7 @@
 # 1.2.6
 
 * Fix for issues
-  - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/191 )
+  - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/197 )
   - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
   - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
 
