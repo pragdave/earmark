@@ -59,6 +59,9 @@ defmodule EarmarkHelpersTests.LinkParserTest do
     test "url part: deep imbrication" do
       assert {~s<[text](a(1)[((2) \\one)z)>, ~s<text>, ~s<a(1)[((2) \\one)z>, nil, []} == parse_link("[text](a(1)[((2) \\\\one)z)")
     end
+    test "url part: simple, text part: escapes" do
+      assert {~s<[hello \\*world\\*](url)>, ~s<hello \\*world\\*>, ~s<url>, nil, []} == parse_link("[hello \\*world\\*](url)")
+    end
     test "url part: missing closing parens" do
       assert nil ==  parse_link("[text](")
     end
