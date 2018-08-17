@@ -45,7 +45,7 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
   test "with quotes and escapes" do
     str = ~s<["hell\\o']>
-    assert {'"hello\'', String.to_charlist(str)} == parse("#{str}(url\\))")
+    assert {'"hell\\o\'', String.to_charlist(str)} == parse("#{str}(url\\))")
   end
   test "missing closing brackets" do
     assert nil ==  parse("[pre[[in\\]side])]")

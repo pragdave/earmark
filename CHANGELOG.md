@@ -1,6 +1,8 @@
+ 
 # 1.2.6
 
 * Fix for issues
+  - [#198 Escapes inside link texts are ignored]( https://github.com/pragdave/earmark/issues/198 )
   - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/197 )
   - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
   - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
