@@ -394,7 +394,15 @@ defmodule Earmark do
 
   @default_timeout_in_ms 5000
   @doc false
-  def pmap(collection, func, timeout \\ @default_timeout_in_ms) do
+  def p_flat_map(collection, func, timeout \\ @default_timeout_in_ms ) do
+    collection
+    |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
+    |> Task.yield_many(timeout)
+    |> Enum.flat_map(&join_pmap_results_or_raise(&1, timeout))
+  end
+
+  @doc false
+  def pmap(collection, func, timeout \\ @default_timeout_in_ms ) do
     collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Task.yield_many(timeout)
