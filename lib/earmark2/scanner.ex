@@ -62,8 +62,10 @@ defmodule Earmark2.Scanner do
   # might not be ideal for the typical Elixir docstrings.
   # In case of performance issues, some research might be
   # in order.
-  deftoken :sym,         "[^\\\\]"
+  deftoken :syms,        "[^-\\]\\\\|+*/~=&;_<>{}]+"
   deftoken :backslash,   "\\\\" # can only match at end, do not move down
+  deftoken :verb,        "\\p{L}[\\p{L}\\p{N}]*"
+  deftoken :verb,        "#" <> "{8,}"
   deftoken :escaped,     "\\\\."
   deftoken :at,          "@"
   deftoken :period,      "\\."
@@ -73,7 +75,7 @@ defmodule Earmark2.Scanner do
   deftoken :underscores, "_+"
   deftoken :questions,   "\\?+"
   deftoken :exclams,     "!+"
-  deftoken :hashes,      "#+"
+  deftoken :hashes,      "#" <> "{1,7}"
   deftoken :dashes,      "-+(?!\\p{N})"
   deftoken :pluses,      "\\++(?!\\p{N})"
   deftoken :equals,      "=+"
@@ -84,7 +86,6 @@ defmodule Earmark2.Scanner do
   deftoken :ampersands,  "&+"
   deftoken :entity,      "(?:&[a-zA-Z][a-zA-Z0-9]*;)|(?:&#[0-9]+;)|(?:&#[xX][0-9a-fA-F]+;)"
   deftoken :bars,        "\\|+"
-  deftoken :verb,        "\\p{L}[\\p{L}\\p{N}]*"
   deftoken :number,      "[-+]?\\p{N}+(?:\\.\\p{N}*)?"
   deftoken :lbracket,    "\\["
   deftoken :rbracket,    "\\]"

@@ -10,8 +10,8 @@ defmodule Earmark2.Scanner.Macros do
 
 
   defmacro deftoken(name, regex_str) do
-    regex = "\\A(#{regex_str})(.*)\\z"
-    quote bind_quoted: [name: name, regex: regex] do
+    quote bind_quoted: [name: name, regex_str: regex_str] do
+      regex = "\\A(#{regex_str})(.*)\\z"
       already_defined = Module.get_attribute(__MODULE__, :_defined_tokens)
       Module.put_attribute __MODULE__,
         :_defined_tokens, 

@@ -60,8 +60,7 @@ defmodule Functional.Scanner.Earmark2ScannerTest do
       { "@|%§||&&",
         [{:at, "@", 1},
          {:bars, "|", 2},
-         {:sym, "%", 3},
-         {:sym, "§", 4},
+         {:syms, "%§", 3},
          {:bars, "||", 5},
          {:ampersands, "&&", 7} ]},
       # 0....+....1..  
