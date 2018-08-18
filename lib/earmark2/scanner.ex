@@ -15,43 +15,44 @@ defmodule Earmark2.Scanner do
          ...(0)>   "* Hello",
          ...(0)>   "World" ] |> Enum.join("\\n")
          ...(0)> scan_document(lines)
-         [{:stars, "*", 1, 1}, {:ws, " ", 1, 2}, {:verb, "Hello", 1, 3}, {:eol, "", 1, 8},
-          {:verb, "World", 2, 1}, {:eol, "", 2, 6}]
+         [{1, [{:stars, "*", 1}, {:ws, " ", 2}, {:verb, "Hello", 3}]},
+          {2, [ {:verb, "World", 1}]}]
   """
   def scan_document(doc, options \\ %Options{}) do
     doc
     |> String.split(~r{\r\n?|\n})
     |> Enum.zip(Stream.iterate(1, &(&1+1)))
-    |> Earmark.p_flat_map(&scan_tuple/1, options.timeout||5000)
+    |> Earmark.pmap(&scan_line/1, options.timeout||5000)
   end
   
+
   @doc """
   A single line is feed to the `src/token_lexer.xrl` and
   reconverted into an Elixir tuple
 
         iex(1)> scan(" 4 - 2")
         [
-          {:ws, " ", 0, 1},
-          {:number, "4", 0, 2},
-          {:ws, " ", 0, 3},
-          {:dashes, "-", 0, 4},
-          {:ws, " ", 0, 5},
-          {:number, "2", 0, 6},
+          {:ws, " ", 1},
+          {:number, "4", 2},
+          {:ws, " ", 3},
+          {:dashes, "-", 4},
+          {:ws, " ", 5},
+          {:number, "2", 6},
         ]
   """
-  def scan(line, lnb \\ 0) do
-    with {tokens, _} <- tokenize(line, [], lnb), do: tokens |> Enum.reverse
+  def scan(line) do
+    with tokens <- tokenize(line, []), do: tokens |> Enum.reverse
   end
 
-  defp scan_tuple({line, lnb}) do
-    with {tokens, col} <- tokenize(line, [], lnb), do: [{:eol, "", lnb, col}|tokens] |> Enum.reverse
+  defp scan_line({line, lnb}) do
+    with tokens <- tokenize(line, []), do: {lnb, tokens |> Enum.reverse}
   end
 
 
-  defp tokenize(line, tokens, lnb, col \\ 1)
-  defp tokenize("", tokens, _, col), do: {tokens, col}
-  defp tokenize(line, tokens, lnb, col) do
-    with {token, rest, _, new_col} <- get_token(line, lnb, col), do: tokenize(rest, [token|tokens], lnb, new_col)
+  defp tokenize(line, tokens, col \\ 1)
+  defp tokenize("", tokens,  col), do: tokens
+  defp tokenize(line, tokens, col) do
+    with {token, rest, new_col} <- get_token(line, col), do: tokenize(rest, [token|tokens], new_col)
   end
 
 
@@ -98,18 +99,18 @@ defmodule Earmark2.Scanner do
   deftoken :semicolon,   ";"
   deftoken :ws,          "\\s+"
 
-  defp get_token(line, lnb, col) do
-    match(line, lnb, col) || {{:error, line, col}, "", lnb, col}
+  defp get_token(line, col) do
+    match(line, col) || {{:error, line, col}, "", col}
   end
 
-  defp match(line, lnb, col) do
+  defp match(line, col) do
     @_defined_tokens
-    |> Enum.find_value(&match_token(&1, line, lnb, col))
+    |> Enum.find_value(&match_token(&1, line, col))
   end
 
-  defp match_token( {token_name, token_rgx}, line, lnb, col ) do
+  defp match_token( {token_name, token_rgx}, line, col ) do
     case Regex.run(token_rgx, line) do
-      [_, token_string, rest] -> {{token_name, token_string, lnb, col}, rest, lnb, col + String.length(token_string)} 
+      [_, token_string, rest] -> {{token_name, token_string, col}, rest, col + String.length(token_string)} 
       _                       -> nil
     end
   end
