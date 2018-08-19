@@ -2,49 +2,18 @@ defmodule Earmark2.Scanner do
 
   use Earmark2.Scanner.Macros
   alias Earmark.Options
+  alias Earmark2.Line
 
   @moduledoc """
   A lexical Analyzer of markdown documents
   """
 
-  @doc """
-  splits a document into lines which are scanned in parallel
-  and then reassambles the lines interspersing `:eol` tokens
-
-         iex(0)> lines = [ 
-         ...(0)>   "* Hello",
-         ...(0)>   "World" ] |> Enum.join("\\n")
-         ...(0)> scan_document(lines)
-         [{1, [{:stars, "*", 1}, {:ws, " ", 2}, {:verb, "Hello", 3}]},
-          {2, [ {:verb, "World", 1}]}]
-  """
-  def scan_document(doc, options \\ %Options{}) do
-    doc
-    |> String.split(~r{\r\n?|\n})
-    |> Enum.zip(Stream.iterate(1, &(&1+1)))
-    |> Earmark.pmap(&scan_line/1, options.timeout||5000)
-  end
-  
 
   @doc """
-  A single line is feed to the `src/token_lexer.xrl` and
-  reconverted into an Elixir tuple
-
-        iex(1)> scan(" 4 - 2")
-        [
-          {:ws, " ", 1},
-          {:number, "4", 2},
-          {:ws, " ", 3},
-          {:dashes, "-", 4},
-          {:ws, " ", 5},
-          {:number, "2", 6},
-        ]
+  Scans a line into tokens, returning a tuple `{lnb, tokens}`.
   """
-  def scan(line) do
-    with tokens <- tokenize(line, []), do: tokens |> Enum.reverse
-  end
 
-  defp scan_line({line, lnb}) do
+  def scan_line({line, lnb}) do
     with tokens <- tokenize(line, []), do: {lnb, tokens |> Enum.reverse}
   end
 
@@ -62,50 +31,62 @@ defmodule Earmark2.Scanner do
   # might not be ideal for the typical Elixir docstrings.
   # In case of performance issues, some research might be
   # in order.
-  deftoken :syms,        "[^-\\]\\\\|+*/~=&;_<>{}]+"
+
+  @id_title_part ~S"""
+        (?|
+             " (.*)  "         # in quotes
+          |  ' (.*)  '         #
+          | \( (.*) \)         # in parens
+        )
+  """
+
+  @id_title_part_re ~r[^\s*#{@id_title_part}\s*$]x
+
+
+  @always_text "[^-\\]\\\\|+*~<>{\\}[`!'==#=\\d" <> ~s{"} <> "]"
+  @text_after  "[^-\\]\\\\|+*~<>{}[`!]"
   deftoken :backslash,   "\\\\" # can only match at end, do not move down
-  deftoken :verb,        "\\p{L}[\\p{L}\\p{N}]*"
-  deftoken :verb,        "#" <> "{8,}"
   deftoken :escaped,     "\\\\."
-  deftoken :at,          "@"
-  deftoken :period,      "\\."
-  deftoken :caret,       "\\^"
   deftoken :backticks,   "`+"
   deftoken :stars,       "\\*+"
   deftoken :underscores, "_+"
-  deftoken :questions,   "\\?+"
-  deftoken :exclams,     "!+"
+  deftoken :text,        "#" <> "{8,}#{@text_after}"
   deftoken :hashes,      "#" <> "{1,7}"
-  deftoken :dashes,      "-+(?!\\p{N})"
-  deftoken :pluses,      "\\++(?!\\p{N})"
+  deftoken :dashes,      "-+"
+  deftoken :pluses,      "\\++"
   deftoken :equals,      "=+"
-  deftoken :slashes,     "/+"
   deftoken :tildes,      "~+"
   deftoken :gt,          ">"
   deftoken :lt,          "<"
-  deftoken :ampersands,  "&+"
-  deftoken :entity,      "(?:&[a-zA-Z][a-zA-Z0-9]*;)|(?:&#[0-9]+;)|(?:&#[xX][0-9a-fA-F]+;)"
+  deftoken :exclam,      "!"
+  deftoken :caret,       "\\^"
   deftoken :bars,        "\\|+"
-  deftoken :number,      "[-+]?\\p{N}+(?:\\.\\p{N}*)?"
   deftoken :lbracket,    "\\["
   deftoken :rbracket,    "\\]"
-  deftoken :lparen,      "\\("
-  deftoken :rparen,      "\\)"
   deftoken :laccolade,   "\\{"
   deftoken :raccolade,   "\\}"
   deftoken :dquote,      "\""
   deftoken :squote,      "'"
   deftoken :colon,       ":"
-  deftoken :comma,       ","
-  deftoken :semicolon,   ";"
   deftoken :ws,          "\\s+"
+  deftoken :text,        "#{@always_text}#{@text_after}+"
+
+  # tokens matching only at the start of a line
+  deftokenstart :st_indent, "\\s+"
+  deftokenstart :st_ul,     "\\s*[-*]\\s+"
+  deftokenstart :st_ol,     "\\s*\\d+\\.\\s+"
+  deftokenstart :st_fence,  "\\s*(?:```|~~~).*"
 
   defp get_token(line, col) do
     match(line, col) || {{:error, line, col}, "", col}
   end
 
+  defp macth(line, 1) do
+    @_tokens_at_start
+    |> Enum.find_value(&match_token(&1, line, col))
+  end
   defp match(line, col) do
-    @_defined_tokens
+    @_tokens_inside
     |> Enum.find_value(&match_token(&1, line, col))
   end
 
