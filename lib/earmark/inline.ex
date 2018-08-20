@@ -113,9 +113,9 @@
   defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do
-        {match, text, href, title, messages} = match
+        {match1, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
-        { behead(src, match), add_messages(context, messages), prepend(result, out), lnb }
+        { behead(src, match1), add_messages(context, messages), prepend(result, out), lnb }
       end
     end
   end
@@ -123,9 +123,9 @@
   defp converter_for_img({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       if is_image?(match) do
-        {match, text, href, title, messages} = match
+        {match1, text, href, title, messages} = match
         out = output_image(context.options.renderer, text, href, title)
-        { behead(src, match), add_messages(context, messages), prepend(result,  out), lnb }
+        { behead(src, match1), add_messages(context, messages), prepend(result,  out), lnb }
       end
     end
   end
@@ -282,10 +282,13 @@
     context.options.renderer.footnote_link(ref, back_ref, number)
   end
 
+  @remove_escapes ~r{ \\ (?! \\ ) }x
   defp output_image(renderer, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
-    renderer.image(href, escape(text), title)
+    alt   = text |> escape() |> String.replace(@remove_escapes, "")
+
+    renderer.image(href, alt, title)
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do
