@@ -19,6 +19,14 @@ defmodule Regressions.I198EscapesInsideLinksTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "although brackets do not need escapes, we still have to render them correctly" do
+      markdown = "[hello \\[world\\]](http://some.where)"
+      html     = ~s{<p><a href="http://some.where">hello [world]</a></p>\n}
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
   end
 
 

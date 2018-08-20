@@ -108,8 +108,24 @@ defmodule Acceptance.LinkAndImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "escaping does not change that" do
+      markdown = "[\\[text\\](inner\\)](outer)"
+      html = "<p><a href=\"outer\">[text](inner)</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "as with this img" do
       markdown = "![[text](inner)](outer)"
+      html     = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "again escapes do not escape us" do
+      markdown = "![\\[text\\](inner)](outer)"
       html     = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
       messages = []
 
