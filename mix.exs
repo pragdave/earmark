@@ -1,7 +1,7 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version   "1.2.6"
+  @version   "1.2.7"
 
   @deps  [
     { :credo,    "~> 0.8", only: [ :dev, :test ] },

@@ -12,7 +12,7 @@ E.g.
   git checkout v0.19.1 # or latest version
   mix escript.build
   cd <earmark>
-  git checkout EX_DOC_ESCRIPT=<your local escript path unless in $PATH> mix hex.publish docs
+  EX_DOC_ESCRIPT=<your local escript path unless in $PATH> mix hex.publish docs
 
 ```
 
