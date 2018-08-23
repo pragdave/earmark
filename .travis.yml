@@ -8,7 +8,7 @@ branches:
 
 elixir:
   - 1.6.6
-  - 1.7.1
+  - 1.7.2
 otp_release:
   - 20.0
   - 20.1
@@ -34,10 +34,12 @@ matrix:
     - elixir: 1.5.3
       otp_release: 20.2
     - elixir: 1.6.0
-      otp_release: 21.0
+      otp_release: 20.2
     - elixir: 1.6.4
-      otp_release: 21.0
+      otp_release: 20.2
     - elixir: 1.6.5
       otp_release: 21.0
     - elixir: 1.7.0
+      otp_release: 21.0
+    - elixir: 1.7.1
       otp_release: 21.0

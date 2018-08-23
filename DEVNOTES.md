@@ -1,4 +1,21 @@
 
+### Creating docs
+
+This is tricky as we have a circular dependency problem between `Earmark` and `ExDoc`
+
+Therfore we will use an alias `mix doc` task that will use an ex_doc escript built apart
+
+E.g.
+
+```
+  git clone https://github.com/elixir-lang/ex_doc
+  git checkout v0.19.1 # or latest version
+  mix escript.build
+  cd <earmark>
+  EX_DOC_ESCRIPT=<your local escript path unless in $PATH> mix hex.publish docs
+
+```
+
 ###### How block elements are rendered:
 
      a line

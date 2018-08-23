@@ -110,7 +110,7 @@
   defp converter_for_escape({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.escape, src) do
       [ match, escaped ] = match
-      { behead(src, match), context, prepend(result, escaped), lnb }
+      {behead(src, match), context, prepend(result, escaped), lnb}
     end
   end
 
@@ -144,9 +144,9 @@
   defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do
-        {match, text, href, title, messages} = match
+        {match1, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
-        { behead(src, match), add_messages(context, messages), prepend(result, out), lnb }
+        { behead(src, match1), add_messages(context, messages), prepend(result, out), lnb }
       end
     end
   end
@@ -154,9 +154,9 @@
   defp converter_for_img({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       if is_image?(match) do
-        {match, text, href, title, messages} = match
+        {match1, text, href, title, messages} = match
         out = output_image(context.options.renderer, text, href, title)
-        { behead(src, match), add_messages(context, messages), prepend(result,  out), lnb }
+        { behead(src, match1), add_messages(context, messages), prepend(result,  out), lnb }
       end
     end
   end
@@ -259,7 +259,7 @@
   defp converter_for_text({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
-      out = escape(context.options.do_smartypants.(match))
+      out = escape(context.options.do_smartypants.(match)) 
       |> hard_line_breaks(context.options.gfm, renderer)
       { behead(src, match), context, prepend(result,  out), lnb }
     end
@@ -321,10 +321,12 @@
     %FnLink{ ref: ref, back_ref: back_ref, number: number }
   end
 
+  @remove_escapes ~r{ \\ (?! \\ ) }x
   defp output_image(renderer, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
-    %Image{ href: href, alt: escape(text), title: title }
+    alt   = text |> escape() |> String.replace(@remove_escapes, "")
+    %Image{ href: href, alt: alt, title: title }
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do

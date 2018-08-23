@@ -9,12 +9,13 @@ defmodule Earmark.Renderers.HtmlRenderer do
   import Earmark.Helpers.HtmlHelpers
   import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2, get_messages: 1 ]
   import Earmark.Context, only: [ append: 2, set_value: 2 ]
+  import Earmark.Options, only: [ get_mapper: 1 ]
 
-  def render(blocks, context=%Context{options: %Options{mapper: mapper}}) do
+  def render(blocks, context=%Context{options: %Options{}}) do
     messages = get_messages(context)
 
     {contexts, html} =
-    mapper.(blocks, &(render_block(&1, put_in(context.options.messages, [])))) |> Enum.unzip()
+    get_mapper(context.options).(blocks, &(render_block(&1, put_in(context.options.messages, [])))) |> Enum.unzip()
 
     all_messages = 
       contexts 

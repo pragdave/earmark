@@ -1,7 +1,7 @@
 defmodule Earmark.Helpers.HtmlHelpers do
 
   import Earmark.Helpers.AttrParser
-
+  
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
@@ -13,7 +13,7 @@ defmodule Earmark.Helpers.HtmlHelpers do
   #   end
   # end
 
-  def augment_tag_with_ial(context, tag, ial, lnb) do
+  def augment_tag_with_ial(context, tag, ial, lnb) do 
     add_attrs(context, tag, ial, [], lnb)
   end
 
@@ -46,7 +46,7 @@ defmodule Earmark.Helpers.HtmlHelpers do
   end
 
   defp add_attrs(context, text, attrs, default, _lnb) do
-    {context,
+    {context, 
       default
       |> Map.new()
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)

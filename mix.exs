@@ -1,7 +1,7 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version   "1.2.5"
+  @version   "1.2.7"
 
   @deps  [
     { :credo,    "~> 0.8", only: [ :dev, :test ] },
@@ -44,7 +44,7 @@ defmodule Earmark.Mixfile do
   defp package do
     [
       files: [
-        "lib", "src", "tasks", "mix.exs", "README.md"
+        "lib", "src/*.xrl", "src/*.yrl", "tasks", "mix.exs", "README.md"
       ],
       maintainers: [
         "Robert Dober <robert.dober@gmail.com>",

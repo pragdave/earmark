@@ -21,7 +21,7 @@
 
 ## Details
 
-%functiondoc Earmark.as_html
+%functiondoc Earmark.as_html/2
 
 ## Plugins
 
@@ -42,11 +42,11 @@ apply your changes there.
 Then issue the mix task `readme`, this is important to have a correctly updated `README.md` after the merge of
 your PR.
 
-Thank you.
+Thank you all who have already helped with Earmark, your names are duely noted in [CHANGELOG.md](CHANGELOG.md).
 
 ## Author
 
-Copyright © 2014 Dave Thomas, The Pragmatic Programmers
+Copyright © 2014,5,6,7,8 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 # LICENSE

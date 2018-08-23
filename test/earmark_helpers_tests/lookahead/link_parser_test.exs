@@ -17,11 +17,11 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
   test "text with escapes" do
     str = "[hello\\[]"
-    assert {'hello[', String.to_charlist(str)} == parse(str)
+    assert {'hello\\[', String.to_charlist(str)} == parse(str)
   end
   test "text with many parts" do
     str = "[hello( world\\])]"
-    assert {'hello( world])', String.to_charlist(str)} == parse(str)
+    assert {'hello( world\\])', String.to_charlist(str)} == parse(str)
   end
   test "simple imbrication" do
     str = "[[hello]]"
@@ -33,7 +33,7 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
   test "deep imbrication" do
     str = "[pre[[in\\]]side])]"
-    assert {'pre[[in]]side])', String.to_charlist(str)} == parse(str)
+    assert {'pre[[in\\]]side])', String.to_charlist(str)} == parse(str)
   end
   test "with quotes" do
     str = ~s<["hello']>
@@ -45,7 +45,7 @@ defmodule EarmarkHelpersTests.Lookahead.LinkParserTest do
   end
   test "with quotes and escapes" do
     str = ~s<["hell\\o']>
-    assert {'"hello\'', String.to_charlist(str)} == parse("#{str}(url\\))")
+    assert {'"hell\\o\'', String.to_charlist(str)} == parse("#{str}(url\\))")
   end
   test "missing closing brackets" do
     assert nil ==  parse("[pre[[in\\]side])]")

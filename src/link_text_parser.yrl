@@ -46,7 +46,7 @@ concat_tuple({LT, LP}, {RT, RP}) -> {string:concat(LT, RT), string:concat(LP, RP
 
 concat_3t(L, {MT, MP}, R) -> {string:join([L, MT, R], ""), string:join([ L, MP, R ], "")}.
 
-escaped_token({_Token, _Line, Value}) -> {Value, string:concat("\\", Value)}.
+escaped_token({_Token, _Line, Value}) -> {string:concat("\\", Value), string:concat("\\", Value)}.
 
 extract_token({_Token, _Line, Value}) -> {Value, Value}.
 

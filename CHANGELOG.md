@@ -1,5 +1,15 @@
+ 
+# 1.2.6
 
-# 1.2.5
+* Fix for issues
+  - [#198 Escapes inside link texts are ignored]( https://github.com/pragdave/earmark/issues/198 )
+  - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/197 )
+  - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
+  - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
+
+* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai ) 
+
+# 1.2.5 2018/04/02
 
 * Fix for issues
   - [#161]( https://github.com/pragdave/earmark/issues/161 )
@@ -266,7 +276,7 @@ Michael Schaefermeyer (mschae)
 * Block rendering is now performed in parallel
 
 
-# 0.1.6 07/25/16
+# 0.1.6 07/25/14
 
 * Added support for Kramdown-style attribute annotators for all block
   elements, so you can write
@@ -285,7 +295,7 @@ Michael Schaefermeyer (mschae)
         off the engine if you are at altitude.</p>
 
 
-# 0.1.5 07/20/16
+# 0.1.5 07/20/14
 
 * Merged two performance improvements from José Valim
 * Support escaping of pipes in tables, so
@@ -296,13 +306,13 @@ Michael Schaefermeyer (mschae)
   has two columns, not three.
 
 
-# 0.1.4 07/14/16
+# 0.1.4 07/14/14
 
 * Allow list bullets to be indented, and deal with potential subsequent
   additional indentation of the body of an item.
 
 
-# 0.1.3 07/14/16
+# 0.1.3 07/14/14
 
 * Added tasks to the Hex file list
 

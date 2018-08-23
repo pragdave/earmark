@@ -59,7 +59,7 @@ defmodule Earmark do
 
   * StrikeThrough
 
-        iex(13)> Earmark.as_html! ["~~hello~~"]
+        iex(1)> Earmark.as_html! ["~~hello~~"]
         "<p><del>hello</del></p>\\n"
 
   * Syntax Highlighting
@@ -68,14 +68,14 @@ defmodule Earmark do
 
 
 
-        iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
+        iex(2)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
         "<pre><code class=\\"elixir\\">   [] |&gt; Enum.into(%{})</code></pre>\\n"
 
 
   which can be customized with the `code_class_prefix` option
 
 
-        iex(12)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
+        iex(3)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
         "<pre><code class=\\"elixir lang-elixir\\">   [] |&gt; Enum.into(%{})</code></pre>\\n"
 
 
@@ -133,28 +133,28 @@ defmodule Earmark do
   It is possible to add IAL attributes to generated links or images in the following
   format.
 
-        iex> markdown = "[link](url) {: .classy}"
-        ...> Earmark.as_html(markdown)
+        iex(4)> markdown = "[link](url) {: .classy}"
+        ...(4)> Earmark.as_html(markdown)
         { :ok, "<p><a href=\\"url\\" class=\\"classy\\">link</a></p>\\n", []}
 
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-        iex> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
+        iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
         {:error, "<p>Some text</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-        iex> markdown = "[link](url)\\\\{: .classy}"
-        ...> Earmark.as_html(markdown)
+        iex(6)> markdown = "[link](url)\\\\{: .classy}"
+        ...(6)> Earmark.as_html(markdown)
         {:ok, "<p><a href=\\"url\\">link</a>{: .classy}</p>\\n", []}
 
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
-        iex> markdown = "hello {:world}"
-        ...> Earmark.as_html!(markdown)
+        iex(7)> markdown = "hello {:world}"
+        ...(7)> Earmark.as_html!(markdown)
         "<p>hello {:world}</p>\\n"
 
   ## Limitations
@@ -228,11 +228,11 @@ defmodule Earmark do
 
   For example:
 
-        iex> [
-        ...>    "```elixir",
-        ...>    " @tag :hello",
-        ...>    "```"
-        ...> ] |> Earmark.as_html!()
+        iex(8)> [
+        ...(8)>    "```elixir",
+        ...(8)>    " @tag :hello",
+        ...(8)>    "```"
+        ...(8)> ] |> Earmark.as_html!()
         "<pre><code class=\\"elixir\\"> @tag :hello</code></pre>\\n"
 
   will be rendered as shown in the doctest above.
@@ -256,6 +256,21 @@ defmodule Earmark do
 
         earmark --code-class-prefix "language- lang-" ...
 
+  ## Timeouts
+
+  By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`, 
+  which uses `Task.await` with its default timeout of 5000ms.
+
+  In rare cases that might not be enough.
+
+  By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
+  which will pass `timeout` to `Task.await`.
+
+  In both cases one can override the mapper function with either the `mapper` option (used iff `timeout` is nil) or the
+  `mapper_with_timeout` function (used otherwise).
+
+  For the escript only the `timeout` command line argument can be used.
+
   ## Security
 
     Please be aware that Markdown is not a secure format. It produces
@@ -265,6 +280,7 @@ defmodule Earmark do
 
   """
 
+  alias Earmark.Error
   alias Earmark.Options
   import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
 
@@ -362,14 +378,14 @@ defmodule Earmark do
   """
 
   def parse(lines, options \\ %Earmark.Options{})
-  def parse(lines, options = %Options{mapper: mapper}) when is_list(lines) do
+  def parse(lines, options = %Options{}) when is_list(lines) do
     { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
 
     context = %Earmark.Context{options: options1, links: links }
               |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options, mapper)
+      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options)
       context =
         put_in(context.footnotes, footnotes)
       context =
@@ -393,12 +409,21 @@ defmodule Earmark do
     with {:ok, version} = :application.get_key(:earmark, :vsn), do: version
   end
 
+  @default_timeout_in_ms 5000
   @doc false
-  def pmap(collection, func) do
-   collection
+  def pmap(collection, func, timeout \\ @default_timeout_in_ms) do
+    collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Enum.map(&Task.await/1)
+    |> Task.yield_many(timeout)
+    |> Enum.map(&join_pmap_results_or_raise(&1, timeout))
   end
+
+  defp join_pmap_results_or_raise(yield_tuples, timeout)
+  defp join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
+  defp join_pmap_results_or_raise({task, {:error, reason}}, _timeout), do:
+    raise Error, "#{inspect task} has died with reason #{inspect reason}"
+  defp join_pmap_results_or_raise({task, nil}, timeout), do:
+    raise Error, "#{inspect task} has not responded within the set timeout of #{timeout}ms, consider increasing it"
 end
 
 # SPDX-License-Identifier: Apache-2.0

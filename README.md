@@ -83,7 +83,7 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
 
 * StrikeThrough
 
-      iex(13)> Earmark.as_html! ["~~hello~~"]
+      iex(1)> Earmark.as_html! ["~~hello~~"]
       "<p><del>hello</del></p>\n"
 
 * Syntax Highlighting
@@ -92,14 +92,14 @@ The generated code blocks have a corresponding `class` attribute:
 
 
 
-      iex(11)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
+      iex(2)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
       "<pre><code class=\"elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n"
 
 
 which can be customized with the `code_class_prefix` option
 
 
-      iex(12)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
+      iex(3)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
       "<pre><code class=\"elixir lang-elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n"
 
 
@@ -157,28 +157,28 @@ For example:
 It is possible to add IAL attributes to generated links or images in the following
 format.
 
-      iex> markdown = "[link](url) {: .classy}"
-      ...> Earmark.as_html(markdown)
+      iex(4)> markdown = "[link](url) {: .classy}"
+      ...(4)> Earmark.as_html(markdown)
       { :ok, "<p><a href=\"url\" class=\"classy\">link</a></p>\n", []}
 
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
+      iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
       {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
-      iex> markdown = "[link](url)\\{: .classy}"
-      ...> Earmark.as_html(markdown)
+      iex(6)> markdown = "[link](url)\\{: .classy}"
+      ...(6)> Earmark.as_html(markdown)
       {:ok, "<p><a href=\"url\">link</a>{: .classy}</p>\n", []}
 
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
-      iex> markdown = "hello {:world}"
-      ...> Earmark.as_html!(markdown)
+      iex(7)> markdown = "hello {:world}"
+      ...(7)> Earmark.as_html!(markdown)
       "<p>hello {:world}</p>\n"
 
 ## Limitations
@@ -252,11 +252,11 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-      iex> [
-      ...>    "```elixir",
-      ...>    " @tag :hello",
-      ...>    "```"
-      ...> ] |> Earmark.as_html!()
+      iex(8)> [
+      ...(8)>    "```elixir",
+      ...(8)>    " @tag :hello",
+      ...(8)>    "```"
+      ...(8)> ] |> Earmark.as_html!()
       "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
 
 will be rendered as shown in the doctest above.
@@ -280,6 +280,21 @@ As for all other options `code_class_prefix` can be passed into the `earmark` ex
 
       earmark --code-class-prefix "language- lang-" ...
 
+## Timeouts
+
+By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`, 
+which uses `Task.await` with its default timeout of 5000ms.
+
+In rare cases that might not be enough.
+
+By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
+which will pass `timeout` to `Task.await`.
+
+In both cases one can override the mapper function with either the `mapper` option (used iff `timeout` is nil) or the
+`mapper_with_timeout` function (used otherwise).
+
+For the escript only the `timeout` command line argument can be used.
+
 ## Security
 
   Please be aware that Markdown is not a secure format. It produces
@@ -292,7 +307,7 @@ As for all other options `code_class_prefix` can be passed into the `earmark` ex
 
 ## Details
 
-<!-- BEGIN inserted functiondoc Earmark.as_html -->
+<!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
 Given a markdown document (as either a list of lines or
 a string containing newlines), returns a tuple containing either
 `{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
@@ -330,7 +345,7 @@ you'd call
     Earmark.as_html(original, %Options{smartypants: false})
 
 
-<!-- END inserted functiondoc Earmark.as_html -->
+<!-- END inserted functiondoc Earmark.as_html/2 -->
 
 ## Plugins
 
@@ -448,11 +463,11 @@ apply your changes there.
 Then issue the mix task `readme`, this is important to have a correctly updated `README.md` after the merge of
 your PR.
 
-Thank you.
+Thank you all who have already helped with Earmark, your names are duely noted in [CHANGELOG.md](CHANGELOG.md).
 
 ## Author
 
-Copyright © 2014 Dave Thomas, The Pragmatic Programmers
+Copyright © 2014,5,6,7,8 Dave Thomas, The Pragmatic Programmers
 @/+pragdave,  dave@pragprog.com
 
 # LICENSE

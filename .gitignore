@@ -11,8 +11,8 @@ notes/*
 *.beam
 doc/
 
-# leex generated file
-src/string_lexer.erl
+# yecc, leex generated files
+src/*.erl
 cover
 lib/tools
 #*#

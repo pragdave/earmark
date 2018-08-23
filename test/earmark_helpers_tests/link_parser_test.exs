@@ -13,20 +13,11 @@ defmodule EarmarkHelpersTests.LinkParserTest do
     test "text part: simple text" do
       assert {~s<[hello]()>, ~s<hello>, ~s<>, nil, []} == parse_link("[hello]()")
     end
-    test "text part: text with escapes" do
-      assert {~s<[hello[]()>, ~s<hello[>, ~s<>, nil, []} == parse_link("[hello\\[]()")
-    end
-    test "text part: text with many parts" do
-      assert {~s<[hello( world])]()>, ~s<hello( world])>, ~s<>, nil, []} == parse_link("[hello( world\\])]()")
-    end
     test "text part: simple imbrication" do
       assert {~s<[[hello]]()>, ~s<[hello]>, ~s<>, nil, []} == parse_link("[[hello]]()")
     end
     test "text part: complex imbrication" do
       assert {~s<[pre[iniside]suff]()>, ~s<pre[iniside]suff>, ~s<>, nil, []} == parse_link("[pre[iniside]suff]()")
-    end
-    test "text part: deep imbrication" do
-      assert {~s<[pre[[in]]side])]()>, ~s<pre[[in]]side])>, ~s<>, nil, []} == parse_link("[pre[[in\\]]side])]()")
     end
     test "text part: missing closing brackets" do
       assert nil ==  parse_link("[pre[[in\\]side])]")
@@ -58,6 +49,9 @@ defmodule EarmarkHelpersTests.LinkParserTest do
     end
     test "url part: deep imbrication" do
       assert {~s<[text](a(1)[((2) \\one)z)>, ~s<text>, ~s<a(1)[((2) \\one)z>, nil, []} == parse_link("[text](a(1)[((2) \\\\one)z)")
+    end
+    test "url part: simple, text part: escapes" do
+      assert {~s<[hello \\*world\\*](url)>, ~s<hello \\*world\\*>, ~s<url>, nil, []} == parse_link("[hello \\*world\\*](url)")
     end
     test "url part: missing closing parens" do
       assert nil ==  parse_link("[text](")
