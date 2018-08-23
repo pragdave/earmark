@@ -305,7 +305,7 @@ The options are a `%Earmark.Options{}` structure:
 * `renderer`: ModuleName
 
   The module used to render the final document. Defaults to
-  `Earmark.Renderers.Html.Renderer`
+  `Earmark.Renderers.HtmlRenderer`
 
 * `gfm`: boolean
 

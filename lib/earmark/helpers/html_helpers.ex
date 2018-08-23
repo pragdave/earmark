@@ -1,17 +1,20 @@
 defmodule Earmark.Helpers.HtmlHelpers do
 
   import Earmark.Helpers.AttrParser
-  
+
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
 
-  def augment_tag_with_ial(context, tag, ial, lnb) do 
-    case Regex.run( @simple_tag, tag) do 
-      nil -> nil
-      _   -> add_attrs(context, tag, ial, [], lnb)
-    end
-    
+  # def augment_tag_with_ial(context, tag, ial, lnb) when is_binary(tag) do
+  #   case Regex.run( @simple_tag, tag) do
+  #     nil -> nil
+  #     _   -> add_attrs(context, tag, ial, [], lnb)
+  #   end
+  # end
+
+  def augment_tag_with_ial(context, tag, ial, lnb) do
+    add_attrs(context, tag, ial, [], lnb)
   end
 
 
@@ -37,10 +40,16 @@ defmodule Earmark.Helpers.HtmlHelpers do
     add_attrs(context1, text, attrs, default, lnb)
   end
 
+  defp add_attrs(context, tag = %{}, attrs, default, _lnb) do
+    {context,
+      %{tag | ial: attrs}}
+  end
+
   defp add_attrs(context, text, attrs, default, _lnb) do
-    {context, 
+    {context,
       default
-      |> Enum.into(attrs)
+      |> Map.new()
+      |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
       |> attrs_to_string()
       |> add_to(text)}
   end

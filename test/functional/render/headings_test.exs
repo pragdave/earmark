@@ -1,14 +1,14 @@
 defmodule HeadingsTest do
   use ExUnit.Case
 
-  alias Earmark.Renderers.Html.Renderer
+  alias Earmark.Renderers.HtmlRenderer
   alias Earmark.Block.Heading
 
   import Support.Helpers
 
 
   defp render [level: level, content: content] do
-    with {_, value} <- Renderer.render([
+    with {_, value} <- HtmlRenderer.render([
       %Heading{attrs: nil, level: level, content: content}],
       updated_context()
     ) do

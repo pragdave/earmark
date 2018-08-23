@@ -2,7 +2,7 @@ defmodule Support.Helpers do
 
   alias Earmark.Block.IdDef
   alias Earmark.Context
-  alias Earmark.Renderers.Html.Inline
+  alias Earmark.Inline
 
   ###############
   # Helpers.... #
@@ -18,6 +18,10 @@ defmodule Support.Helpers do
 
   def as_html!(markdown, options \\ []) do
     Earmark.as_html!(markdown, struct(Earmark.Options, options))
+  end
+
+  def as_ast(markdown, options \\ []) do
+    Earmark.as_ast(markdown, struct(Earmark.Options, options))
   end
 
   def test_links do

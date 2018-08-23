@@ -3,7 +3,7 @@ defmodule FootnoteTest do
 
   alias Earmark.Block
   alias Earmark.Context
-  alias Earmark.Renderers.Html.Inline
+  alias Earmark.Inline
   alias Earmark.Line
   alias Earmark.Parser
 

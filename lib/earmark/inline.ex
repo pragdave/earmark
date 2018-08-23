@@ -1,8 +1,8 @@
- defmodule Earmark.Renderers.Html.Inline do
+ defmodule Earmark.Inline do
 
   @moduledoc """
-  Match and render inline sequences, passing each to the
-  renderer.
+  Match inline sequences and convert to blocks for the
+  renderer to handle.
   """
 
   alias  Earmark.Error
@@ -11,15 +11,34 @@
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
   import Earmark.Context, only: [prepend: 2, set_value: 2]
-  import Earmark.Message, only: [add_messages: 2]
+  import Earmark.Message, only: [add_messages: 2, get_messages: 1]
 
-  @doc false
+  # @doc false
   def convert(src, lnb, context)
-  def convert(list, lnb, context) when is_list(list), do: _convert(Enum.join(list, "\n"), lnb, context)
+  # def convert(list, lnb, context) when is_list(list), do: _convert(Enum.join(list, "\n"), lnb, context)
+  def convert(list, lnb, context) when is_list(list) do
+    result_context = set_value(context, [])
+
+    converted =
+      flatten_inline_content(list)
+      |> context.options.mapper.(&(_convert(&1, lnb, context)))
+
+    all_values = Enum.reduce(converted, [], fn(ctx, values) -> values ++ ctx.value end) |> flatten_result
+    result =
+      converted
+      |> Enum.reduce(fn(ctx, result_context) ->
+        result_context = set_value(result_context, [ctx.value, result_context.value])
+        add_messages(result_context, get_messages(ctx))
+      end)
+
+    set_value(result, flatten_result(result.value))
+  end
+
+
   def convert(src, lnb, context),                     do: _convert(src, lnb, context)
 
   defp _convert(src, current_lnb, context) do
-    convert_each({src, context, %{context | value: []}, current_lnb}, all_converters())
+    out = convert_each({src, context, %{context | value: []}, current_lnb}, all_converters())
   end
 
   @linky_converter_names [:converter_for_link, :converter_for_reflink, :converter_for_footnote, :converter_for_nolink]
@@ -44,16 +63,24 @@
     ]
   end
 
+  defmodule Link,   do: defstruct href: nil, text: nil, title: nil, ial: %{}
+  defmodule FnLink, do: defstruct ref: nil, back_ref: nil, number: nil, title: "see footnote", class_list: ["footnote"], ial: %{}
+  defmodule Image,  do: defstruct href: nil, alt: nil, title: nil, ial: %{}
+  defmodule Strikethrough, do: defstruct content: nil, ial: %{}
+  defmodule Strong, do: defstruct content: nil, ial: %{}
+  defmodule Em, do: defstruct content: nil, ial: %{}
+  defmodule Codespan, do: defstruct content: nil, ial: %{}
+  defmodule Br, do: defstruct []
+
 
   defp convert_each(data, converters)
 
   defp convert_each({"", context, result, _lnb}, _converters) do
     with result1 <- result.value
-        |> Enum.reverse()
-        |> IO.iodata_to_binary
-        |> replace(~r{(</[^>]*>)‘}, "\\1’")
-        |> replace(~r{(</[^>]*>)“}, "\\1”"), do: set_value(context, result1)
+      |> clean_result()
+      |> context.options.renderer.render_inline(context), do: set_value(context, result1)
   end
+
 
   defp convert_each(data, converters) do
     walk_converters(converters, data, converters)
@@ -66,7 +93,11 @@
     # This should never happen
     raise Error, "Illegal State"
   end
-  defp walk_converters([{_converter_name, converter}|rest], data = { _src, context, _result, _lnb}, all_converters) do
+
+  defp walk_converters(converters, data = { src = %{}, context, result, lnb }, all_converters) do
+    convert_each({ "", context, prepend(result, src), lnb }, all_converters)
+  end
+  defp walk_converters([{converter_name, converter}|rest], data = { src, context, _result, _lnb}, all_converters) do
     case converter.(data, context.options.renderer) do
       # This has not been the correct converter, move on
       nil                -> walk_converters(rest, data, all_converters)
@@ -79,7 +110,7 @@
   defp converter_for_escape({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.escape, src) do
       [ match, escaped ] = match
-      {behead(src, match), context, prepend(result, escaped), lnb}
+      { behead(src, match), context, prepend(result, escaped), lnb }
     end
   end
 
@@ -87,7 +118,7 @@
     if match = Regex.run(context.rules.autolink, src) do
       [ match, link, protocol ] = match
       { href, text } = convert_autolink(link, protocol)
-      out = renderer.link(href, text)
+      out = %Link{ href: href, text: text }
       { behead(src, match), context, prepend(result, out), lnb }
     end
   end
@@ -168,38 +199,38 @@
   defp converter_for_strikethrough_gfm({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.strikethrough, src) do
       [ match, content ] = match
-      out = renderer.strikethrough(convert(content, lnb, context).value)
+      out = %Strikethrough{ content: convert(content, lnb, context).value }
       { behead(src, match), context, prepend(result,  out), lnb }
     end
   end
 
-  defp converter_for_strong({src, context, result, lnb}, renderer) do
+  defp converter_for_strong({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.strong, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
         [ m, c ]    -> {m, c}
       end
-      out = renderer.strong(convert(content, lnb, context).value)
+      out = %Strong{ content: convert(content, lnb, context).value }
       { behead(src, match), context, prepend(result,  out), lnb }
     end
   end
 
-  defp converter_for_em({src, context, result, lnb}, renderer) do
+  defp converter_for_em({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.em, src) do
       { match, content } = case match do
         [ m, _, c ] -> {m, c}
         [ m, c ]    -> {m, c}
       end
-      out = renderer.em(convert(content, lnb, context).value)
+      out = %Em{ content: convert(content, lnb, context).value }
       { behead(src, match), context, prepend(result,  out), lnb }
     end
   end
 
-  defp converter_for_code({src, context, result, lnb}, renderer) do
+  defp converter_for_code({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.code, src) do
       [match, _, content] = match
       content = String.trim(content)  # this from Gruber
-      out = renderer.codespan(escape(content, true))
+      out = %Codespan{ content: escape(content, true) }
       { behead(src, match), context, prepend(result,  out), lnb }
     end
   end
@@ -217,9 +248,9 @@
   end
   defp converter_for_inline_ial(_conv_data, _renderer), do: nil
 
-  defp converter_for_br({src, context, result, lnb}, renderer) do
+  defp converter_for_br({src, context, result, lnb}, _renderer) do
     if match = Regex.run(context.rules.br, src, return: :index) do
-      out = renderer.br()
+      out = %Br{}
       [ {0, match_len} ] = match
       { behead(src, match_len), context, prepend(result,  out), lnb }
     end
@@ -228,7 +259,7 @@
   defp converter_for_text({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.text, src) do
       [ match ] = match
-      out = escape(context.options.do_smartypants.(match)) 
+      out = escape(context.options.do_smartypants.(match))
       |> hard_line_breaks(context.options.gfm, renderer)
       { behead(src, match), context, prepend(result,  out), lnb }
     end
@@ -238,7 +269,7 @@
     link = (if String.at(link, 6) == ":", do: behead(link, 7), else: link)
     text = mangle_link(link)
     href = mangle_link("mailto:") <> text
-    { encode(href), escape(text) }
+    { encode(href), text }
   end
 
   defp convert_autolink(link, _separator) do
@@ -251,7 +282,14 @@
   defp hard_line_breaks(text, false, _renderer), do: text
   defp hard_line_breaks(text, nil, _renderer),   do: text
   defp hard_line_breaks(text, _, renderer) do
-    with br = renderer.br(), do: Regex.replace(@gfm_hard_line_break, text, br <> "\n")
+    # Return a list, replacing all \\n
+    #
+    Regex.split(@gfm_hard_line_break, text)
+    |> Stream.with_index
+    |> Enum.reduce([], fn
+      {part, 0}, acc -> [part | acc]
+      {part, idx}, acc -> [%Br{} | ["\n" | [part | acc]]]
+    end)
   end
 
 
@@ -273,19 +311,20 @@
     title      = if title, do: escape(title), else: nil
     link       = convert_each({text, context, set_value(context, []), lnb},
                         Keyword.drop(all_converters(), @linky_converter_names))
-    context.options.renderer.link(href, link.value, title)
+
+    %Link{ href: href, text: link.value, title: title }
   end
 
   defp output_footnote_link(context, ref, back_ref, number) do
     ref = encode(ref)
     back_ref = encode(back_ref)
-    context.options.renderer.footnote_link(ref, back_ref, number)
+    %FnLink{ ref: ref, back_ref: back_ref, number: number }
   end
 
   defp output_image(renderer, text, href, title) do
     href = encode(href)
     title = if title, do: escape(title), else: nil
-    renderer.image(href, escape(text), title)
+    %Image{ href: href, alt: escape(text), title: title }
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do
@@ -310,10 +349,49 @@
   @trailing_newlines ~r{\n*\z}
 
   defp update_lnb(data = {_, _, %{value: []}, _}), do: data
-  defp update_lnb({rest, context, result = %{value: [head|_]}, lnb}) do
+  defp update_lnb({rest, context, result = %{value: [head|_]}, lnb}) when is_binary(head) do
     [suffix] = Regex.run(@trailing_newlines, head)
     { rest, context, result, lnb + String.length(suffix) }
   end
+  defp update_lnb({rest, context, result = %{value: text}, lnb}) do
+    { rest, context, result, lnb }
+  end
+
+  defp flatten_inline_content(list) do
+    flatten_inline_content(list, [])
+  end
+
+  defp flatten_inline_content([], result), do: Enum.reverse(result)
+  defp flatten_inline_content([head|rest], [last|result]) when is_binary(head) and is_binary(last) do
+    flatten_inline_content(rest, [last <> "\n"  <> head | result])
+  end
+  defp flatten_inline_content([head|rest], result), do: flatten_inline_content(rest, [head|result])
+
+  defp clean_result(result) do
+    clean_result(result, [])
+  end
+
+  defp clean_result([], cleaned), do: Enum.reverse(cleaned)
+  defp clean_result([clean | rest], cleaned) when is_binary(clean) do
+    result =
+      case List.first(rest) do
+        %{} ->
+          clean
+          |> replace(~r{‘}, "\\1’")
+          |> replace(~r{“}, "\\1”")
+
+        _ -> clean
+      end
+
+    clean_result(rest, [result | cleaned])
+  end
+
+  defp clean_result([clean | rest], cleaned) do
+    clean_result(rest, [clean | cleaned])
+  end
+
+  defp flatten_result(result) when length(result) == 1, do: hd(result)
+  defp flatten_result(result), do: result
 end
 
 # SPDX-License-Identifier: Apache-2.0
