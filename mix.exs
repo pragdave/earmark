@@ -6,6 +6,7 @@ defmodule Earmark.Mixfile do
   @deps  [
     { :credo,    "~> 0.8", only: [ :dev, :test ] },
     { :dialyxir, "~> 0.5", only: [ :dev, :test ] },
+    { :floki,    "~> 0.20.0" },
   ]
 
   @description """

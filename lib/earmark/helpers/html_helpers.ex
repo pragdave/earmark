@@ -6,17 +6,15 @@ defmodule Earmark.Helpers.HtmlHelpers do
 
   @doc false
 
+  # def augment_tag_with_ial(context, tag, ial, lnb) when is_binary(tag) do
+  #   case Regex.run( @simple_tag, tag) do
+  #     nil -> nil
+  #     _   -> add_attrs(context, tag, ial, [], lnb)
+  #   end
+  # end
+
   def augment_tag_with_ial(context, tag, ial, lnb) do 
-    case Regex.run( @simple_tag, tag) do 
-      nil ->
-        nil
-      ["<code class=\"inline\">", "code class=\"inline\""] ->
-        tag = String.replace(tag, ~s{ class="inline"}, "")
-        add_attrs(context, tag, ial, [{"class", ["inline"]}], lnb)
-      _   ->
-        add_attrs(context, tag, ial, [], lnb)
-    end
-    
+    add_attrs(context, tag, ial, [], lnb)
   end
 
 
@@ -40,6 +38,11 @@ defmodule Earmark.Helpers.HtmlHelpers do
   defp add_attrs(context, text, attrs, default, lnb) when is_binary(attrs) do
     {context1, attrs} = parse_attrs( context, attrs, lnb )
     add_attrs(context1, text, attrs, default, lnb)
+  end
+
+  defp add_attrs(context, tag = %{}, attrs, default, _lnb) do
+    {context,
+      %{tag | ial: attrs}}
   end
 
   defp add_attrs(context, text, attrs, default, _lnb) do

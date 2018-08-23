@@ -3,7 +3,7 @@ defmodule Earmark.Options do
   @type t :: %__MODULE__{}
 
   # What we use to render
-  defstruct  renderer: Earmark.HtmlRenderer,
+  defstruct  renderer: Earmark.Renderers.HtmlRenderer,
              # Inline style options
              gfm: true, breaks: false, pedantic: false,
              smartypants: true, sanitize: false,
@@ -25,7 +25,7 @@ defmodule Earmark.Options do
              mapper: &Earmark.pmap/2,
              mapper_with_timeout: &Earmark.pmap/3,
 
-             render_code: &Earmark.HtmlRenderer.render_code/1,
+             render_code: &Earmark.Renderers.HtmlRenderer.render_code/1,
 
              # Filename and initial line number of the markdown block passed in
              # for meaningfull error messages
