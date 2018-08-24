@@ -21,7 +21,7 @@
 
     converted =
       flatten_inline_content(list)
-      |> context.options.mapper.(&(_convert(&1, lnb, context)))
+      |> Earmark.Options.get_mapper(context.options).(&(_convert(&1, lnb, context)))
 
     all_values = Enum.reduce(converted, [], fn(ctx, values) -> values ++ ctx.value end) |> flatten_result
     result =
