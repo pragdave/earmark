@@ -57,10 +57,11 @@ defmodule Earmark do
 
   GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
 
-  * StrikeThrough
+  * Strike Through
 
-        iex(1)> Earmark.as_html! ["~~hello~~"]
-        "<p><del>hello</del></p>\\n"
+          iex(1)> Earmark.as_html! ["~~hello~~"]
+          "<p><del>hello</del></p>\\n"
+
 
   * Syntax Highlighting
 
@@ -258,7 +259,7 @@ defmodule Earmark do
 
   ## Timeouts
 
-  By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`, 
+  By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`,
   which uses `Task.await` with its default timeout of 5000ms.
 
   In rare cases that might not be enough.
