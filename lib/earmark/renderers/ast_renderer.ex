@@ -432,3 +432,5 @@ defmodule Earmark.Renderers.ASTRenderer do
     |> Enum.join(" ")
   end
 end
+
+# SPDX-License-Identifier: Apache-2.0
