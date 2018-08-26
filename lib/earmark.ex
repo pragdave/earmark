@@ -285,6 +285,23 @@ defmodule Earmark do
   alias Earmark.Options
   import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
 
+  def as_ast(lines, options \\ %Options{}) do
+    options = %{ options | renderer: Earmark.Renderers.ASTRenderer }
+    {context, html} = _as_ast(lines, options)
+    case sort_messages(context) do
+      []       -> {:ok, html, []}
+      messages -> {:error, html, messages}
+    end
+  end
+
+  defp _as_ast(lines, options) do
+    {blocks, context} = parse(lines, options)
+    case blocks do
+      [] -> {context, []}
+      _  -> options.renderer.render(blocks, context)
+    end
+  end
+
   @doc """
   Given a markdown document (as either a list of lines or
   a string containing newlines), returns a tuple containing either
@@ -298,7 +315,7 @@ defmodule Earmark do
   * `renderer`: ModuleName
 
     The module used to render the final document. Defaults to
-    `Earmark.HtmlRenderer`
+    `Earmark.Renderers.HtmlRenderer`
 
   * `gfm`: boolean
 
