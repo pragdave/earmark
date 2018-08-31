@@ -1,5 +1,12 @@
  
-# 1.2.6
+# 1.2.7
+
+  Special KUDOS for [pareehonos](https://github.com/pareeohnos) for a huge PR concerning the major Feature Request [#145](https://github.com/pragdave/earmark/issues/145)
+
+  This cannot be merged yet but certainly is a great contribution to our codebase.
+
+
+# 1.2.6 2018/08/21
 
 * Fix for issues
   - [#198 Escapes inside link texts are ignored]( https://github.com/pragdave/earmark/issues/198 )
