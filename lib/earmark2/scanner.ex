@@ -14,7 +14,8 @@ defmodule Earmark2.Scanner do
   """
 
   def scan_line({line, lnb}) do
-    with tokens <- tokenize(line, []), do: {lnb, tokens |> Enum.reverse}
+    tokens = tokenize(line, [])
+    {lnb, tokens |> Enum.reverse}
   end
 
 
