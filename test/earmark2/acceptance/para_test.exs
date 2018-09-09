@@ -3,11 +3,16 @@ defmodule Earmark2.Acceptance.ParaTest do
 
   describe "simple para" do
 
-    test "nothing at all" do
-      assert ok_ast("") == []
-    end
     test "single line" do
       assert ok_ast("Hello World") == [{:p, [], [{:text, [], "Hello World"}]}]
+    end
+
+    test "indented single line" do
+      assert ok_ast("    Hello World") == [{:pre, [], [{:code, [], "Hello World"}]}]
+    end
+
+    test "setext, beloved setext" do
+      assert ok_ast("Hello World\n===") == [{:h1, [], "Hello World"}]
     end
   end
   
