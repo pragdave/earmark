@@ -30,6 +30,9 @@ defmodule Earmark.Context do
   @doc """
   Convenience method to prepend to the value list
   """
+  def prepend(%__MODULE__{value: value} = ctx, prep) when is_list(prep) do
+    %{ctx | value: Enum.reduce(prep, value, &([&1|&2]))}
+  end
   def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
   @doc """
   Convenience method to prepend to the value list
@@ -139,7 +142,7 @@ defmodule Earmark.Context do
     defp smartypants(text) do
       text
       |> replace(~r{--}, "—")
-      |> replace(~r{(^|[-—/\(\[\{"”“\s])'}, "\\1‘")
+      |> replace(~r{(^|[-—/\(\[\{"”“\s])+'}, "\\1‘")
       |> replace(~r{\'}, "’")
       |> replace(~r{(^|[-—/\(\[\{‘\s])\"}, "\\1“")
       |> replace(~r{"}, "”")

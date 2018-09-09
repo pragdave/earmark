@@ -1,10 +1,11 @@
-defmodule Earmark.HtmlRenderer do
+defmodule Earmark.Renderers.HtmlRenderer do
 
   alias  Earmark.Block
   alias  Earmark.Context
   alias  Earmark.Options
+  alias Earmark.Inline
   import Earmark.Inline,  only: [ convert: 3 ]
-  import Earmark.Helpers, only: [ escape: 2 ]
+  import Earmark.Helpers, only: [ escape: 2, replace: 3 ]
   import Earmark.Helpers.HtmlHelpers
   import Earmark.Message, only: [ add_messages_from: 2, add_messages: 2, get_messages: 1 ]
   import Earmark.Context, only: [ append: 2, set_value: 2 ]
@@ -21,6 +22,13 @@ defmodule Earmark.HtmlRenderer do
       |> Enum.reduce( messages, fn (ctx, messages1) ->  messages1 ++ get_messages(ctx) end) 
 
     {put_in(context.options.messages, all_messages), html |> IO.iodata_to_binary()}
+  end
+
+  def render_inline(blocks, context=%Context{options: %Options{mapper: mapper}}) do
+    result = blocks
+    |> mapper.(&(render_block(&1, context)))
+    |> Enum.reverse()
+    |> Enum.join
   end
 
   #############
@@ -179,25 +187,40 @@ defmodule Earmark.HtmlRenderer do
   # And here are the inline renderers #
   #####################################
 
-  def br,                  do: "<br/>"
-  def codespan(text),      do: ~s[<code class="inline">#{text}</code>]
-  def em(text),            do: "<em>#{text}</em>"
-  def strong(text),        do: "<strong>#{text}</strong>"
-  def strikethrough(text), do: "<del>#{text}</del>"
+  defp render_block(%Inline.Br{}, _), do: "<br/>"
+  defp render_block(%Inline.Codespan{ content: text, ial: ial }, context) do
+    {_, html} = add_attrs!(context, ~s[<code>#{text}</code>], ial, [{ "class", ["inline"] }], nil)
+    html
+  end
+  defp render_block(%Inline.Em{ content: text }, _), do: "<em>#{text}</em>"
+  defp render_block(%Inline.Strong{ content: text }, _), do: "<strong>#{text}</strong>"
+  defp render_block(%Inline.Strikethrough{ content: text }, _), do: "<del>#{text}</del>"
 
-  def link(url, text),        do: ~s[<a href="#{url}">#{text}</a>]
-  def link(url, text, nil),   do: ~s[<a href="#{url}">#{text}</a>]
-  def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
-
-  def image(path, alt, nil) do
-    ~s[<img src="#{path}" alt="#{alt}"/>]
+  defp render_block(%Inline.Link{ href: url, text: text, title: nil, ial: ial }, context) do
+    {_, html} = add_attrs!(context, ~s[<a href="#{url}">#{text}</a>], ial, [], nil)
+    html
   end
 
-  def image(path, alt, title) do
-    ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
+  defp render_block(%Inline.Link{ href: url, text: text, title: title, ial: ial }, context) do
+    {_, html} = add_attrs!(context, ~s[<a href="#{url}" title="#{title}">#{text}</a>], ial, [], nil)
+    html
   end
 
-  def footnote_link(ref, backref, number), do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
+  defp render_block(%Inline.Image{ href: path, alt: alt, title: nil, ial: ial }, context) do
+    {_, html} = add_attrs!(context, ~s[<img src="#{path}" alt="#{alt}"/>], ial, [], nil)
+    html
+  end
+
+  defp render_block(%Inline.Image{ href: path, alt: alt, title: title, ial: ial }, context) do
+    {_, html} = add_attrs!(context, ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>], ial, [], nil)
+    html
+  end
+
+  defp render_block(%Inline.FnLink{ ref: ref, back_ref: back_ref, number: number, title: title, class_list: class_list }, context) do
+    ~s[<a href="##{ref}" id="#{back_ref}" class="footnote" title="see footnote">#{number}</a>]
+  end
+
+  defp render_block(text, _context) when is_binary(text), do: text
 
   # Table rows
   def add_trs(context, rows, tag, aligns, lnb) do
@@ -225,6 +248,10 @@ defmodule Earmark.HtmlRenderer do
       converted = convert(col, lnb,  ctx)
       append(add_messages_from(ctx, converted), "<#{tag}#{style}>#{converted.value}</#{tag}>")
     end
+  end
+
+  defp append_ial_attributes(tag, ial) do
+    
   end
 
 
@@ -258,6 +285,22 @@ defmodule Earmark.HtmlRenderer do
     ["" | String.split( prefix || "" )]
     |> Enum.map( fn pfx -> "#{pfx}#{language}" end )
     |> Enum.join(" ")
+  end
+
+  ###########################################
+  # Other functions specific to each parser #
+  ###########################################
+
+  def replace_hard_line_break(text, pattern) do
+    Regex.replace(pattern, text, "<br/>" <> "\n")
+  end
+
+  def clean_inline(value) do
+    value
+    |> Enum.reverse()
+    |> IO.iodata_to_binary
+    |> replace(~r{(</[^>]*>)‘}, "\\1’")
+    |> replace(~r{(</[^>]*>)“}, "\\1”")
   end
 
 end
