@@ -10,19 +10,23 @@ defmodule Earmark2.Scanner do
 
 
   @doc """
-  Scans a line into tokens, returning a tuple `{lnb, tokens}`.
+  Scans a line into tokens.
+        iex(0)>
+
   """
+  def scan_lines(lines), do: lines |> Stream.zip(Stream.iterate(1, &(&1+1))) |> Enum.flat_map(&scan_line/1)
 
-  def scan_line({line, lnb}) do
-    tokens = tokenize(line, [])
-    {lnb, tokens |> Enum.reverse}
-  end
+  @doc """
+    Used by `scan_lines`
+  """
+  def scan_line({line, lnb}), do: tokenize(line, [], {lnb, 1}) |> Enum.reverse
 
 
-  defp tokenize(line, tokens, col \\ 1)
-  defp tokenize("", tokens,  col), do: tokens
-  defp tokenize(line, tokens, col) do
-    with {token, rest, new_col} <- get_token(line, col), do: tokenize(rest, [token|tokens], new_col)
+  defp tokenize(line, tokens, location)
+  defp tokenize("", [],  location), do: [{:st_blank, "", location}]
+  defp tokenize("", tokens,  _), do: tokens
+  defp tokenize(line, tokens, {lnb, col}) do
+    with {token, rest, new_col} <- get_token(line, {lnb, col}), do: tokenize(rest, [token|tokens], {lnb, new_col})
   end
 
 
@@ -70,30 +74,33 @@ defmodule Earmark2.Scanner do
   deftoken :squote,      "'"
   deftoken :colon,       ":"
   deftoken :ws,          "\\s+"
-  deftoken :text,        "#{@always_text}#{@text_after}+"
+  deftoken :text,        "#{@always_text}#{@text_after}*"
 
   # tokens matching only at the start of a line
+  deftokenstart :st_setext, "=+\\s*\\z"
+  deftokenstart :st_atx,    "#" <> "{1,6}\\s+"
   deftokenstart :st_indent, "\\s+"
   deftokenstart :st_ul,     "\\s*[-*]\\s+"
   deftokenstart :st_ol,     "\\s*\\d+\\.\\s+"
   deftokenstart :st_fence,  "\\s*(?:```|~~~).*"
 
-  defp get_token(line, col) do
-    match(line, col) || {{:error, line, col}, "", col}
+  defp get_token(line, {lnb, col}) do
+    match(line, {lnb, col}) || {{:error, line, {lnb, col}}, "", col}
   end
 
-  defp macth(line, 1) do
+  defp match(line, location)
+  defp match(line, loc={_, 1}) do
     @_tokens_at_start
-    |> Enum.find_value(&match_token(&1, line, col))
+    |> Enum.find_value(&match_token(&1, line, loc))
   end
-  defp match(line, col) do
+  defp match(line, loc) do
     @_tokens_inside
-    |> Enum.find_value(&match_token(&1, line, col))
+    |> Enum.find_value(&match_token(&1, line, loc))
   end
 
-  defp match_token( {token_name, token_rgx}, line, col ) do
+  defp match_token( {token_name, token_rgx}, line, loc={_, col} ) do
     case Regex.run(token_rgx, line) do
-      [_, token_string, rest] -> {{token_name, token_string, col}, rest, col + String.length(token_string)} 
+      [_, token_string, rest] -> {{token_name, token_string, loc}, rest, col + String.length(token_string)} 
       _                       -> nil
     end
   end

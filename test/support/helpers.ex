@@ -21,8 +21,9 @@ defmodule Support.Helpers do
   end
 
   def as_ast(markdown, options \\ []) do
-    Earmark.as_ast(markdown, struct(Earmark.Options, options))
+    Earmark2.as_ast(markdown, struct(Earmark.Options, options))
   end
+
 
   def test_links do
     [
