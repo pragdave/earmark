@@ -1,4 +1,5 @@
 /_build
+.elixir_ls
 /deps
 erl_crash.dump
 *.ez

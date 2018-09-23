@@ -1,7 +1,9 @@
 defmodule Earmark2.Parser do
 
   alias Earmark.Options
-  alias Earmark2.Parser.Ast
+  alias Earmark2.Parser.Ast, as: A
+
+  import Earmark2.Scanner, only: [scan_lines: 1]
 
 
   @moduledoc """
@@ -19,25 +21,28 @@ defmodule Earmark2.Parser do
       ...(2)> nodes
       []
   """
-  def parse_document(document, options \\ %Options{}) do
+  def parse_document(document, options \\ %Options{})
+  def parse_document(document, options) when is_binary(document) do
+    document |> String.split(~r{\r?\n}) |> scan_lines() |> parse_document(options)
+  end
+  def parse_document(tokens, _options) do
+    parse(tokens, :init, [], [])
   end
 
 
   @doc false
-  def parse(tokens, state, ast \\ %Ast{})
-  def parse([], :end, ast), do: Ast.reverse_nodes(ast)
-  def parse([], state, ast), do: Ast.illegal_end(ast, state)
-  
-  def parse(tokens, :init, ast) do
-    Ast.push_node(ast, {:para, parse_para(tokens, ast, [])})
+  def parse(tokens, state, ast, errors)
+  def parse([], :end, ast, errors), do: {ast |> A.close_ast, errors}
+  def parse([], state, ast, errors), do: {ast |> A.close_ast, [{:error,0, "unexpected EOI in state #{state}"} | Enum.reverse(errors)]}
+  def parse(tokens, :init, ast, errors), do: parse_init(tokens, ast, errors)
+
+
+  defp parse_init([], ast, errors), do: parse([], :end, ast, errors)
+  defp parse_init([{:st_blank, _, _}|rest], ast, errors), do: parse_init(rest, ast, errors)
+  defp parse_init(tokens = [{:text, _, _}|_],ast, errors), do: parse_para(tokens, [{:para, [], []}|ast], errors)
+
+  defp parse_para([{:text, text, _}|rest], ast, errors) do
+    parse_para(rest, A.add_text(text, ast), errors)
   end
-
-
-  defp parse_para(tokens, ast, para)
-  defp parse_para([{:verb, _, _, _}=verb|tokens], ast, para), do: parse_para(tokens, ast, [verb|para])
-  defp parse_para([{:eol, _, _, _}|tokens], ast, para), do: parse_para(tokens, ast, para)
-  defp parse_para([], _, para), do: para |> Enum.reverse
-
-
-
+  defp parse_para([], ast, errors), do: parse([], :end, ast, errors)
 end
