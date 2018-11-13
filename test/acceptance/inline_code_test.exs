@@ -22,7 +22,7 @@ defmodule Acceptance.InlineCodeTest do
 
     test "this time you got it right" do
       markdown = "`a\nb`c\n"
-      html = "<p><code class=\"inline\">a\nb</code>c</p>\n"
+      html = "<p><code class=\"inline\">a b</code>c</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -30,7 +30,7 @@ defmodule Acceptance.InlineCodeTest do
 
     test "and again!!!" do
       markdown = "+ ``a `\n`\n b``c"
-      html = "<ul>\n<li><code class=\"inline\">a `\n`\n b</code>c\n</li>\n</ul>\n"
+      html = "<ul>\n<li><code class=\"inline\">a ` ` b</code>c\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -59,15 +59,23 @@ defmodule Acceptance.InlineCodeTest do
       html = "<p><code class=\"inline\">\\</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
   
     test "backtix cannot be escaped" do 
       markdown = "`` \\` ``"
-      html = "<p><code class=\"inline\">\\</code></p>\n"
+      html = "<p><code class=\"inline\">\\`</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "unless at the beginning" do 
+      markdown = "\\``code\\`"
+      html = "<p>`<code class=\"inline\">code\\</code></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
     end
   end
 
@@ -77,7 +85,7 @@ defmodule Acceptance.InlineCodeTest do
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "remove at start" do
@@ -85,7 +93,7 @@ defmodule Acceptance.InlineCodeTest do
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "remove and squash" do
@@ -93,7 +101,7 @@ defmodule Acceptance.InlineCodeTest do
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
       messages = []
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   end
