@@ -48,8 +48,10 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   # Outside state, represented by nil
   defp has_still_opening_backtix([{:other, _} | rest], nil),
     do: has_still_opening_backtix(rest, nil)
-  defp has_still_opening_backtix([{:backtix, btx} | rest], nil), 
+
+  defp has_still_opening_backtix([{:backtix, btx} | rest], nil),
     do: has_still_opening_backtix(rest, {:new, btx})
+
   defp has_still_opening_backtix([{:escape, _} | rest], nil),
     do: has_still_opening_backtix(rest, :force_outside)
 
@@ -65,7 +67,8 @@ defmodule Earmark.Helpers.LookaheadHelpers do
       has_still_opening_backtix(rest, open)
     end
   end
-  defp has_still_opening_backtix([_ | rest], open = {_,_}),
+
+  defp has_still_opening_backtix([_ | rest], open = {_, _}),
     do: has_still_opening_backtix(rest, open)
 
   #######################################################################################
