@@ -36,7 +36,7 @@ defmodule Earmark.CLI do
     case  parse  do
       { [ {switch, true } ],  _, _ } -> switch
       { options, [ filename ],  _ }  -> {open_file(filename), filename, options}
-      { options, [ ],           _ }  -> {:stdio, options}
+      { options, [ ],           _ }  -> {:stdio, "<no file>", options}
       _                              -> :help
     end
   end
@@ -51,14 +51,6 @@ defmodule Earmark.CLI do
     IO.puts( Earmark.version() )
   end
 
-  defp process({io_device, options}) do
-    options = struct(Earmark.Options,
-                 booleanify(options) |> numberize_options([:timeout]))
-
-    content = IO.stream(io_device, :line) |> Enum.to_list
-    Earmark.as_html!(content, options)
-    |> IO.puts
-  end
   defp process({io_device, filename, options}) do
     options = struct(Earmark.Options,
                  booleanify(options) |> numberize_options([:timeout]) |> add_filename(filename))
