@@ -1,36 +1,36 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version   "1.2.7"
+  @version "1.3.0"
 
-  @deps  [
-    { :credo,    "~> 0.8", only: [ :dev, :test ] },
-    { :dialyxir, "~> 0.5", only: [ :dev, :test ] },
+  @deps [
+    {:credo, "~> 0.10", only: [:dev, :test]},
+    {:dialyxir, "~> 0.5", only: [:dev, :test]}
   ]
 
   @description """
-    Earmark is a pure-Elixir Markdown converter.
+  Earmark is a pure-Elixir Markdown converter.
 
-    It is intended to be used as a library (just call Earmark.as_html),
-    but can also be used as a command-line tool (run mix escript.build
-    first).
+  It is intended to be used as a library (just call Earmark.as_html),
+  but can also be used as a command-line tool (run mix escript.build
+  first).
 
-    Output generation is pluggable.
-    """
+  Output generation is pluggable.
+  """
 
   ############################################################
 
   def project do
     [
-      app:           :earmark,
-      version:       @version,
-      elixir:        "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      escript:       escript_config(),
-      deps:          @deps,
-      description:   @description,
-      package:       package(),
-      aliases:       [docs: &docs/1, readme: &readme/1]
+      app: :earmark,
+      version: @version,
+      elixir: "~> 1.4",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      escript: escript_config(),
+      deps: @deps,
+      description: @description,
+      package: package(),
+      aliases: [docs: &docs/1, readme: &readme/1]
     ]
   end
 
@@ -43,7 +43,12 @@ defmodule Earmark.Mixfile do
   defp package do
     [
       files: [
-        "lib", "src/*.xrl", "src/*.yrl", "tasks", "mix.exs", "README.md"
+        "lib",
+        "src/*.xrl",
+        "src/*.yrl",
+        "tasks",
+        "mix.exs",
+        "README.md"
       ],
       maintainers: [
         "Robert Dober <robert.dober@gmail.com>",
@@ -53,25 +58,25 @@ defmodule Earmark.Mixfile do
         "Apache 2 (see the file LICENSE for details)"
       ],
       links: %{
-        "GitHub" => "https://github.com/pragdave/earmark",
+        "GitHub" => "https://github.com/pragdave/earmark"
       }
     ]
   end
 
   defp escript_config do
-    [ main_module: Earmark.CLI ]
+    [main_module: Earmark.CLI]
   end
 
-  defp elixirc_paths(:test), do: [ "lib", "test/support" ]
-  defp elixirc_paths(_),     do: [ "lib" ]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp docs(args) do
-    Code.load_file "tasks/docs.exs"
+    Code.load_file("tasks/docs.exs")
     Mix.Tasks.Docs.run(args)
   end
 
   defp readme(args) do
-    Code.load_file "tasks/readme.exs"
+    Code.load_file("tasks/readme.exs")
     Mix.Tasks.Readme.run(args)
   end
 end
