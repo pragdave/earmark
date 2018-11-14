@@ -104,6 +104,14 @@ defmodule Acceptance.InlineCodeTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "remove and squash newlines too" do
+      markdown = "`\n  alpha  \n\n beta `"
+      html = "<p><code class=\"inline\">alpha beta</code></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
   end
 end
 
