@@ -74,23 +74,17 @@ defmodule Earmark.Helpers.LinkParser do
   defp text_of_token({_, text}), do: text
 
   # sic!!! Greedy and not context aware, matching '..." and "...' for backward comp
-  @title_end_rgx ~r{\s+['"](.*)['"](?=\))}
+  @title_dbl_rgx ~r{\s+"(.*)"(?=\))}
+  @title_sgl_rgx ~r{\s+'(.*)'(?=\))}
   defp title(remaining_text, lnb) do
-    case Regex.run(@title_end_rgx, remaining_text) do
-      nil             -> nil
-      [parsed, inner] -> {parsed, inner, deprecations(parsed, lnb)}
+    case Regex.run(@title_dbl_rgx, remaining_text) do
+      nil             -> 
+        case Regex.run(@title_sgl_rgx, remaining_text) do
+          nil -> nil
+          [parsed, inner] -> {parsed, inner, []}
+        end
+      [parsed, inner] -> {parsed, inner, []}
     end
-  end
-
-  defp deprecations(string, lnb) do
-   with stripped <- String.trim(string),
-        opening  <- String.first(stripped),
-        closing  <- String.last(stripped), do: _deprecations(opening, closing, lnb)
-  end
-
-  defp _deprecations(opening, closing, _lnb) when opening == closing, do: []
-  defp _deprecations(_opening, _closing, lnb) do
-    [ {:warning, lnb, "deprecated, mismatching quotes will not be parsed as matching in v1.3"} ]
   end
 
   defp make_result(nil, _, _), do: nil
