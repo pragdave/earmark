@@ -1,17 +1,18 @@
 defmodule Earmark do
-
   @moduledoc """
 
   ### API
 
-      * `Earmark.as_html`
+  * `Earmark.as_html`
+
         {:ok, html_doc, []}                = Earmark.as_html(markdown)
         {:error, html_doc, error_messages} = Earmark.as_html(markdown)
 
-      * `Earmark.as_html!`
+  * `Earmark.as_html!`
+
         html_doc = Earmark.as_html!(markdown, options)
 
-        Any error messages are printed to _stderr_.
+    Any error messages are printed to _stderr_.
 
   #### Options:
 
@@ -325,8 +326,9 @@ defmodule Earmark do
   """
   def as_html(lines, options \\ %Options{}) do
     {context, html} = _as_html(lines, options)
+
     case sort_messages(context) do
-      []       -> {:ok, html, []}
+      [] -> {:ok, html, []}
       messages -> {:error, html, messages}
     end
   end
@@ -338,6 +340,7 @@ defmodule Earmark do
   Otherwise it behaves exactly as `as_html`.
   """
   def as_html!(lines, options \\ %Options{})
+
   def as_html!(lines, options = %Options{}) do
     {context, html} = _as_html(lines, options)
     emit_messages(context)
@@ -346,9 +349,10 @@ defmodule Earmark do
 
   defp _as_html(lines, options) do
     {blocks, context} = parse(lines, options)
+
     case blocks do
       [] -> {context, ""}
-      _  -> options.renderer.render(blocks, context)
+      _ -> options.renderer.render(blocks, context)
     end
   end
 
@@ -362,23 +366,24 @@ defmodule Earmark do
   """
 
   def parse(lines, options \\ %Earmark.Options{})
-  def parse(lines, options = %Options{}) when is_list(lines) do
-    { blocks, links, options1 } = Earmark.Parser.parse(lines, options, false)
 
-    context = %Earmark.Context{options: options1, links: links }
-              |> Earmark.Context.update_context()
+  def parse(lines, options = %Options{}) when is_list(lines) do
+    {blocks, links, options1} = Earmark.Parser.parse(lines, options, false)
+
+    context =
+      %Earmark.Context{options: options1, links: links}
+      |> Earmark.Context.update_context()
 
     if options.footnotes do
-      { blocks, footnotes, options1 } = Earmark.Parser.handle_footnotes(blocks, context.options)
-      context =
-        put_in(context.footnotes, footnotes)
-      context =
-        put_in(context.options, options1)
-      { blocks, context }
+      {blocks, footnotes, options1} = Earmark.Parser.handle_footnotes(blocks, context.options)
+      context = put_in(context.footnotes, footnotes)
+      context = put_in(context.options, options1)
+      {blocks, context}
     else
-      { blocks, context }
+      {blocks, context}
     end
   end
+
   def parse(lines, options) when is_binary(lines) do
     lines
     |> String.split(~r{\r\n?|\n})
@@ -404,10 +409,16 @@ defmodule Earmark do
 
   defp join_pmap_results_or_raise(yield_tuples, timeout)
   defp join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
-  defp join_pmap_results_or_raise({task, {:error, reason}}, _timeout), do:
-    raise Error, "#{inspect task} has died with reason #{inspect reason}"
-  defp join_pmap_results_or_raise({task, nil}, timeout), do:
-    raise Error, "#{inspect task} has not responded within the set timeout of #{timeout}ms, consider increasing it"
+
+  defp join_pmap_results_or_raise({task, {:error, reason}}, _timeout),
+    do: raise(Error, "#{inspect(task)} has died with reason #{inspect(reason)}")
+
+  defp join_pmap_results_or_raise({task, nil}, timeout),
+    do:
+      raise(
+        Error,
+        "#{inspect(task)} has not responded within the set timeout of #{timeout}ms, consider increasing it"
+      )
 end
 
 # SPDX-License-Identifier: Apache-2.0

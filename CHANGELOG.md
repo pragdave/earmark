@@ -1,5 +1,15 @@
- 
-# 1.2.7
+# 1.3
+
+* Fix for issues
+  - [#208 Inline code made Commonmark compatible]( https://github.com/pragdave/earmark/issues/208 )
+  - [#203 escript does not report filename in error messages]( https://github.com/pragdave/earmark/issues/203 )
+  - [#90 Parsing "...' or '..." as link titles removed]( https://github.com/pragdave/earmark/issues/90 )
+
+## Dev dependencies updated
+
+* credo -> 0.10
+
+# 1.2.7 Not released Milestone merged into 1.3
 
   Special KUDOS for [pareehonos](https://github.com/pareeohnos) for a huge PR concerning the major Feature Request [#145](https://github.com/pragdave/earmark/issues/145)
 
