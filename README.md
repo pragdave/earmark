@@ -315,8 +315,12 @@ Given a markdown document (as either a list of lines or
 a string containing newlines), returns a tuple containing either
 `{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
 Where `html_doc` is an HTML representation of the markdown document and
-`error_messages` is a list of strings representing information concerning
-the errors that occurred during parsing.
+`error_messages` is a list of tuples with the following elements
+
+- `severity` e.g. `:error` or `:warning`
+- line number in input where the error occurred
+- description of the error
+
 
 The options are a `%Earmark.Options{}` structure:
 
@@ -338,7 +342,7 @@ The options are a `%Earmark.Options{}` structure:
 * `smartypants`: boolean
 
   Turns on smartypants processing, so quotes become curly, two
-  or three hyphens become en and em dashes, and so on. True by
+  or four hyphens become en and em dashes, and so on. True by
   default.
 
 So, to format the document in `original` and disable smartypants,
