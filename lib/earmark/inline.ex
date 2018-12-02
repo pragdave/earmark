@@ -270,6 +270,7 @@ defmodule Earmark.Inline do
       out =
         escape(context.options.do_smartypants.(match))
         |> hard_line_breaks(context.options.gfm, renderer)
+        |> gruber_line_breaks(renderer)
 
       {behead(src, match), context, prepend(result, out), lnb}
     end
@@ -285,6 +286,11 @@ defmodule Earmark.Inline do
   defp convert_autolink(link, _separator) do
     link = encode(link)
     {link, link}
+  end
+
+  @gruber_line_break Regex.compile!(" {2,}(?>\n)", "m")
+  defp gruber_line_breaks(text, renderer) do
+    Regex.replace(@gruber_line_break, text, renderer.br())
   end
 
   @gfm_hard_line_break ~r{\\\n}
