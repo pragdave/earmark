@@ -202,7 +202,7 @@ defmodule Earmark.HtmlRenderer do
   # And here are the inline renderers #
   #####################################
 
-  def br, do: "<br/>"
+  def br, do: "<br>"
   def codespan(text), do: ~s[<code class="inline">#{text}</code>]
   def em(text), do: "<em>#{text}</em>"
   def strong(text), do: "<strong>#{text}</strong>"

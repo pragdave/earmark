@@ -3,7 +3,7 @@ defmodule Acceptance.ParagraphsTest do
   
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "Paragraphs" do
+  describe "Paragraphs" do
     test "a para" do
       markdown = "aaa\n\nbbb\n"
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
@@ -20,7 +20,8 @@ defmodule Acceptance.ParagraphsTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0

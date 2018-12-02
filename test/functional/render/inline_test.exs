@@ -12,9 +12,9 @@ defmodule InlineTest do
     assert result == "hello"
   end
 
-  test "line ending with 2 spaces causes a <br/>" do
+  test "line ending with 2 spaces causes a <br>" do
     result = convert_pedantic("hello  \nworld")
-    assert result == "hello<br/>world"
+    assert result == "hello<br>world"
   end
 
   ############
