@@ -1,4 +1,14 @@
-# 1.3
+# 1.3.2
+
+  - [#216 corrected code formatting in doc]( https://github.com/pragdave/earmark/issues/216 )
+
+
+# 1.3.1 2018/12/21
+
+  - [#212 spaces at line end force line break]( https://github.com/pragdave/earmark/issues/212 )
+  - [#211 documentation explaining error messages]( https://github.com/pragdave/earmark/issues/211 )
+
+# 1.3.0 2018/11/15
 
 * Fix for issues
   - [#208 Inline code made Commonmark compatible]( https://github.com/pragdave/earmark/issues/208 )

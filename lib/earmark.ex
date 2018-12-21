@@ -3,12 +3,12 @@ defmodule Earmark do
 
   ### API
 
-  * `Earmark.as_html`
+  #### Earmark.as_html
 
         {:ok, html_doc, []}                = Earmark.as_html(markdown)
         {:error, html_doc, error_messages} = Earmark.as_html(markdown)
 
-  * `Earmark.as_html!`
+  #### Earmark.as_html!
 
         html_doc = Earmark.as_html!(markdown, options)
 
