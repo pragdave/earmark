@@ -249,46 +249,6 @@ defmodule Acceptance.LinkAndImgTest do
     end
   end
 
-  describe "Autolinks" do
-    test "that was easy" do
-      markdown = "<http://foo.bar.baz>\n"
-      html = "<p><a href=\"http://foo.bar.baz\">http://foo.bar.baz</a></p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "as was this" do
-      markdown = "<irc://foo.bar:2233/baz>\n"
-      html = "<p><a href=\"irc://foo.bar:2233/baz\">irc://foo.bar:2233/baz</a></p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "good ol' mail" do
-      markdown = "<mailto:foo@bar.baz>\n"
-      html = "<p><a href=\"mailto:foo@bar.baz\">foo@bar.baz</a></p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "we know what mail is" do
-      markdown = "<foo@bar.example.com>\n"
-      html = "<p><a href=\"mailto:foo@bar.example.com\">foo@bar.example.com</a></p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "not really a link" do
-      markdown = "<>\n"
-      html = "<p>&lt;&gt;</p>\n"
-      messages = []
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
