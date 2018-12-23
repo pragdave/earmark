@@ -21,7 +21,7 @@ defmodule Earmark.Inline do
   def convert(src, lnb, context), do: _convert(src, lnb, context)
 
   defp _convert(src, current_lnb, context) do
-    convert_each({src, context, %{context | value: []}, current_lnb}, all_converters())
+    convert_each({src, context, %{context | value: []}, current_lnb}, all_converters(context.options))
   end
 
   @linky_converter_names [
@@ -31,28 +31,29 @@ defmodule Earmark.Inline do
     :converter_for_nolink
   ]
 
-  defp all_converters do
+  defp all_converters(options) do
     [
-      converter_for_escape: &converter_for_escape/2,
-      converter_for_autolink: &converter_for_autolink/2,
-      converter_for_tag: &converter_for_tag/2,
-      converter_for_link: &converter_for_link/2,
-      converter_for_img: &converter_for_img/2,
-      converter_for_reflink: &converter_for_reflink/2,
-      converter_for_footnote: &converter_for_footnote/2,
-      converter_for_nolink: &converter_for_nolink/2,
-      converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/2,
-      converter_for_strong: &converter_for_strong/2,
-      converter_for_em: &converter_for_em/2,
-      converter_for_code: &converter_for_code/2,
-      converter_for_br: &converter_for_br/2,
-      converter_for_inline_ial: &converter_for_inline_ial/2,
-      converter_for_text: &converter_for_text/2
+      { :converter_for_escape, &converter_for_escape/2 },
+      { :converter_for_autolink, &converter_for_autolink/2 },
+      options.gfm && { :converter_for_purelink, &converter_for_purelink/2 },
+      { :converter_for_tag, &converter_for_tag/2 },
+      { :converter_for_link, &converter_for_link/2 },
+      { :converter_for_img, &converter_for_img/2 },
+      { :converter_for_reflink, &converter_for_reflink/2 },
+      { :converter_for_footnote, &converter_for_footnote/2 },
+      { :converter_for_nolink, &converter_for_nolink/2 },
+      { :converter_for_strikethrough_gfm, &converter_for_strikethrough_gfm/2 },
+      { :converter_for_strong, &converter_for_strong/2 },
+      { :converter_for_em, &converter_for_em/2 },
+      { :converter_for_code, &converter_for_code/2 },
+      { :converter_for_br, &converter_for_br/2 },
+      { :converter_for_inline_ial, &converter_for_inline_ial/2 },
+      { :converter_for_text, &converter_for_text/2 },
     ]
+    |> Enum.filter(&(&1))
   end
 
   defp convert_each(data, converters)
-
   defp convert_each({"", context, result, _lnb}, _converters) do
     with result1 <-
            result.value
@@ -62,18 +63,15 @@ defmodule Earmark.Inline do
            |> replace(~r{(</[^>]*>)“}, "\\1”"),
          do: set_value(context, result1)
   end
-
   defp convert_each(data, converters) do
     walk_converters(converters, data, converters)
   end
 
   defp walk_converters(converters, data, all_converters)
-
   defp walk_converters([], _, _) do
     # This should never happen
     raise Error, "Illegal State"
   end
-
   defp walk_converters(
          [{_converter_name, converter} | rest],
          data = {_src, context, _result, _lnb},
@@ -81,11 +79,8 @@ defmodule Earmark.Inline do
        ) do
     case converter.(data, context.options.renderer) do
       # This has not been the correct converter, move on
-      nil ->
-        walk_converters(rest, data, all_converters)
-
-      nd ->
-        convert_each(update_lnb(nd), all_converters)
+      nil -> walk_converters(rest, data, all_converters)
+      nd -> convert_each(update_lnb(nd), all_converters)
     end
   end
 
@@ -105,6 +100,16 @@ defmodule Earmark.Inline do
     end
   end
 
+  @purelink_rgx ~r{\A(?:https?|mailto)://[a-zA-Z0-9%#/?&=-_.+!*'(),$]+}
+  defp converter_for_purelink({src, context, result, lnb}, renderer) do
+    # Moving away from storing rules inside %Earmark.Context{}
+    case Regex.run(@purelink_rgx, src) do
+      [href] -> as_link = renderer.link(href, href)
+        {behead(src, href), context, prepend(result, as_link), lnb}
+      _    -> nil
+    end
+  end
+
   defp converter_for_tag({src, context, result, lnb}, _renderer) do
     case Regex.run(context.rules.tag, src) do
       [match] ->
@@ -116,15 +121,6 @@ defmodule Earmark.Inline do
     end
   end
 
-  # TODO: v1.3 Fix this `mess` where mess in
-  #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
-  #       the later two are _home made_)
-  #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.3)
-  #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
-  #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!)
-  #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
-  #       Oh yes and of course I cannot even preparse the url part because of this e.g.
-  #                 [...](url "((((((")
   defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do
@@ -322,7 +318,7 @@ defmodule Earmark.Inline do
     link =
       convert_each(
         {text, context, set_value(context, []), lnb},
-        Keyword.drop(all_converters(), @linky_converter_names)
+        Keyword.drop(all_converters(context.options), @linky_converter_names)
       )
 
     context.options.renderer.link(href, link.value, title)

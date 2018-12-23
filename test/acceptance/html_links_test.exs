@@ -1,7 +1,7 @@
 defmodule Acceptance.HtmlLinksTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Helpers, only: [as_html: 1, as_html: 2]
 
   describe "Autolinks" do
     test "that was easy" do
@@ -76,6 +76,27 @@ defmodule Acceptance.HtmlLinksTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+  end
+
+
+  describe "Not pure links" do
+
+    test "switched off" do
+      markdown = "http://foo.bar.baz"
+      html = "<p>http://foo.bar.baz</p>\n"
+      messages = []
+
+      assert as_html(markdown, gfm: false) == {:ok, html, messages}
+    end
+
+    test "unsupported schema" do
+      markdown = "httpx://foo.bar.baz"
+      html = "<p>httpx://foo.bar.baz</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
   end
 end
 
