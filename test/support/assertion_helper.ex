@@ -22,11 +22,13 @@ defmodule Support.AssertionHelper do
     end
   end
 
-  defmacro acceptance(md, html, options \\ []), do: _acceptance(md, html, options)
-
-  defp _acceptance(md, html, options) do
-    messages = Keyword.get(options, :messages, [])
+  defmacro acceptance(md, html, options \\ []) do
     gfm      = Keyword.get(options, :gfm, true) 
+    messages = Keyword.get(options, :messages, [])
+    _acceptance(md, html, gfm, messages)
+  end
+
+  defp _acceptance(md, html, gfm, []) do
     quote do
       test "#{unquote(md)} becomes #{unquote(html)} with #{unquote(gfm)}" do
         actual = if unquote(gfm) do
@@ -35,6 +37,18 @@ defmodule Support.AssertionHelper do
           Earmark.as_html(unquote(md), %Earmark.Options{gfm: false})
         end
         assert_ok(actual, unquote(html))
+      end
+    end
+  end
+  defp _acceptance(md, html, gfm, messages) do
+    quote do
+      test "#{unquote(md)} becomes #{unquote(html)} with #{unquote(gfm)}" do
+        actual = if unquote(gfm) do
+          Earmark.as_html(unquote(md))
+        else
+          Earmark.as_html(unquote(md), %Earmark.Options{gfm: false})
+        end
+        assert_error(actual, unquote(html), unquote(messages))
       end
     end
   end
