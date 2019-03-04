@@ -268,7 +268,7 @@ defmodule Earmark do
   By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
   which will pass `timeout` to `Task.await`.
 
-  In both cases one can override the mapper function with either the `mapper` option (used iff `timeout` is nil) or the
+  In both cases one can override the mapper function with either the `mapper` option (used if `timeout` is nil) or the
   `mapper_with_timeout` function (used otherwise).
 
   For the escript only the `timeout` command line argument can be used.
