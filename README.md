@@ -28,12 +28,12 @@
 
 ### API
 
-* `Earmark.as_html`
+#### Earmark.as_html
 
       {:ok, html_doc, []}                = Earmark.as_html(markdown)
       {:error, html_doc, error_messages} = Earmark.as_html(markdown)
 
-* `Earmark.as_html!`
+#### Earmark.as_html!
 
       html_doc = Earmark.as_html!(markdown, options)
 
@@ -293,7 +293,7 @@ In rare cases that might not be enough.
 By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
 which will pass `timeout` to `Task.await`.
 
-In both cases one can override the mapper function with either the `mapper` option (used iff `timeout` is nil) or the
+In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
 `mapper_with_timeout` function (used otherwise).
 
 For the escript only the `timeout` command line argument can be used.

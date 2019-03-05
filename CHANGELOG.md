@@ -1,7 +1,11 @@
 # 1.3.2
 
-  - [#216 corrected code formatting in doc]( https://github.com/pragdave/earmark/issues/216 )
+* Fix for issues
 
+  - [#218 replaced iff with longer but clearer if and only if ]( https://github.com/pragdave/earmark/issues/218 )
+
+## Kudos:
+  [niku](https://github.com/niku)
 
 # 1.3.1 2018/12/21
 
@@ -34,7 +38,7 @@
   - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
   - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
 
-* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai ) 
+* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai )
 
 # 1.2.5 2018/04/02
 
