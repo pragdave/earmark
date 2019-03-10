@@ -157,6 +157,16 @@ defmodule Acceptance.LinkAndImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "two titled links" do
+      mark_tmp = "[link](/uri \"title\")"
+      markdown = "#{ mark_tmp } #{ mark_tmp }\n"
+      html_tmp = "<a href=\"/uri\" title=\"title\">link</a>"
+      html = "<p>#{ html_tmp } #{ html_tmp }</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "titled link, with deprecated quote mismatch" do
       markdown = "[link](/uri \"title')\n"
       html = "<p><a href=\"/uri%20%22title&#39;\">link</a></p>\n"
