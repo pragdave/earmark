@@ -157,6 +157,8 @@ defmodule Acceptance.LinkAndImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    @tag :wip
+
     test "two titled links" do
       mark_tmp = "[link](/uri \"title\")"
       markdown = "#{ mark_tmp } #{ mark_tmp }\n"
