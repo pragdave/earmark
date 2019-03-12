@@ -13,6 +13,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
     test "titled link" do
       markdown = "[link](/uri \"title\")\n"
       html = "<p><a href=\"/uri\" title=\"title\">link</a></p>\n"
@@ -32,51 +33,75 @@ defmodule Acceptance.LinksImages.TitlesTest do
     test "titled, follwoed by untitled and titled" do
 
       markdown = "[a](a 't') [b](b) [c](c 't')"
-      html = "<p><a href=\"a\" title=\"t&#39;) [b](b) [c](c &#39;t\">a</a></p>\n"
+      html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> <a href="c" title="t">c</a></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
-    # # KO
 
     test "titled, followed by two untitled" do
       markdown = "[a](a 't') [b](b) [c](c)"
-      # {:ok,
        html = "<p><a href=\"a\" title=\"t\">a</a> <a href=\"b\">b</a> <a href=\"c\">c</a></p>\n"
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
     end
-    #  []}
-    # # OK
 
     test "titled, followed by 2 untitled, (quotes interspersed)" do
       markdown = "[a](a 't') [b](b) 'xxx' [c](c)"
-      # {:ok,
        html = "<p><a href=\"a\" title=\"t\">a</a> <a href=\"b\">b</a> ‘xxx’ <a href=\"c\">c</a></p>\n"
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
     end
-    #  []}
-    # # OK
 
     test "titled, followed by 2 untitled, (quotes inside parens interspersed)" do
       markdown = "[a](a 't') [b](b) ('xxx') [c](c)"
-      # {:ok,
-       html = "<p><a href=\"a\" title=\"t&#39;) [b](b) (&#39;xxx\">a</a> <a href=\"c\">c</a></p>\n"
+       html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> ('xxx') <a href="c">c</a></p>\n}
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
     end
-    #  []}
-    # # KO
 
 
     test "titled link, with deprecated quote mismatch" do
       markdown = "[link](/uri \"title')\n"
       html = "<p><a href=\"/uri%20%22title&#39;\">link</a></p>\n"
 
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
+
+  describe "Images, and links with titles" do
+    test "two titled images, different quotes" do
+      markdown = ~s{![a](a 't') ![b](b "u")}
+      html = ~s{<p><img src="a" alt="a" title="u"/> <img src="b" alt="b" title="u"/></p>\n}
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "two titled images, same quotes" do
+      markdown = ~s{![a](a "t") ![b](b "u")}
+      html = ~s{<p><img src="a" alt="a" title="u"/> <img src="b" alt="b" title="u"/></p>\n}
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "image and link, same quotes" do
+      markdown = ~s{![a](a "t") hello [b](b "u")}
+      html = ~s{<p><img src="a" alt="a" title="u"/> hello <a href="b" title="u"/>b</a></p>\n}
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end 
+
+    test "link and untitled image, and image, same quotes" do
+      markdown = ~s{[a](a 't')![between](between)![b](b 'u')}
+      html = ~s{<p><a href="a" title="t"/><img src="between" alt="between"/><img src="b" alt="b" title="u"/></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
