@@ -91,8 +91,8 @@ defmodule Earmark.Helpers.LinkParser do
   defp text_of_token({_, text}), do: text
 
   # sic!!! Greedy and not context aware, matching '..." and "...' for backward comp
-  @title_dbl_rgx ~r{\s+"(.*)"(?=\))}
-  @title_sgl_rgx ~r{\s+'(.*)'(?=\))}
+  @title_dbl_rgx ~r{\s+"(.*?)"(?=\))}
+  @title_sgl_rgx ~r{\s+'(.*?)'(?=\))}
   defp title(remaining_text) do
     case Regex.run(@title_dbl_rgx, remaining_text) do
       nil ->
