@@ -1,7 +1,7 @@
 defmodule Acceptance.LinkImages.ImgTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  import Support.Helpers, only: [as_html: 1]
 
   describe "Image reference definitions" do
 

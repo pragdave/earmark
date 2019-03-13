@@ -1,7 +1,7 @@
 defmodule Acceptance.LinksImages.TitlesTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  import Support.Helpers, only: [as_html: 1]
 
   describe "Links with titles" do
     test "two titled links" do
@@ -57,7 +57,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "titled, followed by 2 untitled, (quotes inside parens interspersed)" do
       markdown = "[a](a 't') [b](b) ('xxx') [c](c)"
-       html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> ('xxx') <a href="c">c</a></p>\n}
+       html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> (‘xxx’) <a href="c">c</a></p>\n}
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
@@ -85,7 +85,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "two titled images, same quotes" do
       markdown = ~s{![a](a "t") ![b](b "u")}
-      html = ~s{<p><img src="a" alt="a" title="u"/> <img src="b" alt="b" title="u"/></p>\n}
+      html = ~s{<p><img src="a" alt="a" title="t"/> <img src="b" alt="b" title="u"/></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -93,7 +93,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "image and link, same quotes" do
       markdown = ~s{![a](a "t") hello [b](b "u")}
-      html = ~s{<p><img src="a" alt="a" title="u"/> hello <a href="b" title="u"/>b</a></p>\n}
+      html = ~s{<p><img src="a" alt="a" title="t"/> hello <a href="b" title="u">b</a></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -101,7 +101,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "link and untitled image, and image, same quotes" do
       markdown = ~s{[a](a 't')![between](between)![b](b 'u')}
-      html = ~s{<p><a href="a" title="t"/><img src="between" alt="between"/><img src="b" alt="b" title="u"/></p>\n}
+      html = ~s{<p><a href="a" title="t">a</a><img src="between" alt="between"/><img src="b" alt="b" title="u"/></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
