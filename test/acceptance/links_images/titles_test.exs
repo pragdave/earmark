@@ -77,7 +77,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
   describe "Images, and links with titles" do
     test "two titled images, different quotes" do
       markdown = ~s{![a](a 't') ![b](b "u")}
-      html = ~s{<p><img src="a" alt="a" title="u"/> <img src="b" alt="b" title="u"/></p>\n}
+      html = ~s{<p><img src="a" alt="a" title="t"/> <img src="b" alt="b" title="u"/></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -107,4 +107,5 @@ defmodule Acceptance.LinksImages.TitlesTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
+
 end
