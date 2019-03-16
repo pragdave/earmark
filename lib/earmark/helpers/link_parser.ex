@@ -77,9 +77,7 @@ defmodule Earmark.Helpers.LinkParser do
   defp bail_out_to_title(ts, result) do
     with remaining_text <- ts |> Enum.map(&text_of_token/1) |> Enum.join("") do
       case title(remaining_text) do
-        nil ->
-          nil
-
+        nil                       -> nil
         {title_text, inner_title} ->
           add_title(result, {title_text, inner_title})
       end
@@ -91,18 +89,11 @@ defmodule Earmark.Helpers.LinkParser do
   defp text_of_token({_, text}), do: text
 
   # sic!!! Greedy and not context aware, matching '..." and "...' for backward comp
-  @title_dbl_rgx ~r{\s+"(.*?)"(?=\))}
-  @title_sgl_rgx ~r{\s+'(.*?)'(?=\))}
+  @title_rgx ~r{\A\s+(['"])(.*?)\1(?=\))}
   defp title(remaining_text) do
-    case Regex.run(@title_dbl_rgx, remaining_text) do
-      nil ->
-        case Regex.run(@title_sgl_rgx, remaining_text) do
-          nil -> nil
-          [parsed, inner] -> {parsed, inner}
-        end
-
-      [parsed, inner] ->
-        {parsed, inner}
+    case Regex.run(@title_rgx, remaining_text) do
+      nil -> nil
+      [parsed, _, inner] -> {parsed, inner}
     end
   end
 
