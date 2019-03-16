@@ -107,4 +107,5 @@ defmodule Acceptance.LinksImages.TitlesTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
+
 end
