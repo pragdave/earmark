@@ -30,7 +30,7 @@ defmodule Earmark.Mixfile do
       deps: @deps,
       description: @description,
       package: package(),
-      aliases: [readme: &readme/1]
+      aliases: [docs: &docs/1, readme: &readme/1]
     ]
   end
 
@@ -69,6 +69,11 @@ defmodule Earmark.Mixfile do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp docs(args) do
+    Code.load_file("tasks/docs.exs")
+    Mix.Tasks.Docs.run(args)
+  end
 
   defp readme(args) do
     Code.load_file("tasks/readme.exs")
