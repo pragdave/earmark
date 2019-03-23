@@ -9,10 +9,10 @@ E.g.
 
 ```
   git clone https://github.com/elixir-lang/ex_doc
-  git checkout v0.19.1 # or latest version
+  git checkout v0.19.3 # or latest version
   mix escript.build
   cd <earmark>
-  EX_DOC_ESCRIPT=<your local escript path unless in $PATH> mix hex.publish docs
+  EX_DOC_ESCRIPT=<your local escript path unless in $PATH> ./build_docs.sh
 
 ```
 
