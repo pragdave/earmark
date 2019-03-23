@@ -1,11 +1,14 @@
-# 1.3.2
+# 1.3.2 2019/03/23
 
 * Fix for issues
 
+  - [#224 titles might be extracted from outside link]( https://github.com/pragdave/earmark/issues/224 )
+  - [#220 render only first link title always correctly]( https://github.com/pragdave/earmark/issues/220 )
   - [#218 replaced iff with longer but clearer if and only if ]( https://github.com/pragdave/earmark/issues/218 )
 
 ## Kudos:
-  [niku](https://github.com/niku)
+  [niku](https://github.com/niku) for #218
+  [Rich Morin](https://github.com/RichMorin) for #220 &amp; #224 as well as discussions
 
 # 1.3.1 2018/12/21
 
