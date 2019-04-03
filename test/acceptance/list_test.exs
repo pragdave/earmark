@@ -132,6 +132,92 @@ defmodule Acceptance.ListTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "tight lists have no paragraph wrappers" do
+      markdown = """
+      - a
+      - b
+      """
+      html = """
+      <ul>
+      <li>a
+      </li>
+      <li>b
+      </li>
+      </ul>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "loose lists have paragraph wrappers" do
+      # Here the blank line makes this a loose list
+      markdown = """
+      - a
+
+      - b
+      """
+      html = """
+      <ul>
+      <li><p>a</p>
+      </li>
+      <li><p>b</p>
+      </li>
+      </ul>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "lists with nested content are still tight without blank lines" do
+      # Here the outer and inner lists are both tight
+      markdown = """
+      - a
+        - b
+      """
+      html = """
+      <ul>
+      <li>a
+      <ul>
+      <li>b
+      </li>
+      </ul>
+      </li>
+      </ul>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "sublist can be loose or tight irrespective of parent" do
+      # Here the outer list is tight and the inner list is loose
+      markdown = """
+      - a
+        - b
+
+          c
+      - d
+      """
+      html = """
+      <ul>
+      <li>a
+      <ul>
+      <li><p>b</p>
+      <p>c</p>
+      </li>
+      </ul>
+      </li>
+      <li>d
+      </li>
+      </ul>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
   # end
 end
 
