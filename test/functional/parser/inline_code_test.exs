@@ -108,6 +108,7 @@ defmodule Parser.InlineCodeTest do
                  }
                ],
                type: type,
+               tight: true,
                lnb: 1
              }
            ]

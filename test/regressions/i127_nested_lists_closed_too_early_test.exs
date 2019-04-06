@@ -12,9 +12,9 @@ defmodule Regressions.I127NestedListsClosedTooEarlyTest do
 
   @html """
   <ul>
-  <li><p>Level 1</p>
+  <li>Level 1
   <ul>
-  <li><p>level 2 - 1</p>
+  <li>level 2 - 1
   <ul>
   <li>level 3 - 1
   </li>

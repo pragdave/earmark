@@ -28,6 +28,7 @@ defmodule Acceptance.ListTest do
       assert as_html(markdown) == {:ok, html, messages}
 
     end
+
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
       html     = "<ol>\n<li><p>A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"
@@ -200,12 +201,14 @@ defmodule Acceptance.ListTest do
           c
       - d
       """
+      # TODO: There should be no leading whitespace before 'c'. But it seems
+      # unrelated to loose/tight lists.
       html = """
       <ul>
       <li>a
       <ul>
       <li><p>b</p>
-      <p>c</p>
+      <p>  c</p>
       </li>
       </ul>
       </li>

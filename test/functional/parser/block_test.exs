@@ -257,7 +257,7 @@ defmodule BlockTest do
     defn = %Block.IdDef{id: "id1", title: "title1", url: "url1", lnb: 2}
 
     expected = [ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, spaced: false, bullet: "*", blocks: [
+       %Block.ListItem{type: :ul, spaced: false, blanks: true, bullet: "*", blocks: [
                %Block.Para{lines: ["line 1"]},
                defn
     ]}]}]

@@ -1,13 +1,13 @@
 defmodule Regressions.I1102spacedListsTest do
   use ExUnit.Case
-  
+
   @quadruple_spaced """
   * alpha
        * beta
            * gamma
   """
-  test "four still create a new list" do 
-    assert Earmark.as_html!(@quadruple_spaced) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  test "four still create a new list" do
+    assert Earmark.as_html!(@quadruple_spaced) == "<ul>\n<li>alpha\n<ul>\n<li>beta\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   end
 
   @double_spaced """
@@ -15,8 +15,8 @@ defmodule Regressions.I1102spacedListsTest do
     * beta
       * gamma
   """
-  test "two create a new list too" do 
-    assert Earmark.as_html!(@double_spaced) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  test "two create a new list too" do
+    assert Earmark.as_html!(@double_spaced) == "<ul>\n<li>alpha\n<ul>\n<li>beta\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   end
 
   @double_spaced2 """
@@ -24,8 +24,8 @@ defmodule Regressions.I1102spacedListsTest do
       * beta
         * gamma
   """
-  test "two create a new list too, indented by 2" do 
-    assert Earmark.as_html!(@double_spaced2) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  test "two create a new list too, indented by 2" do
+    assert Earmark.as_html!(@double_spaced2) == "<ul>\n<li>alpha\n<ul>\n<li>beta\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   end
 
   @double_spaced1 """
@@ -33,15 +33,15 @@ defmodule Regressions.I1102spacedListsTest do
      * beta
        * gamma
   """
-  test "two create a new list too, indented by 1" do 
-    assert Earmark.as_html!(@double_spaced1) == "<ul>\n<li><p>alpha</p>\n<ul>\n<li><p>beta</p>\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
+  test "two create a new list too, indented by 1" do
+    assert Earmark.as_html!(@double_spaced1) == "<ul>\n<li>alpha\n<ul>\n<li>beta\n<ul>\n<li>gamma\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n"
   end
   @single_spaced """
   * alpha
    * beta
     * gamma
   """
-  test "single does not create a new list" do 
+  test "single does not create a new list" do
     assert Earmark.as_html!(@single_spaced) == "<ul>\n<li>alpha\n</li>\n<li>beta\n</li>\n<li>gamma\n</li>\n</ul>\n"
   end
 
@@ -49,7 +49,7 @@ defmodule Regressions.I1102spacedListsTest do
   * alpha
   * omega
   """
-  test "no sublists" do 
+  test "no sublists" do
     assert Earmark.as_html!(@no_sublist) == "<ul>\n<li>alpha\n</li>\n<li>omega\n</li>\n</ul>\n"
   end
 

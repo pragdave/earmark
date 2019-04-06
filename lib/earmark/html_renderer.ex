@@ -31,7 +31,16 @@ defmodule Earmark.HtmlRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     lines = convert(lines, lnb, context)
-    add_attrs!(lines, "<p>#{lines.value}</p>\n", attrs, [], lnb)
+
+    # Inside a tight list, paragraph wrappers are not rendered.
+    content =
+      if context.within_tight_list do
+        "#{lines.value}\n"
+      else
+        "<p>#{lines.value}</p>\n"
+      end
+
+    add_attrs!(lines, content, attrs, [], lnb)
   end
 
   ########
@@ -117,7 +126,7 @@ defmodule Earmark.HtmlRenderer do
          context = %Context{options: options}
        ) do
     class =
-      if language, do: ~s{ class="#{code_classes(language, options.code_class_prefix)}"}, else: ""
+      if language, do: ~s[ class="#{code_classes(language, options.code_class_prefix)}"], else: ""
 
     tag = ~s[<pre><code#{class}>]
     lines = options.render_code.(block)
@@ -130,28 +139,18 @@ defmodule Earmark.HtmlRenderer do
   #########
 
   defp render_block(
-         %Block.List{lnb: lnb, type: type, blocks: items, attrs: attrs, start: start},
+         %Block.List{lnb: lnb, type: type, blocks: items, tight: tight, attrs: attrs, start: start},
          context
        ) do
-    {context1, content} = render(items, context)
+    {context1, content} = render(items, %Context{context | within_tight_list: tight})
     html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     add_attrs!(context1, html, attrs, [], lnb)
   end
 
-  # format a single paragraph list item, and remove the para tags
   defp render_block(
-         %Block.ListItem{lnb: lnb, blocks: blocks, spaced: false, attrs: attrs},
+         %Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs},
          context
-       )
-       when length(blocks) == 1 do
-    {context1, content} = render(blocks, context)
-    content = Regex.replace(~r{</?p>}, content, "")
-    html = "<li>#{content}</li>\n"
-    add_attrs!(context1, html, attrs, [], lnb)
-  end
-
-  # format a spaced list item
-  defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
+       ) do
     {context1, content} = render(blocks, context)
     html = "<li>#{content}</li>\n"
     add_attrs!(context1, html, attrs, [], lnb)

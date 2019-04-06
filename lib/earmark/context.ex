@@ -14,6 +14,7 @@ defmodule Earmark.Context do
             links: Map.new(),
             rules: nil,
             footnotes: Map.new(),
+            within_tight_list: false,
             value: []
 
   ##############################################################################

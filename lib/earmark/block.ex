@@ -30,8 +30,8 @@ defmodule Earmark.Block do
   defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
   defmodule Ial,         do: defstruct lnb: 0, attrs: nil, content: nil, verbatim: ""
   # List does not need line number
-  defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: ""
-  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
+  defmodule List,        do: defstruct lnb: 1, attrs: nil, type: :ul, tight: false, blocks:  [], start: ""
+  defmodule ListItem,    do: defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blanks: false, blocks: [], bullet: ""
 
   defmodule Plugin,      do: defstruct lnb: 0, attrs: nil, lines: [], handler: nil, prefix: "" # prefix is appended to $$
 
@@ -168,14 +168,34 @@ defmodule Earmark.Block do
   # in the second we combine adjacent items into lists. This is pass one
 
   defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet, lnb: lnb} | rest ], result, options) do
-    {spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
+    {lines_spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
 
-    spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
     lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0)
     lines = [content | lines]
     {blocks, _, options1} = Parser.parse(lines, %{options | line: lnb}, true)
 
-    _parse([%Line.Blank{lnb: 0} | rest], [ %ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1)
+    # Determine whether the list item's direct content contains blank lines.
+    # (Blanks within a sublist don't count.)
+    blanks = blank_line_in?(list_lines) && !contains_list?(blocks)
+
+    # Determine whether there's spacing between the line item and other line items.
+    spaced = lines_spaced && peek(rest, Line.ListItem, type)
+
+    _parse(
+      [%Line.Blank{lnb: 0} | rest],
+      [
+        %ListItem{
+          type: type,
+          blocks: blocks,
+          blanks: blanks,
+          spaced: spaced,
+          bullet: bullet,
+          lnb: lnb
+        }
+        | result
+      ],
+      options1
+    )
   end
 
   #################
@@ -387,14 +407,22 @@ defmodule Earmark.Block do
     consolidate_list_items(rest, [ head | result ])
   end
 
+  # A list is loose if any of its items are spaced or if any of its items
+  # have direct content with blank lines. Otherwise, it's tight.
   defp compute_list_spacing( list = %List{blocks: items} ) do
     with spaced = any_spaced_items?(items),
+         blanks = any_blanks?(items),
+         loose = spaced || blanks,
          unified_items = Enum.map(items, &(%{&1 | spaced: spaced}))
     do
-      %{list | blocks: unified_items}
+      %{list | tight: !loose, blocks: unified_items}
     end
   end
   defp compute_list_spacing( anything_else ), do: anything_else # nop
+
+  defp any_blanks?([]), do: false
+  defp any_blanks?([%{blanks: true}|_]), do: true
+  defp any_blanks?([_|tail]), do: any_blanks?(tail)
 
   defp any_spaced_items?([]), do: false
   defp any_spaced_items?([%{spaced: true}|_]), do: true
@@ -549,6 +577,9 @@ defmodule Earmark.Block do
     %{pending: pending, continue: true}
   end
 
+  defp contains_list?([]), do: false
+  defp contains_list?([%List{} | _]), do: true
+  defp contains_list?([_ | rest]), do: contains_list?(rest)
 
   defp peek([], _, _), do: false
   defp peek([head | _], struct, type) do
