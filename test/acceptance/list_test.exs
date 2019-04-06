@@ -171,6 +171,66 @@ defmodule Acceptance.ListTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "loose list with blank lines between paragraphs" do
+      # Here the two paragraphs are separated by a blank line
+      markdown = """
+      - a
+
+        b
+      """
+      html = """
+      <ul>
+      <li><p>a</p>
+      <p>  b</p>
+      </li>
+      </ul>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "loose list with code block and paragraph" do
+      # Here the code block and paragraph are separated by a blank line
+      markdown = """
+      1. ```
+         foo
+         ```
+
+         bar
+      """
+      html = """
+      <ol>
+      <li><pre><code class="">   foo</code></pre>
+      <p>   bar</p>
+      </li>
+      </ol>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "tight list with code block and paragraph" do
+      # Same thing as above, but with no separator this time
+      markdown = """
+      1. ```
+         foo
+         ```
+         bar
+      """
+      html = """
+      <ol>
+      <li><pre><code class="">   foo</code></pre>
+         bar
+      </li>
+      </ol>
+      """
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "lists with nested content are still tight without blank lines" do
       # Here the outer and inner lists are both tight
       markdown = """
