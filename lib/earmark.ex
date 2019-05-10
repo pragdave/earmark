@@ -289,7 +289,7 @@ defmodule Earmark do
   @doc """
   Given a markdown document (as either a list of lines or
   a string containing newlines), returns a tuple containing either
-  `{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+  `{:ok, html_doc, error_messages}`, or `{:error, html_doc, error_messages}`
   Where `html_doc` is an HTML representation of the markdown document and
   `error_messages` is a list of tuples with the following elements
 
