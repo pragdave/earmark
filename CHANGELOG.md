@@ -1,5 +1,15 @@
 # 1.3.3 
 
+* Fix for issues
+
+## PRs
+
+  - [235](https://github.com/pragdave/earmark/pull/235)  
+
+## Kudos:
+
+  - [Jason Axelson](https://github.com/axelson)  
+
 
 # 1.3.2 2019/03/23
 
