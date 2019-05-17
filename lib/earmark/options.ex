@@ -36,7 +36,8 @@ defmodule Earmark.Options do
             line: 1,
             # [{:error|:warning, lnb, text},...]
             messages: [],
-            plugins: %{}
+            plugins: %{},
+            pure_links: nil
 
   # Only here we are aware of which mapper function to use!
   def get_mapper(options) do
