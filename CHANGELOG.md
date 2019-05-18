@@ -1,6 +1,11 @@
 # 1.3.3
 
+
 * Fix for issues
+
+  - [#158 some pure links implemented](https://github.com/pragdave/earmark/issues/158)
+
+## Minor improvements on documentation
 
 ## PRs
 

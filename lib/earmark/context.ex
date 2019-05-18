@@ -81,7 +81,6 @@ defmodule Earmark.Context do
   defp basic_rules do
     [
       escape: ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])},
-      autolink: ~r{^<([^ >]+(@|:\/)[^ >]+)>},
       # noop
       url: ~r{\z\A},
       tag: ~r{

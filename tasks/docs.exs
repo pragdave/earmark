@@ -31,6 +31,7 @@ defmodule Mix.Tasks.Docs do
       "#{System.get_env("HOME")}/.mix/escripts/ex_doc"
     System.cmd("rm", ~w( -rf doc ))
     IO.puts ex_doc
+    Mix.Task.run(:compile)
     System.cmd(ex_doc,
       ~w( Earmark #{current_version()} _build/dev/lib/earmark/ebin -m Earmark
           -u https://github/pragdave/earmark.html ))

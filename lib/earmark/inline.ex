@@ -47,6 +47,7 @@ defmodule Earmark.Inline do
       converter_for_code: &converter_for_code/2,
       converter_for_br: &converter_for_br/2,
       converter_for_inline_ial: &converter_for_inline_ial/2,
+      converter_for_pure_link: &converter_for_pure_link/2,
       converter_for_text: &converter_for_text/2
     ]
   end
@@ -96,12 +97,37 @@ defmodule Earmark.Inline do
     end
   end
 
+  @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   defp converter_for_autolink({src, context, result, lnb}, renderer) do
-    if match = Regex.run(context.rules.autolink, src) do
+    if match = Regex.run(@autolink_rgx, src) do
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = renderer.link(href, text)
       {behead(src, match), context, prepend(result, out), lnb}
+    end
+  end
+
+  @pure_link_rgx ~r{\Ahttps?://\S+\b}
+  @pure_link_depreaction_warning """
+  The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.
+  This will be the case by default in version 1.4.
+  Disable the option explicitly with `false` to avoid this message.
+  """
+  defp converter_for_pure_link({src, context, result, lnb}, renderer) do
+    if context.options.pure_links == false do
+      nil
+    else
+      case Regex.run(@pure_link_rgx, src) do
+        [ match ] ->
+          if context.options.pure_links do
+            out = renderer.link(match, match)
+            {behead(src, match), context, prepend(result, out), lnb}
+          else
+            context1 = add_messages(context, [{:deprecation, lnb, String.trim(@pure_link_depreaction_warning)}]) 
+            {behead(src, match), context1, prepend(result, match), lnb}
+          end
+          _ -> nil
+      end
     end
   end
 
@@ -116,15 +142,6 @@ defmodule Earmark.Inline do
     end
   end
 
-  # TODO: v1.3 Fix this `mess` where mess in
-  #       as we need to parse the url part for nested (), and [] expressions (from issues #88 and #70, as well as #89 and #90, but
-  #       the later two are _home made_)
-  #       a regex will not do. As however we have to accept the following title strings (for backwards compatibility before v1.3)
-  #                 [...](url "title")and still title")  --> title = ~s<title")and still title>
-  #       yecc will not do (we are  not LALR-1 not even LALR-k or LR-k :@ !!!!)
-  #       therefor this complicated recursive descent bailing out parser I did not want to write in the first place...
-  #       Oh yes and of course I cannot even preparse the url part because of this e.g.
-  #                 [...](url "((((((")
   defp converter_for_link({src, context, result, lnb}, _renderer) do
     if match = LinkParser.parse_link(src, lnb) do
       unless is_image?(match) do

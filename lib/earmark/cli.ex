@@ -16,11 +16,17 @@ defmodule Earmark.CLI do
   convert file from Markdown to HTML.
 
      where options can be any of:
-       -- code_class_prefix -- gfm -- smartypants -- pedantic -- breaks --timeout
+       --code-class-prefix <a prefix>
+       --gfm
+       --smartypants
+       --pedantic
+       --pure-links
+       --breaks
+       --timeout <timeout in ms>
 
   """
 
-  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :breaks, :timeout]
+  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :pure_links, :breaks, :timeout]
 
   defp parse_args(argv) do
     switches = [
@@ -107,8 +113,13 @@ defmodule Earmark.CLI do
     |> Enum.join("\n")
   end
 
-  defp specific_option_help( option ) do
-    "      --#{option} defaults to #{inspect(Map.get(%Earmark.Options{}, option))}"
+  defp specific_option_help(option) do
+    "      --#{unixize_option(option)} defaults to #{inspect(Map.get(%Earmark.Options{}, option))}"
+  end
+
+  defp unixize_option(option) do
+    "#{option}"
+    |> String.replace("_", "-")
   end
 
 end
