@@ -43,12 +43,12 @@ defmodule FootnoteTest do
   end
 
   test "pulls one-line footnote bodies" do
-    result = Block.lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], options())
+    result = lines_to_blocks([ %Line.FnDef{id: "some-fn", content: "This is a footnote."} ], options())
     assert result == {[%Block.FnDef{id: "some-fn", blocks: [%Block.Para{lines: ["This is a footnote."]}]}], options()}
   end
 
   test "pulls multi-line footnote bodies" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
                 %Line.FnDef{id: "some-fn", content: "This is a multi-line"},
                 %Line.Text{content: "footnote example.", line: "footnote example."}
              ], options())
@@ -139,6 +139,11 @@ defmodule FootnoteTest do
 
   defp filename do
     "file name"
+  end
+
+  defp lines_to_blocks(lines, options) do
+    {blks, _links, opts} = Parser.parse_lines(lines, options)
+    {blks, opts}
   end
 end
 

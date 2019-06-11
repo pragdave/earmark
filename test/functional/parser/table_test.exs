@@ -4,9 +4,10 @@ defmodule TableTest do
   alias Earmark.Line
   alias Earmark.Options
   alias Earmark.Block
+  alias Earmark.Parser
 
   test "test one table line is just a paragraph" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
                 %Line.Blank{}
              ], options())
@@ -15,7 +16,7 @@ defmodule TableTest do
   end
 
   test "test two table lines make a table" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c}, line: "a | b | c"},
                 %Line.TableLine{columns: ~w{d e f}, line: "d | e | f"},
                 %Line.Blank{}
@@ -30,7 +31,7 @@ defmodule TableTest do
   end
 
   test "test heading" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"},
                 %Line.TableLine{columns: ~w{ --- --- ---}, line: "--|---|--"},
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
@@ -46,7 +47,7 @@ defmodule TableTest do
   end
 
   test "test alignment" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
                 %Line.TableLine{columns: ~w{a b c},        line: "a | b | c"},
                 %Line.TableLine{columns: ~w{ --: :--: :---}, line: "--|---|--"},
                 %Line.TableLine{columns: ~w{d e f},        line: "d | e | f"},
@@ -129,6 +130,10 @@ defmodule TableTest do
     %Options{file: "file name"}
   end
 
+  defp lines_to_blocks(lines, options) do
+    {blks, _links, opts} = Parser.parse_lines(lines, options)
+    {blks, opts}
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

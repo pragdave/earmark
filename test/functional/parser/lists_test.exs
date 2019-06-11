@@ -3,6 +3,7 @@ defmodule ListTest do
 
   alias Earmark.Line
   alias Earmark.Block
+  alias Earmark.Parser
 
   test "Indented Items (by 4)" do
     lines = [
@@ -54,7 +55,7 @@ defmodule ListTest do
 
 
   test "Basic UL" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"}
     ], options())
     expected = {[ %Block.List{ type: :ul, blocks: [
@@ -64,7 +65,7 @@ assert result == expected
   end
 
   test "Multiline UL" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.Text{content: "line 2"}
     ], options())
@@ -76,7 +77,7 @@ assert result == expected
   end
 
   test "UL containing two paras" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.Blank{},
       %Line.Indent{content: "line 2", level: 1},
@@ -91,7 +92,7 @@ assert result == expected
   end
 
   test "UL containing two paras where the second is only indented 2 spaces" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.Blank{},
       %Line.Text{content: "  line 2", line: "  line 2"},
@@ -106,7 +107,7 @@ assert result == expected
   end
 
   test "Multiline UL followed by a blank line" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{bullet: "*", content: "line 1"},
       %Line.Text{content: "line 2"},
       %Line.Blank{}
@@ -119,7 +120,7 @@ assert result == expected
   end
 
   test "Two adjacent UL items, the first is not spaced" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
     ], options())
@@ -131,7 +132,7 @@ assert result == expected
   end
 
   test "Two UL items with a blank line between are both spaced" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.Blank{},
       %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
@@ -144,7 +145,7 @@ assert result == expected
   end
 
   test "Two UL items followed by a non-indented paragraph" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
       %Line.ListItem{type: :ul, bullet: "*", content: "line 2"},
       %Line.Blank{},
@@ -161,7 +162,7 @@ assert result == expected
   end
 
   test "Code nested in list" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ul, bullet: "*", content: "line 1", lnb: 1},
       %Line.Blank{ lnb: 1},
       %Line.Indent{level: 2, content: "code 1", lnb: 1},
@@ -185,7 +186,7 @@ assert result == expected
   # relook at this
 
   test "Basic OL" do
-    result = Block.lines_to_blocks([
+    result = lines_to_blocks([
       %Line.ListItem{type: :ol, bullet: "1.", content: "line 1"}
     ], options())
     expected = {[ %Block.List{ type: :ol, blocks: [
@@ -203,7 +204,12 @@ assert result == expected
   end
 
   defp to_blocks(lines, line \\ 0) do
-    Block.lines_to_blocks(lines, options(line))
+    lines_to_blocks(lines, options(line))
+  end
+
+  defp lines_to_blocks(lines, options) do
+    {blks, _links, opts} = Parser.parse_lines(lines, options)
+    {blks, opts}
   end
 
 end
