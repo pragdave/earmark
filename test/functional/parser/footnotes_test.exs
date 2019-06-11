@@ -66,7 +66,7 @@ defmodule Functional.Parser.FootnotesTest do
   end
 
   defp parse(str) do
-    {blocks, context} = Earmark.parse(str, %Options{footnotes: true})
+    {blocks, context} = Earmark.Parser.parse_markdown(str, %Options{footnotes: true})
     {blocks, context.options.messages}
   end
 end

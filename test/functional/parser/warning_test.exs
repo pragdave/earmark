@@ -79,7 +79,7 @@ defmodule Parser.WarningTest do
   end
 
   defp messages_from_parse(str, options \\ %Earmark.Options{}) do
-    with {_, context} <- Earmark.parse(str, options), do: context.options.messages
+    with {_, context} <- Earmark.Parser.parse_markdown(str, options), do: context.options.messages
   end
 end
 

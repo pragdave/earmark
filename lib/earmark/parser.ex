@@ -1,13 +1,43 @@
 defmodule Earmark.Parser do
   alias Earmark.Block
   alias Earmark.Line
+  alias Earmark.Options
 
   import Earmark.Message, only: [add_messages: 2]
-  import Earmark.Options, only: [get_mapper: 1]
 
-  def parse(text_lines), do: parse(text_lines, %Earmark.Options{}, false)
+  @doc """
+  Given a markdown document (as either a list of lines or
+  a string containing newlines), return a parse tree and
+  the context necessary to render the tree.
 
-  def parse(text_lines, options = %Earmark.Options{}, recursive) do
+  The options are a `%Earmark.Options{}` structure. See `as_html!`
+  for more details.
+  """
+  def parse_markdown(lines, options \\ %Options{})
+  def parse_markdown(lines, options = %Options{}) when is_list(lines) do
+    {blocks, links, options1} = Earmark.Parser.parse(lines, options, false)
+
+    context =
+      %Earmark.Context{options: options1, links: links}
+      |> Earmark.Context.update_context()
+
+    if options.footnotes do
+      {blocks, footnotes, options1} = handle_footnotes(blocks, context.options)
+      context = put_in(context.footnotes, footnotes)
+      context = put_in(context.options, options1)
+      {blocks, context}
+    else
+      {blocks, context}
+    end
+  end
+  def parse_markdown(lines, options) when is_binary(lines) do
+    lines
+    |> String.split(~r{\r\n?|\n})
+    |> parse_markdown(options)
+  end
+
+  def parse(text_lines), do: parse(text_lines, %Options{}, false)
+  def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> Line.scan_lines(options, recursive)
     |> Block.parse(options)
@@ -18,16 +48,16 @@ defmodule Earmark.Parser do
   ################################################################
 
   # @spec handle_footnotes( Block.ts, %Earmark.Options{}, ( Block.ts,
-  def handle_footnotes(blocks, options) do
+  defp handle_footnotes(blocks, options) do
     {footnotes, blocks} = Enum.split_with(blocks, &footnote_def?/1)
 
     {footnotes, undefined_footnotes} =
-      get_mapper(options).(blocks, &find_footnote_links/1)
+      Options.get_mapper(options).(blocks, &find_footnote_links/1)
       |> List.flatten()
       |> get_footnote_numbers(footnotes, options)
 
     blocks = create_footnote_blocks(blocks, footnotes)
-    footnotes = get_mapper(options).(footnotes, &{&1.id, &1}) |> Enum.into(Map.new())
+    footnotes = Options.get_mapper(options).(footnotes, &{&1.id, &1}) |> Enum.into(Map.new())
     options1 = add_messages(options, undefined_footnotes)
     {blocks, footnotes, options1}
   end

@@ -408,46 +408,12 @@ defmodule Earmark do
   end
 
   defp _as_html(lines, options) do
-    {blocks, context} = parse(lines, options)
+    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
 
     case blocks do
       [] -> {context, ""}
       _ -> options.renderer.render(blocks, context)
     end
-  end
-
-  @doc """
-  Given a markdown document (as either a list of lines or
-  a string containing newlines), return a parse tree and
-  the context necessary to render the tree.
-
-  The options are a `%Earmark.Options{}` structure. See `as_html!`
-  for more details.
-  """
-
-  def parse(lines, options \\ %Earmark.Options{})
-
-  def parse(lines, options = %Options{}) when is_list(lines) do
-    {blocks, links, options1} = Earmark.Parser.parse(lines, options, false)
-
-    context =
-      %Earmark.Context{options: options1, links: links}
-      |> Earmark.Context.update_context()
-
-    if options.footnotes do
-      {blocks, footnotes, options1} = Earmark.Parser.handle_footnotes(blocks, context.options)
-      context = put_in(context.footnotes, footnotes)
-      context = put_in(context.options, options1)
-      {blocks, context}
-    else
-      {blocks, context}
-    end
-  end
-
-  def parse(lines, options) when is_binary(lines) do
-    lines
-    |> String.split(~r{\r\n?|\n})
-    |> parse(options)
   end
 
   @doc """

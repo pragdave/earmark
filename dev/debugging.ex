@@ -8,7 +8,7 @@ defmodule Dev.Debugging do
   end
 
   def parse(markdown) do
-    Earmark.parse(markdown)
+    Earmark.Parser.parse_markdown(markdown)
     |> remove_context()
   end
 

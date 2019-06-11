@@ -106,33 +106,11 @@ defmodule FootnoteTest do
     assert "#{html}\n" == expected_html
   end
 
-  test "uses a starting footnote number" do
-    para = %Block.Para{lines: ["line 1[^ref-1] and", "line 2[^ref-2]."]}
-    text = [para,
-            %Block.FnDef{id: "ref-2", blocks: [%Block.Para{lines: ["ref 2"]}]},
-            %Block.FnDef{id: "ref-1", blocks: [%Block.Para{lines: ["ref 1"]}]}]
-    opts = %{options() | footnote_offset: 3, mapper: &Enum.map/2}
-    { blocks, footnotes, _ } = Parser.handle_footnotes(text, opts)
-    output_fnotes = [%Block.FnDef{id: "ref-1", number: 3, blocks: [%Block.Para{lines: ["ref 1"]}]},
-                     %Block.FnDef{id: "ref-2", number: 4, blocks: [%Block.Para{lines: ["ref 2"]}]}]
-    expected_blocks = [para, %Block.FnList{blocks: output_fnotes}]
-    assert blocks == expected_blocks
-    expected_fnotes = Enum.map(output_fnotes, &({&1.id, &1})) |> Enum.into(Map.new)
-    assert footnotes == expected_fnotes
-  end
 
   test "parses footnote content" do
-    {blocks, _, _} = Parser.parse(["para[^ref-id]", "", "[^ref-id]: line 1", "line 2", "line 3", "", "para"], options(), false)
-    opts = %{options() | mapper: &Enum.map/2}
-    {blocks, footnotes, _} = Parser.handle_footnotes(blocks, opts)
-    fn_content = [%Earmark.Block.Para{lnb: 3, lines: ["line 1", "line 2", "line 3"]}]
-    fn_def = %Earmark.Block.FnDef{lnb: 3, id: "ref-id", number: 1, blocks: fn_content }
-    assert blocks == [%Earmark.Block.Para{lnb: 1, lines: ["para[^ref-id]"]},
-                      %Earmark.Block.Para{lnb: 7, lines: ["para"]},
-                      %Earmark.Block.FnList{lnb: 3, blocks: [fn_def]}
-                     ]
-    expect = Map.new |> Map.put("ref-id", fn_def)
-    assert footnotes == expect
+    markdown = "para[^ref-id]\n\n[^ref-id]: line 1\nline 2\nline 3\n\npara"
+    html     = "<p>para<a href=\"#fn:1\" id=\"fnref:1\" class=\"footnote\" title=\"see footnote\">1</a></p>\n<p>para</p>\n<div class=\"footnotes\">\n<hr>\n<ol>\n<li id=\"fn:1\"><p>line 1\nline 2\nline 3&nbsp;<a href=\"#fnref:1\" title=\"return to article\" class=\"reversefootnote\">&#x21A9;</a></p>\n</li>\n</ol>\n\n</div>"
+    assert Earmark.as_html!(markdown, footnotes: true) == html
   end
 
   test "renders footnotes" do
