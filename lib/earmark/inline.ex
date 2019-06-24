@@ -107,7 +107,7 @@ defmodule Earmark.Inline do
     end
   end
 
-  @pure_link_rgx ~r{\Ahttps?://\S+\b}
+  @pure_link_rgx ~r{\Ahttps?://\S+\b}u
   @pure_link_depreaction_warning """
   The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.
   This will be the case by default in version 1.4.
