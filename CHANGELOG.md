@@ -4,16 +4,21 @@
 * Fix for issues
 
   - [#158 some pure links implemented](https://github.com/pragdave/earmark/issues/158)
+  - [#243 errors in unicode link names](https://github.com/pragdave/earmark/issues/243)
+
 
 ## Minor improvements on documentation
 
 ## PRs
 
+
+  - [244](https://github.com/pragdave/earmark/pull/244)
   - [235](https://github.com/pragdave/earmark/pull/235)
 
 ## Kudos:
 
   - [Jason Axelson](https://github.com/axelson)
+  - [Stéphane ROBINO](https://github.com/StephaneRob)
 
 
 # 1.3.2 2019/03/23
