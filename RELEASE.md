@@ -19,3 +19,7 @@
 -  Minor improvements on documentation
     In PR [235](https://github.com/pragdave/earmark/pull/235)
     Thank you - [Jason Axelson](https://github.com/axelson)
+
+## Other
+
+- Refactoring c.f. PR [246](https://github.com/pragdave/earmark/pull/246)  
