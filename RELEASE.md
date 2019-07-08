@@ -23,3 +23,4 @@
 ## Other
 
 - Refactoring c.f. PR [246](https://github.com/pragdave/earmark/pull/246)  
+- Added Elixir version 1.9.0 for Travis c.f. PR #248
