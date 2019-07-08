@@ -1,6 +1,7 @@
 defmodule Earmark.Parser do
   alias Earmark.Block
   alias Earmark.Line
+  alias Earmark.LineScanner
   alias Earmark.Options
 
   import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
@@ -43,7 +44,7 @@ defmodule Earmark.Parser do
   def parse(text_lines), do: parse(text_lines, %Options{}, false)
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
-    |> Line.scan_lines(options, recursive)
+    |> LineScanner.scan_lines(options, recursive)
     |> parse_lines(options)
   end
 
@@ -252,7 +253,7 @@ defmodule Earmark.Parser do
   when title == nil
   do
     title = case maybe_title do
-      %Line.Text{content: content}   ->  Line.matches_id_title(content)
+      %Line.Text{content: content}   ->  LineScanner.matches_id_title(content)
       _                              ->  nil
     end
 

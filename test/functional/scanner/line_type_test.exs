@@ -169,7 +169,7 @@ defmodule Functional.Scanner.LineTypeTest do
     test("line: '" <> text <> "'") do
       struct = unquote(Macro.escape type)
       struct = %{ struct | line: unquote(text), lnb: 42 }
-      assert Line.type_of({unquote(text), 42}, false) == struct
+      assert Earmark.LineScanner.type_of({unquote(text), 42}, false) == struct
     end
   end)
 
