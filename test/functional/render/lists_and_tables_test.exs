@@ -40,25 +40,25 @@ defmodule ListAndTablesTest do
 
   test "Alternating table and indented text lines" do
     result = Earmark.as_html!( ["- a", "  b", "e | f"] )
-    expected = ul(["a\n  b\ne | f"])
+    expected = ul(["a\nb\ne | f"])
     assert result == expected
   end
 
   test "Alternating text and indented table lines" do
     result = Earmark.as_html!( ["- a", "   b | c", "e | f"] )
-    expected = ul(["a\n   b | c\ne | f"])
+    expected = ul(["a\n b | c\ne | f"])
     assert result == expected
   end
 
   test "Same as above but at end of list" do
     result = Earmark.as_html!( ["- 0", "- a", "   b | c", "e | f"] )
-    expected = ul(["0", "a\n   b | c\ne | f"])
+    expected = ul(["0", "a\n b | c\ne | f"])
     assert result == expected
   end
 
   test "Same as above but in middle of list" do
     result = Earmark.as_html!( ["- 0", "- a", "   b | c", "e | f", "- Ω"] )
-    expected = ul(["0", "a\n   b | c\ne | f", "Ω"])
+    expected = ul(["0", "a\n b | c\ne | f", "Ω"])
     assert result == expected
   end
 

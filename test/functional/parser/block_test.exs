@@ -248,24 +248,6 @@ defmodule BlockTest do
     assert refs == ([{ "id1", defn}] |> Enum.into(Map.new))
   end
 
-  test "ID definition nested in list" do
-    { blocks, refs, _ } = Parser.parse_lines([
-               %Line.ListItem{type: :ul, bullet: "*", content: "line 1"},
-               %Line.Blank{},
-               %Line.Indent{level: 1, content: "[id1]: url1  (title1)"},
-             ], options())
-
-    defn = %Block.IdDef{id: "id1", title: "title1", url: "url1", lnb: 2}
-
-    expected = [ %Block.List{ type: :ul, blocks: [
-       %Block.ListItem{type: :ul, spaced: false, bullet: "*", blocks: [
-               %Block.Para{lines: ["line 1"]},
-               defn
-    ]}]}]
-
-    assert blocks == expected
-    assert refs == ([{ "id1", defn}] |> Enum.into(Map.new))
-  end
 
   defp options do
     %Earmark.Options{file: "some filename"}

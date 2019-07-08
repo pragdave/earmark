@@ -81,7 +81,8 @@ defmodule Earmark.Line do
         bullet: "* or -",
         content: "text",
         initial_indent: 0,
-        inside_code: false
+        inside_code: false,
+        list_indent: 0
       )
   )
 
@@ -229,24 +230,26 @@ defmodule Earmark.Line do
         [_, id, first_line] = match
         %FnDef{id: id, content: first_line}
 
-      match = Regex.run(~r/^(\s{0,3})([-*+])\s+(.*)/, line) ->
-        [_, leading, bullet, text] = match
+      match = Regex.run(~r/^(\s{0,3})([-*+])(\s+)(.*)/, line) ->
+        [_, leading, bullet, spaces, text] = match
 
         %ListItem{
           type: :ul,
           bullet: bullet,
           content: text,
-          initial_indent: String.length(leading)
+          initial_indent: String.length(leading),
+          list_indent:  String.length(leading <> bullet <> spaces),
         }
 
-      match = Regex.run(~r/^(\s{0,3})(\d+\.)\s+(.*)/, line) ->
-        [_, leading, bullet, text] = match
+      match = Regex.run(~r/^(\s{0,3})(\d+\.)(\s+)(.*)/, line) ->
+        [_, leading, bullet, spaces, text] = match
 
         %ListItem{
           type: :ol,
           bullet: bullet,
           content: text,
-          initial_indent: String.length(leading)
+          initial_indent: String.length(leading),
+          list_indent:  String.length(leading <> bullet <> spaces),
         }
 
       match = Regex.run(~r/^ \s{0,3} \| (?: [^|]+ \|)+ \s* $ /x, line) ->

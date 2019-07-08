@@ -23,12 +23,12 @@ defmodule Functional.Scanner.LineTypeTest do
     { "<!-- comment -->", %Line.HtmlComment{complete: true} },
     { "<!-- comment",     %Line.HtmlComment{complete: false} },
 
-    { "- -",   %Line.ListItem{type: :ul, bullet: "-", content: "-"} },
+    { "- -",   %Line.ListItem{type: :ul, bullet: "-", content: "-", list_indent: 2} },
     { "- - -", %Line.Ruler{type: "-"} },
     { "--",    %Line.SetextUnderlineHeading{level: 2} },
     { "---",   %Line.Ruler{type: "-"} },
 
-    { "* *",   %Line.ListItem{type: :ul, bullet: "*", content: "*"} },
+    { "* *",   %Line.ListItem{type: :ul, bullet: "*", content: "*", list_indent: 2} },
     { "* * *", %Line.Ruler{type: "*"} },
     { "**",    %Line.Text{content: "**"} },
     { "***",   %Line.Ruler{type: "*"} },
@@ -118,15 +118,15 @@ defmodule Functional.Scanner.LineTypeTest do
       {id11, %Line.IdDef{id: "ID11", url: "http://example.com", title: "Title with trailing whitespace"}},
 
 
-      { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
-      { "+ ul2", %Line.ListItem{ type: :ul, bullet: "+", content: "ul2"} },
-      { "- ul3", %Line.ListItem{ type: :ul, bullet: "-", content: "ul3"} },
+      { "* ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1", list_indent: 2} },
+      { "+ ul2", %Line.ListItem{ type: :ul, bullet: "+", content: "ul2", list_indent: 2} },
+      { "- ul3", %Line.ListItem{ type: :ul, bullet: "-", content: "ul3", list_indent: 2} },
 
-      { "*     ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1"} },
+      { "*     ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1", list_indent: 6} },
       { "*ul1",      %Line.Text{content: "*ul1"} },
 
-      { "1. ol1",          %Line.ListItem{ type: :ol, bullet: "1.", content: "ol1"} },
-      { "12345.      ol1", %Line.ListItem{ type: :ol, bullet: "12345.", content: "ol1"} },
+      { "1. ol1",          %Line.ListItem{ type: :ol, bullet: "1.", content: "ol1", list_indent: 3} },
+      { "12345.      ol1", %Line.ListItem{ type: :ol, bullet: "12345.", content: "ol1", list_indent: 12} },
       { "1.ol1", %Line.Text{ content: "1.ol1"} },
 
       { "=",        %Line.SetextUnderlineHeading{level: 1} },
