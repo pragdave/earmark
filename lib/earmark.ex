@@ -344,35 +344,35 @@ defmodule Earmark do
 
   * `pure_links`: boolean
 
-    Pure links of the form `~r{\bhttps?://\S+\b}` are not rendered as links in this version yet.
+    Pure links of the form `~r{\\bhttps?://\\S+\\b}` are not rendered as links in this version yet.
     However, by setting the `pure_links` option to `true` one can enable this behavior.
 
     There are three possible cases
 
     - Default (option is set to `nil`), gives a deprecation warning
 
-         ```elixir  
-           Earmark.as_html("https://github.com/pragdave")                
-           {:ok, "<p>https://github.com/pragdave</p>\n",
-             [
-               {:deprecation, 1,
-                "The string \"https://github.com/pragdave/earmark\" will be rendered as a link if the option `pure_links` is enabled.\nThis will be the case by default in version 1.4.\nDisable the option explicitly with `false` to avoid this message."}
-             ]}
-         ```
+      ```elixir  
+       Earmark.as_html("https://github.com/pragdave")                
+       {:ok, "<p>https://github.com/pragdave</p>\\n",
+         [
+           {:deprecation, 1,
+            "The string \"https://github.com/pragdave/earmark\" will be rendered as a link if the option `pure_links` is enabled.\\nThis will be the case by default in version 1.4.\\nDisable the option explicitly with `false` to avoid this message."}
+         ]}
+
+      ```
 
     - `pure_links: true`
-
          ```elixir  
           Earmark.as_html("https://github.com/pragdave", pure_links: true)
           {:ok,
-            "<p><a href=\"https://github.com/pragdave\">https://github.com/pragdave</a></p>\n", []}
+            "<p><a href=\"https://github.com/pragdave\">https://github.com/pragdave</a></p>\\n", []}
          ```
 
     - Explicitly setting `pure_links` to `false` surpresses the deprecation warning
-
          ```elixir  
           Earmark.as_html("https://github.com/pragdave", pure_links: false)
-          {:ok, "<p>https://github.com/pragdave</p>\n", []}
+          {:ok, "<p>https://github.com/pragdave</p>\\n", []}
+
          ```
 
   """

@@ -30,18 +30,20 @@
 
 #### Earmark.as_html
 
-      {:ok, html_doc, []}                = Earmark.as_html(markdown)
-      {:error, html_doc, error_messages} = Earmark.as_html(markdown)
+      {:ok, html_doc, []}                   = Earmark.as_html(markdown)
+      {:ok, html_doc, deprecation_messages} = Earmark.as_html(markdown)
+      {:error, html_doc, error_messages}    = Earmark.as_html(markdown)
+
 
 #### Earmark.as_html!
 
       html_doc = Earmark.as_html!(markdown, options)
 
-  Any error messages are printed to _stderr_.
+  All messages are printed to _stderr_.
 
 #### Options:
 
-Options can be passed into `as_html` or `as_html!` according to the documentation.
+Options can be passed into `as_html` or `as_html!` according to the [documentation](#as_html/2).
 
       html_doc = Earmark.as_html!(markdown)
 
@@ -313,16 +315,16 @@ For the escript only the `timeout` command line argument can be used.
 <!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
 Given a markdown document (as either a list of lines or
 a string containing newlines), returns a tuple containing either
-`{:ok, html_doc}`, or `{:error, html_doc, error_messages}`
+`{:ok, html_doc, error_messages}`, or `{:error, html_doc, error_messages}`
 Where `html_doc` is an HTML representation of the markdown document and
 `error_messages` is a list of tuples with the following elements
 
-- `severity` e.g. `:error` or `:warning`
+- `severity` e.g. `:error`, `:warning` or `:deprecation`
 - line number in input where the error occurred
 - description of the error
 
 
-The options are a `%Earmark.Options{}` structure:
+`options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options` 
 
 * `renderer`: ModuleName
 
@@ -339,17 +341,63 @@ The options are a `%Earmark.Options{}` structure:
   significant (so every line in the input is a new line in the
   output.
 
+* `code_class_prefix`: binary
+
+  Code blocks will be rendered with prefixed class names, which might be necessary for
+  usage with 3rd party libraries.
+
+
+        Earmark.as_html("```elixir\nCode\n```", code_class_prefix: "my_prefix_")
+
+        {:ok, "<pre><code class=\"elixir my_prefix_elixir\">Code\```</code></pre>\n", []}
+
+
 * `smartypants`: boolean
 
   Turns on smartypants processing, so quotes become curly, two
   or four hyphens become en and em dashes, and so on. True by
   default.
 
-So, to format the document in `original` and disable smartypants,
-you'd call
+  So, to format the document in `original` and disable smartypants,
+  you'd call
 
-    alias Earmark.Options
-    Earmark.as_html(original, %Options{smartypants: false})
+
+        alias Earmark.Options
+        Earmark.as_html(original, %Options{smartypants: false})
+
+
+* `pure_links`: boolean
+
+  Pure links of the form `~r{\bhttps?://\S+\b}` are not rendered as links in this version yet.
+  However, by setting the `pure_links` option to `true` one can enable this behavior.
+
+  There are three possible cases
+
+  - Default (option is set to `nil`), gives a deprecation warning
+
+    ```elixir  
+     Earmark.as_html("https://github.com/pragdave")                
+     {:ok, "<p>https://github.com/pragdave</p>\n",
+       [
+         {:deprecation, 1,
+          "The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.\nThis will be the case by default in version 1.4.\nDisable the option explicitly with `false` to avoid this message."}
+       ]}
+
+    ```
+
+  - `pure_links: true`
+       ```elixir  
+        Earmark.as_html("https://github.com/pragdave", pure_links: true)
+        {:ok,
+          "<p><a href="https://github.com/pragdave">https://github.com/pragdave</a></p>\n", []}
+       ```
+
+  - Explicitly setting `pure_links` to `false` surpresses the deprecation warning
+       ```elixir  
+        Earmark.as_html("https://github.com/pragdave", pure_links: false)
+        {:ok, "<p>https://github.com/pragdave</p>\n", []}
+
+       ```
 
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->

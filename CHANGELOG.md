@@ -4,6 +4,7 @@
 * Fix for issues
 
   - [#158 some pure links implemented](https://github.com/pragdave/earmark/issues/158)
+  - [#240 code blocks in lists](https://github.com/pragdave/earmark/issues/240)
   - [#243 errors in unicode link names](https://github.com/pragdave/earmark/issues/243)
 
 
