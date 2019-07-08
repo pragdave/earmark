@@ -3,7 +3,7 @@ defmodule Acceptance.ListTest do
 
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "List items" do
+   describe "List items" do
     test "Unnumbered" do
       markdown = "* one\n* two"
       html     = "<ul>\n<li>one\n</li>\n<li>two\n</li>\n</ul>\n"
@@ -22,11 +22,27 @@ defmodule Acceptance.ListTest do
 
     test "Unnumbered Indent taken into account" do
       markdown = "   * one\n     one.one\n   * two"
-      html     = "<ul>\n<li>one\n one.one\n</li>\n<li>two\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>one\none.one\n</li>\n<li>two\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
+    end
 
+    test "Unnumbered two paras (removed from func tests)" do
+      markdown = "* one\n\n    indent1\n"
+      html     = "<ul>\n<li><p>one</p>\n<p>  indent1</p>\n</li>\n</ul>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    # Not GFM conformant, >3 goes into the head of the item
+    test "Indented items, by 4 (removed from func tests)" do
+      markdown = "1. one\n    - two\n        - three"
+      html     = "<ol>\n<li><p>one</p>\n<ul>\n<li><p>two</p>\n<ul>\n<li>three\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ol>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
     end
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
@@ -110,7 +126,7 @@ defmodule Acceptance.ListTest do
 
     test "where does it end?" do
       markdown = "* a\n    b\nc"
-      html     = "<ul>\n<li>a\nb\nc\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>a\n  b\nc\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -118,7 +134,7 @@ defmodule Acceptance.ListTest do
 
     test "tables in lists? Maybe not" do
       markdown = "* x\n    a\n| A | B |"
-      html     = "<ul>\n<li>x\na\n| A | B |\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>x\n  a\n| A | B |\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -126,13 +142,23 @@ defmodule Acceptance.ListTest do
 
     test "nice try, but naah" do
       markdown = "* x\n | A | B |"
-      html     = "<ul>\n<li>x\n | A | B |\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>x\n| A | B |\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+  end
 
-  # end
+  describe "Inline code" do
+    @tag :wip
+    test "perserves spaces" do
+      markdown = "* \\`prefix`first\n*      second \\`\n* third` `suffix`"
+      html     = "<p>`prefix<code class=\"inline\">first second \\</code>\n third<code class=\"inline\"></code>suffix`</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

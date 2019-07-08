@@ -23,18 +23,18 @@ defmodule BreaksTest do
 
   test "acceptance test 581 with breaks" do
     expected = "<ul>\n<li>a<br>b<br>c\n</li>\n</ul>\n"
-    markdown = "* a\n    b\nc"
+    markdown = "* a\n  b\nc"
     assert convert(markdown) == expected
   end
 
   test "acceptance test 582 with breaks" do
     expected = "<ul>\n<li>x<br>a<br>| A | B |\n</li>\n</ul>\n"
-    markdown = "* x\n    a\n| A | B |"
+    markdown = "* x\n  a\n| A | B |"
     assert convert(markdown) == expected
   end
 
   test "acceptance test 583 with breaks" do
-    expected = "<ul>\n<li>x<br> | A | B |\n</li>\n</ul>\n"
+    expected = "<ul>\n<li>x<br>| A | B |\n</li>\n</ul>\n"
     markdown = "* x\n | A | B |"
     assert convert(markdown) == expected
   end

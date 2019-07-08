@@ -170,7 +170,7 @@ defmodule Earmark.Parser do
     {spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
 
     spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
-    lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0)
+    lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0, first.list_indent)
     lines = [content | lines]
     {blocks, _, options1} = parse(lines, %{options | line: lnb}, true)
 
