@@ -117,12 +117,6 @@ defmodule Parser.InlineCodeTest do
     Parser.parse(["#{pfx} #{line}" | rest])
   end
 
-  test "Mutliline inline code in list is parsed correctly (getting rid of code inside code)" do
-    lines = ["\\`prefix`first", "     second \\`", " third` `suffix`"]
-    {result, _, _} = parse_as_list(lines)
-    assert_list_with(result, lines)
-  end
-
   test "Mutliline inline code in list is parsed correctly using triple beaktix (getting rid of code and list items)" do
     lines = ["\\`prefix```first", "     second \\`", "+ third``` `fourth``", "     fifth`"]
     {result, _, _} = parse_as_list(lines)

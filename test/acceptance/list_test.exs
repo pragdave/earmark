@@ -150,6 +150,7 @@ defmodule Acceptance.ListTest do
   end
 
   describe "Inline code" do
+    @tag :wip
     test "perserves spaces" do
       markdown = "* \\`prefix`first\n*      second \\`\n* third` `suffix`"
       html     = "<p>`prefix<code class=\"inline\">first second \\</code>\n third<code class=\"inline\"></code>suffix`</p>\n"

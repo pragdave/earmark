@@ -92,7 +92,7 @@ defmodule FootnoteTest do
     Para 2 line 2</p>
     <ul>
     <li>List Item 1
-      List Item 1 Cont
+    List Item 1 Cont
     </li>
     <li>List Item 2
     </li>
