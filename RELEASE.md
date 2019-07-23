@@ -1,4 +1,7 @@
-# 1.3.3
+# 1.3.4 ????/??/??
+
+
+# 1.3.3 2019/07/23
 
 ## Bugs
 - [#240 code blocks in lists](https://github.com/pragdave/earmark/issues/240)
