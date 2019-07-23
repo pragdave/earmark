@@ -391,6 +391,22 @@ defmodule Earmark do
     {status, html, messages}
   end
 
+  @doc "coming soon"
+  def as_ast(lines, options \\ %Options{})
+  def as_ast(lines, options) when is_list(options) do
+    as_ast(lines, struct(Options, options))
+  end
+  def as_ast(lines, options) do
+    {context, html} = _as_ast(lines, options)
+    messages = sort_messages(context)
+    status = 
+      case Enum.any?(messages, fn {severity, _, _} -> severity == :error || severity == :warning end) do
+        true -> :error
+        _    -> :ok
+      end
+    {status, html, messages}
+  end
+
   @doc """
   A convenience method that *always* returns an HTML representation of the markdown document passed in.
   In case of the presence of any error messages they are prinetd to stderr.
@@ -424,6 +440,14 @@ defmodule Earmark do
     {blocks, context |> Earmark.Message.add_message({:deprecation, "DEPRECATED: This will not be part of the public API in Earmark 1.4",0})}
   end
 
+  defp _as_ast(lines, options) do
+    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
+
+    case blocks do
+      [] -> {context, []}
+      _ -> Earmark.AstRenderer.render(blocks, context)
+    end
+  end
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
     `iex` usage.

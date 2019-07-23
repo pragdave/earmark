@@ -1,4 +1,4 @@
-defmodule Acceptance.BlockQuotesTest do
+defmodule Acceptance.Ast.BlockQuotesTest do
   use ExUnit.Case
 
   # describe "Block Quotes" do

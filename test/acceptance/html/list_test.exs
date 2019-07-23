@@ -1,4 +1,4 @@
-defmodule Acceptance.ListTest do
+defmodule Acceptance.Html.ListTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

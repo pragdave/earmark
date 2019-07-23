@@ -1,4 +1,4 @@
-defmodule Acceptance.BlockIalTest do
+defmodule Acceptance.Ast.BlockIalTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

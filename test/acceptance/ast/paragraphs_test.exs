@@ -1,4 +1,4 @@
-defmodule Acceptance.ParagraphsTest do
+defmodule Acceptance.Ast.ParagraphsTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

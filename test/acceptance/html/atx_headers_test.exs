@@ -1,4 +1,4 @@
-defmodule Acceptance.AtxHeadersTest do
+defmodule Acceptance.Html.AtxHeadersTest do
   use ExUnit.Case
   
   # describe "ATX headers" do

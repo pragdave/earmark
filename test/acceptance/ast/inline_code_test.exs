@@ -1,4 +1,4 @@
-defmodule Acceptance.InlineCodeTest do
+defmodule Acceptance.Ast.InlineCodeTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

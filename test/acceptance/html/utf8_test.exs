@@ -1,4 +1,4 @@
-defmodule Acceptance.Utf8Test do
+defmodule Acceptance.Html.Utf8Test do
   use ExUnit.Case
   import Support.Helpers, only: [as_html!: 2]
 

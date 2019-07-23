@@ -1,4 +1,4 @@
-defmodule Acceptance.DiverseTest do
+defmodule Acceptance.Ast.DiverseTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

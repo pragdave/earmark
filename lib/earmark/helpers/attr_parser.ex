@@ -6,7 +6,7 @@ defmodule Earmark.Helpers.AttrParser do
   @type errorlist :: list(String.t)
 
   def parse_attrs(context, attrs, lnb) do
-    { attrs, errors } = _parse_attrs(%{}, attrs, [], lnb)
+    { attrs, errors } = _parse_attrs(%{}, attrs, [], lnb)|>IO.inspect
     { add_errors(context, errors, lnb), attrs }
   end
 

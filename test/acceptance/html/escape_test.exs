@@ -1,4 +1,4 @@
-defmodule Acceptance.EscapeTest do
+defmodule Acceptance.Html.EscapeTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1, as_html: 2]

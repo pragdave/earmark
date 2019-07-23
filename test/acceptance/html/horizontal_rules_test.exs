@@ -1,4 +1,4 @@
-defmodule Acceptance.HorizontalRulesTest do
+defmodule Acceptance.Html.HorizontalRulesTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

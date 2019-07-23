@@ -1,4 +1,4 @@
-defmodule Acceptance.FootnotesTest do
+defmodule Acceptance.Html.FootnotesTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [ as_html: 2]

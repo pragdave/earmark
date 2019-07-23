@@ -1,4 +1,4 @@
-defmodule Acceptance.LinksImages.TitlesTest do
+defmodule Acceptance.Html.LinksImages.TitlesTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

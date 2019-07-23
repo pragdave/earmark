@@ -1,4 +1,4 @@
-defmodule Acceptance.IndentedCodeBlocksTest do
+defmodule Acceptance.Html.IndentedCodeBlocksTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

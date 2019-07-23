@@ -1,4 +1,4 @@
-defmodule Acceptance.LinkImages.ImgTest do
+defmodule Acceptance.Html.LinkImages.ImgTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

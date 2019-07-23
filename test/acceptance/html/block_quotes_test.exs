@@ -1,4 +1,4 @@
-defmodule Acceptance.BlockQuotesTest do
+defmodule Acceptance.Html.BlockQuotesTest do
   use ExUnit.Case
 
   describe "with breaks: true" do

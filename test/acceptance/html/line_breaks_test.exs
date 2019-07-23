@@ -1,4 +1,4 @@
-defmodule Acceptance.LineBreaksTest do
+defmodule Acceptance.Html.LineBreaksTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

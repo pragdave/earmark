@@ -1,4 +1,4 @@
-defmodule Acceptance.TableTest do
+defmodule Acceptance.Ast.TableTest do
   use ExUnit.Case
 
   import Support.Helpers, only: [as_html: 1]

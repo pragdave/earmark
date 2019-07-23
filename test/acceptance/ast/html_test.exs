@@ -1,4 +1,4 @@
-defmodule Acceptance.HtmlBlocksTest do
+defmodule Acceptance.Ast.HtmlBlocksTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

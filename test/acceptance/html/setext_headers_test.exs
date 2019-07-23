@@ -1,4 +1,4 @@
-defmodule Acceptance.SetextHeadersTest do
+defmodule Acceptance.Html.SetextHeadersTest do
   use ExUnit.Case
   
   import Support.Helpers, only: [as_html: 1]

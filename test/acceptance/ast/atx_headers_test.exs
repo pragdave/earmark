@@ -1,4 +1,4 @@
-defmodule Acceptance.AtxHeadersTest do
+defmodule Acceptance.Ast.AtxHeadersTest do
   use ExUnit.Case
   
   # describe "ATX headers" do
@@ -6,9 +6,11 @@ defmodule Acceptance.AtxHeadersTest do
     test "from one to six" do
       markdown = "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
       html     = "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n"
+      ast      = Floki.parse(html) |> IO.inspect
+
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "seven? kidding, right?" do

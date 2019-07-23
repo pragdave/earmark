@@ -1,4 +1,4 @@
-defmodule Acceptance.LinksImages.SimplePureLinksTest do
+defmodule Acceptance.Html.LinksImages.SimplePureLinksTest do
   use Support.AcceptanceTestCase
 
   describe "simple pure links not yet enabled" do

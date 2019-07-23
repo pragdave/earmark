@@ -1,4 +1,4 @@
-defmodule Acceptance.ReadmeTest do
+defmodule Acceptance.Ast.ReadmeTest do
   use ExUnit.Case
   
   doctest Earmark
