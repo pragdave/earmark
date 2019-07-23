@@ -25,24 +25,14 @@ defmodule Earmark.Helpers.HtmlHelpers do
   ##############################################
 
   @doc false
-  def add_attrs!(context, text, attrs_as_string_or_map, default_attrs, lnb ) do
-    with {context, {text, _errors}} <- add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb) do
-      {context, text}
-    end
-  end
-
-  defp add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb )
-
-  defp add_attrs(context, text, nil, [], _lnb), do: {context, text}
-
-  defp add_attrs(context, text, nil, default, lnb), do: add_attrs(context, text, %{}, default, lnb)
-
-  defp add_attrs(context, text, attrs, default, lnb) when is_binary(attrs) do
+  def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb )
+  def add_attrs(context, text, nil, [], _lnb), do: {context, text}
+  def add_attrs(context, text, nil, default, lnb), do: add_attrs(context, text, %{}, default, lnb)
+  def add_attrs(context, text, attrs, default, lnb) when is_binary(attrs) do
     {context1, attrs} = parse_attrs( context, attrs, lnb )
     add_attrs(context1, text, attrs, default, lnb)
   end
-
-  defp add_attrs(context, text, attrs, default, _lnb) do
+  def add_attrs(context, text, attrs, default, _lnb) do
     {context, 
       default
       |> Map.new()
