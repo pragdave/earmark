@@ -30,7 +30,7 @@ defmodule Earmark.Context do
   @doc """
   Convenience method to prepend to the value list
   """
-  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value] |> IO.inspect}
 
   @doc """
   Convenience method to prepend to the value list
@@ -49,6 +49,9 @@ defmodule Earmark.Context do
   @doc false
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
+  def update_context() do
+    update_context(%Earmark.Context{})
+  end
   def update_context(context = %Earmark.Context{options: options}) do
     context = %{context | rules: rules_for(options)}
 

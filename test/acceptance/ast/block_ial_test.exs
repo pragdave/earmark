@@ -1,7 +1,7 @@
 defmodule Acceptance.Ast.BlockIalTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_html: 1]
 
    describe "IAL" do
 
@@ -31,10 +31,10 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated" do
       markdown = "Before\n{:hello=world}"
-      html     = "<p hello=\"world\">Before</p>\n"
+      ast     = "<p hello=\"world\">Before</p>\n" |> Floki.parse
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "Associated in between" do
