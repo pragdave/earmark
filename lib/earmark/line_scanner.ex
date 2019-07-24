@@ -102,8 +102,11 @@ defmodule Earmark.LineScanner do
         %Line.Ruler{type: "_"}
 
       match = Regex.run(~R/^(#{1,6})\s+(?|([^#]+)#*$|(.*))/u, line) ->
-        [_, level, heading] = match
-        %Line.Heading{level: String.length(level), content: String.trim(heading)}
+        [_, desired_level, heading] = match
+        level =
+          min((options.start_heading_level - 1) + String.length(desired_level), 6)
+
+        %Line.Heading{level: level, content: String.trim(heading)}
 
       match = Regex.run(~r/^>(?|(\s*)$|\s(.*))/, line) ->
         [_, quote] = match

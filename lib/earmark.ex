@@ -375,6 +375,21 @@ defmodule Earmark do
 
          ```
 
+    - `start_heading_level: 1`
+         ```elixir
+          Earmark.as_html("# this is a heading", start_heading_level: 1)
+          {:ok,
+            "<h1>this is a heading</h1\\n>", []}
+
+          Earmark.as_html("# this is a heading", start_heading_level: 2)
+          {:ok,
+            "<h2>this is a heading</h2>\\n", []}
+
+          Earmark.as_html("# this is a heading", start_heading_level: 2)
+          {:ok,
+            "<h3>this is a heading</h3>\\n", []}
+         ```
+
   """
   def as_html(lines, options \\ %Options{})
   def as_html(lines, options) when is_list(options) do

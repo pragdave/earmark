@@ -18,6 +18,9 @@ defmodule Earmark.Options do
             # Add possibility to specify a timeout for Task.await
             timeout: nil,
 
+            # Be able to specify at what level headings start
+            start_heading_level: 1,
+
             # Internal—only override if you're brave
             do_smartypants: nil,
             do_sanitize: nil,
