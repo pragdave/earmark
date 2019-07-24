@@ -385,7 +385,7 @@ defmodule Earmark do
           {:ok,
             "<h2>this is a heading</h2>\\n", []}
 
-          Earmark.as_html("# this is a heading", start_heading_level: 2)
+          Earmark.as_html("## this is a heading", start_heading_level: 2)
           {:ok,
             "<h3>this is a heading</h3>\\n", []}
          ```
