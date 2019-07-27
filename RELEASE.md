@@ -1,6 +1,8 @@
 # 1.3.4 ????/??/??
 
 
+- [#254 pure links inside links](https://github.com/pragdave/earmark/issues/254)
+
 # 1.3.3 2019/07/23
 
 ## Bugs
