@@ -14,14 +14,12 @@ defmodule Earmark.Inline do
 
   @doc false
   def convert(src, lnb, context)
-
   def convert(list, lnb, context) when is_list(list),
     do: _convert(Enum.join(list, "\n"), lnb, context)
-
   def convert(src, lnb, context), do: _convert(src, lnb, context)
 
   defp _convert(src, current_lnb, context) do
-    convert_each({src, context, %{context | value: []}, current_lnb}, all_converters())
+    _convert_each({src, context, %{context | value: []}, current_lnb}, all_converters())
   end
 
   @linky_converter_names [
@@ -52,9 +50,8 @@ defmodule Earmark.Inline do
     ]
   end
 
-  defp convert_each(data, converters)
-
-  defp convert_each({"", context, result, _lnb}, _converters) do
+  defp _convert_each(data, converters)
+  defp _convert_each({"", context, result, _lnb}, _converters) do
     with result1 <-
            result.value
            |> Enum.reverse()
@@ -63,19 +60,16 @@ defmodule Earmark.Inline do
            |> replace(~r{(</[^>]*>)“}, "\\1”"),
          do: set_value(context, result1)
   end
-
-  defp convert_each(data, converters) do
-    walk_converters(converters, data, converters)
+  defp _convert_each(data, converters) do
+    _walk_converters(converters, data, converters)
   end
 
-  defp walk_converters(converters, data, all_converters)
-
-  defp walk_converters([], _, _) do
+  defp _walk_converters(converters, data, all_converters)
+  defp _walk_converters([], _, _) do
     # This should never happen
     raise Error, "Illegal State"
   end
-
-  defp walk_converters(
+  defp _walk_converters(
          [{_converter_name, converter} | rest],
          data = {_src, context, _result, _lnb},
          all_converters
@@ -83,10 +77,10 @@ defmodule Earmark.Inline do
     case converter.(data, context.options.renderer) do
       # This has not been the correct converter, move on
       nil ->
-        walk_converters(rest, data, all_converters)
+        _walk_converters(rest, data, all_converters)
 
       nd ->
-        convert_each(update_lnb(nd), all_converters)
+        _convert_each(update_lnb(nd), all_converters)
     end
   end
 
@@ -336,9 +330,10 @@ defmodule Earmark.Inline do
     href = encode(href)
     title = if title, do: escape(title), else: nil
 
+    context1 = %{context | options: %{context.options | pure_links: false}}
     link =
-      convert_each(
-        {text, context, set_value(context, []), lnb},
+      _convert_each(
+        {text, context1, set_value(context1, []), lnb},
         Keyword.drop(all_converters(), @linky_converter_names)
       )
 

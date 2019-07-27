@@ -64,6 +64,23 @@ defmodule Acceptance.LinksImages.SimplePureLinksTest do
 
       assert as_html(markdown, pure_links: true) == {:ok, html, messages}
     end
+
+    test "be aware of the double up" do
+      markdown = "[https://erlang.org](https://erlang.org)"
+      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a></p>\n"
+      messages = []
+
+      assert as_html(markdown, pure_links: true) == {:ok, html, messages}
+    end
+
+    test "inner pure_links disabling does not leak out" do
+      markdown = "[https://erlang.org](https://erlang.org) https://elixir.lang"
+      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a> <a href=\"https://elixir.lang\">https://elixir.lang</a></p>\n"
+      messages = []
+
+      assert as_html(markdown, pure_links: true) == {:ok, html, messages}
+
+    end
   end
 end
 
