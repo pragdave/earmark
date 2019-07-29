@@ -5,7 +5,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline, only: [convert: 3]
   import Earmark.Helpers, only: [escape: 2]
   import Earmark.Helpers.HtmlHelpers
-  import Earmark.Message, only: [add_messages_from: 2, add_messages: 2, get_messages: 1]
+  import Earmark.Message, only: [add_messages_from: 2, add_message: 2, add_messages: 2, get_messages: 1]
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
 
@@ -190,11 +190,12 @@ defmodule Earmark.HtmlRenderer do
   # Plugins #
   ###########
 
-  defp render_block(%Block.Plugin{lines: lines, handler: handler}, context) do
+  defp render_block(%Block.Plugin{lines: [{_, lnb}|_]=lines, handler: handler}, context) do
+    context1 = add_message(context, {:deprecation, "DEPRECATED: Plugins will be removed in Earmark 1.4", lnb})
     case handler.as_html(lines) do
-      html when is_list(html) -> {context, html}
-      {html, errors} -> {add_messages(context, errors), html}
-      html -> {context, [html]}
+      html when is_list(html) -> {context1, html}
+      {html, errors} -> {add_messages(context1, errors), html}
+      html -> {context1, [html]}
     end
   end
 
