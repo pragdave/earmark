@@ -286,7 +286,7 @@ defmodule Earmark do
 
   alias Earmark.Error
   alias Earmark.Options
-  import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
+  import Earmark.Message, only: [add_message: 2, emit_messages: 1, sort_messages: 1]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -409,10 +409,11 @@ defmodule Earmark do
 
   defp _as_html(lines, options) do
     {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
+    context1 = _add_sanitize_deprecation(context)
 
     case blocks do
       [] -> {context, ""}
-      _ -> options.renderer.render(blocks, context)
+      _ -> options.renderer.render(blocks, context1)
     end
   end
 
@@ -430,16 +431,24 @@ defmodule Earmark do
     collection
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Task.yield_many(timeout)
-    |> Enum.map(&join_pmap_results_or_raise(&1, timeout))
+    |> Enum.map(&_join_pmap_results_or_raise(&1, timeout))
   end
 
-  defp join_pmap_results_or_raise(yield_tuples, timeout)
-  defp join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
+  defp _add_sanitize_deprecation(%Earmark.Context{options: %Options{sanitize: sanitize}}=context) do
+    if sanitize do
+      add_message(context, {:deprecation, "DEPRECATED: The sanitize option will be removed in Earmark 1.4", 0})
+    else
+      context
+    end
+  end
 
-  defp join_pmap_results_or_raise({task, {:error, reason}}, _timeout),
+  defp _join_pmap_results_or_raise(yield_tuples, timeout)
+  defp _join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
+
+  defp _join_pmap_results_or_raise({task, {:error, reason}}, _timeout),
     do: raise(Error, "#{inspect(task)} has died with reason #{inspect(reason)}")
 
-  defp join_pmap_results_or_raise({task, nil}, timeout),
+  defp _join_pmap_results_or_raise({task, nil}, timeout),
     do:
       raise(
         Error,
