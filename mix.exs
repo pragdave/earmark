@@ -1,11 +1,11 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.3.4"
+  @version "1.3.5"
 
   @deps [
-    {:credo, "~> 0.10", only: [:dev, :test]},
-    {:dialyxir, "~> 0.5", only: [:dev, :test]}
+    # {:credo, "~> 0.10", only: [:dev, :test]},
+    # {:dialyxir, "~> 0.5", only: [:dev, :test]}
   ]
 
   @description """
