@@ -90,9 +90,7 @@ defmodule Earmark.HtmlRenderer do
          %Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs},
          context
        ) do
-    cols = for _align <- aligns, do: "<col>\n"
     {context1, html} = add_attrs(context, "<table>\n", attrs, [], lnb)
-    html = [html, "<colgroup>\n", cols, "</colgroup>\n"]
     context2 = set_value(context1, html)
 
     context3 =

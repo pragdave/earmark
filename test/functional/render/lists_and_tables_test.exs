@@ -66,10 +66,6 @@ defmodule ListAndTablesTest do
     result = Earmark.as_html!( ["- | a | b |", "| c | d |"] )
     expected = ul([ """
                     <table>
-                    <colgroup>
-                    <col>
-                    <col>
-                    </colgroup>
                     <tr>
                     <td style="text-align: left">a</td><td style="text-align: left">b</td>
                     </tr>

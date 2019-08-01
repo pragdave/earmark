@@ -68,11 +68,6 @@ defmodule TableTest do
     result = Earmark.as_html!(["a | b | c", "d | e | f"])
     expected = """
     <table>
-    <colgroup>
-    <col>
-    <col>
-    <col>
-    </colgroup>
     <tr>
     <td style="text-align: left">a</td><td style="text-align: left">b</td><td style="text-align: left">c</td>
     </tr>
@@ -88,11 +83,6 @@ defmodule TableTest do
     result = Earmark.as_html!(["a | b | c", ":-- | :--: |--:", "d | e | f"])
     expected = """
     <table>
-    <colgroup>
-    <col>
-    <col>
-    <col>
-    </colgroup>
     <thead>
     <tr>
     <th style="text-align: left">a</th><th style="text-align: center">b</th><th style="text-align: right">c</th>
@@ -110,11 +100,6 @@ defmodule TableTest do
     result = Earmark.as_html!(["a | _b_ | `c`", " <xx>d</xx> | **e** | __f__"])
     expected = """
     <table>
-    <colgroup>
-    <col>
-    <col>
-    <col>
-    </colgroup>
     <tr>
     <td style="text-align: left">a</td><td style="text-align: left"><em>b</em></td><td style="text-align: left"><code class="inline">c</code></td>
     </tr>
