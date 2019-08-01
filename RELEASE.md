@@ -1,4 +1,7 @@
-# 1.3.5
+# 1.4   ????/??/??
+
+
+# 1.3.5 2019/08/01
 
 -  [#264]( https://github.com/pragdave/earmark/issues/264) 
       Expose `Earmark.parse/2` but deprecate it.
