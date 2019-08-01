@@ -417,6 +417,13 @@ defmodule Earmark do
     end
   end
 
+  # TODO: Remove in 1.4
+  @doc false
+  def parse(lines, options) do 
+    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
+    {blocks, context |> Earmark.Message.add_message({:deprecation, "DEPRECATED: This will not be part of the public API in Earmark 1.4",0})}
+  end
+
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
     `iex` usage.
