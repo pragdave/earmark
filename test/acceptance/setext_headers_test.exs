@@ -103,7 +103,7 @@ defmodule Acceptance.SetextHeadersTest do
     
     test "h2 after a table" do
       markdown = "|a|b|\n|d|e|\nbar\n---"
-      html     = "<table>\n<colgroup>\n<col>\n<col>\n</colgroup>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n<h2>bar</h2>\n"
+      html     = "<table>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n<h2>bar</h2>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
