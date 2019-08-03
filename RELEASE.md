@@ -1,10 +1,19 @@
 # 1.4   ????/??/??
 
+# 1.3.6 ????/??/??
+
+-  [#266]( https://github.com/pragdave/earmark/issues/266) 
+    According to HTML5 Style Guide better XHTML compatibility by closing void tags e.g. `<hr>` --&gt; `<hr />`
+
 
 # 1.3.5 2019/08/01
 
 -  [#264]( https://github.com/pragdave/earmark/issues/264) 
       Expose `Earmark.parse/2` but deprecate it.
+
+-  [#262]( https://github.com/pragdave/earmark/issues/262) 
+    Remove non XHTML tags <colgroup> and <col>
+
 
 -  [#236]( https://github.com/pragdave/earmark/issues/236)
       Deprecation of plugins.
