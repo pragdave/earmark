@@ -12,9 +12,9 @@ defmodule InlineTest do
     assert result == "hello"
   end
 
-  test "line ending with 2 spaces causes a <br>" do
+  test "line ending with 2 spaces causes a <br />" do
     result = convert_pedantic("hello  \nworld")
-    assert result == "hello<br>world"
+    assert result == "hello<br />world"
   end
 
   ############
@@ -72,12 +72,12 @@ defmodule InlineTest do
 
   test "inline image tag" do
     result = convert_pedantic("the ![image](/path.jpg) tag")
-    assert result == ~S[the <img src="/path.jpg" alt="image"/> tag]
+    assert result == ~S[the <img src="/path.jpg" alt="image" /> tag]
   end
 
   test "inline image tag with a title" do
     result = convert_pedantic(~s<the ![image](/path.jpg "a title") tag>)
-    assert result == ~S[the <img src="/path.jpg" alt="image" title="a title"/> tag]
+    assert result == ~S[the <img src="/path.jpg" alt="image" title="a title" /> tag]
   end
 
   ###################
@@ -148,7 +148,7 @@ defmodule InlineTest do
 
   test "imbricated image inside reference link" do
     result = convert_pedantic(~s{a [![my link](url)][id1] link})
-    assert result == "a <a href=\"url%201\" title=\"title 1\"><img src=\"url\" alt=\"my link\"/></a> link"
+    assert result == "a <a href=\"url%201\" title=\"title 1\"><img src=\"url\" alt=\"my link\" /></a> link"
   end
 
   test "imbricated link inside reference link" do
@@ -165,25 +165,25 @@ defmodule InlineTest do
     result = convert_pedantic(~s{a ![my image][img1] link})
 
     assert result ==
-      ~s[a <img src="img%201" alt="my image" title="image 1"/> link]
+      ~s[a <img src="img%201" alt="my image" title="image 1" /> link]
   end
 
   test "basic reference image link with no title" do
     result = convert_pedantic(~s{a ![my image][img2] link})
     assert result ==
-      ~s[a <img src="img%202" alt="my image"/> link]
+      ~s[a <img src="img%202" alt="my image" /> link]
   end
 
   test "basic reference image link with link in alt" do
     result = convert_pedantic(~s{a ![[my image](my url "my title")][img1] link})
     assert result ==
-      ~s{a <img src="img%201" alt="[my image](my url &quot;my title&quot;)" title="image 1"/> link}
+      ~s{a <img src="img%201" alt="[my image](my url &quot;my title&quot;)" title="image 1" /> link}
   end
 
   test "basic reference image link with image in alt" do
     result = convert_pedantic(~s{a ![![my image](my url "my title")][img1] link})
     assert result ==
-      ~s{a <img src="img%201" alt="![my image](my url &quot;my title&quot;)" title="image 1"/> link}
+      ~s{a <img src="img%201" alt="![my image](my url &quot;my title&quot;)" title="image 1" /> link}
   end
 
   ###############

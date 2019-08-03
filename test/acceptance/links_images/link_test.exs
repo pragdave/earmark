@@ -126,6 +126,19 @@ defmodule Acceptance.LinkImages.LinkTest do
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "minimal case" do
+      result = Earmark.as_html!( "([]()" )
+      assert "<p>(<a href=\"\"></a></p>\n" == result
+    end
+    test "minimal case, ) as suffix" do
+      result = Earmark.as_html!("([]())")
+      assert "<p>(<a href=\"\"></a>)</p>\n" == result
+    end
+    test "normal case" do
+      result = Earmark.as_html!( "([text](link))" )
+      assert "<p>(<a href=\"link\">text</a>)</p>\n" == result
+    end
   end
 
 

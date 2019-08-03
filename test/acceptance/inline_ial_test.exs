@@ -22,7 +22,7 @@ defmodule Acceptance.InlineIalTest do
 
     test "img with simple ial" do
       markdown = "![link](url){:#thatsme}"
-      html = "<p><img src=\"url\" alt=\"link\" id=\"thatsme\"/></p>\n"
+      html = "<p><img src=\"url\" alt=\"link\" id=\"thatsme\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

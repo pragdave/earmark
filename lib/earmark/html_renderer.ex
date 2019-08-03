@@ -49,15 +49,15 @@ defmodule Earmark.HtmlRenderer do
   # Ruler #
   #########
   defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thin"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["thin"]}], lnb)
   end
 
   defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["medium"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["medium"]}], lnb)
   end
 
   defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thick"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["thick"]}], lnb)
   end
 
   ###########
@@ -167,7 +167,7 @@ defmodule Earmark.HtmlRenderer do
       end)
 
     {context1, html} = render_block(%Block.List{type: :ol, blocks: items}, context)
-    {context1, Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")}
+    {context1, Enum.join([~s[<div class="footnotes">], "<hr />", html, "</div>"], "\n")}
   end
 
   #######################################
@@ -201,7 +201,7 @@ defmodule Earmark.HtmlRenderer do
   # And here are the inline renderers #
   #####################################
 
-  def br, do: "<br>"
+  def br, do: "<br />"
   def codespan(text), do: ~s[<code class="inline">#{text}</code>]
   def em(text), do: "<em>#{text}</em>"
   def strong(text), do: "<strong>#{text}</strong>"
@@ -212,11 +212,11 @@ defmodule Earmark.HtmlRenderer do
   def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
 
   def image(path, alt, nil) do
-    ~s[<img src="#{path}" alt="#{alt}"/>]
+    ~s[<img src="#{path}" alt="#{alt}" />]
   end
 
   def image(path, alt, title) do
-    ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
+    ~s[<img src="#{path}" alt="#{alt}" title="#{title}" />]
   end
 
   def footnote_link(ref, backref, number),
@@ -228,11 +228,10 @@ defmodule Earmark.HtmlRenderer do
       rows
       |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
 
-    # for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
     numbered_rows
-    |> Enum.reduce(context, fn {row, lnb}, ctx ->
-      append(add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n")
-    end)
+      |> Enum.reduce(context, fn {row, lnb}, ctx ->
+        append(add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n")
+      end)
   end
 
   defp add_tds(context, row, tag, aligns, lnb) do

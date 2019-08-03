@@ -6,28 +6,28 @@ defmodule Acceptance.LineBreaksTest do
   describe "Forced Line Breaks" do
     test "with two spaces" do
       markdown = "The  \nquick"
-      html     = "<p>The<br>quick</p>\n"
+      html     = "<p>The<br />quick</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
     test "or more spaces" do
       markdown = "The   \nquick"
-      html     = "<p>The<br>quick</p>\n"
+      html     = "<p>The<br />quick</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
     test "or in some lines" do
       markdown = "The   \nquick  \nbrown"
-      html     = "<p>The<br>quick<br>brown</p>\n"
+      html     = "<p>The<br />quick<br />brown</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
     test "and in list items" do
       markdown = "* The  \nquick"
-      html     = "<ul>\n<li>The<br>quick\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>The<br />quick\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -19,11 +19,11 @@ defmodule Parser.VoidElementTest do
       %Block.HtmlOther{lnb: 1, attrs: nil, html: [~s{<br></br>}]}
     ]},
 
-    {"hr as void element", [~s{<hr>}], [
-      %Block.HtmlOther{lnb: 1, attrs: nil, html: [~s{<hr>}]}
+    {"hr as void element", [~s{<hr />}], [
+      %Block.HtmlOther{lnb: 1, attrs: nil, html: [~s{<hr />}]}
     ]},
-    {"hr backwards compatibility", [~s{<hr></hr>}], [
-      %Block.HtmlOther{lnb: 1, attrs: nil, html: [~s{<hr></hr>}]}
+    {"hr backwards compatibility", [~s{<hr /></hr>}], [
+      %Block.HtmlOther{lnb: 1, attrs: nil, html: [~s{<hr /></hr>}]}
     ]},
 
     {"img as void element", [~s{<img src="hello">}], [

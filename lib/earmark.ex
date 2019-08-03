@@ -206,22 +206,22 @@ defmodule Earmark do
     Thusly
 
           mypara
-          <hr>
+          <hr />
 
     Becomes
 
           <p>mypara</p>
-          <hr>
+          <hr />
 
     While
 
           mypara
-           <hr>
+           <hr />
 
     will be transformed into
 
           <p>mypara
-           <hr></p>
+           <hr /></p>
 
   ## Integration
 

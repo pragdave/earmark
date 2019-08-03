@@ -6,7 +6,7 @@ defmodule Acceptance.HardLineBreaksTest do
     test "hard line breaks are enabled" do 
       
       markdown = "line 1\nline 2\\\nline 3"
-      html     = "<p>line 1\nline 2<br>\nline 3</p>\n"
+      html     = "<p>line 1\nline 2<br />\nline 3</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
