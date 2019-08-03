@@ -7,7 +7,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "img with title" do
       markdown = "[foo]: /url \"title\"\n\n![foo]\n"
-      html = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"foo\" title=\"title\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -27,7 +27,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "as with this img" do
       markdown = "![[text](inner)](outer)"
-      html = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
+      html = "<p><img src=\"outer\" alt=\"[text](inner)\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -35,7 +35,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "again escapes do not escape us" do
       markdown = "![\\[text\\](inner)](outer)"
-      html = "<p><img src=\"outer\" alt=\"[text](inner)\"/></p>\n"
+      html = "<p><img src=\"outer\" alt=\"[text](inner)\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -43,7 +43,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "headaches ahead (and behind us)" do
       markdown = "[![moon](moon.jpg)](/uri)\n"
-      html = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\"/></a></p>\n"
+      html = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\" /></a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -51,7 +51,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "lost in space" do
       markdown = "![![moon](moon.jpg)](sun.jpg)\n"
-      html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\"/></p>\n"
+      html = "<p><img src=\"sun.jpg\" alt=\"![moon](moon.jpg)\" /></p>\n"
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
@@ -61,15 +61,20 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "title" do
       markdown = "![foo](/url \"title\")\n"
-      html = "<p><img src=\"/url\" alt=\"foo\" title=\"title\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"foo\" title=\"title\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "parens: images" do
+      result = Earmark.as_html! "(![text](src))"
+      assert ~s{<p>(<img src="src" alt="text" />)</p>\n} == result
+    end
+
     test "ti tle (why not)" do
       markdown = "![foo](/url \"ti tle\")\n"
-      html = "<p><img src=\"/url\" alt=\"foo\" title=\"ti tle\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"foo\" title=\"ti tle\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -77,7 +82,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "titles become strange" do
       markdown = "![foo](/url \"ti() tle\")\n"
-      html = "<p><img src=\"/url\" alt=\"foo\" title=\"ti() tle\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"foo\" title=\"ti() tle\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -85,7 +90,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "as does everything else" do
       markdown = "![f[]oo](/url \"ti() tle\")\n"
-      html = "<p><img src=\"/url\" alt=\"f[]oo\" title=\"ti() tle\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"f[]oo\" title=\"ti() tle\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -93,7 +98,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "alt goes crazy" do
       markdown = "![foo[([])]](/url 'title')\n"
-      html = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\"/></p>\n"
+      html = "<p><img src=\"/url\" alt=\"foo[([])]\" title=\"title\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -101,7 +106,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
-      html = "<p><img src=\"/url%20&#39;title%22\" alt=\"foo[([])]\"/></p>\n"
+      html = "<p><img src=\"/url%20&#39;title%22\" alt=\"foo[([])]\" /></p>\n"
 
       messages = []
 
@@ -110,7 +115,7 @@ defmodule Acceptance.LinkImages.ImgTest do
 
     test "url escapes of course" do
       markdown = "![foo](/url no title)\n"
-      html = "<p><img src=\"/url%20no%20title\" alt=\"foo\"/></p>\n"
+      html = "<p><img src=\"/url%20no%20title\" alt=\"foo\" /></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -118,6 +123,8 @@ defmodule Acceptance.LinkImages.ImgTest do
 
   end
 
+  describe "Edge cases" do
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

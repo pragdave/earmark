@@ -201,7 +201,7 @@ defmodule Earmark.HtmlRenderer do
   # And here are the inline renderers #
   #####################################
 
-  def br, do: "<br>"
+  def br, do: "<br />"
   def codespan(text), do: ~s[<code class="inline">#{text}</code>]
   def em(text), do: "<em>#{text}</em>"
   def strong(text), do: "<strong>#{text}</strong>"
@@ -212,11 +212,11 @@ defmodule Earmark.HtmlRenderer do
   def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
 
   def image(path, alt, nil) do
-    ~s[<img src="#{path}" alt="#{alt}"/>]
+    ~s[<img src="#{path}" alt="#{alt}" />]
   end
 
   def image(path, alt, title) do
-    ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
+    ~s[<img src="#{path}" alt="#{alt}" title="#{title}" />]
   end
 
   def footnote_link(ref, backref, number),
@@ -228,11 +228,10 @@ defmodule Earmark.HtmlRenderer do
       rows
       |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
 
-    # for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
     numbered_rows
-    |> Enum.reduce(context, fn {row, lnb}, ctx ->
-      append(add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n")
-    end)
+      |> Enum.reduce(context, fn {row, lnb}, ctx ->
+        append(add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n")
+      end)
   end
 
   defp add_tds(context, row, tag, aligns, lnb) do
