@@ -7,19 +7,28 @@ defmodule Acceptance.HorizontalRulesTest do
 
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
-      html     = "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n"
+      html     = "<hr class=\"thick\" />\n<hr class=\"thin\" />\n<hr class=\"medium\" />\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "not a rule" do
+      markdown = "+++"
+      html     = "<p>+++</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "a rule" do
       markdown = "+++\n"
       html     = "<p>+++</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
 
     test "not in code" do
       markdown = "    ***\n    \n     a"
@@ -39,7 +48,7 @@ defmodule Acceptance.HorizontalRulesTest do
 
     test "medium, long" do
       markdown = "_____________________________________\n"
-      html     = "<hr class=\"medium\"/>\n"
+      html     = "<hr class=\"medium\" />\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -55,7 +64,7 @@ defmodule Acceptance.HorizontalRulesTest do
 
     test "in lists" do
       markdown = "- foo\n***\n- bar\n"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<hr class=\"thick\" />\n<ul>\n<li>bar\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -71,7 +80,7 @@ defmodule Acceptance.HorizontalRulesTest do
 
     test "in lists, thick this time (why am I soo good to you?)" do
       markdown = "* Foo\n* * *\n* Bar\n"
-      html = "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar\n</li>\n</ul>\n"
+      html = "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\" />\n<ul>\n<li>Bar\n</li>\n</ul>\n"
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end

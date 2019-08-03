@@ -48,8 +48,8 @@ defmodule Acceptance.HtmlBlocksTest do
     end
 
     test "high regards???" do
-      markdown = "<hr>\n**emphasized** text"
-      html     = "<hr><p><strong>emphasized</strong> text</p>\n"
+      markdown = "<hr />\n**emphasized** text"
+      html     = "<hr /><p><strong>emphasized</strong> text</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -73,16 +73,16 @@ defmodule Acceptance.HtmlBlocksTest do
 
   # describe "HTML and paragraphs" do
     test "void elements close para" do
-      markdown = "alpha\n<hr>beta"
-      html     = "<p>alpha</p>\n<hr>beta"
+      markdown = "alpha\n<hr />beta"
+      html     = "<p>alpha</p>\n<hr />beta"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "void elements close para but only at BOL" do
-      markdown = "alpha\n <hr>beta"
-      html     = "<p>alpha\n <hr>beta</p>\n"
+      markdown = "alpha\n <hr />beta"
+      html     = "<p>alpha\n <hr />beta</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

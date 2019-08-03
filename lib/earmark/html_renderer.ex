@@ -49,15 +49,15 @@ defmodule Earmark.HtmlRenderer do
   # Ruler #
   #########
   defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thin"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["thin"]}], lnb)
   end
 
   defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["medium"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["medium"]}], lnb)
   end
 
   defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thick"]}], lnb)
+    add_attrs(context, "<hr />\n", attrs, [{"class", ["thick"]}], lnb)
   end
 
   ###########
@@ -167,7 +167,7 @@ defmodule Earmark.HtmlRenderer do
       end)
 
     {context1, html} = render_block(%Block.List{type: :ol, blocks: items}, context)
-    {context1, Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")}
+    {context1, Enum.join([~s[<div class="footnotes">], "<hr />", html, "</div>"], "\n")}
   end
 
   #######################################

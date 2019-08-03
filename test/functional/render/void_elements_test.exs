@@ -7,7 +7,7 @@ defmodule VoidElementsTest do
     {~s[<img src="whatevs.png">], nil},
     {~s[<area alt="alt" href="http://some.image.com/image">], nil},
     {~s[<br>], nil},
-    {~s[<hr>], ~s[<hr>]},
+    {~s[<hr />], ~s[<hr />]},
     {~s[<wbr>], nil},
   ] |> Enum.each( fn {inp, out} ->
       test "#{inp} is transformed to #{out} without errors" do

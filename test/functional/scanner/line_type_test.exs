@@ -88,7 +88,7 @@ defmodule Functional.Scanner.LineTypeTest do
     { "<br/>",             %Line.HtmlOneLine{tag: "br", content: "<br/>"} },
     { "<br class='a'>",    %Line.HtmlOneLine{tag: "br", content: "<br class='a'>"} },
 
-    { "<hr>",              %Line.HtmlOneLine{tag: "hr", content: "<hr>"} },
+    { "<hr />",              %Line.HtmlOneLine{tag: "hr", content: "<hr />"} },
     { "<hr/>",             %Line.HtmlOneLine{tag: "hr", content: "<hr/>"} },
     { "<hr class='a'>",    %Line.HtmlOneLine{tag: "hr", content: "<hr class='a'>"} },
 
