@@ -1,6 +1,8 @@
 defmodule Acceptance.Ast.EmptyTest do
   use ExUnit.Case
 
+  @moduletag :ast
+
   test "empty" do
     markdown = ""
     ast     = []

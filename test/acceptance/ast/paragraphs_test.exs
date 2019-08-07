@@ -1,15 +1,18 @@
 defmodule Acceptance.Ast.ParagraphsTest do
   use ExUnit.Case
   
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_html: 1]
+
+  @moduletag :ast
 
   describe "Paragraphs" do
     test "a para" do
       markdown = "aaa\n\nbbb\n"
       html     = "<p>aaa</p>\n<p>bbb</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "and another one" do

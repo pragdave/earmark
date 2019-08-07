@@ -1,11 +1,11 @@
 defmodule Earmark.Helpers.AstHelpers do
 
   import Earmark.Helpers.AttrParser
+  alias Earmark.Block
   
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
-
   def augment_tag_with_ial(context, tag, ial, lnb) do 
     case Regex.run( @simple_tag, tag) do 
       nil ->
@@ -16,8 +16,36 @@ defmodule Earmark.Helpers.AstHelpers do
       _   ->
         add_attrs(context, tag, ial, [], lnb)
     end
-    
   end
+
+  @doc false
+  def code_classes(language, prefix) do
+    classes =
+      ["" | String.split(prefix || "")]
+      |> Enum.map(fn pfx -> "#{pfx}#{language}" end)
+      {"class", classes |> Enum.join(" ")}
+  end
+
+  @doc false
+  def codespan(text) do 
+    { "code", [{"class", "inline"}], [text] }
+  end
+
+  @doc false
+  def footnote_link(ref, backref, number) do
+    {"a", [{"href", "##{ref}"}, {"id", backref}, {"class", "footnote"}, {"title", "see footnote"}], [number]}
+  end
+
+  @doc false
+  def render_code(%Block.Code{lines: lines}) do
+    lines |> Enum.join("\n")
+  end
+
+  @doc false
+  def render_link(url, text), do: {"a", [{"href", url}], [text]}
+  def render_link(url, text, nil), do: ~s[<a href="#{url}">#{text}</a>]
+  def render_link(url, text, nil), do: {"a", [{"href", url}], [text]}
+  def render_link(url, text, title), do: {"a", [{"href", url}, {"title", title}], [text]}
 
 
   ##############################################
@@ -30,8 +58,9 @@ defmodule Earmark.Helpers.AstHelpers do
     add_attrs(%{}, default)
   end
   def add_attrs(atts, default) do
+#    IO.inspect {3000, atts, default}
     Map.merge(default, atts)
-    |> Enum.map(fn {k, v} -> {to_string(k), v} end)
+    |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
   end
   def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb)
   def add_attrs(context, text, nil, [], _lnb), do: {context, text}
@@ -41,7 +70,7 @@ defmodule Earmark.Helpers.AstHelpers do
     add_attrs(context1, text, attrs, default, lnb)
   end
   def add_attrs(context, text, attrs, default, _lnb) do
-    IO.inspect {attrs, default}
+    # IO.inspect {2000, attrs, default}
       default
       |> Map.new()
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)

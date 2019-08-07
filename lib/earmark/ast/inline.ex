@@ -5,12 +5,13 @@ defmodule Earmark.Ast.Inline do
   """
 
   alias Earmark.AstRenderer
+  alias Earmark.Context
   alias Earmark.Error
   alias Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
-  import Earmark.Context, only: [prepend: 2, set_value: 2, update_context: 0]
+  import Earmark.Helpers.AstHelpers, only: [augment_tag_with_ial: 4, codespan: 1, render_link: 2]
+  import Earmark.Context, only: [set_value: 2, update_context: 0]
   import Earmark.Message, only: [add_messages: 2]
 
   @typep conversion_data :: {String.t, non_neg_integer(), Earmark.Context.t, boolean()}
@@ -21,8 +22,8 @@ defmodule Earmark.Ast.Inline do
   @doc false
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
-    do: _convert(Enum.join(list, "\n"), lnb, context, false)
-  def convert(src, lnb, context), do: _convert(src, lnb, context, false)
+    do: _convert(Enum.join(list, "\n"), lnb, context, true)
+  def convert(src, lnb, context), do: _convert(src, lnb, context, true)
 
   defp _convert(src, current_lnb, context, use_linky?)
   defp _convert("", _, context, _), do: context
@@ -42,18 +43,18 @@ defmodule Earmark.Ast.Inline do
 
   defp all_converters do
     [
-      # converter_for_escape: &converter_for_escape/1,
-      # converter_for_autolink: &converter_for_autolink/1,
+      converter_for_escape: &converter_for_escape/1,
+      converter_for_autolink: &converter_for_autolink/1,
       # converter_for_tag: &converter_for_tag/1,
-      # converter_for_link: &converter_for_link/1,
+      converter_for_link: &converter_for_link/1,
       # converter_for_img: &converter_for_img/1,
       # converter_for_reflink: &converter_for_reflink/1,
-      # converter_for_footnote: &converter_for_footnote/1,
-      # converter_for_nolink: &converter_for_nolink/1,
+      converter_for_footnote: &converter_for_footnote/1,
+      converter_for_nolink: &converter_for_nolink/1,
       # converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
       converter_for_strong: &converter_for_strong/1,
-      # converter_for_em: &converter_for_em/1,
-      # converter_for_code: &converter_for_code/1,
+      converter_for_em: &converter_for_em/1,
+      converter_for_code: &converter_for_code/1,
       # converter_for_br: &converter_for_br/1,
       # converter_for_inline_ial: &converter_for_inline_ial/1,
       # converter_for_pure_link: &converter_for_pure_link/1,
@@ -78,20 +79,23 @@ defmodule Earmark.Ast.Inline do
     |> Enum.find_value( fn {_converter_name, converter} -> converter.({src, lnb, context, use_linky?}) end)
   end
 
-  defp converter_for_escape({src, context, result, lnb}) do
+  defp converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.escape, src) do
+#      IO.inspect {1000, :for_escape, src}
       [match, escaped] = match
-      {behead(src, match), context, prepend(result, escaped), lnb}
+      {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
   end
 
   @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
-  defp converter_for_autolink({src, context, result, lnb}) do
+  defp converter_for_autolink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@autolink_rgx, src) do
+      IO.inspect {1400, match}
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
-      out = AstRenderer.link(href, text)
-      {behead(src, match), context, prepend(result, out), lnb}
+      out = render_link(href, text)
+      IO.inspect {1401, out}
+      {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
 
@@ -108,7 +112,7 @@ defmodule Earmark.Ast.Inline do
       case Regex.run(@pure_link_rgx, src) do
         [ match ] ->
           if context.options.pure_links do
-            out = AstRenderer.link(match, match)
+            out = render_link(match, match)
             {behead(src, match), context, prepend(result, out), lnb}
           else
             context1 = add_messages(context, [{:deprecation, lnb, String.trim(@pure_link_depreaction_warning)}]) 
@@ -130,12 +134,14 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp converter_for_link({src, context, result, lnb}) do
+  defp converter_for_link({src, lnb, context, use_linky?}) do
+    # IO.inspect {4000, src}
     if match = LinkParser.parse_link(src, lnb) do
+      IO.inspect {4010, match}
       unless is_image?(match) do
         {match1, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
-        {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
+        {behead(src, match1), lnb, prepend(context, out), use_linky?}
       end
     end
   end
@@ -150,26 +156,26 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp converter_for_reflink({src, context, result, lnb}) do
+  defp converter_for_reflink({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.reflink, src) do
       {match, alt_text, id} =
         case match do
           [match, id, ""] -> {match, id, id}
           [match, alt_text, id] -> {match, alt_text, id}
-        end
+        end |> IO.inspect
 
-      case reference_link(context, match, alt_text, id, lnb) do
-        {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
-        _ -> nil
-      end
+      # case reference_link(context, match, alt_text, id, lnb) do
+      #   {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
+      #   _ -> nil
+      # end
     end
   end
 
-  defp converter_for_footnote({src, context, result, lnb}) do
+  defp converter_for_footnote({src, lnb, context, use_linky?}) do
     case Regex.run(context.rules.footnote, src) do
       [match, id] ->
         case footnote_link(context, match, id) do
-          {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
+          {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
           _ -> nil
         end
 
@@ -178,11 +184,11 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp converter_for_nolink({src, context, result, lnb}) do
+  defp converter_for_nolink({src, lnb, context, use_linky?}) do
     case Regex.run(context.rules.nolink, src) do
       [match, id] ->
         case reference_link(context, match, id, id, lnb) do
-          {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
+          {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
           _ -> nil
         end
 
@@ -201,34 +207,38 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_strong({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.strong, src) do
+#      IO.inspect {1000, :for_strong, src}
       {match, content} =
         case match do
           [m, _, c] -> {m, c}
           [m, c] -> {m, c}
         end
 
-      context1 = _convert(content, lnb, context, use_linky?)
+      context1 = _convert(content, lnb, set_value(context, []), use_linky?)
 
       # IO.inspect context.value
-      {behead(src, match), lnb, prepend(context, {"strong", [], context1.value}), use_linky?}
+      {behead(src, match), lnb, prepend(context, {"strong", [], context1.value|>Enum.reverse}), use_linky?}
     end
   end
 
-  defp converter_for_em({src, context, result, lnb}) do
+  defp converter_for_em({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.em, src) do
+#      IO.inspect {1000, :for_em, src}
       {match, content} =
         case match do
           [m, _, c] -> {m, c}
           [m, c] -> {m, c}
         end
 
-      out = {"em", [], convert(content, lnb, context).value}
-      {behead(src, match), context, prepend(result, out), lnb}
+      context1 = _convert(content, lnb, set_value(context, []), use_linky?)
+
+      # IO.inspect context.value
+      {behead(src, match), lnb, prepend(context, {"em", [], context1.value|>Enum.reverse}), use_linky?}
     end
   end
 
   @squash_ws ~r{\s+}
-  defp converter_for_code({src, context, result, lnb}) do
+  defp converter_for_code({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.code, src) do
       [match, _, content] = match
       # Commonmark
@@ -236,8 +246,9 @@ defmodule Earmark.Ast.Inline do
       |> String.trim()
       |> String.replace(@squash_ws, " ")
         
-      out = AstRenderer.codespan(escape(content1, true))
-      {behead(src, match), context, prepend(result, out), lnb}
+      # out = codespan(escape(content1, true) |> IO.inspect)
+      out = codespan(content1) # |> IO.inspect)
+      {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
 
@@ -269,6 +280,7 @@ defmodule Earmark.Ast.Inline do
 
   @spec converter_for_text( conversion_data() ) :: conversion_data() 
   defp converter_for_text({src, lnb, context, _}) do
+#      IO.inspect {1000, :for_text, src}
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
@@ -279,17 +291,17 @@ defmodule Earmark.Ast.Inline do
       #   |> hard_line_breaks(context.options.gfm)
       #   |> gruber_line_breaks()
 
-      # IO.inspect matched
+     IO.inspect {1001, matched}
     {behead(src, matched), lnb, prepend(context, matched), true}
   end
 
+  defp convert_autolink(link, separator)
   defp convert_autolink(link, _separator = "@") do
     link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
-    text = mangle_link(link)
-    href = mangle_link("mailto:") <> text
-    {encode(href), escape(text)}
+    text = link
+    href = "mailto:" <> text
+    {encode(href), text}
   end
-
   defp convert_autolink(link, _separator) do
     link = encode(link)
     {link, link}
@@ -308,31 +320,12 @@ defmodule Earmark.Ast.Inline do
     Regex.replace(@gfm_hard_line_break, text, AstRenderer.br <> "\n")
   end
 
-  @doc false
-  def mangle_link(link) do
-    link
-  end
-
+  defp output_image_or_link(context, link_or_image, text, href, title, lnb)
   defp output_image_or_link(context, "!" <> _, text, href, title, _lnb) do
     output_image(context.options.renderer, text, href, title)
   end
-
   defp output_image_or_link(context, _, text, href, title, lnb) do
     output_link(context, text, href, title, lnb)
-  end
-
-  defp output_link(context, text, href, title, lnb) do
-    href = encode(href)
-    title = if title, do: escape(title), else: nil
-
-    context1 = %{context | options: %{context.options | pure_links: false}}
-    link = context1
-      # _convert_each(
-      #   {text, context1, set_value(context1, []), lnb},
-      #   Keyword.drop(all_converters(), @linky_converter_names)
-      # )
-
-    context.options.renderer.link(href, link.value, title)
   end
 
   defp output_footnote_link(context, ref, back_ref, number) do
@@ -340,6 +333,20 @@ defmodule Earmark.Ast.Inline do
     back_ref = encode(back_ref)
     context.options.renderer.footnote_link(ref, back_ref, number)
   end
+
+  defp output_link(context, text, href, title, lnb) do
+    href = encode(href)
+    context1 = %{context | options: %{context.options | pure_links: false}}
+    link = context1
+
+    context2 = _convert(text, lnb, set_value(context1, []), false)
+    if title do
+      { "a", [{"href", href}, {"title", title}], context2.value }
+    else
+      { "a", [{"href", href}], context2.value }
+    end
+  end
+
 
   @remove_escapes ~r{ \\ (?! \\ ) }x
   defp output_image(renderer, text, href, title) do
@@ -375,6 +382,21 @@ defmodule Earmark.Ast.Inline do
   defp is_image?({match_text, _, _, _}), do: String.starts_with?(match_text, "!")
   defp is_image?({match_text, _, _, _, _}), do: String.starts_with?(match_text, "!")
   @trailing_newlines ~r{\n*\z}
+
+
+  defp prepend(%Context{value: value}=context, prep) do
+#    IO.inspect {1001, value, prep}
+    x=_prepend(context, prep)
+#    IO.inspect {1002, x.value}
+    x
+  end
+  defp _prepend(context, value)
+  defp _prepend(%Context{value: [str|rest]=value}=context, prep) when is_binary(str) and is_binary(prep) do
+    %{context | value: [str <> prep|rest]}
+  end
+  defp _prepend(%Context{value: value}=context, prep) do
+    %{context | value: [prep | value]}
+  end
 
   defp update_lnb(data = {_, _, %{value: []}, _}), do: data
   defp update_lnb({rest, context, result = %{value: [{head, _, _} | _]}, lnb}) do

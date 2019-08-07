@@ -399,11 +399,9 @@ defmodule Earmark do
 
   @doc "coming soon"
   def as_ast(lines, options \\ %Options{})
-
   def as_ast(lines, options) when is_list(options) do
     as_ast(lines, struct(Options, options))
   end
-
   def as_ast(lines, options) do
     {context, ast} = _as_ast(lines, options)
     messages = sort_messages(context)
@@ -426,11 +424,9 @@ defmodule Earmark do
   Otherwise it behaves exactly as `as_html`.
   """
   def as_html!(lines, options \\ %Options{})
-
   def as_html!(lines, options) when is_list(options) do
     as_html!(lines, struct(Options, options))
   end
-
   def as_html!(lines, options = %Options{}) do
     {context, html} = _as_html(lines, options)
     emit_messages(context)

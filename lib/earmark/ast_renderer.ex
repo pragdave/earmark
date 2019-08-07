@@ -13,7 +13,7 @@ defmodule Earmark.AstRenderer do
   def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
-    IO.inspect blocks
+    IO.inspect {1000, blocks}
 
     {contexts, ast} =
       get_mapper(context.options).(
@@ -34,7 +34,7 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
-    ast   = { "p", add_attrs(attrs), context1.value}
+    ast   = { "p", add_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
 
@@ -72,7 +72,7 @@ defmodule Earmark.AstRenderer do
          context
        ) do
     context1 = convert(content, lnb, context)
-    ast = { "h#{level}", add_attrs(attrs), [context1.value] }
+    ast = { "h#{level}", add_attrs(attrs), context1.value |> Enum.reverse }
     # add_attrs(children, ast, attrs, [], lnb)
     {context1, ast}
   end
@@ -82,9 +82,10 @@ defmodule Earmark.AstRenderer do
   ##############
 
   defp render_block(%Block.BlockQuote{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
-    {context1, body} = render(blocks, context)
-    html = "<blockquote>#{body}</blockquote>\n"
-    add_attrs(context1, html, attrs, [], lnb)
+    {context1, ast} = render(blocks, context)
+    {context1, {"blockquote", add_attrs(attrs), ast}}
+    # html = "<blockquote>#{body}</blockquote>\n"
+    # add_attrs(context1, html, attrs, [], lnb)
   end
 
   #########
@@ -121,13 +122,13 @@ defmodule Earmark.AstRenderer do
          %Block.Code{lnb: lnb, language: language, attrs: attrs} = block,
          context = %Context{options: options}
        ) do
-    class =
-      if language, do: ~s{ class="#{code_classes(language, options.code_class_prefix)}"}, else: ""
+    classes =
+      if language, do: [code_classes(language, options.code_class_prefix)], else: [] 
 
-    tag = ~s[<pre><code#{class}>]
-    lines = options.render_code.(block)
-    html = ~s[#{tag}#{lines}</code></pre>\n]
-    add_attrs(context, html, attrs, [], lnb)
+    lines = render_code(block)
+    # add_attrs(context, html, attrs, [], lnb)
+    ast = { "pre", [], [{"code", classes, [lines]}] }
+    {context, ast}
   end
 
   #########
@@ -138,9 +139,10 @@ defmodule Earmark.AstRenderer do
          %Block.List{lnb: lnb, type: type, blocks: items, attrs: attrs, start: start},
          context
        ) do
-    {context1, content} = render(items, context)
-    html = "<#{type}#{start}>\n#{content}</#{type}>\n"
-    add_attrs(context1, html, attrs, [], lnb)
+    {context1, ast} = render(items, context)
+    # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
+    # add_attrs(context1, html, attrs, [], lnb)
+    {context1, {to_string(type), add_attrs(attrs), ast}}
   end
 
   # format a single paragraph list item, and remove the para tags
@@ -149,17 +151,20 @@ defmodule Earmark.AstRenderer do
          context
        )
        when length(blocks) == 1 do
-    {context1, content} = render(blocks, context)
-    content = Regex.replace(~r{</?p>}, content, "")
-    html = "<li>#{content}</li>\n"
-    add_attrs(context1, html, attrs, [], lnb)
+    {context1, [{"p", _, ast}]} = render(blocks, context)
+#    IO.inspect ast
+    # content = Regex.replace(~r{</?p>}, content, "")
+    # html = "<li>#{content}</li>\n"
+    # add_attrs(context1, html, attrs, [], lnb)
+    {context1, {"li", add_attrs(attrs), ast}}
   end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
-    {context1, content} = render(blocks, context)
-    html = "<li>#{content}</li>\n"
-    add_attrs(context1, html, attrs, [], lnb)
+#    IO.inspect {1200, blocks, attrs}
+    {context1, ast} = render(blocks, context)
+#    IO.inspect {1201, ast, attrs}
+    {context1, {"li", add_attrs(attrs), ast}}
   end
 
   ##################
@@ -167,14 +172,17 @@ defmodule Earmark.AstRenderer do
   ##################
 
   defp render_block(%Block.FnList{blocks: footnotes}, context) do
+#    IO.inspect {1100, footnotes}
     items =
       Enum.map(footnotes, fn note ->
         blocks = append_footnote_link(note)
-        %Block.ListItem{attrs: "#fn:#{note.number}", type: :ol, blocks: blocks}
+#        IO.inspect {1050, blocks}
+        %Block.ListItem{attrs: %{href: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
-    {context1, html} = render_block(%Block.List{type: :ol, blocks: items}, context)
-    {context1, Enum.join([~s[<div class="footnotes">], "<hr>", html, "</div>"], "\n")}
+    {context1, ast} = render_block(%Block.List{type: :ol, blocks: items}, context)
+    {context1, { "div", [{"class", "footnotes"}],
+      [{"hr", [], []} | ast] }}
   end
 
   #######################################
@@ -182,7 +190,8 @@ defmodule Earmark.AstRenderer do
   #######################################
 
   defp render_block(%Block.Ial{verbatim: verbatim}, context) do
-    {context, "<p>{:#{verbatim}}</p>\n"}
+    {context, 
+     {"p", [], ["{:#{verbatim}}"]}}
   end
 
   ####################
@@ -191,30 +200,13 @@ defmodule Earmark.AstRenderer do
 
   defp render_block(%Block.IdDef{}, context), do: {context, ""}
 
-  ###########
-  # Plugins #
-  ###########
-
-  defp render_block(%Block.Plugin{lines: lines, handler: handler}, context) do
-    case handler.as_html(lines) do
-      html when is_list(html) -> {context, html}
-      {html, errors} -> {add_messages(context, errors), html}
-      html -> {context, [html]}
-    end
-  end
-
   #####################################
   # And here are the inline renderers #
   #####################################
 
   def br, do: "<br>"
-  def codespan(text), do: ~s[<code class="inline">#{text}</code>]
   def em(text), do: {"em", [], text} 
   def strikethrough(text), do: "<del>#{text}</del>"
-
-  def link(url, text), do: ~s[<a href="#{url}">#{text}</a>]
-  def link(url, text, nil), do: ~s[<a href="#{url}">#{text}</a>]
-  def link(url, text, title), do: ~s[<a href="#{url}" title="#{title}">#{text}</a>]
 
   def image(path, alt, nil) do
     ~s[<img src="#{path}" alt="#{alt}"/>]
@@ -223,9 +215,6 @@ defmodule Earmark.AstRenderer do
   def image(path, alt, title) do
     ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
   end
-
-  def footnote_link(ref, backref, number),
-    do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
   def add_trs(context, rows, tag, aligns, lnb) do
@@ -262,9 +251,12 @@ defmodule Earmark.AstRenderer do
   # Append Footnote Return Link #
   ###############################
 
-  def append_footnote_link(note = %Block.FnDef{}) do
+  defp append_footnote_link(note)
+  defp append_footnote_link(note = %Block.FnDef{}) do
+#    IO.inspect {1300, note}
     fnlink =
-      ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+      # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+      "[&#x21a9;](#fnref:#{note.number})]{:title='return to article' .reversefootnote}"
 
     [last_block | blocks] = Enum.reverse(note.blocks)
     last_block = append_footnote_link(last_block, fnlink)
@@ -272,26 +264,15 @@ defmodule Earmark.AstRenderer do
     Enum.reverse([last_block | blocks])
     |> List.flatten()
   end
-
-  def append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
+  defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
     [last_line | lines] = Enum.reverse(lines)
     last_line = "#{last_line}&nbsp;#{fnlink}"
     [put_in(block.lines, Enum.reverse([last_line | lines]))]
   end
-
-  def append_footnote_link(block, fnlink) do
+  defp append_footnote_link(block, fnlink) do
     [block, %Block.Para{lines: fnlink}]
   end
 
-  def render_code(%Block.Code{lines: lines}) do
-    lines |> Enum.join("\n") |> escape(true)
-  end
-
-  defp code_classes(language, prefix) do
-    ["" | String.split(prefix || "")]
-    |> Enum.map(fn pfx -> "#{pfx}#{language}" end)
-    |> Enum.join(" ")
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
