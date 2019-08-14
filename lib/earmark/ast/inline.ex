@@ -57,7 +57,7 @@ defmodule Earmark.Ast.Inline do
       converter_for_code: &converter_for_code/1,
       # converter_for_br: &converter_for_br/1,
       # converter_for_inline_ial: &converter_for_inline_ial/1,
-      # converter_for_pure_link: &converter_for_pure_link/1,
+      converter_for_pure_link: &converter_for_pure_link/1,
       converter_for_text: &converter_for_text/1
     ]
 
@@ -105,19 +105,12 @@ defmodule Earmark.Ast.Inline do
   This will be the case by default in version 1.4.
   Disable the option explicitly with `false` to avoid this message.
   """
-  defp converter_for_pure_link({src, context, result, lnb}) do
-    if context.options.pure_links == false do
-      nil
-    else
+  defp converter_for_pure_link({src, lnb, context, use_linky?}) do
+    if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
         [ match ] ->
-          if context.options.pure_links do
-            out = render_link(match, match)
-            {behead(src, match), context, prepend(result, out), lnb}
-          else
-            context1 = add_messages(context, [{:deprecation, lnb, String.trim(@pure_link_depreaction_warning)}]) 
-            {behead(src, match), context1, prepend(result, match), lnb}
-          end
+          out = render_link(match, match)
+          {behead(src, match), lnb, prepend(context, out), use_linky?}
           _ -> nil
       end
     end
@@ -336,7 +329,7 @@ defmodule Earmark.Ast.Inline do
   end
 
   defp output_link(context, text, href, title, lnb) do
-    href = encode(href)
+    href = encode(href, false)
     context1 = %{context | options: %{context.options | pure_links: false}}
 
     context2 = _convert(text, lnb, set_value(context1, []), false)
