@@ -1,6 +1,8 @@
 defmodule Earmark.Helpers.AstHelpers do
 
+  import Earmark.Helpers
   import Earmark.Helpers.AttrParser
+
   alias Earmark.Block
   
   @simple_tag ~r{^<(.*?)\s*>}
@@ -32,13 +34,30 @@ defmodule Earmark.Helpers.AstHelpers do
   end
 
   @doc false
-  def footnote_link(ref, backref, number) do
+  def render_footnote_link(ref, backref, number) do
     {"a", [{"href", "##{ref}"}, {"id", backref}, {"class", "footnote"}, {"title", "see footnote"}], [number]}
   end
 
   @doc false
   def render_code(%Block.Code{lines: lines}) do
     lines |> Enum.join("\n")
+  end
+
+
+  @remove_escapes ~r{ \\ (?! \\ ) }x
+  @doc false
+  def render_image(text, href, title, lnb) do
+    href = encode(href, false)
+    IO.inspect {4305, href}
+    alt = text |> escape() |> String.replace(@remove_escapes, "")
+    IO.inspect {4310, alt}
+
+    # context2 = _convert(text, lnb, set_value(context1, []), false)
+    if title do
+      { "img", [{"src", href}, {"alt", alt}, {"title", title}], [] }
+    else
+      { "img", [{"src", href}, {"alt", alt}], [] }
+    end
   end
 
   @doc false

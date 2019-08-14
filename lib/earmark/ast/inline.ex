@@ -10,7 +10,7 @@ defmodule Earmark.Ast.Inline do
   alias Earmark.Helpers.LinkParser
   import Earmark.Helpers
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.AstHelpers, only: [augment_tag_with_ial: 4, codespan: 1, render_link: 2]
+  import Earmark.Helpers.AstHelpers
   import Earmark.Context, only: [set_value: 2, update_context: 0]
   import Earmark.Message, only: [add_messages: 2]
 
@@ -47,7 +47,7 @@ defmodule Earmark.Ast.Inline do
       converter_for_autolink: &converter_for_autolink/1,
       # converter_for_tag: &converter_for_tag/1,
       converter_for_link: &converter_for_link/1,
-      # converter_for_img: &converter_for_img/1,
+      converter_for_img: &converter_for_img/1,
       # converter_for_reflink: &converter_for_reflink/1,
       converter_for_footnote: &converter_for_footnote/1,
       converter_for_nolink: &converter_for_nolink/1,
@@ -146,12 +146,13 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp converter_for_img({src, context, result, lnb}) do
+  defp converter_for_img({src, lnb, context, use_linky?}) do
+    # IO.inspect {4100, src}
     if match = LinkParser.parse_link(src, lnb) do
       if is_image?(match) do
         {match1, text, href, title, messages} = match
-        out = output_image(context.options.renderer, text, href, title)
-        {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
+        out = render_image(text, href, title, lnb)
+        {behead(src, match1), lnb, prepend(context, out), use_linky?}
       end
     end
   end
@@ -321,8 +322,8 @@ defmodule Earmark.Ast.Inline do
   end
 
   defp output_image_or_link(context, link_or_image, text, href, title, lnb)
-  defp output_image_or_link(context, "!" <> _, text, href, title, _lnb) do
-    output_image(context.options.renderer, text, href, title)
+  defp output_image_or_link(context, "!" <> _, text, href, title, lnb) do
+    render_image(text, href, title, lnb)
   end
   defp output_image_or_link(context, _, text, href, title, lnb) do
     output_link(context, text, href, title, lnb)
@@ -337,7 +338,6 @@ defmodule Earmark.Ast.Inline do
   defp output_link(context, text, href, title, lnb) do
     href = encode(href)
     context1 = %{context | options: %{context.options | pure_links: false}}
-    link = context1
 
     context2 = _convert(text, lnb, set_value(context1, []), false)
     if title do
@@ -345,16 +345,6 @@ defmodule Earmark.Ast.Inline do
     else
       { "a", [{"href", href}], context2.value }
     end
-  end
-
-
-  @remove_escapes ~r{ \\ (?! \\ ) }x
-  defp output_image(renderer, text, href, title) do
-    href = encode(href)
-    title = if title, do: escape(title), else: nil
-    alt = text |> escape() |> String.replace(@remove_escapes, "")
-
-    renderer.image(href, alt, title)
   end
 
   defp reference_link(context, match, alt_text, id, lnb) do

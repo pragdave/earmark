@@ -31,14 +31,17 @@ defmodule Earmark.Helpers do
     Regex.replace(regex, text, replacement, options)
   end
 
-  @doc """
-  Encode URIs to be included in the `<a>` elements.
+  @doc false
+  # Encode URIs to be included in the `<a>` elements.
 
-  Percent-escapes a URI, and after that escapes any
-  `&`, `<`, `>`, `"`, `'`.
-  """
-  def encode(html) do
+  # Percent-escapes a URI, and after that escapes any
+  # `&`, `<`, `>`, `"`, `'`.
+  def encode(html, escape \\ true)
+  def encode(html, true) do
     URI.encode(html) |> escape(true)
+  end
+  def encode(html, false) do
+    URI.encode(html)
   end
 
   @doc """

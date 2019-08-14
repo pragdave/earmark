@@ -177,27 +177,33 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    @tag :ast
     test "good ol' mail" do
       markdown = "<mailto:foo@bar.baz>\n"
       html = "<p><a href=\"mailto:foo@bar.baz\">foo@bar.baz</a></p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    @tag :ast
     test "we know what mail is" do
       markdown = "<foo@bar.example.com>\n"
       html = "<p><a href=\"mailto:foo@bar.example.com\">foo@bar.example.com</a></p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    @tag :ast
     test "not really a link" do
       markdown = "<>\n"
       html = "<p>&lt;&gt;</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 end
