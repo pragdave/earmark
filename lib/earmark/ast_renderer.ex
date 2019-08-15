@@ -54,15 +54,13 @@ defmodule Earmark.AstRenderer do
   # Ruler #
   #########
   defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thin"]}], lnb)
+    {context, {"hr", [{"class", "thin"}], []}}
   end
-
   defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["medium"]}], lnb)
+    {context, {"hr", [{"class", "medium"}], []}}
   end
-
   defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, context) do
-    add_attrs(context, "<hr/>\n", attrs, [{"class", ["thick"]}], lnb)
+    {context, {"hr", [{"class", "thick"}], []}}
   end
 
   ###########
