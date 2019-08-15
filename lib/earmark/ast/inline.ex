@@ -55,7 +55,7 @@ defmodule Earmark.Ast.Inline do
       converter_for_strong: &converter_for_strong/1,
       converter_for_em: &converter_for_em/1,
       converter_for_code: &converter_for_code/1,
-      # converter_for_br: &converter_for_br/1,
+      converter_for_br: &converter_for_br/1,
       # converter_for_inline_ial: &converter_for_inline_ial/1,
       converter_for_pure_link: &converter_for_pure_link/1,
       converter_for_text: &converter_for_text/1
@@ -264,29 +264,27 @@ defmodule Earmark.Ast.Inline do
   end
   defp converter_for_inline_ial(_conv_data), do: nil
 
-  defp converter_for_br({src, context, result, lnb}) do
+  defp converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do
-      out = AstRenderer.br()
       [{0, match_len}] = match
-      {behead(src, match_len), context, prepend(result, out), lnb}
+      {behead(src, match_len), lnb, prepend(context, {"br", [], []}), use_linky?}
     end
   end
 
   @spec converter_for_text( conversion_data() ) :: conversion_data() 
   defp converter_for_text({src, lnb, context, _}) do
-#      IO.inspect {1000, :for_text, src}
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
-      end
+      end 
+      
+     ast = hard_line_breaks(matched, context.options.gfm)
 
       # out =
       #   escape(context.options.do_smartypants.(match))
-      #   |> hard_line_breaks(context.options.gfm)
       #   |> gruber_line_breaks()
 
-#     IO.inspect {1001, matched}
-    {behead(src, matched), lnb, prepend(context, matched), true}
+    {behead(src, matched), lnb, prepend(context, ast), true}
   end
 
   defp convert_autolink(link, separator)
@@ -306,13 +304,11 @@ defmodule Earmark.Ast.Inline do
     Regex.replace(@gruber_line_break, text, AstRenderer.br())
   end
 
-  @gfm_hard_line_break ~r{\\\n}
   defp hard_line_breaks(text, gfm)
   defp hard_line_breaks(text, false), do: text
   defp hard_line_breaks(text, nil), do: text
-  defp hard_line_breaks(text, _) do
-    Regex.replace(@gfm_hard_line_break, text, AstRenderer.br <> "\n")
-  end
+  defp hard_line_breaks("\\\n" <> text, _), do: [{"br", [], []}, text]
+  defp hard_line_breaks(text, _), do: text
 
   defp output_image_or_link(context, link_or_image, text, href, title, lnb)
   defp output_image_or_link(context, "!" <> _, text, href, title, lnb) do
@@ -361,14 +357,16 @@ defmodule Earmark.Ast.Inline do
 
 
   defp prepend(%Context{value: value}=context, prep) do
-#    IO.inspect {1001, value, prep}
-    x=_prepend(context, prep)
-#    IO.inspect {1002, x.value}
-    x
+    IO.inspect {1001, value, prep}
+    _prepend(context, prep)
   end
+
   defp _prepend(context, value)
   defp _prepend(%Context{value: [str|rest]=value}=context, prep) when is_binary(str) and is_binary(prep) do
     %{context | value: [str <> prep|rest]}
+  end
+  defp _prepend(%Context{value: value}=context, prep) when is_list(prep) do
+    %{context | value: Enum.reverse(prep) ++ value}
   end
   defp _prepend(%Context{value: value}=context, prep) do
     %{context | value: [prep | value]}

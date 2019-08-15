@@ -30,7 +30,10 @@ defmodule Earmark.Context do
   @doc """
   Convenience method to prepend to the value list
   """
-  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  def prepend(%__MODULE__{value: value} = ctx, prep) do
+    IO.inspect {6000, value, prep}
+    %{ctx | value: [prep | value]}
+  end
 
   @doc """
   Convenience method to prepend to the value list
