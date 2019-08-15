@@ -34,6 +34,7 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
+    IO.inspect {1050, attrs}
     ast   = { "p", add_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
@@ -176,8 +177,8 @@ defmodule Earmark.AstRenderer do
     items =
       Enum.map(footnotes, fn note ->
         blocks = append_footnote_link(note)
-#        IO.inspect {1050, blocks}
-        %Block.ListItem{attrs: %{href: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
+        IO.inspect {1050, blocks}
+        %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
     {context1, ast} = render_block(%Block.List{type: :ol, blocks: items}, context)
@@ -253,23 +254,28 @@ defmodule Earmark.AstRenderer do
 
   defp append_footnote_link(note)
   defp append_footnote_link(note = %Block.FnDef{}) do
-#    IO.inspect {1300, note}
-    fnlink =
-      # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
-      "[&#x21a9;](#fnref:#{note.number})]{:title='return to article' .reversefootnote}"
+    IO.inspect {1300, note}
+    # fnlink =
+    #   # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
+    #   "[&#x21a9;](#fnref:#{note.number})]\n{:title='return to article' .reversefootnote}"
 
+    IO.inspect {1320, note.blocks}
     [last_block | blocks] = Enum.reverse(note.blocks)
-    last_block = append_footnote_link(last_block, fnlink)
+    # last_block = append_footnote_link(last_block, fnlink)
 
-    Enum.reverse([last_block | blocks])
-    |> List.flatten()
+    attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{note.number}"}
+    [%{last_block|attrs: attrs} | blocks]
+      |> Enum.reverse
+      |> List.flatten
   end
   defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
+    IO.inspect {1301, lines, fnlink}
     [last_line | lines] = Enum.reverse(lines)
     last_line = "#{last_line}&nbsp;#{fnlink}"
     [put_in(block.lines, Enum.reverse([last_line | lines]))]
   end
   defp append_footnote_link(block, fnlink) do
+    IO.inspect {1302, block, fnlink}
     [block, %Block.Para{lines: fnlink}]
   end
 

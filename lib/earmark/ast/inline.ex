@@ -29,7 +29,7 @@ defmodule Earmark.Ast.Inline do
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
-      {src1, lnb1, context1, use_linky1?} -> _convert(src1, lnb1, context1, use_linky1?)
+      {src1, lnb1, context1, use_linky1?} -> IO.inspect {1040, context1.value}; _convert(src1, lnb1, context1, use_linky1?)
       x -> raise "Internal Conversion Error\n\n#{inspect x}"
     end
   end
@@ -48,7 +48,7 @@ defmodule Earmark.Ast.Inline do
       # converter_for_tag: &converter_for_tag/1,
       converter_for_link: &converter_for_link/1,
       converter_for_img: &converter_for_img/1,
-      # converter_for_reflink: &converter_for_reflink/1,
+      converter_for_reflink: &converter_for_reflink/1,
       converter_for_footnote: &converter_for_footnote/1,
       converter_for_nolink: &converter_for_nolink/1,
       # converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
@@ -90,11 +90,11 @@ defmodule Earmark.Ast.Inline do
   @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   defp converter_for_autolink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@autolink_rgx, src) do
-      IO.inspect {1400, match}
+#      IO.inspect {1400, match}
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = render_link(href, text)
-      IO.inspect {1401, out}
+#      IO.inspect {1401, out}
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
@@ -130,7 +130,7 @@ defmodule Earmark.Ast.Inline do
   defp converter_for_link({src, lnb, context, use_linky?}) do
     # IO.inspect {4000, src}
     if match = LinkParser.parse_link(src, lnb) do
-      IO.inspect {4010, match}
+#      IO.inspect {4010, match}
       unless is_image?(match) do
         {match1, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
@@ -285,7 +285,7 @@ defmodule Earmark.Ast.Inline do
       #   |> hard_line_breaks(context.options.gfm)
       #   |> gruber_line_breaks()
 
-     IO.inspect {1001, matched}
+#     IO.inspect {1001, matched}
     {behead(src, matched), lnb, prepend(context, matched), true}
   end
 
@@ -322,12 +322,6 @@ defmodule Earmark.Ast.Inline do
     output_link(context, text, href, title, lnb)
   end
 
-  defp output_footnote_link(context, ref, back_ref, number) do
-    ref = encode(ref)
-    back_ref = encode(back_ref)
-    context.options.renderer.footnote_link(ref, back_ref, number)
-  end
-
   defp output_link(context, text, href, title, lnb) do
     href = encode(href, false)
     context1 = %{context | options: %{context.options | pure_links: false}}
@@ -355,8 +349,7 @@ defmodule Earmark.Ast.Inline do
   defp footnote_link(context, _match, id) do
     case Map.fetch(context.footnotes, id) do
       {:ok, %{number: number}} ->
-        {:ok, output_footnote_link(context, "fn:#{number}", "fnref:#{number}", number)}
-
+        {:ok, render_footnote_link("fn:#{number}", "fnref:#{number}", number)}
       _ ->
         nil
     end

@@ -35,7 +35,7 @@ defmodule Earmark.Helpers.AstHelpers do
 
   @doc false
   def render_footnote_link(ref, backref, number) do
-    {"a", [{"href", "##{ref}"}, {"id", backref}, {"class", "footnote"}, {"title", "see footnote"}], [number]}
+    {"a", [{"href", "##{ref}"}, {"id", backref}, {"class", "footnote"}, {"title", "see footnote"}], [to_string(number)]}
   end
 
   @doc false
@@ -77,9 +77,10 @@ defmodule Earmark.Helpers.AstHelpers do
     add_attrs(%{}, default)
   end
   def add_attrs(atts, default) do
-#    IO.inspect {3000, atts, default}
+    IO.inspect {3000, atts, default}
     Map.merge(default, atts)
-    |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
+    # |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
+    |> Enum.map(&attrs_to_string_keys/1)
   end
   def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb)
   def add_attrs(context, text, nil, [], _lnb), do: {context, text}
@@ -95,15 +96,15 @@ defmodule Earmark.Helpers.AstHelpers do
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
   end
 
-  defp attrs_to_string(attrs) do
-    (for { name, value } <- attrs, do: ~s/#{name}="#{Enum.join(value, " ")}"/)
-                                                  |> Enum.join(" ")
+  defp attrs_to_string_keys(key_value_pair)
+  defp attrs_to_string_keys({k, vs}) when is_binary(vs) do
+    {to_string(k),vs}
+  end
+  defp attrs_to_string_keys({k, vs}) do
+    IO.inspect {3100, k, vs}
+    {to_string(k), Enum.join(vs, " ")}
   end
 
-  defp add_to(attrs, text) do
-    attrs = if attrs == "", do: "", else: " #{attrs}"
-    String.replace(text, ~r{\s?/?>}, "#{attrs}\\0", global: false)
-  end
 
 end
 

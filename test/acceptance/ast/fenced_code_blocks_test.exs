@@ -1,7 +1,7 @@
 defmodule Acceptance.Ast.FencedCodeBlocksTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2, as_html: 1, as_html: 2]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
 
   describe "Fenced code blocks" do
     @tag :ast
