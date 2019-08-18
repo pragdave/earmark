@@ -1,42 +1,48 @@
 defmodule Acceptance.Ast.HtmlBlocksTest do
   use ExUnit.Case
   
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2, as_html: 1]
 
-  # describe "HTML blocks" do
+  describe "HTML blocks" do
+    @tag :ast
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
+      html     = "<table>\n  <tr>\n    <td>           hi</td>\n  </tr>\n</table><p>okay.</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      html     = "<div>\n  *hello*\n         <foo><a>\n</div>"
+      ast      = [{"div", [], ["  *hello*", "         <foo><a>"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "we are leaving html alone" do
       markdown = "<div>\n*Emphasized* text.\n</div>"
-      html     = "<div>\n*Emphasized* text.\n</div>"
+      ast      = [{"div", [], ["*Emphasized* text."]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-  # end
+  end
 
-  # describe "HTML void elements" do
+  describe "HTML void elements" do
+    @tag :ast
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
       html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "we are outside the void now (lucky us)" do
@@ -69,9 +75,9 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+  end
 
-  # describe "HTML and paragraphs" do
+  describe "HTML and paragraphs" do
     test "void elements close para" do
       markdown = "alpha\n<hr>beta"
       html     = "<p>alpha</p>\n<hr>beta"
@@ -160,7 +166,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

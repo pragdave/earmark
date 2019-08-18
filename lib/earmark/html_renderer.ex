@@ -11,6 +11,7 @@ defmodule Earmark.HtmlRenderer do
 
   @doc false
   def render(blocks, context = %Context{options: %Options{}}) do
+    IO.inspect {1009, blocks}
     messages = get_messages(context)
 
     {contexts, html} =

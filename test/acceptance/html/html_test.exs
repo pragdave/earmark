@@ -3,7 +3,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
   
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "HTML blocks" do
+  describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
       html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
@@ -28,9 +28,9 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
 
-  # describe "HTML void elements" do
+  describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
       html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
@@ -69,9 +69,9 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+  end
 
-  # describe "HTML and paragraphs" do
+  describe "HTML and paragraphs" do
     test "void elements close para" do
       markdown = "alpha\n<hr />beta"
       html     = "<p>alpha</p>\n<hr />beta"
@@ -160,7 +160,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

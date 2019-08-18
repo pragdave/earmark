@@ -74,7 +74,7 @@ defmodule Earmark.Parser do
   # setext headings #
   ###################
 
-  defp _parse([  %Line.Blank{},
+  defp _parse([ %Line.Blank{},
                 %Line.Text{content: heading, lnb: lnb},
                 %Line.SetextUnderlineHeading{level: level}
 

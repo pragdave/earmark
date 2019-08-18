@@ -80,7 +80,7 @@ defmodule Earmark.Inline do
         _walk_converters(rest, data, all_converters)
 
       nd ->
-        IO.inspect {2000, converter_name}
+#        IO.inspect {2000, converter_name}
         _convert_each(update_lnb(nd), all_converters)
     end
   end
@@ -313,7 +313,7 @@ defmodule Earmark.Inline do
   defp hard_line_breaks(text, nil, _renderer), do: text
 
   defp hard_line_breaks(text, _, renderer) do
-    IO.inspect {2000, text}
+#    IO.inspect {2000, text}
     with br = renderer.br(), do: Regex.replace(@gfm_hard_line_break, text, br <> "\n")
   end
 

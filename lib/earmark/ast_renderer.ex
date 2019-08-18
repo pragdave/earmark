@@ -5,6 +5,7 @@ defmodule Earmark.AstRenderer do
   import Earmark.Ast.Inline, only: [convert: 3]
   import Earmark.Helpers, only: [escape: 2]
   import Earmark.Helpers.AstHelpers
+  import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Message, only: [add_messages_from: 2, add_messages: 2, get_messages: 1]
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
@@ -34,7 +35,7 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
-    IO.inspect {1050, attrs}
+#    IO.inspect {1050, attrs}
     ast   = { "p", add_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
@@ -43,7 +44,8 @@ defmodule Earmark.AstRenderer do
   # Html #
   ########
   defp render_block(%Block.Html{html: html}, context) do
-    {context, Enum.intersperse(html, ?\n)}
+    IO.inspect {1400, html}
+    {context, render_html_block(html)}
   end
 
   defp render_block(%Block.HtmlOther{html: html}, context) do
@@ -175,7 +177,7 @@ defmodule Earmark.AstRenderer do
     items =
       Enum.map(footnotes, fn note ->
         blocks = append_footnote_link(note)
-        IO.inspect {1050, blocks}
+#        IO.inspect {1050, blocks}
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
@@ -252,12 +254,12 @@ defmodule Earmark.AstRenderer do
 
   defp append_footnote_link(note)
   defp append_footnote_link(note = %Block.FnDef{}) do
-    IO.inspect {1300, note}
+#    IO.inspect {1300, note}
     # fnlink =
     #   # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
     #   "[&#x21a9;](#fnref:#{note.number})]\n{:title='return to article' .reversefootnote}"
 
-    IO.inspect {1320, note.blocks}
+#    IO.inspect {1320, note.blocks}
     [last_block | blocks] = Enum.reverse(note.blocks)
     # last_block = append_footnote_link(last_block, fnlink)
 
@@ -267,13 +269,13 @@ defmodule Earmark.AstRenderer do
       |> List.flatten
   end
   defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
-    IO.inspect {1301, lines, fnlink}
+#    IO.inspect {1301, lines, fnlink}
     [last_line | lines] = Enum.reverse(lines)
     last_line = "#{last_line}&nbsp;#{fnlink}"
     [put_in(block.lines, Enum.reverse([last_line | lines]))]
   end
   defp append_footnote_link(block, fnlink) do
-    IO.inspect {1302, block, fnlink}
+#    IO.inspect {1302, block, fnlink}
     [block, %Block.Para{lines: fnlink}]
   end
 

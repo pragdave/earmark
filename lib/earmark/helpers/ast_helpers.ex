@@ -43,14 +43,16 @@ defmodule Earmark.Helpers.AstHelpers do
     lines |> Enum.join("\n")
   end
 
+  @doc false
+
 
   @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
   def render_image(text, href, title, lnb) do
     href = encode(href, false)
-    IO.inspect {4305, href}
+#    IO.inspect {4305, href}
     alt = text |> escape() |> String.replace(@remove_escapes, "")
-    IO.inspect {4310, alt}
+#    IO.inspect {4310, alt}
 
     # context2 = _convert(text, lnb, set_value(context1, []), false)
     if title do
@@ -77,7 +79,7 @@ defmodule Earmark.Helpers.AstHelpers do
     add_attrs(%{}, default)
   end
   def add_attrs(atts, default) do
-    IO.inspect {3000, atts, default}
+#    IO.inspect {3000, atts, default}
     Map.merge(default, atts)
     # |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
     |> Enum.map(&attrs_to_string_keys/1)
@@ -101,7 +103,7 @@ defmodule Earmark.Helpers.AstHelpers do
     {to_string(k),vs}
   end
   defp attrs_to_string_keys({k, vs}) do
-    IO.inspect {3100, k, vs}
+#    IO.inspect {3100, k, vs}
     {to_string(k), Enum.join(vs, " ")}
   end
 

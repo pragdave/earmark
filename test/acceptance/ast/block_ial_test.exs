@@ -1,7 +1,7 @@
 defmodule Acceptance.Ast.BlockIalTest do
   use ExUnit.Case
 
-  import Support.Helpers, only: [as_ast: 1, as_html: 1]
+  import Support.Helpers, only: [as_ast: 1]
 
    describe "IAL" do
 

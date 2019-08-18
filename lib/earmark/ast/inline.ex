@@ -29,7 +29,7 @@ defmodule Earmark.Ast.Inline do
   defp _convert("", _, context, _), do: context
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
-      {src1, lnb1, context1, use_linky1?} -> IO.inspect {1040, context1.value}; _convert(src1, lnb1, context1, use_linky1?)
+      {src1, lnb1, context1, use_linky1?} -> _convert(src1, lnb1, context1, use_linky1?)
       x -> raise "Internal Conversion Error\n\n#{inspect x}"
     end
   end
@@ -357,7 +357,7 @@ defmodule Earmark.Ast.Inline do
 
 
   defp prepend(%Context{value: value}=context, prep) do
-    IO.inspect {1001, value, prep}
+#    IO.inspect {1001, value, prep}
     _prepend(context, prep)
   end
 
