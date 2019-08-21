@@ -32,7 +32,21 @@ defmodule Earmark.Block do
     end
   end
 
-  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOneline{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{}
+  @type t :: %Heading{} |
+    %Ruler{} |
+    %BlockQuote{} |
+    %List{} |
+    %ListItem{} |
+    %Para{} |
+    %Code{} |
+    %Html{} |
+    %HtmlOneline{} |
+    %HtmlComment{} |
+    %IdDef{} |
+    %FnDef{} |
+    %FnList{} |
+    %Ial{} |
+    %Table{}
   @type ts :: list(t)
 end
 

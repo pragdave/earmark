@@ -164,26 +164,6 @@ defmodule BlockTest do
   end
 
 
-  test "HTML comment on one line" do
-    result = lines_to_blocks([
-                  %Line.HtmlComment{line: "<!-- xx -->", complete: true}
-             ], options())
-    expected = {[ %Block.HtmlOneline{html: [ "<!-- xx -->" ]}], options()}
-
-    assert result == expected
-  end
-
-  test "HTML comment on multiple lines" do
-    result = lines_to_blocks([
-                  %Line.HtmlComment{line: "<!-- ", complete: false},
-                  %Line.Indent{level: 2, line: "xxx"},
-                  %Line.Text{line: "-->"}
-             ], options())
-    expected = {[ %Block.HtmlOneline{html: ["<!-- ", "xxx", "-->"]}], options()}
-
-    assert result == expected
-  end
-
   ##################
   # ID definitions #
   ##################
