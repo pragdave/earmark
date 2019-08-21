@@ -52,6 +52,12 @@ defmodule Earmark.AstRenderer do
     {context, render_html_oneline(html)}
   end
 
+  defp render_block(%Block.HtmlComment{lines: lines}, context) do
+    lines1 =
+      lines |> Enum.map(&render_html_comment_line/1)
+    {context, {:comment, [], lines1}}
+  end
+
   #########
   # Ruler #
   #########

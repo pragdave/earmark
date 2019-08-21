@@ -19,6 +19,14 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
       original      -> original
     end
   end
+  
+  @html_comment_start ~r{\A\s*<!--}
+  @html_comment_end ~r{-->.*\z}
+  def render_html_comment_line(line) do
+    line
+    |> String.replace(@html_comment_start, "")
+    |> String.replace(@html_comment_end, "")
+  end
 
   defp _render_html_block(lines, open)
   defp _render_html_block([], open) do
