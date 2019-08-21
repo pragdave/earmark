@@ -1,7 +1,8 @@
 defmodule Acceptance.Ast.FootnotesTest do
   use ExUnit.Case
-
   import Support.Helpers, only: [as_ast: 2, as_html: 2]
+
+  @moduletag :ast
 
   describe "Footnotes" do
 
