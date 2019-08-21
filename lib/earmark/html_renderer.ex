@@ -41,7 +41,7 @@ defmodule Earmark.HtmlRenderer do
     {context, Enum.intersperse(html, ?\n)}
   end
 
-  defp render_block(%Block.HtmlOther{html: html}, context) do
+  defp render_block(%Block.HtmlOneline{html: html}, context) do
     {context, Enum.intersperse(html, ?\n)}
   end
 

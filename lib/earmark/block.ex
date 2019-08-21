@@ -12,7 +12,8 @@ defmodule Earmark.Block do
   defmodule Para,        do: defstruct lnb: 0, attrs: nil, lines:  []
   defmodule Code,        do: defstruct lnb: 0, attrs: nil, lines:  [], language: nil
   defmodule Html,        do: defstruct lnb: 0, attrs: nil, html:   [], tag: nil
-  defmodule HtmlOther,   do: defstruct lnb: 0, attrs: nil, html:   []
+  defmodule HtmlOneline, do: defstruct lnb: 0, attrs: nil, html:   "" 
+  defmodule HtmlComment, do: defstruct lnb: 0, attrs: nil, lines:  []
   defmodule IdDef,       do: defstruct lnb: 0, attrs: nil, id: nil, url: nil, title: nil
   defmodule FnDef,       do: defstruct lnb: 0, attrs: nil, id: nil, number: nil, blocks: []
   defmodule FnList,      do: defstruct lnb: 0, attrs: ".footnotes", blocks: []
@@ -31,7 +32,7 @@ defmodule Earmark.Block do
     end
   end
 
-  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOther{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{}
+  @type t :: %Heading{} | %Ruler{} | %BlockQuote{} | %List{} | %ListItem{} | %Para{} | %Code{} | %Html{} | %HtmlOneline{} | %IdDef{} | %FnDef{} | %FnList{} | %Ial{} | %Table{}
   @type ts :: list(t)
 end
 

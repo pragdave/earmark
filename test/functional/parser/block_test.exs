@@ -168,7 +168,7 @@ defmodule BlockTest do
     result = lines_to_blocks([
                   %Line.HtmlComment{line: "<!-- xx -->", complete: true}
              ], options())
-    expected = {[ %Block.HtmlOther{html: [ "<!-- xx -->" ]}], options()}
+    expected = {[ %Block.HtmlOneline{html: [ "<!-- xx -->" ]}], options()}
 
     assert result == expected
   end
@@ -179,7 +179,7 @@ defmodule BlockTest do
                   %Line.Indent{level: 2, line: "xxx"},
                   %Line.Text{line: "-->"}
              ], options())
-    expected = {[ %Block.HtmlOther{html: ["<!-- ", "xxx", "-->"]}], options()}
+    expected = {[ %Block.HtmlOneline{html: ["<!-- ", "xxx", "-->"]}], options()}
 
     assert result == expected
   end

@@ -220,7 +220,7 @@ defmodule Earmark.Parser do
   ####################
 
   defp _parse([ %Line.HtmlOneLine{line: line, lnb: lnb} | rest], result, options) do
-    _parse(rest, [ %Block.HtmlOther{html: [ line ], lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.HtmlOneline{html: [ line ], lnb: lnb} | result ], options)
   end
 
   ################
@@ -228,7 +228,7 @@ defmodule Earmark.Parser do
   ################
 
   defp _parse([ line = %Line.HtmlComment{complete: true, lnb: lnb} | rest], result, options) do
-    _parse(rest, [ %Block.HtmlOther{html: [ line.line ], lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.HtmlOneline{html: [ line.line ], lnb: lnb} | result ], options)
   end
 
   defp _parse(lines = [ %Line.HtmlComment{complete: false, lnb: lnb} | _], result, options) do
@@ -241,7 +241,7 @@ defmodule Earmark.Parser do
       {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
-    _parse(rest, [ %Block.HtmlOther{html: html, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.HtmlOneline{html: html, lnb: lnb} | result ], options)
   end
 
   #################
