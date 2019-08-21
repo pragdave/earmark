@@ -45,11 +45,11 @@ defmodule Earmark.AstRenderer do
   ########
   defp render_block(%Block.Html{html: html}, context) do
     IO.inspect {1400, html}
-    {context, render_html_block(html)}
+    {context, render_html_block(html) |> IO.inspect}
   end
 
-  defp render_block(%Block.HtmlOther{html: html}, context) do
-    {context, Enum.intersperse(html, ?\n)}
+  defp render_block(%Block.HtmlOneline{html: html}, context) do
+    {context, render_html_oneline(html)}
   end
 
   #########

@@ -13,6 +13,13 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
     end
   end
 
+  def render_html_oneline([line|_]) do
+    case parse_html(line, false) do
+      {tag, atts}   -> {tag, atts, []} 
+      original      -> original
+    end
+  end
+
   defp _render_html_block(lines, open)
   defp _render_html_block([], open) do
 #    IO.inspect {4400, [], open}
@@ -42,16 +49,16 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
     [{tag, atts, [new_content|content]} | rest]
   end
 
-  defp _close_open_tag([tag, {outer, atts, content} | rest]=open) do
-#    IO.inspect {4420, open} 
-    [{outer, atts, Enum.reverse([tag|content])} | rest]
-  end
-
   defp _close_all_open_tags(open)
   defp _close_all_open_tags([tag]), do: tag
   defp _close_all_open_tags(open) do
 #    IO.inspect {4410, open} 
     _close_all_open_tags(_close_open_tag(open) )
+  end
+
+  defp _close_open_tag([tag, {outer, atts, content} | rest]=open) do
+#    IO.inspect {4420, open} 
+    [{outer, atts, Enum.reverse([tag|content])} | rest]
   end
 
   defp _flatten_into_opening(tag, open, result)

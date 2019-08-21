@@ -45,125 +45,154 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "we are outside the void now (lucky us)" do
       markdown = "<br>\n**emphasized** text"
       html     = "<br><p><strong>emphasized</strong> text</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "high regards???" do
       markdown = "<hr>\n**emphasized** text"
       html     = "<hr><p><strong>emphasized</strong> text</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "img (a punless test)" do
       markdown = "<img src=\"hello\">\n**emphasized** text"
       html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "not everybode knows this one (hint: take a break)" do
+    @tag :ast
+    test "not everybody knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
       html = "<wbr><p><strong>emphasized</strong> text</p>\n"
+      ast      = Floki.parse(html) |> IO.inspect
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
 
   describe "HTML and paragraphs" do
+    @tag :ast
     test "void elements close para" do
       markdown = "alpha\n<hr>beta"
-      html     = "<p>alpha</p>\n<hr>beta"
+      # We ignore beta now shall we deprecate for HTML????
+      ast      = [{"p", [], ["alpha"]}, {"hr", [], []}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "void elements close para but only at BOL" do
       markdown = "alpha\n <hr>beta"
-      html     = "<p>alpha\n <hr>beta</p>\n"
+      ast      = [{"p", [], ["alpha\n <hr>beta"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "self closing block elements close para" do
       markdown = "alpha\n<div/>beta"
-      html     = "<p>alpha</p>\n<div/>beta"
+      # We ignore beta now shall we deprecate for HTML????
+      ast      =[{"p", [], ["alpha"]}, {"div", [], []}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "self closing block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"/>beta"
-      html     = "<p>alpha</p>\n<div class=\"first\"/>beta"
+      # We ignore beta now shall we deprecate for HTML????
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
-      html     = "<p>alpha</p>\n<div class=\"first\"   />beta<p>gamma</p>\n"
+      # We ignore beta now shall we deprecate for HTML????
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, {"p", [], ["gamma"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "self closing block elements close para but only at BOL" do
       markdown = "alpha\n <div/>beta"
-      html     = "<p>alpha\n <div/>beta</p>\n"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha\n <div/>beta"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "self closing block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
-      html     = "<p>alpha\ngamma<div class=\"fourty two\"/>beta</p>\n"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha\ngamma<div class=\"fourty two\"/>beta"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
-      html     = "<p>alpha</p>\n<div></div>beta"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha"]}, {"div", [], []}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"></div>beta"
-      html     = "<p>alpha</p>\n<div class=\"first\"></div>beta"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "block elements close para but only at BOL" do
       markdown = "alpha\n <div></div>beta"
-      html     = "<p>alpha\n <div></div>beta</p>\n"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha\n <div></div>beta"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    @tag :ast
     test "block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"></div>beta"
-      html     = "<p>alpha\ngamma<div class=\"fourty two\"></div>beta</p>\n"
+      # SIC just do not write that markup
+      ast      = [{"p", [], ["alpha\ngamma<div class=\"fourty two\"></div>beta"]}]
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
   end
