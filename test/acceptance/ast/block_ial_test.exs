@@ -3,9 +3,10 @@ defmodule Acceptance.Ast.BlockIalTest do
 
   import Support.Helpers, only: [as_ast: 1]
 
-   describe "IAL" do
+  @moduletag :ast
 
-     @tag :ast
+  describe "IAL" do
+
     test "Not associated" do
       markdown = "{:hello=world}"
       html     = "<p>{:hello=world}</p>\n"
@@ -15,7 +16,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    @tag :ast
     test "Not associated means verbatim" do
       markdown = "{: hello=world  }"
       html     = "<p>{: hello=world  }</p>\n"
@@ -25,7 +25,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    @tag :ast
     test "Not associated and incorrect" do
       markdown = "{:hello}"
       html     = "<p>{:hello}</p>\n"
@@ -35,7 +34,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    @tag :ast
     test "Associated" do
       markdown = "Before\n{:hello=world}"
       ast     = "<p hello=\"world\">Before</p>\n" |> Floki.parse
@@ -44,7 +42,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    @tag :ast
     test "Associated in between" do
       markdown = "Before\n{:hello=world}\nAfter"
       html     = "<p hello=\"world\">Before</p>\n<p>After</p>\n"
@@ -54,7 +51,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    @tag :ast
     test "Associated and incorrect" do
       markdown = "Before\n{:hello}"
       html     = "<p>Before</p>\n"
@@ -64,7 +60,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    @tag :ast
     test "Associated and partly incorrect" do
       markdown = "Before\n{:hello title=world}"
       html     = "<p title=\"world\">Before</p>\n"
@@ -74,7 +69,6 @@ defmodule Acceptance.Ast.BlockIalTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
-    @tag :ast
     test "Associated and partly incorrect and shortcuts" do
       markdown = "Before\n{:#hello .alpha hello title=world .beta class=\"gamma\" title='class'}"
       html     = "<p class=\"gamma beta alpha\" id=\"hello\" title=\"class world\">Before</p>\n"

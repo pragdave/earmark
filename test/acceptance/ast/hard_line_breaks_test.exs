@@ -1,9 +1,10 @@
 defmodule Acceptance.Ast.HardLineBreaksTest do
   use ExUnit.Case
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+
+  @moduletag :ast
   
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2, as_html: 1, as_html: 2]
   describe "gfm" do 
-  @tag :ast
     test "hard line breaks are enabled" do 
       
       markdown = "line 1\nline 2\\\nline 3"
@@ -14,7 +15,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    @tag :ast
     test "hard line breaks are enabled only inside paras" do 
       
       markdown = "line 1\nline 2\\\n\nline 3"
@@ -25,7 +25,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    @tag :ast
     test "hard line breaks are not enabled at the end" do 
       
       markdown = "line 1\nline 2\\\n"
@@ -38,7 +37,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
   end
 
   describe "no gfm" do 
-    @tag :ast
     test "hard line breaks are not enabled" do 
       
       markdown = "line 1\nline 2\\\nline 3"
@@ -49,7 +47,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
       assert as_ast(markdown, gfm: false) == {:ok, [ast], messages}
     end
 
-    @tag :ast
     test "hard line breaks are enabled only inside paras" do 
       
       markdown = "line 1\nline 2\\\n\nline 3"
@@ -60,7 +57,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
       assert as_ast(markdown, gfm: false) == {:ok, ast, messages}
     end
 
-    @tag :ast
     test "hard line breaks are not enabled at the end" do 
       
       markdown = "line 1\nline 2\\\n"

@@ -99,12 +99,12 @@ defmodule Earmark.Helpers.AstHelpers do
   end
 
   defp attrs_to_string_keys(key_value_pair)
-  defp attrs_to_string_keys({k, vs}) when is_binary(vs) do
-    {to_string(k),vs}
-  end
-  defp attrs_to_string_keys({k, vs}) do
+  defp attrs_to_string_keys({k, vs}) when is_list(vs) do
 #    IO.inspect {3100, k, vs}
     {to_string(k), Enum.join(vs, " ")}
+  end
+  defp attrs_to_string_keys({k, vs}) do
+    {to_string(k),to_string(vs)}
   end
 
 

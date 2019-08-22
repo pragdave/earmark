@@ -5,6 +5,7 @@ defmodule Earmark.AstRenderer do
   import Earmark.Ast.Inline, only: [convert: 3]
   import Earmark.Helpers, only: [escape: 2]
   import Earmark.Helpers.AstHelpers
+  import Earmark.Ast.Renderer.FootnoteListRenderer
   import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Message, only: [add_messages_from: 2, add_messages: 2, get_messages: 1]
   import Earmark.Context, only: [append: 2, set_value: 2]
@@ -187,9 +188,7 @@ defmodule Earmark.AstRenderer do
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
-    {context1, ast} = render_block(%Block.List{type: :ol, blocks: items}, context)
-    {context1, { "div", [{"class", "footnotes"}],
-      [{"hr", [], []} | ast] }}
+    {context, render_footnote_list(items)}
   end
 
   #######################################
