@@ -9,6 +9,7 @@ defmodule Earmark.Ast.Inline do
   alias Earmark.Error
   alias Earmark.Helpers.LinkParser
   import Earmark.Helpers
+  import Earmark.Helpers.AttrParser
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.AstHelpers
   import Earmark.Context, only: [set_value: 2, update_context: 0]
@@ -56,7 +57,7 @@ defmodule Earmark.Ast.Inline do
       converter_for_em: &converter_for_em/1,
       converter_for_code: &converter_for_code/1,
       converter_for_br: &converter_for_br/1,
-      # converter_for_inline_ial: &converter_for_inline_ial/1,
+      converter_for_inline_ial: &converter_for_inline_ial/1,
       converter_for_pure_link: &converter_for_pure_link/1,
       converter_for_text: &converter_for_text/1
     ]
@@ -81,7 +82,7 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.escape, src) do
-#      IO.inspect {1000, :for_escape, src}
+       IO.inspect {1100, :for_escape, src}
       [match, escaped] = match
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
@@ -90,11 +91,11 @@ defmodule Earmark.Ast.Inline do
   @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   defp converter_for_autolink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@autolink_rgx, src) do
-#      IO.inspect {1400, match}
+       IO.inspect {1400, match}
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = render_link(href, text)
-#      IO.inspect {1401, out}
+       IO.inspect {1401, out}
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
@@ -128,9 +129,9 @@ defmodule Earmark.Ast.Inline do
   end
 
   defp converter_for_link({src, lnb, context, use_linky?}) do
-    # IO.inspect {4000, src}
+      IO.inspect {4000, src}
     if match = LinkParser.parse_link(src, lnb) do
-#      IO.inspect {4010, match}
+       IO.inspect {4010, match}
       unless is_image?(match) do
         {match1, text, href, title, messages} = match
         out = output_link(context, text, href, title, lnb)
@@ -140,8 +141,8 @@ defmodule Earmark.Ast.Inline do
   end
 
   defp converter_for_img({src, lnb, context, use_linky?}) do
-    # IO.inspect {4100, src}
     if match = LinkParser.parse_link(src, lnb) do
+      IO.inspect {4100, :for_img, src}
       if is_image?(match) do
         {match1, text, href, title, messages} = match
         out = render_image(text, href, title, lnb)
@@ -152,6 +153,7 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_reflink({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.reflink, src) do
+      IO.inspect {4100, :for_reflink, src}
       {match, alt_text, id} =
         case match do
           [match, id, ""] -> {match, id, id}
@@ -201,7 +203,7 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_strong({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.strong, src) do
-#      IO.inspect {1000, :for_strong, src}
+       IO.inspect {4100, :for_strong, src}
       {match, content} =
         case match do
           [m, _, c] -> {m, c}
@@ -217,7 +219,7 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_em({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.em, src) do
-#      IO.inspect {1000, :for_em, src}
+       IO.inspect {4100, :for_em, src}
       {match, content} =
         case match do
           [m, _, c] -> {m, c}
@@ -234,6 +236,7 @@ defmodule Earmark.Ast.Inline do
   @squash_ws ~r{\s+}
   defp converter_for_code({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.code, src) do
+       IO.inspect {4100, :for_code, src}
       [match, _, content] = match
       # Commonmark
       content1 = content
@@ -248,35 +251,37 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_inline_ial(conv_data)
   defp converter_for_inline_ial(
-         {src, context, %{value: [maybe_tag | result]} = result_ctx, lnb}
+         {src, lnb, context, use_linky?}
        ) do
     if match = Regex.run(context.rules.inline_ial, src) do
+       IO.inspect {4100, :inline_ial, src}
       [match, ial] = match
-
-      case augment_tag_with_ial(context, maybe_tag, ial, lnb) do
-        nil ->
-          nil
-
-        {context1, new_tag} ->
-          {behead(src, match), context1, set_value(result_ctx, [new_tag | result]), lnb}
-      end
+      {context1, ial_attrs} = parse_attrs(context, ial, lnb)
+      IO.inspect {1060, ial_attrs, context.value, lnb}
+      new_tags = augment_tag_with_ial(context.value, ial_attrs)
+      {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
   end
   defp converter_for_inline_ial(_conv_data), do: nil
 
   defp converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do
+       IO.inspect {4100, :inline_br, src}
       [{0, match_len}] = match
       {behead(src, match_len), lnb, prepend(context, {"br", [], []}), use_linky?}
     end
   end
 
+  @line_ending ~r{\r\n?|\n}
   @spec converter_for_text( conversion_data() ) :: conversion_data() 
   defp converter_for_text({src, lnb, context, _}) do
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
       end 
+
+       IO.inspect {4100, :text, src, matched}
+    line_count = matched |> String.split(@line_ending) |> Enum.count
       
      ast = hard_line_breaks(matched, context.options.gfm)
 
@@ -284,7 +289,7 @@ defmodule Earmark.Ast.Inline do
       #   escape(context.options.do_smartypants.(match))
       #   |> gruber_line_breaks()
 
-    {behead(src, matched), lnb, prepend(context, ast), true}
+    {behead(src, matched), lnb + line_count - 1, prepend(context, ast), true}
   end
 
   defp convert_autolink(link, separator)
@@ -357,7 +362,7 @@ defmodule Earmark.Ast.Inline do
 
 
   defp prepend(%Context{value: value}=context, prep) do
-#    IO.inspect {1001, value, prep}
+     IO.inspect {1001, value, prep}
     _prepend(context, prep)
   end
 

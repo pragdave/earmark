@@ -2,7 +2,7 @@ defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
 
   alias Earmark.Block
 
-  import Earmark.Helpers.AstHelpers, only: [add_attrs: 1]
+  import Earmark.Helpers.AstHelpers, only: [merge_attrs: 1]
 
   @moduledoc false
 
@@ -26,7 +26,7 @@ defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
   end
 
   defp _render_footnote_backlink(%{class: _, href: _, title: _}=atts) do
-    [{"a", add_attrs(atts), ["\u21a9"]}]
+    [{"a", merge_attrs(atts), ["\u21a9"]}]
   end
 
 

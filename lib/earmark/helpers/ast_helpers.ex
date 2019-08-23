@@ -8,16 +8,9 @@ defmodule Earmark.Helpers.AstHelpers do
   @simple_tag ~r{^<(.*?)\s*>}
 
   @doc false
-  def augment_tag_with_ial(context, tag, ial, lnb) do 
-    case Regex.run( @simple_tag, tag) do 
-      nil ->
-        nil
-      ["<code class=\"inline\">", "code class=\"inline\""] ->
-        tag = String.replace(tag, ~s{ class="inline"}, "")
-        add_attrs(context, tag, ial, [{"class", ["inline"]}], lnb)
-      _   ->
-        add_attrs(context, tag, ial, [], lnb)
-    end
+  def augment_tag_with_ial(tags, ial)
+  def augment_tag_with_ial([{t, a, c}|tags], atts) do
+    [{t, merge_attrs(a, atts), c}|tags]
   end
 
   @doc false
@@ -74,16 +67,25 @@ defmodule Earmark.Helpers.AstHelpers do
   ##############################################
 
   @doc false
-  def add_attrs(atts, default \\ %{})
-  def add_attrs(nil, default) do
-    add_attrs(%{}, default)
+  def merge_attrs(atts, default \\ %{})
+  def merge_attrs(nil, default) do
+    merge_attrs(%{}, default)
   end
-  def add_attrs(atts, default) do
+  def merge_attrs(atts, new) when is_list(atts) do
+    atts
+    |> Enum.into(%{})
+    |> Map.merge(new, &_value_merger/3)
+    |> Enum.into([])
+    |> Enum.map(&attrs_to_string_keys/1)
+  end
+  def merge_attrs(atts, default) do
 #    IO.inspect {3000, atts, default}
     Map.merge(default, atts)
     # |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
     |> Enum.map(&attrs_to_string_keys/1)
   end
+
+  @doc false
   def add_attrs(context, text, attrs_as_string_or_map, default_attrs, lnb)
   def add_attrs(context, text, nil, [], _lnb), do: {context, text}
   def add_attrs(context, text, nil, default, lnb), do: add_attrs(context, text, %{}, default, lnb)
@@ -105,6 +107,17 @@ defmodule Earmark.Helpers.AstHelpers do
   end
   defp attrs_to_string_keys({k, vs}) do
     {to_string(k),to_string(vs)}
+  end
+
+  defp _value_merger(key, val1, val2)
+  defp _value_merger(_, val1, val2) when is_list(val1) and is_list(val2) do
+    val1 ++ val2
+  end
+  defp _value_merger(_, val1, val2) when is_list(val1) do
+    val1 ++ [val2]
+  end
+  defp _value_merger(_, val1, val2) do
+    [val1, val2]
   end
 
 

@@ -36,8 +36,8 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
-#    IO.inspect {1050, attrs}
-    ast   = { "p", add_attrs(attrs), context1.value |> Enum.reverse}
+   # IO.inspect {1050, attrs}
+    ast   = { "p", merge_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
 
@@ -80,8 +80,8 @@ defmodule Earmark.AstRenderer do
          context
        ) do
     context1 = convert(content, lnb, context)
-    ast = { "h#{level}", add_attrs(attrs), context1.value |> Enum.reverse }
-    # add_attrs(children, ast, attrs, [], lnb)
+    ast = { "h#{level}", merge_attrs(attrs), context1.value |> Enum.reverse }
+    # merge_attrs(children, ast, attrs, [], lnb)
     {context1, ast}
   end
 
@@ -91,7 +91,7 @@ defmodule Earmark.AstRenderer do
 
   defp render_block(%Block.BlockQuote{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
     {context1, ast} = render(blocks, context)
-    {context1, {"blockquote", add_attrs(attrs), ast}}
+    {context1, {"blockquote", merge_attrs(attrs), ast}}
     # html = "<blockquote>#{body}</blockquote>\n"
     # add_attrs(context1, html, attrs, [], lnb)
   end
@@ -150,7 +150,7 @@ defmodule Earmark.AstRenderer do
     {context1, ast} = render(items, context)
     # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     # add_attrs(context1, html, attrs, [], lnb)
-    {context1, {to_string(type), add_attrs(attrs), ast}}
+    {context1, {to_string(type), merge_attrs(attrs), ast}}
   end
 
   # format a single paragraph list item, and remove the para tags
@@ -164,7 +164,7 @@ defmodule Earmark.AstRenderer do
     # content = Regex.replace(~r{</?p>}, content, "")
     # html = "<li>#{content}</li>\n"
     # add_attrs(context1, html, attrs, [], lnb)
-    {context1, {"li", add_attrs(attrs), ast}}
+    {context1, {"li", merge_attrs(attrs), ast}}
   end
 
   # format a spaced list item
@@ -172,7 +172,7 @@ defmodule Earmark.AstRenderer do
 #    IO.inspect {1200, blocks, attrs}
     {context1, ast} = render(blocks, context)
 #    IO.inspect {1201, ast, attrs}
-    {context1, {"li", add_attrs(attrs), ast}}
+    {context1, {"li", merge_attrs(attrs), ast}}
   end
 
   ##################
