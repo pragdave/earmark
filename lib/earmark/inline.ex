@@ -272,6 +272,7 @@ defmodule Earmark.Inline do
   defp converter_for_br({src, context, result, lnb}, renderer) do
     if match = Regex.run(context.rules.br, src, return: :index) do
       out = renderer.br()
+      IO.inspect {9004, src, out, context.rules.br}
       [{0, match_len}] = match
       {behead(src, match_len), context, prepend(result, out), lnb}
     end
