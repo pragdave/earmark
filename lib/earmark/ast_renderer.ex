@@ -8,6 +8,7 @@ defmodule Earmark.AstRenderer do
   import Earmark.Helpers.AstHelpers
   import Earmark.Ast.Renderer.FootnoteListRenderer
   import Earmark.Ast.Renderer.HtmlRenderer
+  import Earmark.Ast.Renderer.TableRenderer
   import Earmark.Message, only: [add_messages_from: 2, add_messages: 2, get_messages: 1]
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
@@ -105,22 +106,17 @@ defmodule Earmark.AstRenderer do
          %Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs},
          context
        ) do
-    cols = for _align <- aligns, do: "<col>\n"
-    {context1, html} = add_attrs(context, "<table>\n", attrs, [], lnb)
-    html = [html, "<colgroup>\n", cols, "</colgroup>\n"]
-    context2 = set_value(context1, html)
+    {rows_ast, context1} = render_rows(rows, lnb, aligns, context)
 
-    context3 =
+    {rows_ast1, context2} =
       if header do
-        append(add_trs(append(context2, "<thead>\n"), [header], "th", aligns, lnb), "</thead>\n")
+        {header_ast, context3} = render_header(header, lnb, aligns, context1)
+        {[header_ast|rows_ast], context3}
       else
-        # Maybe an error, needed append(context, html)
-        context2
+        {rows_ast, context1}
       end
 
-    context4 = add_trs(context3, rows, "td", aligns, lnb)
-
-    {context4, [context4.value, "</table>\n"]}
+    {context2, {"table", [], rows_ast1}}
   end
 
   ########
