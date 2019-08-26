@@ -1,5 +1,5 @@
 defmodule Earmark.AstRenderer do
-  import Dev.Debugging, only: [inspectX: 2]
+  import Dev.Debugging, only: [inspectX: 1, inspectX: 2]
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options
@@ -144,14 +144,20 @@ defmodule Earmark.AstRenderer do
   # Lists #
   #########
 
+  @start_rgx ~r{\d+}
   defp render_block(
          %Block.List{lnb: lnb, type: type, blocks: items, attrs: attrs, start: start},
          context
        ) do
     {context1, ast} = render(items, context)
+    start_map = case start && Regex.run(@start_rgx, start) do
+      [start1] -> %{start: start1}
+      _        -> %{}
+    end
+    inspectX({1200, :render_block, start_map, start})
     # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     # add_attrs(context1, html, attrs, [], lnb)
-    {context1, {to_string(type), merge_attrs(attrs), ast}}
+    {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
   end
 
   # format a single paragraph list item, and remove the para tags
