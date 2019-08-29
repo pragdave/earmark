@@ -27,13 +27,11 @@ defmodule Earmark.Helpers.LinkParser do
   @doc false
   def parse_link(src, lnb) do
     case parse!(src, lexer: :link_text_lexer, parser: :link_text_parser) do
-        {link, link_text, parsed_text} ->
-           beheaded  = behead(src, to_string(parsed_text))
-           tokens    = tokenize(beheaded, with: :link_text_lexer)
-          IO.inspect {9000, beheaded, tokens}
-           p_url(tokens, lnb) |> IO.inspect |> make_result(to_string(link_text), to_string(parsed_text))
-        any -> IO.inspect {9009, any}
-               nil
+        {link_or_img, link_text, parsed_text} ->
+         beheaded  = behead(src, to_string(parsed_text))
+         tokens    = tokenize(beheaded, with: :link_text_lexer)
+         p_url(tokens, lnb) |> make_result(to_string(link_text), to_string(parsed_text), link_or_img)
+        _ -> nil
     end
   end
 
@@ -61,16 +59,14 @@ defmodule Earmark.Helpers.LinkParser do
   # All these are just added to the url
   defp url([{:open_bracket, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
-
   defp url([{:close_bracket, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
-
   defp url([{:any_quote, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
-
   defp url([{:verbatim, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
-
+  defp url([{:ws, text} | ts], result, needed, lnb),
+    do: url(ts, add(result, text), needed, lnb)
   defp url([{:escaped, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
 
@@ -100,15 +96,15 @@ defmodule Earmark.Helpers.LinkParser do
     end
   end
 
-  defp make_result(nil, _, _), do: nil
-  defp make_result({parsed, url, title}, text, img),
-    do: make_result({parsed, url, title, []}, text, img)
-  defp make_result({parsed, url, title, messages}, link_text, "!" <> _) do
-    {"![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
+  defp make_result(nil, _, _, _), do: nil
+  defp make_result({parsed, url, title}, text, parsed_text, link_or_img) do
+    make_result({parsed, url, title, []}, text, parsed_text, link_or_img)
   end
-  defp make_result({parsed, url, title, messages}, link_text, _) do
-    IO.inspect {4100, link_text}
-    {"[#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
+  # defp make_result({parsed, url, title, messages}, link_text, "!" <> _) do
+  #   {"![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
+  # end
+  defp make_result({parsed, url, title, messages}, link_text, parsed_text, link_or_img) do
+    {"#{parsed_text}(#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages, link_or_img}
   end
 
   defp add({parsed_text, url_text, nil}, text), do: {[text | parsed_text], [text | url_text], nil}
