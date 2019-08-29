@@ -3,7 +3,7 @@ defmodule Acceptance.Html.FootnotesTest do
 
   import Support.Helpers, only: [ as_html: 2]
 
-  # describe "Footnotes" do
+  describe "Footnotes" do
 
     test "without errors" do
       markdown = "foo[^1] again\n\n[^1]: bar baz"
@@ -40,7 +40,7 @@ defmodule Acceptance.Html.FootnotesTest do
     end
 
 
-  # end
+  end
   
 end
 

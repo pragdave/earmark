@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.DiverseTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast
 
@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.DiverseTest do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
       html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -17,7 +17,7 @@ defmodule Acceptance.Ast.DiverseTest do
     test "spaec preserving" do
       markdown = "Multiple     spaces\n"
       html     = "<p>Multiple     spaces</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -26,7 +26,7 @@ defmodule Acceptance.Ast.DiverseTest do
     test "syntax errors" do
       markdown ="A\nB\n="
       html     = "<p>A\nB</p>\n<p></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = [{:warning, 3, "Unexpected line =" }]
 
       assert as_ast(markdown) == {:error, ast, messages}

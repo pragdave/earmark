@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.HorizontalRulesTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   
   @moduletag :ast
 
@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
       html     = "<hr class=\"thick\"/>\n<hr class=\"thin\"/>\n<hr class=\"medium\"/>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -18,7 +18,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "not a rule" do
       markdown = "+++\n"
       html     = "<p>+++</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -27,7 +27,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "not in code" do
       markdown = "    ***\n    \n     a"
       html     = "<pre><code>***\n\n a</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -36,7 +36,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "not in code, second line" do
       markdown = "Foo\n    ***\n"
       html     = "<p>Foo</p>\n<pre><code>***</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -45,7 +45,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "medium, long" do
       markdown = "_____________________________________\n"
       html     = "<hr class=\"medium\"/>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -53,7 +53,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
-      ast      = [{"p", [], [" ", {"em", [], ["-"]}]}] |> IO.inspect
+      ast      = [{"p", [], [" ", {"em", [], ["-"]}]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -62,7 +62,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "in lists" do
       markdown = "- foo\n***\n- bar\n"
       html     = "<ul>\n<li>foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>bar</li>\n</ul>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -71,7 +71,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "setext rules over rules (why am I soo witty?)" do
       markdown = "Foo\n---\nbar\n"
       html     = "<h2>Foo</h2>\n<p>bar</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -80,7 +80,7 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
     test "in lists, thick this time (why am I soo good to you?)" do
       markdown = "* Foo\n* * *\n* Bar\n"
       html = "<ul>\n<li>Foo</li>\n</ul>\n<hr class=\"thick\"/>\n<ul>\n<li>Bar</li>\n</ul>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end

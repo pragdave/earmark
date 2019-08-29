@@ -132,8 +132,6 @@ defmodule Acceptance.Html.LinkImages.ImgTest do
 
   end
 
-  describe "Edge cases" do
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

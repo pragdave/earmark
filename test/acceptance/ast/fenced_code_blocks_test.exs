@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.FencedCodeBlocksTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   
   @moduletag :ast
 
@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -17,7 +17,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     test "still no lang" do
       markdown = "~~~\n<\n >\n~~~\n"
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -26,7 +26,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     test "elixir 's the name" do
       markdown = "```elixir\naaa\n~~~\n```\n"
       html     = "<pre><code class=\"elixir\">aaa\n~~~</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -35,7 +35,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     test "with a code_class_prefix" do
       markdown = "```elixir\naaa\n~~~\n```\n"
       html     = "<pre><code class=\"elixir lang-elixir\">aaa\n~~~</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown, code_class_prefix: "lang-") == {:ok, [ast], messages}
@@ -44,7 +44,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
     test "look mam, more lines" do
       markdown = "   ```\naaa\nb\n  ```\n"
       html     = "<pre><code class=\"\">aaa\nb</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

@@ -152,8 +152,10 @@ defmodule Acceptance.Html.ListTest do
   describe "Inline code" do
     @tag :wip
     test "perserves spaces" do
-      markdown = "* \\`prefix`first\n*      second \\`\n* third` `suffix`"
-      html     = "<p>`prefix<code class=\"inline\">first second \\</code>\n third<code class=\"inline\"></code>suffix`</p>\n"
+      markdown = "* \\`prefix`first\n*      second \\`\n* third` `suffix`" |> IO.inspect
+       
+
+      html     = "<ul>\n<li><p>`prefix<code class=\"inline\">first * second \\`</code></p>\n<li>third<code class=\"inline\"></code>suffix`\n</li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

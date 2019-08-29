@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.LineBreaksTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast
 
@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "with two spaces" do
       markdown = "The  \nquick"
       html     = "<p>The<br />quick</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -16,7 +16,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or more spaces" do
       markdown = "The   \nquick"
       html     = "<p>The<br />quick</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -24,7 +24,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or in some lines" do
       markdown = "The   \nquick  \nbrown"
       html     = "<p>The<br />quick<br />brown</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -32,7 +32,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "and in list items" do
       markdown = "* The  \nquick"
       html     = "<ul>\n<li>The<br />quick</li>\n</ul>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -44,7 +44,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "with only one space" do
       markdown = "The \nquick"
       html     = "<p>The \nquick</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -52,7 +52,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or whitspace lines" do
       markdown = "The\n  \nquick"
       html     = "<p>The</p>\n<p>quick</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -60,7 +60,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or inside the line" do
       markdown = "The  quick\nbrown"
       html     = "<p>The  quick\nbrown</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -68,7 +68,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or at the end of input" do
       markdown = "The\nquick  "
       html     = "<p>The\nquick  </p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -76,7 +76,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     test "or in code blocks" do
       markdown = "```\nThe \nquick\n```"
       html     = "<pre><code class=\"\">The \nquick</code></pre>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

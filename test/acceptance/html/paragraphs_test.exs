@@ -20,6 +20,16 @@ defmodule Acceptance.Html.ParagraphsTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+
+    test "striketrhough" do
+      markdown = "~~or maybe not?~~"
+      html     = "<p><del>or maybe not?</del></p>\n"
+
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
   end
 
 end

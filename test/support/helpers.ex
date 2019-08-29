@@ -24,6 +24,14 @@ defmodule Support.Helpers do
     Earmark.as_html!(markdown, struct(Earmark.Options, options))
   end
 
+  def parse_html(html) do
+    if System.get_env("DEBUG") do
+      Floki.parse(html) |> IO.inspect
+    else
+      Floki.parse(html)
+    end
+  end
+
   def test_links do
     [
      {"id1", %IdDef{url: "url 1", title: "title 1"}},

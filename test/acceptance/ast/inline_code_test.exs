@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.InlineCodeTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast
 
@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "plain simple" do
       markdown = "`foo`\n"
       html = "<p><code class=\"inline\">foo</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -17,7 +17,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "plain simple, right?" do
       markdown = "`hi`lo`\n"
       html = "<p><code class=\"inline\">hi</code>lo`</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = [{:warning, 1, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -26,7 +26,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "this time you got it right" do
       markdown = "`a\nb`c\n"
       html = "<p><code class=\"inline\">a b</code>c</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -35,7 +35,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "and again!!!" do
       markdown = "+ ``a `\n`\n b``c"
       html = "<ul>\n<li><code class=\"inline\">a ` ` b</code>c</li>\n</ul>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -46,7 +46,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "a lone escaped backslash" do
       markdown = "`\\\\`"
       html = "<p><code class=\"inline\">\\\\</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -55,7 +55,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "with company" do
       markdown = "`hello \\\\ world`"
       html = "<p><code class=\"inline\">hello \\\\ world</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -64,7 +64,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "unescaped escape" do
       markdown = "`\\`"
       html = "<p><code class=\"inline\">\\</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -73,7 +73,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "backtix cannot be escaped" do 
       markdown = "`` \\` ``"
       html = "<p><code class=\"inline\">\\`</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -82,7 +82,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "unless at the beginning" do 
       markdown = "\\``code\\`"
       html = "<p>`<code class=\"inline\">code\\</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -93,7 +93,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "squashing" do
       markdown = "`alpha   beta`"
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -102,7 +102,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "remove at start" do
       markdown = "`  alpha beta`"
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -111,7 +111,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "remove and squash" do
       markdown = "`  alpha   beta `"
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -120,7 +120,7 @@ defmodule Acceptance.Ast.InlineCodeTest do
     test "remove and squash newlines too" do
       markdown = "`\n  alpha  \n\n beta `"
       html = "<p><code class=\"inline\">alpha beta</code></p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

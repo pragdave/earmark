@@ -40,7 +40,7 @@ defmodule Earmark.Ast.Inline do
   end
 
   @linky_converter_names [
-    :converter_for_link,
+    :converter_for_link_and_image,
     :converter_for_reflink,
     :converter_for_footnote,
     :converter_for_nolink
@@ -50,13 +50,12 @@ defmodule Earmark.Ast.Inline do
     [
       converter_for_escape: &converter_for_escape/1,
       converter_for_autolink: &converter_for_autolink/1,
-      # converter_for_tag: &converter_for_tag/1,
-      converter_for_link: &converter_for_link/1,
-      converter_for_img: &converter_for_img/1,
+      converter_for_link_and_image: &converter_for_link_and_image/1,
+      converter_for_only_image: &converter_for_only_image/1,
       converter_for_reflink: &converter_for_reflink/1,
       converter_for_footnote: &converter_for_footnote/1,
       converter_for_nolink: &converter_for_nolink/1,
-      # converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
+      converter_for_strikethrough_gfm: &converter_for_strikethrough_gfm/1,
       converter_for_strong: &converter_for_strong/1,
       converter_for_em: &converter_for_em/1,
       converter_for_code: &converter_for_code/1,
@@ -84,6 +83,11 @@ defmodule Earmark.Ast.Inline do
     |> Enum.find_value( fn {_converter_name, converter} -> converter.({src, lnb, context, use_linky?}) end)
   end
 
+  ######################
+  #  
+  #  Converters
+  #
+  ######################
   defp converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.escape, src) do
        inspectX({4100, :for_escape, src})
@@ -105,7 +109,7 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  @pure_link_rgx ~r{\Ahttps?://\S+\b}u
+  @pure_link_rgx ~r{\A\s*(https?://\S+\b)}u
   @pure_link_depreaction_warning """
   The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.
   This will be the case by default in version 1.4.
@@ -114,45 +118,34 @@ defmodule Earmark.Ast.Inline do
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
-        [ match ] ->
-          out = render_link(match, match)
+        [ match, link_text ] ->
+          out = render_link(link_text, link_text)
           {behead(src, match), lnb, prepend(context, out), use_linky?}
           _ -> nil
       end
     end
   end
 
-  defp converter_for_tag({src, context, result, lnb}) do
-    case Regex.run(context.rules.tag, src) do
-      [match] ->
-        out = context.options.do_sanitize.(match)
-        {behead(src, match), context, prepend(result, out), lnb}
-
-      _ ->
-        nil
+  defp converter_for_link_and_image({src, lnb, context, use_linky?}) do
+    match = LinkParser.parse_link(src, lnb)
+    if match do
+      inspectX(4010, match)
+      {match1, text, href, title, messages, link_or_img} = match
+      out =
+        case link_or_img do
+          :link  -> output_link(context, text, href, title, lnb)
+          :image -> render_image(text, href, title, lnb)
+        end
+      {behead(src, match1), lnb, prepend(context, out), use_linky?}
     end
   end
 
-  defp converter_for_link({src, lnb, context, use_linky?}) do
-      inspectX(4000, src)
-    if match = LinkParser.parse_link(src, lnb) do
-       inspectX(4010, match)
-      unless is_image?(match) do
-        {match1, text, href, title, messages} = match
-        out = output_link(context, text, href, title, lnb)
-        {behead(src, match1), lnb, prepend(context, out), use_linky?}
-      end
-    end
-  end
-
-  defp converter_for_img({src, lnb, context, use_linky?}) do
-    if match = LinkParser.parse_link(src, lnb) do
-      inspectX({4100, :for_img, src})
-      if is_image?(match) do
-        {match1, text, href, title, messages} = match
+  defp converter_for_only_image({src, lnb, context, use_linky?}) do
+    case LinkParser.parse_link(src, lnb) do
+      {match1, text, href, title, messages, :image} -> 
         out = render_image(text, href, title, lnb)
         {behead(src, match1), lnb, prepend(context, out), use_linky?}
-      end
+      _ -> nil
     end
   end
 
@@ -198,43 +191,25 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp converter_for_strikethrough_gfm({src, context, result, lnb}) do
-    if match = Regex.run(context.rules.strikethrough, src) do
-      [match, content] = match
-      out = AstRenderer.strikethrough(convert(content, lnb, context).value)
-      {behead(src, match), context, prepend(result, out), lnb}
+  ################################
+  # Simple Tags: em, strong, del #
+  ################################
+  @strikethrough_rgx ~r{\A~~(?=\S)([\s\S]*?\S)~~}
+  defp converter_for_strikethrough_gfm({src, _, _, _}=conv_tuple) do
+    if match = Regex.run(@strikethrough_rgx, src) do
+      _converter_for_simple_tag(conv_tuple, match, "del")
     end
   end
-
-  defp converter_for_strong({src, lnb, context, use_linky?}) do
-    if match = Regex.run(context.rules.strong, src) do
-       inspectX({4100, :for_strong, src})
-      {match, content} =
-        case match do
-          [m, _, c] -> {m, c}
-          [m, c] -> {m, c}
-        end
-
-      context1 = _convert(content, lnb, set_value(context, []), use_linky?)
-
-      # IO.inspect context.value
-      {behead(src, match), lnb, prepend(context, {"strong", [], context1.value|>Enum.reverse}), use_linky?}
+  @strong_rgx ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
+  defp converter_for_strong({src, _, _, _}=conv_tuple) do
+    if match = Regex.run(@strong_rgx, src) do
+      _converter_for_simple_tag(conv_tuple, match, "strong")
     end
   end
-
-  defp converter_for_em({src, lnb, context, use_linky?}) do
-    if match = Regex.run(context.rules.em, src) do
-       inspectX({4100, :for_em, src})
-      {match, content} =
-        case match do
-          [m, _, c] -> {m, c}
-          [m, c] -> {m, c}
-        end
-
-      context1 = _convert(content, lnb, set_value(context, []), use_linky?)
-
-      # IO.inspect context.value
-      {behead(src, match), lnb, prepend(context, {"em", [], context1.value|>Enum.reverse}), use_linky?}
+  @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
+  defp converter_for_em({src, _, _, _}=conv_tuple) do
+    if match = Regex.run(@emphasis_rgx, src) do
+      _converter_for_simple_tag(conv_tuple, match, "em")
     end
   end
 
@@ -295,6 +270,25 @@ defmodule Earmark.Ast.Inline do
     inspectX(4102, ast)
     {behead(src, matched), lnb + line_count - 1, prepend(context, ast), true}
   end
+
+  ######################
+  #  
+  #  Helpers
+  #
+  ######################
+  defp _converter_for_simple_tag({src, lnb, context, use_linky?}, match, for_tag) do
+    inspectX({4100, ":for_#{for_tag}", src})
+    {match1, content} =
+      case match do
+        [m, _, c] -> {m, c}
+        [m, c] -> {m, c}
+      end
+
+    context1 = _convert(content, lnb, set_value(context, []), use_linky?)
+
+    {behead(src, match1), lnb, prepend(context, {for_tag, [], context1.value|>Enum.reverse}), use_linky?}
+  end
+
 
   defp convert_autolink(link, separator)
   defp convert_autolink(link, _separator = "@") do
@@ -369,11 +363,7 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  defp is_image?({match_text, _, _, _}), do: String.starts_with?(match_text, "!")
-  defp is_image?({match_text, _, _, _, _}), do: String.starts_with?(match_text, "!")
   @trailing_newlines ~r{\n*\z}
-
-
   defp prepend(%Context{value: value}=context, prep) do
     inspectX({1001, value, prep})
     x=_prepend(context, prep)

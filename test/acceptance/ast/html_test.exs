@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.HtmlBlocksTest do
   use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1]
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast
 
@@ -8,7 +8,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
       html     = "<table>\n  <tr>\n    <td>           hi</td>\n  </tr>\n</table><p>okay.</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -36,7 +36,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
       html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -45,7 +45,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "we are outside the void now (lucky us)" do
       markdown = "<br>\n**emphasized** text"
       html     = "<br><p><strong>emphasized</strong> text</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -54,7 +54,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "high regards???" do
       markdown = "<hr>\n**emphasized** text"
       html     = "<hr><p><strong>emphasized</strong> text</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -63,7 +63,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "img (a punless test)" do
       markdown = "<img src=\"hello\">\n**emphasized** text"
       html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -72,7 +72,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "not everybody knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
       html = "<wbr><p><strong>emphasized</strong> text</p>\n"
-      ast      = Floki.parse(html) |> IO.inspect
+      ast      = parse_html(html)
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
