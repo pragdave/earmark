@@ -3,7 +3,7 @@ defmodule EarmarkHelpersTests.LinkParserTest do
 
   describe "text part" do
     test "text part: empty" do
-      assert {~s<[]()>, "", "", nil, []} == parse_link("[]()")
+      assert parse_link("[]()") == {~s<[]()>, "", "", nil, []}
     end
 
     test "text part: incorrect" do

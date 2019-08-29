@@ -26,11 +26,14 @@ defmodule Earmark.Helpers.LinkParser do
 
   @doc false
   def parse_link(src, lnb) do
-    with {link_text, parsed_text} <-
-           parse!(src, lexer: :link_text_lexer, parser: :link_text_parser),
-         beheaded <- behead(src, to_string(parsed_text)),
-         tokens <- tokenize(beheaded, with: :link_text_lexer) do
-      p_url(tokens, lnb) |> make_result(to_string(link_text), to_string(parsed_text))
+    case parse!(src, lexer: :link_text_lexer, parser: :link_text_parser) do
+        {link, link_text, parsed_text} ->
+           beheaded  = behead(src, to_string(parsed_text))
+           tokens    = tokenize(beheaded, with: :link_text_lexer)
+          IO.inspect {9000, beheaded, tokens}
+           p_url(tokens, lnb) |> IO.inspect |> make_result(to_string(link_text), to_string(parsed_text))
+        any -> IO.inspect {9009, any}
+               nil
     end
   end
 
@@ -98,15 +101,13 @@ defmodule Earmark.Helpers.LinkParser do
   end
 
   defp make_result(nil, _, _), do: nil
-
   defp make_result({parsed, url, title}, text, img),
     do: make_result({parsed, url, title, []}, text, img)
-
   defp make_result({parsed, url, title, messages}, link_text, "!" <> _) do
     {"![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
   end
-
   defp make_result({parsed, url, title, messages}, link_text, _) do
+    IO.inspect {4100, link_text}
     {"[#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
   end
 
