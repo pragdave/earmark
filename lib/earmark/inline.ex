@@ -103,7 +103,7 @@ defmodule Earmark.Inline do
 
   @pure_link_rgx ~r{\Ahttps?://\S+\b}u
   @pure_link_depreaction_warning """
-  The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.
+  will be rendered as a link if the option `pure_links` is enabled.
   This will be the case by default in version 1.4.
   Disable the option explicitly with `false` to avoid this message.
   """
@@ -117,7 +117,7 @@ defmodule Earmark.Inline do
             out = renderer.link(match, match)
             {behead(src, match), context, prepend(result, out), lnb}
           else
-            context1 = add_messages(context, [{:deprecation, lnb, String.trim(@pure_link_depreaction_warning)}]) 
+            context1 = add_messages(context, [{:deprecation, lnb, "The string #{inspect match} " <> String.trim(@pure_link_depreaction_warning)}]) 
             {behead(src, match), context1, prepend(result, match), lnb}
           end
           _ -> nil
