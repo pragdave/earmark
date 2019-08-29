@@ -23,7 +23,7 @@ Rules.
 {OPEN_TITLE}       : {token, {open_title, TokenLine, TokenChars}}.
 {ANY_QUOTE}        : {token, {any_quote, TokenLine, TokenChars}}.
 {ESCAPE}           : {token, {verbatim, TokenLine, TokenChars}}.
-{WS}               : {token, {verbatim, TokenLine, TokenChars}}.
+{WS}               : {token, {ws, TokenLine, TokenChars}}.
 {ANY}              : {token, {verbatim, TokenLine, TokenChars}}.
 
 Erlang code.

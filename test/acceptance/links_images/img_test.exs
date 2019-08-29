@@ -41,6 +41,15 @@ defmodule Acceptance.LinkImages.ImgTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+
+    test "a lonely moon" do
+      markdown = "![moon](moon.jpg)\n"
+      html = "<p><img src=\"moon.jpg\" alt=\"moon\" /></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "headaches ahead (and behind us)" do
       markdown = "[![moon](moon.jpg)](/uri)\n"
       html = "<p><a href=\"/uri\"><img src=\"moon.jpg\" alt=\"moon\" /></a></p>\n"

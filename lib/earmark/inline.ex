@@ -23,7 +23,7 @@ defmodule Earmark.Inline do
   end
 
   @linky_converter_names [
-    :converter_for_link,
+    :converter_for_link_and_image,
     :converter_for_reflink,
     :converter_for_footnote,
     :converter_for_nolink
@@ -34,8 +34,8 @@ defmodule Earmark.Inline do
       converter_for_escape: &converter_for_escape/2,
       converter_for_autolink: &converter_for_autolink/2,
       converter_for_tag: &converter_for_tag/2,
-      converter_for_link: &converter_for_link/2,
-      converter_for_img: &converter_for_img/2,
+      converter_for_link_and_image: &converter_for_link_and_image/2,
+      converter_for_only_image: &converter_for_only_image/2,
       converter_for_reflink: &converter_for_reflink/2,
       converter_for_footnote: &converter_for_footnote/2,
       converter_for_nolink: &converter_for_nolink/2,
@@ -136,23 +136,25 @@ defmodule Earmark.Inline do
     end
   end
 
-  defp converter_for_link({src, context, result, lnb}, _renderer) do
-    if match = LinkParser.parse_link(src, lnb) do
-      unless is_image?(match) do
-        {match1, text, href, title, messages} = match
-        out = output_link(context, text, href, title, lnb)
-        {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
-      end
+  defp converter_for_link_and_image({src, context, result, lnb}, _renderer) do
+    match = LinkParser.parse_link(src, lnb)
+    if match do
+     {match1, text, href, title, messages, link_or_img} = match
+      out =
+        case link_or_img do
+          :link  -> output_link(context, text, href, title, lnb)
+          :image -> output_image(context.options.renderer, text, href, title)
+        end
+      {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
     end
   end
 
-  defp converter_for_img({src, context, result, lnb}, _renderer) do
-    if match = LinkParser.parse_link(src, lnb) do
-      if is_image?(match) do
-        {match1, text, href, title, messages} = match
+  defp converter_for_only_image({src, context, result, lnb}, _renderer) do
+    case LinkParser.parse_link(src, lnb) do
+      {match1, text, href, title, messages, :image} -> 
         out = output_image(context.options.renderer, text, href, title)
         {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
-      end
+      _ -> nil
     end
   end
 
@@ -377,8 +379,6 @@ defmodule Earmark.Inline do
     end
   end
 
-  defp is_image?({match_text, _, _, _}), do: String.starts_with?(match_text, "!")
-  defp is_image?({match_text, _, _, _, _}), do: String.starts_with?(match_text, "!")
   @trailing_newlines ~r{\n*\z}
 
   defp update_lnb(data = {_, _, %{value: []}, _}), do: data

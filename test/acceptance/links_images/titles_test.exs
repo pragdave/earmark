@@ -8,7 +8,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
       mark_tmp = "[link](/uri \"title\")"
       markdown = "#{ mark_tmp } #{ mark_tmp }\n"
       html_tmp = "<a href=\"/uri\" title=\"title\">link</a>"
-      html = "<p>#{ html_tmp } #{ html_tmp }</p>\n"
+      html = "<p>#{ html_tmp }#{ html_tmp }</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -24,7 +24,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "titled, followed by untitled" do
       markdown = "[a](a 't') [b](b)"
-      html = "<p><a href=\"a\" title=\"t\">a</a> <a href=\"b\">b</a></p>\n"
+      html = "<p><a href=\"a\" title=\"t\">a</a><a href=\"b\">b</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -33,7 +33,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
     test "titled, follwoed by untitled and titled" do
 
       markdown = "[a](a 't') [b](b) [c](c 't')"
-      html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> <a href="c" title="t">c</a></p>\n}
+      html = ~s{<p><a href="a" title="t">a</a><a href="b">b</a><a href="c" title="t">c</a></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -41,7 +41,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "titled, followed by two untitled" do
       markdown = "[a](a 't') [b](b) [c](c)"
-       html = "<p><a href=\"a\" title=\"t\">a</a> <a href=\"b\">b</a> <a href=\"c\">c</a></p>\n"
+       html = "<p><a href=\"a\" title=\"t\">a</a><a href=\"b\">b</a><a href=\"c\">c</a></p>\n"
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
@@ -49,7 +49,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "titled, followed by 2 untitled, (quotes interspersed)" do
       markdown = "[a](a 't') [b](b) 'xxx' [c](c)"
-       html = "<p><a href=\"a\" title=\"t\">a</a> <a href=\"b\">b</a> ‘xxx’ <a href=\"c\">c</a></p>\n"
+       html = "<p><a href=\"a\" title=\"t\">a</a><a href=\"b\">b</a> ‘xxx’ <a href=\"c\">c</a></p>\n"
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
@@ -57,7 +57,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "titled, followed by 2 untitled, (quotes inside parens interspersed)" do
       markdown = "[a](a 't') [b](b) ('xxx') [c](c)"
-       html = ~s{<p><a href="a" title="t">a</a> <a href="b">b</a> (‘xxx’) <a href="c">c</a></p>\n}
+       html = ~s{<p><a href="a" title="t">a</a><a href="b">b</a> (‘xxx’) <a href="c">c</a></p>\n}
        messages = []
 
        assert as_html(markdown) == {:ok, html, messages}
@@ -77,7 +77,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
   describe "Images, and links with titles" do
     test "two titled images, different quotes" do
       markdown = ~s{![a](a 't') ![b](b "u")}
-      html = ~s{<p><img src="a" alt="a" title="t" /> <img src="b" alt="b" title="u" /></p>\n}
+      html = ~s{<p><img src="a" alt="a" title="t" /><img src="b" alt="b" title="u" /></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -85,7 +85,7 @@ defmodule Acceptance.LinksImages.TitlesTest do
 
     test "two titled images, same quotes" do
       markdown = ~s{![a](a "t") ![b](b "u")}
-      html = ~s{<p><img src="a" alt="a" title="t" /> <img src="b" alt="b" title="u" /></p>\n}
+      html = ~s{<p><img src="a" alt="a" title="t" /><img src="b" alt="b" title="u" /></p>\n}
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
