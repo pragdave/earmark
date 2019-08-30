@@ -5,7 +5,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Inline, only: [convert: 3]
   import Earmark.Helpers, only: [escape: 2]
   import Earmark.Helpers.HtmlHelpers
-  import Earmark.Message, only: [add_messages_from: 2, add_message: 2, add_messages: 2, get_messages: 1]
+  import Earmark.Message, only: [add_messages_from: 2, add_message: 2, add_messages: 2, get_messages: 1, set_messages: 2]
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
 
@@ -228,7 +228,7 @@ defmodule Earmark.HtmlRenderer do
     do: ~s[<a href="##{ref}" id="#{backref}" class="footnote" title="see footnote">#{number}</a>]
 
   # Table rows
-  def add_trs(context, rows, tag, aligns, lnb) do
+  defp add_trs(context, rows, tag, aligns, lnb) do
     numbered_rows =
       rows
       |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
@@ -252,7 +252,7 @@ defmodule Earmark.HtmlRenderer do
         end
 
       col = Enum.at(row, n - 1)
-      converted = convert(col, lnb, ctx)
+      converted = convert(col, lnb, set_messages(ctx, [])) 
       append(add_messages_from(ctx, converted), "<#{tag}#{style}>#{converted.value}</#{tag}>")
     end
   end
