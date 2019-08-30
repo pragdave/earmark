@@ -1,24 +1,33 @@
 # 1.4   ????/??/??
 
-# 1.3.6 ????/??/??
+# 1.3.6 2019/08/30
 
--  [#266]( https://github.com/pragdave/earmark/issues/266) 
+Hopefully the last patch release of 1.3 before the structural changes of 1.4.
+
+-  [#270]( https://github.com/pragdave/earmark/issues/270)
+      Error messages during parsing of table celles were duplicated in a number, exponential to the number of table cells.
+
+-  [#268]( https://github.com/pragdave/earmark/issues/268)
+      Deprecation warnings concerning pure links showed fixed link to https://github.com/pragdave/earmark, at least a reasonable choice ;),
+      instead of the text of the link.
+
+-  [#266]( https://github.com/pragdave/earmark/issues/266)
     According to HTML5 Style Guide better XHTML compatibility by closing void tags e.g. `<hr>` --&gt; `<hr />`
 
 
 # 1.3.5 2019/08/01
 
--  [#264]( https://github.com/pragdave/earmark/issues/264) 
+-  [#264]( https://github.com/pragdave/earmark/issues/264)
       Expose `Earmark.parse/2` but deprecate it.
 
--  [#262]( https://github.com/pragdave/earmark/issues/262) 
+-  [#262]( https://github.com/pragdave/earmark/issues/262)
     Remove non XHTML tags <colgroup> and <col>
 
 
 -  [#236]( https://github.com/pragdave/earmark/issues/236)
       Deprecation of plugins.
 
--  [#257]( https://github.com/pragdave/earmark/issues/257)  
+-  [#257]( https://github.com/pragdave/earmark/issues/257)
       Deprecation of `sanitize` option.
 
 # 1.3.4 2019/07/29
@@ -50,7 +59,7 @@
 
 ## Other
 
-- Refactoring c.f. PR [246](https://github.com/pragdave/earmark/pull/246)  
+- Refactoring c.f. PR [246](https://github.com/pragdave/earmark/pull/246)
 - Added Elixir version 1.9.0 for Travis c.f. PR #248
 
 ## Minor improvements on documentation

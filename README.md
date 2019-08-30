@@ -231,22 +231,22 @@ containing an IAL-like string, as in the following example
   Thusly
 
         mypara
-        <hr>
+        <hr />
 
   Becomes
 
         <p>mypara</p>
-        <hr>
+        <hr />
 
   While
 
         mypara
-         <hr>
+         <hr />
 
   will be transformed into
 
         <p>mypara
-         <hr></p>
+         <hr /></p>
 
 ## Integration
 
