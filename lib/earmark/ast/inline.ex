@@ -1,5 +1,5 @@
 defmodule Earmark.Ast.Inline do
-  import Dev.Debugging, only: [inspectX: 1, inspectX: 2]
+  # import Dev.Debugging, only: [# inspectX: 1, # inspectX: 2]
 
   @moduledoc """
   Match and render inline sequences, passing each to the
@@ -90,9 +90,9 @@ defmodule Earmark.Ast.Inline do
   ######################
   defp converter_for_escape({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.escape, src) do
-       inspectX({4100, :for_escape, src})
+       # inspectX({4100, :for_escape, src})
       [match, escaped] = match
-        inspectX(4101, escaped)
+        # inspectX(4101, escaped)
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
   end
@@ -100,11 +100,11 @@ defmodule Earmark.Ast.Inline do
   @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   defp converter_for_autolink({src, lnb, context, use_linky?}) do
     if match = Regex.run(@autolink_rgx, src) do
-       inspectX(1400, match)
+       # inspectX(1400, match)
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = render_link(href, text)
-       inspectX(1401, out)
+       # inspectX(1401, out)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
@@ -129,7 +129,7 @@ defmodule Earmark.Ast.Inline do
   defp converter_for_link_and_image({src, lnb, context, use_linky?}) do
     match = LinkParser.parse_link(src, lnb)
     if match do
-      inspectX(4010, match)
+      # inspectX(4010, match)
       {match1, text, href, title, messages, link_or_img} = match
       out =
         case link_or_img do
@@ -151,12 +151,12 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_reflink({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.reflink, src) do
-      inspectX({4100, :for_reflink, src})
+      # inspectX({4100, :for_reflink, src})
       {match, alt_text, id} =
         case match do
           [match, id, ""] -> {match, id, id}
           [match, alt_text, id] -> {match, alt_text, id}
-        end |> inspectX(4101)
+        end # |> inspectX(4101)
 
       # case reference_link(context, match, alt_text, id, lnb) do
       #   {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
@@ -216,7 +216,7 @@ defmodule Earmark.Ast.Inline do
   @squash_ws ~r{\s+}
   defp converter_for_code({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.code, src) do
-       inspectX({4100, :for_code, src})
+       # inspectX({4100, :for_code, src})
       [match, _, content] = match
       # Commonmark
       content1 = content
@@ -234,10 +234,10 @@ defmodule Earmark.Ast.Inline do
          {src, lnb, context, use_linky?}
        ) do
     if match = Regex.run(context.rules.inline_ial, src) do
-       inspectX({4100, :inline_ial, src})
+       # inspectX({4100, :inline_ial, src})
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
-      inspectX({1060, ial_attrs, context.value, lnb})
+      # inspectX({1060, ial_attrs, context.value, lnb})
       new_tags = augment_tag_with_ial(context.value, ial_attrs)
       {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
@@ -246,7 +246,7 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do
-       inspectX({4100, :inline_br, src})
+       # inspectX({4100, :inline_br, src})
       [{0, match_len}] = match
       {behead(src, match_len), lnb, prepend(context, {"br", [], []}), use_linky?}
     end
@@ -263,11 +263,11 @@ defmodule Earmark.Ast.Inline do
 
     line_count = matched |> String.split(@line_ending) |> Enum.count
 
-    inspectX({4100, :text, src, matched, context.options.gfm})
+    # inspectX({4100, :text, src, matched, context.options.gfm})
     ast = hard_line_breaks(matched, context.options.gfm)
-    inspectX(4101, ast)
+    # inspectX(4101, ast)
     ast = walk_ast(ast, &gruber_line_breaks/1)
-    inspectX(4102, ast)
+    # inspectX(4102, ast)
     {behead(src, matched), lnb + line_count - 1, prepend(context, ast), true}
   end
 
@@ -277,7 +277,7 @@ defmodule Earmark.Ast.Inline do
   #
   ######################
   defp _converter_for_simple_tag({src, lnb, context, use_linky?}, match, for_tag) do
-    inspectX({4100, ":for_#{for_tag}", src})
+    # inspectX({4100, ":for_#{for_tag}", src})
     {match1, content} =
       case match do
         [m, _, c] -> {m, c}
@@ -365,9 +365,9 @@ defmodule Earmark.Ast.Inline do
 
   @trailing_newlines ~r{\n*\z}
   defp prepend(%Context{value: value}=context, prep) do
-    inspectX({1001, value, prep})
+    # inspectX({1001, value, prep})
     x=_prepend(context, prep)
-    inspectX(1002, x.value)
+    # inspectX(1002, x.value)
     x
   end
 

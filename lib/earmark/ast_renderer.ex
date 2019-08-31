@@ -1,5 +1,5 @@
 defmodule Earmark.AstRenderer do
-  import Dev.Debugging, only: [inspectX: 1, inspectX: 2]
+  # import Dev.Debugging, only: [# inspectX: 1, # inspectX: 2]
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options
@@ -17,7 +17,7 @@ defmodule Earmark.AstRenderer do
   def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
-    inspectX(1000, blocks)
+    # inspectX(1000, blocks)
 
     {contexts, ast} =
       get_mapper(context.options).(
@@ -38,7 +38,7 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
-   # inspectX(1050, attrs)
+   # # inspectX(1050, attrs)
     ast   = { "p", merge_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
@@ -47,8 +47,8 @@ defmodule Earmark.AstRenderer do
   # Html #
   ########
   defp render_block(%Block.Html{html: html}, context) do
-    inspectX(1400, html)
-    {context, render_html_block(html)} |> inspectX(1401)
+    # inspectX(1400, html)
+    {context, render_html_block(html)} # |> inspectX(1401)
   end
 
   defp render_block(%Block.HtmlOneline{html: html}, context) do
@@ -150,7 +150,7 @@ defmodule Earmark.AstRenderer do
       [start1] -> %{start: start1}
       _        -> %{}
     end
-    inspectX({1200, :render_block, start_map, start})
+    # inspectX({1200, :render_block, start_map, start})
     # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     # add_attrs(context1, html, attrs, [], lnb)
     {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
@@ -163,7 +163,7 @@ defmodule Earmark.AstRenderer do
        )
        when length(blocks) == 1 do
     {context1, [{"p", _, ast}]} = render(blocks, context)
-#    inspectX ast
+#    # inspectX ast
     # content = Regex.replace(~r{</?p>}, content, "")
     # html = "<li>#{content}</li>\n"
     # add_attrs(context1, html, attrs, [], lnb)
@@ -172,9 +172,9 @@ defmodule Earmark.AstRenderer do
 
   # format a spaced list item
   defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
-#    inspectX(1200, blocks, attrs)
+#    # inspectX(1200, blocks, attrs)
     {context1, ast} = render(blocks, context)
-#    inspectX(1201, ast, attrs)
+#    # inspectX(1201, ast, attrs)
     {context1, {"li", merge_attrs(attrs), ast}}
   end
 
@@ -183,11 +183,11 @@ defmodule Earmark.AstRenderer do
   ##################
 
   defp render_block(%Block.FnList{blocks: footnotes}, context) do
-#    inspectX(1100, footnotes)
+#    # inspectX(1100, footnotes)
     items =
       Enum.map(footnotes, fn note ->
         blocks = append_footnote_link(note)
-#        inspectX(1050, blocks)
+#        # inspectX(1050, blocks)
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
@@ -262,12 +262,12 @@ defmodule Earmark.AstRenderer do
 
   defp append_footnote_link(note)
   defp append_footnote_link(note = %Block.FnDef{}) do
-#    inspectX(1300, note)
+#    # inspectX(1300, note)
     # fnlink =
     #   # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
     #   "[&#x21a9;](#fnref:#{note.number})]\n{:title='return to article' .reversefootnote}"
 
-#    inspectX(1320, note.blocks)
+#    # inspectX(1320, note.blocks)
     [last_block | blocks] = Enum.reverse(note.blocks)
     # last_block = append_footnote_link(last_block, fnlink)
 
@@ -277,13 +277,13 @@ defmodule Earmark.AstRenderer do
       |> List.flatten
   end
   defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
-#    inspectX(1301, lines, fnlink)
+#    # inspectX(1301, lines, fnlink)
     [last_line | lines] = Enum.reverse(lines)
     last_line = "#{last_line}&nbsp;#{fnlink}"
     [put_in(block.lines, Enum.reverse([last_line | lines]))]
   end
   defp append_footnote_link(block, fnlink) do
-#    inspectX(1302, block, fnlink)
+#    # inspectX(1302, block, fnlink)
     [block, %Block.Para{lines: fnlink}]
   end
 

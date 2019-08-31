@@ -7,10 +7,9 @@ defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
   @moduledoc false
 
   def render_footnote_list(items) do
-    IO.inspect {4500, items}
-     { "div", [{"class", "footnotes"}], [
-         {"hr", [], []},
-         {"ol", [], _render_footnote_list_items(items)}] }
+    { "div", [{"class", "footnotes"}], [
+      {"hr", [], []},
+      {"ol", [], _render_footnote_list_items(items)}] }
   end
 
 

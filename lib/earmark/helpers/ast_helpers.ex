@@ -1,6 +1,6 @@
 defmodule Earmark.Helpers.AstHelpers do
 
-  import Dev.Debugging, only: [inspectX: 2]
+  # import Dev.Debugging, only: [# inspectX: 2]
 
   import Earmark.Helpers
   import Earmark.Helpers.AttrParser
@@ -74,7 +74,7 @@ defmodule Earmark.Helpers.AstHelpers do
     merge_attrs(%{}, default)
   end
   def merge_attrs(atts, new) when is_list(atts) do
-    inspectX(3010, {atts, new})
+    # inspectX(3010, {atts, new})
     atts
     |> Enum.into(%{})
     |> Map.merge(new, &_value_merger/3)
@@ -82,7 +82,7 @@ defmodule Earmark.Helpers.AstHelpers do
     |> Enum.map(&attrs_to_string_keys/1)
   end
   def merge_attrs(atts, default) do
-    inspectX(3020, {atts, default})
+    # inspectX(3020, {atts, default})
     Map.merge(default, atts)
     # |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
     |> Enum.map(&attrs_to_string_keys/1)
