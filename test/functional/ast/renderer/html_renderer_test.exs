@@ -1,5 +1,5 @@
 defmodule Functional.Ast.Renderer.HtmlRendererTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   import Earmark.Ast.Renderer.HtmlRenderer, only: [render_html_block: 1]
 

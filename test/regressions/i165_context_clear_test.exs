@@ -1,5 +1,5 @@
 defmodule Regressions.I165ContextClearTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   alias Earmark.Context
   alias Earmark.Options

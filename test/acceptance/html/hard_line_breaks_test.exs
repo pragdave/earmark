@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.HardLineBreaksTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html: 1, as_html: 2]
   describe "gfm" do 

@@ -1,5 +1,5 @@
 defmodule Regressions.I013IncorrectRenderingOfNumberedLists do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   @indented_list """
     Para
 

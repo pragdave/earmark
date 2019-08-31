@@ -1,5 +1,5 @@
 defmodule Acceptance.Ast.ReflinkTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast

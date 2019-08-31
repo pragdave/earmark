@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.Utf8Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Support.Helpers, only: [as_html!: 2]
 
   describe "valid rendering" do

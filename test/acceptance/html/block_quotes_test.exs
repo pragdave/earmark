@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.BlockQuotesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "with breaks: true" do
     test "acceptance test 490 with breaks" do

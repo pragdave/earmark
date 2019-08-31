@@ -1,5 +1,5 @@
 defmodule Functional.Parser.HtmlParserTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Earmark.Helpers.HtmlParser
 
   describe "not a tag" do

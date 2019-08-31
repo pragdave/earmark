@@ -1,5 +1,5 @@
 defmodule Acceptance.Ast.IndentedCodeBlocksTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   @moduletag :ast
@@ -44,6 +44,16 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
     test "not the alpha, not the omega (gamma maybe?)" do
       markdown = "\n    \n    foo\n    \n\n"
       html = "<pre><code>foo</code></pre>\n"
+      ast      = parse_html(html)
+      messages = []
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "Indented Code Blocks with IAL" do
+    test "just an example" do
+      markdown = "\n    wunderbar\n{: lang=\"de:at\"}\n"
+      html = "<pre lang=\"de:at\"><code>wunderbar</code></pre>\n"
       ast      = parse_html(html)
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}

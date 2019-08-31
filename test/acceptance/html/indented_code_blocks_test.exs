@@ -1,9 +1,9 @@
 defmodule Acceptance.Html.IndentedCodeBlocksTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "Indented code blocks" do
+  describe "Indented code blocks" do
     test "simple (but easy?)" do
       markdown = "    a simple\n      indented code block\n"
       html     = "<pre><code>a simple\n  indented code block</code></pre>\n"
@@ -42,7 +42,16 @@ defmodule Acceptance.Html.IndentedCodeBlocksTest do
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+  end
+
+  describe "Indented Code Blocks with IAL" do
+    test "just an example" do
+      markdown = "\n    wunderbar\n{: lang=\"de:at\"}\n"
+      html = "<pre lang=\"de:at\"><code>wunderbar</code></pre>\n"
+      messages = []
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

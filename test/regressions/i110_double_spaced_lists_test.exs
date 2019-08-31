@@ -1,5 +1,5 @@
 defmodule Regressions.I1102spacedListsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   @quadruple_spaced """
   * alpha

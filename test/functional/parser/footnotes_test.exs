@@ -1,5 +1,5 @@
 defmodule Functional.Parser.FootnotesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Block
   alias Earmark.Options

@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.TableTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_html: 1]
   
@@ -43,6 +43,16 @@ defmodule Acceptance.Html.TableTest do
     test "table with header inside context" do
       markdown = "before\n\n|alpha|beta|\n|-|-:|\n|1|2|\nafter"
       html     = "<p>before</p>\n<table>\n<thead>\n<tr>\n<th style=\"text-align: left\">alpha</th><th style=\"text-align: right\">beta</th>\n</tr>\n</thead>\n<tr>\n<td style=\"text-align: left\">1</td><td style=\"text-align: right\">2</td>\n</tr>\n</table>\n<p>after</p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
+
+  describe "Tables and IAL" do
+    test "as mentioned above" do
+      markdown = "|a|b|\n|d|e|\n{:#the-table}"
+      html     = "<table id=\"the-table\">\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n" 
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

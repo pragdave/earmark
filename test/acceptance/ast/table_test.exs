@@ -1,5 +1,5 @@
-defmodule Acceptance.Html.TableTest do
-  use ExUnit.Case
+defmodule Acceptance.Ast.TableTest do
+  use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   
   @moduletag :ast
@@ -50,6 +50,17 @@ defmodule Acceptance.Html.TableTest do
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
+    end
+  end
+
+  describe "Tables and IAL" do
+    test "as mentioned above" do
+      markdown = "|a|b|\n|d|e|\n{:#the-table}"
+      html     = "<table id=\"the-table\">\n<tr>\n<td style=\"text-align: left;\">a</td><td style=\"text-align: left;\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left;\">d</td><td style=\"text-align: left;\">e</td>\n</tr>\n</table>\n" 
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 end

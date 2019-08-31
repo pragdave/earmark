@@ -1,5 +1,5 @@
 defmodule Regressions.I119FootnotesInsideLiTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   @li_footnote """
   1. foo[^1]

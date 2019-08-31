@@ -70,7 +70,7 @@ defmodule Earmark.Inline do
     raise Error, "Illegal State"
   end
   defp _walk_converters(
-         [{converter_name, converter} | rest],
+         [{_converter_name, converter} | rest],
          data = {_src, context, _result, _lnb},
          all_converters
        ) do

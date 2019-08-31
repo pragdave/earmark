@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.AtxHeadersTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   # describe "ATX headers" do
 

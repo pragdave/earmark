@@ -1,5 +1,5 @@
 defmodule Regressions.I168UnderlineH2AfterListTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @h2_underline_vanilla """
   para

@@ -1,5 +1,5 @@
 defmodule Regressions.I095OpeningHtmlTagClosesParaTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "html inline tag as a complete line" do
     expected = "<p>foo\n<b>bar</b></p>\n"

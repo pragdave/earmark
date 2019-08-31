@@ -1,5 +1,5 @@
 defmodule Acceptance.Ast.CommentTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_ast: 1]
 

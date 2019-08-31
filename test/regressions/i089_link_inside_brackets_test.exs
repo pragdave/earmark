@@ -1,5 +1,5 @@
 defmodule Regressions.I089LinkInsideBracketsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "non regression" do
     str = "before [text](link) after"

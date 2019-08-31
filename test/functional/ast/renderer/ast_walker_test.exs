@@ -1,5 +1,5 @@
 defmodule Functional.Ast.Renderer.AstWalkerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Earmark.Ast.Renderer.AstWalker
 

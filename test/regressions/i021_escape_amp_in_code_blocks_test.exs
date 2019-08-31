@@ -1,5 +1,5 @@
 defmodule Regressions.I021EscapeAmpInCodeBlocksTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   @code_blocks_escape """
       escape("Hello <world>")
       "Hello &lt;world&gt;"

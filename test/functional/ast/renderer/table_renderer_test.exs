@@ -1,5 +1,5 @@
 defmodule Functional.Ast.Renderer.TableRendererTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Ast.Renderer.TableRenderer
 
@@ -26,7 +26,7 @@ defmodule Functional.Ast.Renderer.TableRendererTest do
         ]},
       ]
 
-      {ast, context} = TableRenderer.render_rows(rows, 0, aligns, context.context)
+      {ast, _context} = TableRenderer.render_rows(rows, 0, aligns, context.context)
       assert ast == expected
     end
 
@@ -40,7 +40,7 @@ defmodule Functional.Ast.Renderer.TableRendererTest do
           {"th", [{"style", "text-align: center;"}], ["beta"]}, 
           {"th", [{"style", "text-align: right;"}], ["gamma"]}, 
         ]}]}
-      {ast, context} = TableRenderer.render_header(header, 0, aligns, context.context)
+      {ast, _context} = TableRenderer.render_header(header, 0, aligns, context.context)
       assert ast == expected
     end
   end

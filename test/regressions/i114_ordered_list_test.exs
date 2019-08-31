@@ -1,5 +1,5 @@
 defmodule Regressions.I114OrderedListTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   @default_start """
     1. hello

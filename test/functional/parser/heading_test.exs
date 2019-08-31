@@ -1,5 +1,5 @@
 defmodule Parser.HeadingTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Parser
   alias Earmark.Block

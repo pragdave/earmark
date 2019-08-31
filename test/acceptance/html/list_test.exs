@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.ListTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_html: 1]
 
@@ -153,7 +153,6 @@ defmodule Acceptance.Html.ListTest do
     @tag :wip
     test "perserves spaces" do
       markdown = "* \\`prefix`first\n*      second \\`\n* third` `suffix`" |> IO.inspect
-       
 
       html     = "<ul>\n<li><p>`prefix<code class=\"inline\">first * second \\`</code></p>\n<li>third<code class=\"inline\"></code>suffix`\n</li>\n</ul>\n"
       messages = []

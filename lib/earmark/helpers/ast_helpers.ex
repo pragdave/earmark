@@ -66,17 +66,14 @@ defmodule Earmark.Helpers.AstHelpers do
     merge_attrs(%{}, default)
   end
   def merge_attrs(atts, new) when is_list(atts) do
-    # inspectX(3010, {atts, new})
     atts
     |> Enum.into(%{})
+    |> merge_attrs(new)
+  end
+  def merge_attrs(atts, new) do
+    atts
     |> Map.merge(new, &_value_merger/3)
     |> Enum.into([])
-    |> Enum.map(&attrs_to_string_keys/1)
-  end
-  def merge_attrs(atts, default) do
-    # inspectX(3020, {atts, default})
-    Map.merge(default, atts)
-    # |> Enum.map(fn {k, vs} -> {to_string(k), Enum.join(vs, " ")} end)
     |> Enum.map(&attrs_to_string_keys/1)
   end
 
@@ -89,7 +86,6 @@ defmodule Earmark.Helpers.AstHelpers do
     add_attrs(context1, text, attrs, default, lnb)
   end
   def add_attrs(_context, _text, attrs, default, _lnb) do
-    # IO.inspect {2000, attrs, default}
       default
       |> Map.new()
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
@@ -97,7 +93,6 @@ defmodule Earmark.Helpers.AstHelpers do
 
   defp attrs_to_string_keys(key_value_pair)
   defp attrs_to_string_keys({k, vs}) when is_list(vs) do
-#    IO.inspect {3100, k, vs}
     {to_string(k), Enum.join(vs, " ")}
   end
   defp attrs_to_string_keys({k, vs}) do

@@ -1,5 +1,5 @@
 defmodule Regressions.I030BacktixInHeadingsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @heading_inline_render """
   # Hello _World_

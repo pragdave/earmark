@@ -1,5 +1,5 @@
 defmodule EarmarkHelpersTests.LinkParserTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "text part" do
     test "text part: empty" do

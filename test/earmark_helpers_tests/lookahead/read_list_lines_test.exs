@@ -1,5 +1,5 @@
 defmodule EarmarkHelpersTests.Lookahead.ReadListLinesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Line
   import Earmark.Helpers.LookaheadHelpers, only: [read_list_lines: 3]

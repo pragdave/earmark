@@ -1,5 +1,5 @@
 defmodule Acceptance.Ast.EmptyTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @moduletag :ast
 

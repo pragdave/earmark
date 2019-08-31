@@ -1,5 +1,5 @@
 defmodule Functional.Scanner.LineTypeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Line
 

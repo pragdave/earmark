@@ -1,5 +1,5 @@
 defmodule Regressions.I270IncorrectPurelinkDeprecationWarningTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "correct link in warning" do
     markdown = "http://some.url"

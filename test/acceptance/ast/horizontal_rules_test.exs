@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.HorizontalRulesTest do
-  use ExUnit.Case
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  use ExUnit.Case, async: true
+  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   
   @moduletag :ast
 
@@ -84,6 +84,19 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+  end
+
+  describe "Horizontal Rules and IAL" do 
+    test "add a class and an id" do
+      markdown = "***\n{: .custom}\n---\n{: .klass #id42}\n___\n{: hello=world}\n"
+      html     = "<hr class=\"custom thick\" />\n<hr class=\"klass thin\" id=\"id42\" />\n<hr class=\"medium\" hello=\"world\" />\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+
+    end
+    
   end
 end
 

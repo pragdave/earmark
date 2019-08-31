@@ -1,14 +1,11 @@
 defmodule Earmark.Ast.Inline do
-  # import Dev.Debugging, only: [# inspectX: 1, # inspectX: 2]
 
   @moduledoc """
   Match and render inline sequences, passing each to the
   renderer.
   """
 
-  alias Earmark.AstRenderer
   alias Earmark.Context
-  alias Earmark.Error
   alias Earmark.Helpers.LinkParser
 
   import Earmark.Ast.Renderer.AstWalker 
@@ -17,7 +14,6 @@ defmodule Earmark.Ast.Inline do
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.AstHelpers
   import Earmark.Context, only: [set_value: 2, update_context: 0]
-  import Earmark.Message, only: [add_messages: 2]
 
   @typep conversion_data :: {String.t, non_neg_integer(), Earmark.Context.t, boolean()}
   @doc false
@@ -110,11 +106,6 @@ defmodule Earmark.Ast.Inline do
   end
 
   @pure_link_rgx ~r{\A\s*(https?://\S+\b)}u
-  @pure_link_depreaction_warning """
-  The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.
-  This will be the case by default in version 1.4.
-  Disable the option explicitly with `false` to avoid this message.
-  """
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
@@ -323,7 +314,7 @@ defmodule Earmark.Ast.Inline do
   
 
   defp output_image_or_link(context, link_or_image, text, href, title, lnb)
-  defp output_image_or_link(context, "!" <> _, text, href, title, lnb) do
+  defp output_image_or_link(_context, "!" <> _, text, href, title, _lnb) do
     render_image(text, href, title)
   end
   defp output_image_or_link(context, _, text, href, title, lnb) do
@@ -363,19 +354,15 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  @trailing_newlines ~r{\n*\z}
-  defp prepend(%Context{value: value}=context, prep) do
-    # inspectX({1001, value, prep})
-    x=_prepend(context, prep)
-    # inspectX(1002, x.value)
-    x
+  defp prepend(%Context{}=context, prep) do
+    _prepend(context, prep)
   end
 
   defp _prepend(context, value)
   defp _prepend(context, [bin|rest]) when is_binary(bin) do
     _prepend(_prepend(context, bin), rest)
   end
-  defp _prepend(%Context{value: [str|rest]=value}=context, prep) when is_binary(str) and is_binary(prep) do
+  defp _prepend(%Context{value: [str|rest]}=context, prep) when is_binary(str) and is_binary(prep) do
     %{context | value: [str <> prep|rest]}
   end
   defp _prepend(%Context{value: value}=context, prep) when is_list(prep) do
@@ -389,15 +376,6 @@ defmodule Earmark.Ast.Inline do
   defp _remove_leading_empty([""|rest]), do: rest
   defp _remove_leading_empty(list), do: list
 
-  defp update_lnb(data = {_, _, %{value: []}, _}), do: data
-  defp update_lnb({rest, context, result = %{value: [{head, _, _} | _]}, lnb}) do
-    [suffix] = Regex.run(@trailing_newlines, head)
-    {rest, context, result, lnb + String.length(suffix)}
-  end
-  defp update_lnb({rest, context, result = %{value: [head | _]}, lnb}) do
-    [suffix] = Regex.run(@trailing_newlines, head)
-    {rest, context, result, lnb + String.length(suffix)}
-  end
 
 end
 

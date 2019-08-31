@@ -1,5 +1,5 @@
 defmodule ListAndTablesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defp ul lines do
     """

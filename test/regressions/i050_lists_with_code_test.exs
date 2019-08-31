@@ -1,5 +1,5 @@
 defmodule Regressions.I050ListsWithCodeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   @i50_inline_code_in_list_item """
   + ```escape```
   """

@@ -1,6 +1,5 @@
 defmodule VoidElementsTest do
   use ExUnit.Case
-
   import ExUnit.CaptureIO
 
   [

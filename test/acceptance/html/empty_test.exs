@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.EmptyTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "empty" do
     markdown = ""

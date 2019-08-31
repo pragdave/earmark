@@ -1,5 +1,5 @@
 defmodule HeadingsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.HtmlRenderer, as: Renderer
   alias Earmark.Block.Heading

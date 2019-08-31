@@ -1,16 +1,14 @@
 defmodule Earmark.AstRenderer do
-  # import Dev.Debugging, only: [# inspectX: 1, # inspectX: 2]
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options
   import Earmark.Ast.Inline, only: [convert: 3]
-  import Earmark.Helpers, only: [escape: 2]
   import Earmark.Helpers.AstHelpers
   import Earmark.Ast.Renderer.FootnoteListRenderer
   import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Ast.Renderer.TableRenderer
-  import Earmark.Message, only: [add_messages_from: 2, add_messages: 2, get_messages: 1]
-  import Earmark.Context, only: [append: 2, set_value: 2]
+  import Earmark.Message, only: [add_messages_from: 2, get_messages: 1]
+  import Earmark.Context, only: [append: 2]
   import Earmark.Options, only: [get_mapper: 1]
 
   @doc false
@@ -64,14 +62,14 @@ defmodule Earmark.AstRenderer do
   #########
   # Ruler #
   #########
-  defp render_block(%Block.Ruler{lnb: lnb, type: "-", attrs: attrs}, context) do
-    {context, {"hr", [{"class", "thin"}], []}}
+  defp render_block(%Block.Ruler{type: "-", attrs: attrs}, context) do
+    {context, {"hr", merge_attrs(attrs, %{"class" => "thin"}), []}}
   end
-  defp render_block(%Block.Ruler{lnb: lnb, type: "_", attrs: attrs}, context) do
-    {context, {"hr", [{"class", "medium"}], []}}
+  defp render_block(%Block.Ruler{type: "_", attrs: attrs}, context) do
+    {context, {"hr", merge_attrs( attrs, %{"class" => "medium"}), []}}
   end
-  defp render_block(%Block.Ruler{lnb: lnb, type: "*", attrs: attrs}, context) do
-    {context, {"hr", [{"class", "thick"}], []}}
+  defp render_block(%Block.Ruler{type: "*", attrs: attrs}, context) do
+    {context, {"hr", merge_attrs(attrs, %{"class" => "thick"}), []}}
   end
 
   ###########
@@ -91,7 +89,7 @@ defmodule Earmark.AstRenderer do
   # Blockquote #
   ##############
 
-  defp render_block(%Block.BlockQuote{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
+  defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context) do
     {context1, ast} = render(blocks, context)
     {context1, {"blockquote", merge_attrs(attrs), ast}}
     # html = "<blockquote>#{body}</blockquote>\n"
@@ -116,7 +114,7 @@ defmodule Earmark.AstRenderer do
         {rows_ast, context1}
       end
 
-    {context2, {"table", [], rows_ast1}}
+    {context2, {"table", merge_attrs(attrs), rows_ast1}}
   end
 
   ########
@@ -124,15 +122,14 @@ defmodule Earmark.AstRenderer do
   ########
 
   defp render_block(
-         %Block.Code{lnb: lnb, language: language, attrs: attrs} = block,
+         %Block.Code{language: language, attrs: attrs} = block,
          context = %Context{options: options}
        ) do
     classes =
       if language, do: [code_classes(language, options.code_class_prefix)], else: [] 
 
     lines = render_code(block)
-    # add_attrs(context, html, attrs, [], lnb)
-    ast = { "pre", [], [{"code", classes, [lines]}] }
+    ast = { "pre", merge_attrs(attrs), [{"code", classes, [lines]}] }
     {context, ast}
   end
 
@@ -142,7 +139,7 @@ defmodule Earmark.AstRenderer do
 
   @start_rgx ~r{\d+}
   defp render_block(
-         %Block.List{lnb: lnb, type: type, blocks: items, attrs: attrs, start: start},
+         %Block.List{type: type, blocks: items, attrs: attrs, start: start},
          context
        ) do
     {context1, ast} = render(items, context)
@@ -158,7 +155,7 @@ defmodule Earmark.AstRenderer do
 
   # format a single paragraph list item, and remove the para tags
   defp render_block(
-         %Block.ListItem{lnb: lnb, blocks: blocks, spaced: false, attrs: attrs},
+         %Block.ListItem{blocks: blocks, spaced: false, attrs: attrs},
          context
        )
        when length(blocks) == 1 do
@@ -171,7 +168,7 @@ defmodule Earmark.AstRenderer do
   end
 
   # format a spaced list item
-  defp render_block(%Block.ListItem{lnb: lnb, blocks: blocks, attrs: attrs}, context) do
+  defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
 #    # inspectX(1200, blocks, attrs)
     {context1, ast} = render(blocks, context)
 #    # inspectX(1201, ast, attrs)
@@ -276,16 +273,16 @@ defmodule Earmark.AstRenderer do
       |> Enum.reverse
       |> List.flatten
   end
-  defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
-#    # inspectX(1301, lines, fnlink)
-    [last_line | lines] = Enum.reverse(lines)
-    last_line = "#{last_line}&nbsp;#{fnlink}"
-    [put_in(block.lines, Enum.reverse([last_line | lines]))]
-  end
-  defp append_footnote_link(block, fnlink) do
-#    # inspectX(1302, block, fnlink)
-    [block, %Block.Para{lines: fnlink}]
-  end
+  # defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
+# #    # inspectX(1301, lines, fnlink)
+  #   [last_line | lines] = Enum.reverse(lines)
+  #   last_line = "#{last_line}&nbsp;#{fnlink}"
+  #   [put_in(block.lines, Enum.reverse([last_line | lines]))]
+  # end
+  # defp append_footnote_link(block, fnlink) do
+# #    # inspectX(1302, block, fnlink)
+  #   [block, %Block.Para{lines: fnlink}]
+  # end
 
 end
 

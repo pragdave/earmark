@@ -1,5 +1,5 @@
 defmodule Regressions.I191OverridingOptionsMapperMustStillWorkTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Options
 

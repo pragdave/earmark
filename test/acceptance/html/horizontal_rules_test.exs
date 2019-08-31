@@ -1,9 +1,9 @@
 defmodule Acceptance.Html.HorizontalRulesTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html: 1]
 
-  # describe "Horizontal rules" do
+  describe "Horizontal rules" do
 
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
@@ -84,7 +84,19 @@ defmodule Acceptance.Html.HorizontalRulesTest do
       messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
-  # end
+  end
+
+  describe "Horizontal Rules and IAL" do 
+    test "add a class and an id" do
+      markdown = "***\n{: .custom}\n---\n{: .klass #id42}\n___\n"
+      html     = "<hr class=\"thick custom\" />\n<hr class=\"thin klass\" id=\"id42\" />\n<hr class=\"medium\" />\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+
+    end
+    
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
