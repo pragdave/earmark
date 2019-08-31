@@ -97,14 +97,8 @@ defmodule Earmark.Helpers.LinkParser do
   end
 
   defp make_result(nil, _, _, _), do: nil
-  defp make_result({parsed, url, title}, text, parsed_text, link_or_img) do
-    make_result({parsed, url, title, []}, text, parsed_text, link_or_img)
-  end
-  # defp make_result({parsed, url, title, messages}, link_text, "!" <> _) do
-  #   {"![#{link_text}](#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages}
-  # end
-  defp make_result({parsed, url, title, messages}, link_text, parsed_text, link_or_img) do
-    {"#{parsed_text}(#{list_to_text(parsed)})", link_text, list_to_text(url), title, messages, link_or_img}
+  defp make_result({parsed, url, title}, link_text, parsed_text, link_or_img) do
+    {"#{parsed_text}(#{list_to_text(parsed)})", link_text, list_to_text(url), title, link_or_img}
   end
 
   defp add({parsed_text, url_text, nil}, text), do: {[text | parsed_text], [text | url_text], nil}

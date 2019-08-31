@@ -72,6 +72,7 @@ defmodule Earmark.Context do
     end
   end
 
+  #                 ( "[" .*? "]"n or anything w/o {"[", "]"}* or "]" ) *
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   # "
   @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}
@@ -96,6 +97,7 @@ defmodule Earmark.Context do
           [^'"<>])*?>}x,
       inline_ial: ~r<^\s*\{:\s*(.*?)\s*}>,
       link: ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
+      # "!"? "[" link_text "]" ws* "[" .*? "]"
       reflink: ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
       nolink: ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
       strong: ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},

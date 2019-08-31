@@ -70,9 +70,9 @@ defmodule Earmark.Ast.Inline do
   defp _convert_next(src, lnb, context, use_linky?) do
     converters = 
       if use_linky? do
-        all_converters
+        all_converters()
       else
-        all_converters |> Keyword.drop(@linky_converter_names)
+        all_converters() |> Keyword.drop(@linky_converter_names)
       end
     _find_and_execute_converter({src, lnb, context, use_linky?}, converters)
   end
@@ -130,11 +130,11 @@ defmodule Earmark.Ast.Inline do
     match = LinkParser.parse_link(src, lnb)
     if match do
       # inspectX(4010, match)
-      {match1, text, href, title, messages, link_or_img} = match
+      {match1, text, href, title, link_or_img} = match
       out =
         case link_or_img do
           :link  -> output_link(context, text, href, title, lnb)
-          :image -> render_image(text, href, title, lnb)
+          :image -> render_image(text, href, title)
         end
       {behead(src, match1), lnb, prepend(context, out), use_linky?}
     end
@@ -142,8 +142,8 @@ defmodule Earmark.Ast.Inline do
 
   defp converter_for_only_image({src, lnb, context, use_linky?}) do
     case LinkParser.parse_link(src, lnb) do
-      {match1, text, href, title, messages, :image} -> 
-        out = render_image(text, href, title, lnb)
+      {match1, text, href, title, :image} -> 
+        out = render_image(text, href, title)
         {behead(src, match1), lnb, prepend(context, out), use_linky?}
       _ -> nil
     end
@@ -158,10 +158,10 @@ defmodule Earmark.Ast.Inline do
           [match, alt_text, id] -> {match, alt_text, id}
         end # |> inspectX(4101)
 
-      # case reference_link(context, match, alt_text, id, lnb) do
-      #   {:ok, out} -> {behead(src, match), context, prepend(result, out), lnb}
-      #   _ -> nil
-      # end
+      case reference_link(context, match, alt_text, id, lnb) do
+        {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
+        _ -> nil
+      end
     end
   end
 
@@ -324,7 +324,7 @@ defmodule Earmark.Ast.Inline do
 
   defp output_image_or_link(context, link_or_image, text, href, title, lnb)
   defp output_image_or_link(context, "!" <> _, text, href, title, lnb) do
-    render_image(text, href, title, lnb)
+    render_image(text, href, title)
   end
   defp output_image_or_link(context, _, text, href, title, lnb) do
     output_link(context, text, href, title, lnb)

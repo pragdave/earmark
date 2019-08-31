@@ -1,14 +1,10 @@
 defmodule Earmark.Helpers.AstHelpers do
 
-  # import Dev.Debugging, only: [# inspectX: 2]
-
   import Earmark.Helpers
   import Earmark.Helpers.AttrParser
 
   alias Earmark.Block
   
-  @simple_tag ~r{^<(.*?)\s*>}
-
   @doc false
   def augment_tag_with_ial(tags, ial)
   def augment_tag_with_ial([{t, a, c}|tags], atts) do
@@ -38,18 +34,15 @@ defmodule Earmark.Helpers.AstHelpers do
     lines |> Enum.join("\n")
   end
 
-  @doc false
+
 
 
   @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
-  def render_image(text, href, title, lnb) do
+  def render_image(text, href, title) do
     href = encode(href, false)
-#    IO.inspect {4305, href}
     alt = text |> escape() |> String.replace(@remove_escapes, "")
-#    IO.inspect {4310, alt}
 
-    # context2 = _convert(text, lnb, set_value(context1, []), false)
     if title do
       { "img", [{"src", href}, {"alt", alt}, {"title", title}], [] }
     else
@@ -60,7 +53,6 @@ defmodule Earmark.Helpers.AstHelpers do
   @doc false
   def render_link(url, text), do: {"a", [{"href", url}], [text]}
   def render_link(url, text, nil), do: ~s[<a href="#{url}">#{text}</a>]
-  def render_link(url, text, nil), do: {"a", [{"href", url}], [text]}
   def render_link(url, text, title), do: {"a", [{"href", url}, {"title", title}], [text]}
 
 
@@ -96,7 +88,7 @@ defmodule Earmark.Helpers.AstHelpers do
     {context1, attrs} = parse_attrs( context, attrs, lnb )
     add_attrs(context1, text, attrs, default, lnb)
   end
-  def add_attrs(context, text, attrs, default, _lnb) do
+  def add_attrs(_context, _text, attrs, default, _lnb) do
     # IO.inspect {2000, attrs, default}
       default
       |> Map.new()
@@ -125,5 +117,4 @@ defmodule Earmark.Helpers.AstHelpers do
 
 
 end
-
 # SPDX-License-Identifier: Apache-2.0
