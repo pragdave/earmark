@@ -15,7 +15,6 @@ defmodule Earmark.AstRenderer do
   def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
-    # inspectX(1000, blocks)
 
     {contexts, ast} =
       get_mapper(context.options).(
@@ -36,7 +35,6 @@ defmodule Earmark.AstRenderer do
   #############
   defp render_block(%Block.Para{lnb: lnb, lines: lines, attrs: attrs}, context) do
     context1 = convert(lines, lnb, context)
-   # # inspectX(1050, attrs)
     ast   = { "p", merge_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
@@ -45,8 +43,7 @@ defmodule Earmark.AstRenderer do
   # Html #
   ########
   defp render_block(%Block.Html{html: html}, context) do
-    # inspectX(1400, html)
-    {context, render_html_block(html)} # |> inspectX(1401)
+    {context, render_html_block(html)}
   end
 
   defp render_block(%Block.HtmlOneline{html: html}, context) do
@@ -126,7 +123,7 @@ defmodule Earmark.AstRenderer do
          context = %Context{options: options}
        ) do
     classes =
-      if language, do: [code_classes(language, options.code_class_prefix)], else: [] 
+      if language, do: [code_classes(language, options.code_class_prefix)], else: []
 
     lines = render_code(block)
     ast = { "pre", merge_attrs(attrs), [{"code", classes, [lines]}] }
@@ -147,7 +144,6 @@ defmodule Earmark.AstRenderer do
       [start1] -> %{start: start1}
       _        -> %{}
     end
-    # inspectX({1200, :render_block, start_map, start})
     # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
     # add_attrs(context1, html, attrs, [], lnb)
     {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
@@ -160,18 +156,12 @@ defmodule Earmark.AstRenderer do
        )
        when length(blocks) == 1 do
     {context1, [{"p", _, ast}]} = render(blocks, context)
-#    # inspectX ast
-    # content = Regex.replace(~r{</?p>}, content, "")
-    # html = "<li>#{content}</li>\n"
-    # add_attrs(context1, html, attrs, [], lnb)
     {context1, {"li", merge_attrs(attrs), ast}}
   end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
-#    # inspectX(1200, blocks, attrs)
     {context1, ast} = render(blocks, context)
-#    # inspectX(1201, ast, attrs)
     {context1, {"li", merge_attrs(attrs), ast}}
   end
 
@@ -180,11 +170,9 @@ defmodule Earmark.AstRenderer do
   ##################
 
   defp render_block(%Block.FnList{blocks: footnotes}, context) do
-#    # inspectX(1100, footnotes)
     items =
       Enum.map(footnotes, fn note ->
         blocks = append_footnote_link(note)
-#        # inspectX(1050, blocks)
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
@@ -196,7 +184,7 @@ defmodule Earmark.AstRenderer do
   #######################################
 
   defp render_block(%Block.Ial{verbatim: verbatim}, context) do
-    {context, 
+    {context,
      {"p", [], ["{:#{verbatim}}"]}}
   end
 
@@ -211,7 +199,7 @@ defmodule Earmark.AstRenderer do
   #####################################
 
   def br, do: "<br>"
-  def em(text), do: {"em", [], text} 
+  def em(text), do: {"em", [], text}
   def strikethrough(text), do: "<del>#{text}</del>"
 
   def image(path, alt, nil) do
@@ -259,32 +247,14 @@ defmodule Earmark.AstRenderer do
 
   defp append_footnote_link(note)
   defp append_footnote_link(note = %Block.FnDef{}) do
-#    # inspectX(1300, note)
-    # fnlink =
-    #   # ~s[<a href="#fnref:#{note.number}" title="return to article" class="reversefootnote">&#x21A9;</a>]
-    #   "[&#x21a9;](#fnref:#{note.number})]\n{:title='return to article' .reversefootnote}"
-
-#    # inspectX(1320, note.blocks)
     [last_block | blocks] = Enum.reverse(note.blocks)
-    # last_block = append_footnote_link(last_block, fnlink)
 
     attrs = %{title: "return to article", class: "reversefootnote", href: "#fnref:#{note.number}"}
     [%{last_block|attrs: attrs} | blocks]
       |> Enum.reverse
       |> List.flatten
   end
-  # defp append_footnote_link(block = %Block.Para{lines: lines}, fnlink) do
-# #    # inspectX(1301, lines, fnlink)
-  #   [last_line | lines] = Enum.reverse(lines)
-  #   last_line = "#{last_line}&nbsp;#{fnlink}"
-  #   [put_in(block.lines, Enum.reverse([last_line | lines]))]
-  # end
-  # defp append_footnote_link(block, fnlink) do
-# #    # inspectX(1302, block, fnlink)
-  #   [block, %Block.Para{lines: fnlink}]
-  # end
 
 end
 
 # SPDX-License-Identifier: Apache-2.0
-
