@@ -1,5 +1,5 @@
 defmodule Regressions.I131MaybeInlineIalTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html!: 1]
 

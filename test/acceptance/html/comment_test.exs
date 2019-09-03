@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.CommentTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_html: 1]
 
@@ -29,3 +29,4 @@ defmodule Acceptance.Html.CommentTest do
     end
   end
 end
+# SPDX-License-Identifier: Apache-2.0

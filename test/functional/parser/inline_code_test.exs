@@ -1,5 +1,5 @@
 defmodule Parser.InlineCodeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Parser
   alias Earmark.Block

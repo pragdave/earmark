@@ -23,9 +23,7 @@
 
 %functiondoc Earmark.as_html/2
 
-## Plugins
-
-%moduledoc Earmark.Plugin
+%functiondoc Earmark.as_ast/2
 
 ## Contributing
 

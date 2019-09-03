@@ -1,5 +1,5 @@
 defmodule Regressions.I085IndentedFencedCodeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @moduletag :wip
   # Not in list --> verbatim

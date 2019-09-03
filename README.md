@@ -13,7 +13,6 @@
 * [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
-* [Plugins](#plugins)
 * [Contributing](#contributing)
 * [Author](#author)
 <!-- END generated TOC -->
@@ -51,6 +50,13 @@ Options can be passed into `as_html` or `as_html!` according to the [documentati
 
 Formats the error_messages returned by `as_html` and adds the filename to each.
 Then prints them to stderr and just returns the html_doc
+
+#### NEW and EXPERIMENTAL: `Earmark.as_ast`
+
+Although well tested the way the exposed AST will look in future versions may change, a stable
+API is expected for Earmark v1.6, when the rendered HTML shall be derived from the ast too.
+
+More details can be found in the function's description below.
 
 ### Command line
 
@@ -402,12 +408,45 @@ Where `html_doc` is an HTML representation of the markdown document and
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
 
-## Plugins
+<!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
+NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
 
-<!-- BEGIN inserted moduledoc Earmark.Plugin -->
-DEPRECATED!!!
+      iex(9)> markdown = "My `code` is **best**"
+      ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
+      ...(9)> ast
+      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
 
-<!-- END inserted moduledoc Earmark.Plugin -->
+Options are passes like to `as_html`, some do not have an effect though (e.g. `smarty_pants`) as formatting and escaping is not done
+for the AST.
+
+      iex(10)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+      ...(10)> ast
+      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
+
+**Rationale**:
+
+The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
+differences and we chose to **always** have tripples, even for comments.
+We also do return a list for a single node
+
+
+      Floki.parse("<!-- comment -->")           
+      {:comment, " comment "}
+
+      Earmark.as_ast("<!-- comment -->")
+      {:ok, [{:comment, [], [" comment "]}], []}
+
+Therefore `as_ast` is of the following type
+
+      @typep tag  :: String.t | :comment
+      @typep att  :: {String.t, String.t}
+      @typep atts :: list(att)
+      @typep node :: String.t | {tag, atts, ast}
+
+      @type  ast  :: list(node)
+
+<!-- END inserted functiondoc Earmark.as_ast/2 -->
 
 ## Contributing
 

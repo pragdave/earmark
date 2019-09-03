@@ -1,5 +1,5 @@
 defmodule Regressions.I051FencedCodeAndInlineCodeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @i51_not_a_fenced_block """
   ```elixir ```

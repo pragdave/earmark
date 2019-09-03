@@ -1,5 +1,5 @@
 defmodule EarmarkHelpersTests.AttrParserTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Earmark.Helpers.AttrParser
 
   #

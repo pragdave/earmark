@@ -9,6 +9,7 @@ defmodule Earmark.HtmlRenderer do
   import Earmark.Context, only: [append: 2, set_value: 2]
   import Earmark.Options, only: [get_mapper: 1]
 
+  @doc false
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
 

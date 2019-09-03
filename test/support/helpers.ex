@@ -12,12 +12,24 @@ defmodule Support.Helpers do
     %Earmark.Context{}
   end
 
+  def as_ast(markdown, options \\ []) do
+    Earmark.as_ast(markdown, struct(Earmark.Options, options))
+  end
+
   def as_html(markdown, options \\ []) do
     Earmark.as_html(markdown, struct(Earmark.Options, options))
   end
 
   def as_html!(markdown, options \\ []) do
     Earmark.as_html!(markdown, struct(Earmark.Options, options))
+  end
+
+  def parse_html(html) do
+    if System.get_env("DEBUG") do
+      Floki.parse(html) |> IO.inspect
+    else
+      Floki.parse(html)
+    end
   end
 
   def test_links do

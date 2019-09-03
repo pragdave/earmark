@@ -1,5 +1,5 @@
 defmodule Regressions.I093LastLiNotWrappedInPTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @vanilla_list """
   * a

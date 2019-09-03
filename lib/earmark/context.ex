@@ -22,15 +22,15 @@ defmodule Earmark.Context do
 
   defp noop(text), do: text
 
-  @doc """
-  Convenience method to append to the value list
-  """
+  @doc false
+  # Convenience method to append to the value list
   def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [value | prep]}
 
-  @doc """
-  Convenience method to prepend to the value list
-  """
-  def prepend(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [prep | value]}
+  @doc false
+  # Convenience method to prepend to the value list
+  def prepend(%__MODULE__{value: value} = ctx, prep) do
+    %{ctx | value: [prep | value]}
+  end
 
   @doc """
   Convenience method to prepend to the value list
@@ -49,6 +49,9 @@ defmodule Earmark.Context do
   @doc false
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
+  def update_context() do
+    update_context(%Earmark.Context{})
+  end
   def update_context(context = %Earmark.Context{options: options}) do
     context = %{context | rules: rules_for(options)}
 
@@ -66,6 +69,7 @@ defmodule Earmark.Context do
     end
   end
 
+  #                 ( "[" .*? "]"n or anything w/o {"[", "]"}* or "]" ) *
   @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
   # "
   @href ~S{\s*<?(.*?)>?(?:\s+['"](.*?)['"])?\s*}

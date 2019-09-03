@@ -1,5 +1,5 @@
 defmodule Regressions.I268TablePureKinkCrashTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   describe "Deprecation messages for pure links inside tables" do
 

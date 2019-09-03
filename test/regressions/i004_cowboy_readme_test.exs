@@ -1,5 +1,5 @@
 defmodule Regressions.I004CowboyReadmeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @cowboy_readme """
   Cowboy

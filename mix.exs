@@ -6,6 +6,7 @@ defmodule Earmark.Mixfile do
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
     # {:dialyxir, "~> 0.5", only: [:dev, :test]}
+    {:floki, "~> 0.21", only: [:dev, :test]},
   ]
 
   @description """
@@ -24,7 +25,7 @@ defmodule Earmark.Mixfile do
     [
       app: :earmark,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       escript: escript_config(),
       deps: @deps,

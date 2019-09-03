@@ -1,5 +1,5 @@
 defmodule Regressions.I096CodeClassParametrizationTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defp html(str, code_class_prefix \\ nil) do
     Earmark.as_html!( str, %Earmark.Options{code_class_prefix: code_class_prefix} )

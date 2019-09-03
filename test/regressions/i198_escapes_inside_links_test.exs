@@ -1,5 +1,5 @@
 defmodule Regressions.I198EscapesInsideLinksTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
 
   describe "Links with escapes" do

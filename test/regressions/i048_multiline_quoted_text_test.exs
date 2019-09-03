@@ -1,5 +1,5 @@
 defmodule Regressions.I048MultilineQuotedTextTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @i48_multiline_inline_code """
   `a

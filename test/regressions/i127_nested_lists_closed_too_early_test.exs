@@ -1,5 +1,5 @@
 defmodule Regressions.I127NestedListsClosedTooEarlyTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @markdown """
   - Level 1

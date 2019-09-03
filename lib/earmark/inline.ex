@@ -139,21 +139,21 @@ defmodule Earmark.Inline do
   defp converter_for_link_and_image({src, context, result, lnb}, _renderer) do
     match = LinkParser.parse_link(src, lnb)
     if match do
-     {match1, text, href, title, messages, link_or_img} = match
+     {match1, text, href, title, link_or_img} = match
       out =
         case link_or_img do
           :link  -> output_link(context, text, href, title, lnb)
           :image -> output_image(context.options.renderer, text, href, title)
         end
-      {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
+      {behead(src, match1), context, prepend(result, out), lnb}
     end
   end
 
   defp converter_for_only_image({src, context, result, lnb}, _renderer) do
     case LinkParser.parse_link(src, lnb) do
-      {match1, text, href, title, messages, :image} -> 
+      {match1, text, href, title, :image} -> 
         out = output_image(context.options.renderer, text, href, title)
-        {behead(src, match1), add_messages(context, messages), prepend(result, out), lnb}
+        {behead(src, match1), context, prepend(result, out), lnb}
       _ -> nil
     end
   end

@@ -1,5 +1,5 @@
 defmodule Unit.PluginTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Options, as: O
   alias Earmark.Plugin, as: P

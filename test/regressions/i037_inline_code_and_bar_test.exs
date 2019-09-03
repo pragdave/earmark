@@ -1,5 +1,5 @@
 defmodule Regressions.I037InlineCodeAndBarTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @implicit_list_with_bar """
   - alpha

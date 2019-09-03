@@ -38,8 +38,7 @@ defmodule Earmark.CLI do
       v: :version
     ]
 
-    parse = OptionParser.parse(argv, switches: switches, aliases: aliases)
-    case  parse  do
+    case OptionParser.parse(argv, switches: switches, aliases: aliases) do
       { [ {switch, true } ],  _, _ } -> switch
       { options, [ filename ],  _ }  -> {open_file(filename), filename, options}
       { options, [ ],           _ }  -> {:stdio, "<no file>", options}

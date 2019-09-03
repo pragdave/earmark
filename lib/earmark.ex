@@ -27,6 +27,13 @@ defmodule Earmark do
   Formats the error_messages returned by `as_html` and adds the filename to each.
   Then prints them to stderr and just returns the html_doc
 
+  #### NEW and EXPERIMENTAL: `Earmark.as_ast`
+
+  Although well tested the way the exposed AST will look in future versions may change, a stable
+  API is expected for Earmark v1.6, when the rendered HTML shall be derived from the ast too.
+
+  More details can be found in the function's description below.
+
   ### Command line
 
       $ mix escript.build
@@ -377,18 +384,81 @@ defmodule Earmark do
 
   """
   def as_html(lines, options \\ %Options{})
+
   def as_html(lines, options) when is_list(options) do
     as_html(lines, struct(Options, options))
   end
+
   def as_html(lines, options) do
     {context, html} = _as_html(lines, options)
     messages = sort_messages(context)
-    status = 
-      case Enum.any?(messages, fn {severity, _, _} -> severity == :error || severity == :warning end) do
+
+    status =
+      case Enum.any?(messages, fn {severity, _, _} ->
+             severity == :error || severity == :warning
+           end) do
         true -> :error
-        _    -> :ok
+        _ -> :ok
       end
+
     {status, html, messages}
+  end
+
+  @doc """
+  NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+
+        iex(9)> markdown = "My `code` is **best**"
+        ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
+        ...(9)> ast
+        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+
+  Options are passes like to `as_html`, some do not have an effect though (e.g. `smarty_pants`) as formatting and escaping is not done
+  for the AST.
+
+        iex(10)> markdown = "```elixir\\nIO.puts 42\\n```"
+        ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(10)> ast
+        [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
+
+  **Rationale**:
+
+  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
+  differences and we chose to **always** have tripples, even for comments.
+  We also do return a list for a single node
+
+
+        Floki.parse("<!-- comment -->")           
+        {:comment, " comment "}
+
+        Earmark.as_ast("<!-- comment -->")
+        {:ok, [{:comment, [], [" comment "]}], []}
+
+  Therefore `as_ast` is of the following type
+
+        @typep tag  :: String.t | :comment
+        @typep att  :: {String.t, String.t}
+        @typep atts :: list(att)
+        @typep node :: String.t | {tag, atts, ast}
+
+        @type  ast  :: list(node)
+  """
+  def as_ast(lines, options \\ %Options{})
+  def as_ast(lines, options) when is_list(options) do
+    as_ast(lines, struct(Options, options))
+  end
+  def as_ast(lines, options) do
+    {context, ast} = _as_ast(lines, options)
+    messages = sort_messages(context)
+
+    status =
+      case Enum.any?(messages, fn {severity, _, _} ->
+             severity == :error || severity == :warning
+           end) do
+        true -> :error
+        _ -> :ok
+      end
+
+    {status, ast, messages}
   end
 
   @doc """
@@ -424,6 +494,11 @@ defmodule Earmark do
     {blocks, context |> Earmark.Message.add_message({:deprecation, "DEPRECATED: This will not be part of the public API in Earmark 1.4",0})}
   end
 
+  defp _as_ast(lines, options) do
+    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
+    Earmark.AstRenderer.render(blocks, context)
+  end
+
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
     `iex` usage.
@@ -441,9 +516,14 @@ defmodule Earmark do
     |> Enum.map(&_join_pmap_results_or_raise(&1, timeout))
   end
 
-  defp _add_sanitize_deprecation(%Earmark.Context{options: %Options{sanitize: sanitize}}=context) do
+  defp _add_sanitize_deprecation(
+         %Earmark.Context{options: %Options{sanitize: sanitize}} = context
+       ) do
     if sanitize do
-      add_message(context, {:deprecation, "DEPRECATED: The sanitize option will be removed in Earmark 1.4", 0})
+      add_message(
+        context,
+        {:deprecation, "DEPRECATED: The sanitize option will be removed in Earmark 1.4", 0}
+      )
     else
       context
     end

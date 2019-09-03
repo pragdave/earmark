@@ -1,5 +1,5 @@
 defmodule CodeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Support.Helpers
 

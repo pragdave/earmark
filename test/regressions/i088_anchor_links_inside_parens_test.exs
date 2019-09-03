@@ -1,5 +1,5 @@
 defmodule Regressions.I88AnchorLinksInsideParensTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
     @tag :wip
     # We sacrifice this esoteric behavior for issue #220 right now

@@ -1,5 +1,5 @@
 defmodule TableTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Earmark.Line
   alias Earmark.Options

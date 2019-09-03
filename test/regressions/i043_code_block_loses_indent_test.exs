@@ -1,5 +1,5 @@
 defmodule Regressions.I043CodeBlockLosesIndentTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @indented_code_block """
                   alpha

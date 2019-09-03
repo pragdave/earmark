@@ -1,5 +1,5 @@
 defmodule Regressions.I062RefactorToHtmlTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "deprecation warning for to_html" do 
     assert_raise(UndefinedFunctionError, ~r{function Earmark\.to_html/1 is undefined or private.*}, fn ->

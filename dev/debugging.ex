@@ -1,51 +1,65 @@
-defmodule Dev.Debugging do
+# defmodule Dev.Debugging do
 
+#   def inspectX(anything) do
+#     if System.get_env("DEBUG") do
+#       IO.inspect(anything)
+#     end
+#   end
 
-  def print_html(markdown) do
-    markdown
-    |> Earmark.as_html!
-    |> IO.puts
-  end
+#   def inspectX(anything, prefix) when is_number(prefix) do
+#     inspectX({prefix, anything})
+#     anything
+#   end
+#   def inspectX(prefix, anything) do
+#     inspectX({prefix, anything})
+#     anything
+#   end
 
-  def parse(markdown) do
-    Earmark.Parser.parse_markdown(markdown)
-    |> remove_context()
-  end
+#   # def print_html(markdown) do
+#   #   markdown
+#   #   |> Earmark.as_html!
+#   #   |> IO.puts
+#   # end
 
-  def nth(something, n) do
-    {something, _nth(something, n)}
-  end
+#   # def parse(markdown) do
+#   #   Earmark.Parser.parse_markdown(markdown)
+#   #   |> remove_context()
+#   # end
 
-  defp _nth(something, n)
-  defp _nth(tuple, n) when is_tuple(tuple) do
-    _nth(Tuple.to_list(tuple), n)
-  end
-  defp _nth(list, n) when is_list(list) do
-    Enum.at(list, n)
-  end
+#   # def nth(something, n) do
+#   #   {something, _nth(something, n)}
+#   # end
 
-  def inspect_only({original, collection}, elements) do
-    {original,
-      collection
-      |> Enum.map(only(elements))
-      |> IO.inspect
-    }
-  end
-  def inspect_only(collection, elements) do
-    collection
-      |> Enum.map(only(elements))
-      |> IO.inspect
-    collection
-  end
+#   # defp _nth(something, n)
+#   # defp _nth(tuple, n) when is_tuple(tuple) do
+#   #   _nth(Tuple.to_list(tuple), n)
+#   # end
+#   # defp _nth(list, n) when is_list(list) do
+#   #   Enum.at(list, n)
+#   # end
 
-  def ret({original, _}), do: original
+#   # def inspect_only({original, collection}, elements) do
+#   #   {original,
+#   #     collection
+#   #     |> Enum.map(only(elements))
+#   #     |> IO.inspect
+#   #   }
+#   # end
+#   # def inspect_only(collection, elements) do
+#   #   collection
+#   #     |> Enum.map(only(elements))
+#   #     |> IO.inspect
+#   #   collection
+#   # end
 
-  defp only(elements) do
-    fn a_map ->
-      Map.take(a_map, [:__struct__ | elements])
-    end
-  end
+#   # def ret({original, _}), do: original
 
-  defp remove_context({nodes, _context}), do: nodes
+#   # defp only(elements) do
+#   #   fn a_map ->
+#   #     Map.take(a_map, [:__struct__ | elements])
+#   #   end
+#   # end
 
-end
+#   # defp remove_context({nodes, _context}), do: nodes
+
+# end

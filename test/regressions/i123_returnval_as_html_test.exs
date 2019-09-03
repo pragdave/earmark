@@ -1,5 +1,5 @@
 defmodule Regressions.I123ReturnvalAsHtmlTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "as_html with no errors" do
     assert Earmark.as_html("para") == {:ok, "<p>para</p>\n", []}
