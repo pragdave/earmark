@@ -22,16 +22,13 @@ defmodule Earmark.Context do
 
   defp noop(text), do: text
 
-  @doc """
-  Convenience method to append to the value list
-  """
+  @doc false
+  # Convenience method to append to the value list
   def append(%__MODULE__{value: value} = ctx, prep), do: %{ctx | value: [value | prep]}
 
-  @doc """
-  Convenience method to prepend to the value list
-  """
+  @doc false
+  # Convenience method to prepend to the value list
   def prepend(%__MODULE__{value: value} = ctx, prep) do
-    # IO.inspect {6000, value, prep}
     %{ctx | value: [prep | value]}
   end
 
@@ -97,7 +94,6 @@ defmodule Earmark.Context do
           [^'"<>])*?>}x,
       inline_ial: ~r<^\s*\{:\s*(.*?)\s*}>,
       link: ~r{^!?\[(#{@link_text})\]\(#{@href}\)},
-      # "!"? "[" link_text "]" ws* "[" .*? "]"
       reflink: ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]},
       nolink: ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]},
       strong: ~r{^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)},

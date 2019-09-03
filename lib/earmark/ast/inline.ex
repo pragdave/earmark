@@ -207,7 +207,6 @@ defmodule Earmark.Ast.Inline do
       |> String.trim()
       |> String.replace(@squash_ws, " ")
 
-      # out = codespan(escape(content1, true) |> IO.inspect)
       out = codespan(content1) # |> IO.inspect)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
@@ -361,7 +360,6 @@ defmodule Earmark.Ast.Inline do
   defp _remove_leading_empty(list)
   defp _remove_leading_empty([""|rest]), do: rest
   defp _remove_leading_empty(list), do: list
-
 
 end
 

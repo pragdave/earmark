@@ -34,9 +34,6 @@ defmodule Earmark.Helpers.AstHelpers do
     lines |> Enum.join("\n")
   end
 
-
-
-
   @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
   def render_image(text, href, title) do

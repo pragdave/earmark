@@ -7,8 +7,7 @@ defmodule Earmark.AstRenderer do
   import Earmark.Ast.Renderer.FootnoteListRenderer
   import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Ast.Renderer.TableRenderer
-  import Earmark.Message, only: [add_messages_from: 2, get_messages: 1]
-  import Earmark.Context, only: [append: 2]
+  import Earmark.Message, only: [get_messages: 1]
   import Earmark.Options, only: [get_mapper: 1]
 
   @doc false
@@ -89,8 +88,6 @@ defmodule Earmark.AstRenderer do
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context) do
     {context1, ast} = render(blocks, context)
     {context1, {"blockquote", merge_attrs(attrs), ast}}
-    # html = "<blockquote>#{body}</blockquote>\n"
-    # add_attrs(context1, html, attrs, [], lnb)
   end
 
   #########
@@ -144,8 +141,6 @@ defmodule Earmark.AstRenderer do
       [start1] -> %{start: start1}
       _        -> %{}
     end
-    # html = "<#{type}#{start}>\n#{content}</#{type}>\n"
-    # add_attrs(context1, html, attrs, [], lnb)
     {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
   end
 
@@ -194,56 +189,6 @@ defmodule Earmark.AstRenderer do
 
   defp render_block(%Block.IdDef{}, context), do: {context, ""}
 
-  #####################################
-  # And here are the inline renderers #
-  #####################################
-
-  def br, do: "<br>"
-  def em(text), do: {"em", [], text}
-  def strikethrough(text), do: "<del>#{text}</del>"
-
-  def image(path, alt, nil) do
-    ~s[<img src="#{path}" alt="#{alt}"/>]
-  end
-
-  def image(path, alt, title) do
-    ~s[<img src="#{path}" alt="#{alt}" title="#{title}"/>]
-  end
-
-  # Table rows
-  def add_trs(context, rows, tag, aligns, lnb) do
-    numbered_rows =
-      rows
-      |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
-
-    # for {row, lnb1} <- numbered_rows, do: "<tr>\n#{add_tds(context, row, tag, aligns, lnb1)}\n</tr>\n"
-    numbered_rows
-    |> Enum.reduce(context, fn {row, lnb}, ctx ->
-      append(add_tds(append(ctx, "<tr>\n"), row, tag, aligns, lnb), "\n</tr>\n")
-    end)
-  end
-
-  defp add_tds(context, row, tag, aligns, lnb) do
-    Enum.reduce(1..length(row), context, add_td_fn(row, tag, aligns, lnb))
-  end
-
-  defp add_td_fn(row, tag, aligns, lnb) do
-    fn n, ctx ->
-      style =
-        case Enum.at(aligns, n - 1, :default) do
-          :default -> ""
-          align -> " style=\"text-align: #{align}\""
-        end
-
-      col = Enum.at(row, n - 1)
-      converted = convert(col, lnb, ctx)
-      append(add_messages_from(ctx, converted), "<#{tag}#{style}>#{converted.value}</#{tag}>")
-    end
-  end
-
-  ###############################
-  # Append Footnote Return Link #
-  ###############################
 
   defp append_footnote_link(note)
   defp append_footnote_link(note = %Block.FnDef{}) do

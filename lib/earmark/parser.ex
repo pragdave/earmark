@@ -21,7 +21,6 @@ defmodule Earmark.Parser do
   def parse_markdown(lines, options \\ %Options{})
   def parse_markdown(lines, options = %Options{}) when is_list(lines) do
     {blocks, links, options1} = parse(lines, options, false)
-#    IO.inspect {500, blocks}
 
     context =
       %Earmark.Context{options: options1, links: links}
@@ -29,7 +28,6 @@ defmodule Earmark.Parser do
 
     if options.footnotes do
       {blocks, footnotes, options1} = handle_footnotes(blocks, context.options)
-#      IO.inspect {510, blocks}
       context = put_in(context.footnotes, footnotes)
       context = put_in(context.options, options1)
       {blocks, context}
