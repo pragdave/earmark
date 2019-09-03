@@ -1,4 +1,6 @@
 defmodule Earmark.Helpers do
+
+  @moduledoc false
   @doc """
   Expand tabs to multiples of 4 columns
   """

@@ -10,7 +10,8 @@ defmodule Earmark.AstRenderer do
   import Earmark.Message, only: [get_messages: 1]
   import Earmark.Options, only: [get_mapper: 1]
 
-  @doc false
+  @moduledoc false
+
   def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)

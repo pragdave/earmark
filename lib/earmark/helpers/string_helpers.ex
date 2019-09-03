@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.StringHelpers do
 
+  @moduledoc false
+
   @doc """
   Remove the leading part of a string
   """

@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.LineHelpers do
 
+  @moduledoc false
+
   alias Earmark.Line
 
   def blank?(%Line.Blank{}),   do: true

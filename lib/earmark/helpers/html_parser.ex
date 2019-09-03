@@ -1,4 +1,5 @@
 defmodule Earmark.Helpers.HtmlParser do
+
   @moduledoc false
 
   import Earmark.Helpers.StringHelpers, only: [behead: 2]

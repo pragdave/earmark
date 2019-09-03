@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.AttrParser do
 
+  @moduledoc false
+
   import Earmark.Helpers.StringHelpers, only: [ behead: 2 ]
   import Earmark.Message, only: [add_message: 2]
 

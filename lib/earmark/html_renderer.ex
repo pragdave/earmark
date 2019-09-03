@@ -1,4 +1,6 @@
 defmodule Earmark.HtmlRenderer do
+
+  @moduledoc false
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options

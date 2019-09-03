@@ -1,14 +1,12 @@
 defmodule Earmark.LineScanner do
+
+  @moduledoc false
   
   alias Earmark.Helpers
   alias Earmark.Line
   alias Earmark.Options
 
   import Options, only: [get_mapper: 1]
-
-  @moduledoc """
-  Give a line of text, return its context-free type. Not for external consumption
-  """
 
   # This is the re that matches the ridiculous "[id]: url title" syntax
 

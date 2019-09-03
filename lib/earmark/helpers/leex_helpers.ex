@@ -1,4 +1,6 @@
 defmodule Earmark.Helpers.LeexHelpers do
+
+  @moduledoc false
   @doc """
     Allows to lex an Elixir string with a leex lexer and returns
     the tokens as needed for a yecc parser.

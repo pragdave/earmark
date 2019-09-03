@@ -1,15 +1,11 @@
 defmodule Earmark.Plugin do
+
+  @moduledoc false
+
   alias Earmark.Error
   alias Earmark.Options
 
-  @moduledoc """
-  DEPRECATED!!!
-  """
 
-  @doc """
-  DEPRECATED!!!
-
-  """
   def define(plugin_defs)
   def define(plugin_defs), do: define(%Options{}, plugin_defs)
 

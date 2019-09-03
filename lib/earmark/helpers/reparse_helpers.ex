@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.ReparseHelpers do
 
+  @moduledoc false
+
   alias Earmark.Line
   import Earmark.Helpers.StringHelpers, only: [behead_indent: 2]
   

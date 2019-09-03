@@ -1,8 +1,6 @@
 defmodule Earmark.Inline do
-  @moduledoc """
-  Match and render inline sequences, passing each to the
-  renderer.
-  """
+
+  @moduledoc false
 
   alias Earmark.Error
   alias Earmark.Helpers.LinkParser
@@ -12,7 +10,6 @@ defmodule Earmark.Inline do
   import Earmark.Context, only: [prepend: 2, set_value: 2]
   import Earmark.Message, only: [add_messages: 2]
 
-  @doc false
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
     do: _convert(Enum.join(list, "\n"), lnb, context)
@@ -315,7 +312,6 @@ defmodule Earmark.Inline do
     with br = renderer.br(), do: Regex.replace(@gfm_hard_line_break, text, br <> "\n")
   end
 
-  @doc false
   def mangle_link(link) do
     link
   end

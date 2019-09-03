@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.AstHelpers do
 
+  @moduledoc false
+
   import Earmark.Helpers
   import Earmark.Helpers.AttrParser
 

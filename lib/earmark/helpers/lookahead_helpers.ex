@@ -1,4 +1,6 @@
 defmodule Earmark.Helpers.LookaheadHelpers do
+
+  @moduledoc false
   use Earmark.Types
 
   alias Earmark.Line

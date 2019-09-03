@@ -1,5 +1,7 @@
 defmodule Earmark.CLI do
 
+  @moduledoc false
+
   def main(argv) do
     argv
     |> parse_args

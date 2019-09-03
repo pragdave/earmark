@@ -1,4 +1,6 @@
 defmodule Earmark.Helpers.LinkParser do
+
+  @moduledoc false
   import Earmark.Helpers.LeexHelpers, only: [tokenize: 2]
   import Earmark.Helpers.YeccHelpers, only: [parse!: 2]
   import Earmark.Helpers.StringHelpers, only: [behead: 2]

@@ -1,5 +1,6 @@
 defmodule Earmark.Options do
-  @type t :: %__MODULE__{}
+
+  use Earmark.Types
 
   # What we use to render
   defstruct renderer: Earmark.HtmlRenderer,
@@ -39,6 +40,19 @@ defmodule Earmark.Options do
             plugins: %{},
             pure_links: nil
 
+  @type t :: %__MODULE__{
+        breaks: boolean,
+        code_class_prefix: maybe(String.t),
+        footnotes: boolean,
+        footnote_offset: number,
+        gfm: boolean,
+        pedantic: boolean,
+        pure_links: boolean,
+        smartypants: boolean,
+        timeout: maybe(number)
+  }
+
+  @doc false
   # Only here we are aware of which mapper function to use!
   def get_mapper(options) do
     if options.timeout do
@@ -48,6 +62,7 @@ defmodule Earmark.Options do
     end
   end
 
+  @doc false
   def plugin_for_prefix(options, plugin_name) do
     Map.get(options.plugins, plugin_name, false)
   end

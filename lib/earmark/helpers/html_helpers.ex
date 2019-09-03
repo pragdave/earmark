@@ -1,5 +1,7 @@
 defmodule Earmark.Helpers.HtmlHelpers do
 
+  @moduledoc false
+
   import Earmark.Helpers.AttrParser
   
   @simple_tag ~r{^<(.*?)\s*>}

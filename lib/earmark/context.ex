@@ -1,4 +1,6 @@
 defmodule Earmark.Context do
+
+  @moduledoc false
   use Earmark.Types
   import Earmark.Helpers
 

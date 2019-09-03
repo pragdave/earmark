@@ -1,5 +1,7 @@
 defmodule Earmark.Message do
 
+  @moduledoc false
+
   alias Earmark.Context
   alias Earmark.Options
 

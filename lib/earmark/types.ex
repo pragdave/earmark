@@ -1,5 +1,7 @@
 defmodule Earmark.Types do
 
+  @moduledoc false
+
   defmacro __using__(_options \\ []) do
     quote do
       @type token  :: {atom, String.t}

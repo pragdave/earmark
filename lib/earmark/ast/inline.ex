@@ -1,9 +1,6 @@
 defmodule Earmark.Ast.Inline do
 
-  @moduledoc """
-  Match and render inline sequences, passing each to the
-  renderer.
-  """
+  @moduledoc false
 
   alias Earmark.Context
   alias Earmark.Helpers.LinkParser
@@ -16,11 +13,9 @@ defmodule Earmark.Ast.Inline do
   import Earmark.Context, only: [set_value: 2, update_context: 0]
 
   @typep conversion_data :: {String.t, non_neg_integer(), Earmark.Context.t, boolean()}
-  @doc false
   def conv(src) do
     _convert(src, 0, update_context(), true).value
   end
-  @doc false
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
     do: _convert(Enum.join(list, "\n"), lnb, context, true)
