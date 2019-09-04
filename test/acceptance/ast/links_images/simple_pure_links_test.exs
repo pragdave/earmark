@@ -5,15 +5,6 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
   @moduletag :ast
 
   describe "simple pure links not yet enabled" do
-    test "regression" do
-      markdown = "<https://github.com/pragdave/earmark>"
-      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a></p>\n"
-      ast      = parse_html(html)
-      messages = []
-
-      assert as_ast(markdown) == {:ok, [ast], messages}
-    end
-
 
     test "issue deprecation warning surpressed" do
       markdown = "https://github.com/pragdave/earmark"
@@ -30,7 +21,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 
@@ -41,7 +32,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "more text" do
@@ -50,7 +41,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
       
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "more links" do
@@ -59,7 +50,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "be aware of the double up" do
@@ -68,7 +59,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "inner pure_links disabling does not leak out" do
@@ -77,7 +68,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown, pure_links: true) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
 
     end
   end

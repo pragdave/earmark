@@ -8,7 +8,6 @@ defmodule Earmark.Inline do
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.HtmlHelpers, only: [augment_tag_with_ial: 4]
   import Earmark.Context, only: [prepend: 2, set_value: 2]
-  import Earmark.Message, only: [add_messages: 2]
 
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
@@ -99,25 +98,13 @@ defmodule Earmark.Inline do
   end
 
   @pure_link_rgx ~r{\Ahttps?://\S+\b}u
-  @pure_link_depreaction_warning """
-  will be rendered as a link if the option `pure_links` is enabled.
-  This will be the case by default in version 1.4.
-  Disable the option explicitly with `false` to avoid this message.
-  """
   defp converter_for_pure_link({src, context, result, lnb}, renderer) do
-    if context.options.pure_links == false do
-      nil
-    else
+    if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
         [ match ] ->
-          if context.options.pure_links do
-            out = renderer.link(match, match)
-            {behead(src, match), context, prepend(result, out), lnb}
-          else
-            context1 = add_messages(context, [{:deprecation, lnb, "The string #{inspect match} " <> String.trim(@pure_link_depreaction_warning)}]) 
-            {behead(src, match), context1, prepend(result, match), lnb}
-          end
-          _ -> nil
+          out = renderer.link(match, match)
+          {behead(src, match), context, prepend(result, out), lnb}
+        _         -> nil
       end
     end
   end
