@@ -9,7 +9,6 @@ defmodule Earmark.Options do
             breaks: false,
             pedantic: false,
             smartypants: true,
-            sanitize: false,
             footnotes: false,
             footnote_offset: 1,
 
@@ -21,7 +20,6 @@ defmodule Earmark.Options do
 
             # Internal—only override if you're brave
             do_smartypants: nil,
-            do_sanitize: nil,
 
             # Very internal—the callback used to perform
             # parallel rendering. Set to &Enum.map/2

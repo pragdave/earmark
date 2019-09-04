@@ -57,17 +57,10 @@ defmodule Earmark.Context do
   def update_context(context = %Earmark.Context{options: options}) do
     context = %{context | rules: rules_for(options)}
 
-    context =
-      if options.smartypants do
-        put_in(context.options.do_smartypants, &smartypants/1)
-      else
-        put_in(context.options.do_smartypants, &noop/1)
-      end
-
-    if options.sanitize do
-      put_in(context.options.do_sanitize, &escape/1)
+    if options.smartypants do
+      put_in(context.options.do_smartypants, &smartypants/1)
     else
-      put_in(context.options.do_sanitize, &noop/1)
+      put_in(context.options.do_smartypants, &noop/1)
     end
   end
 

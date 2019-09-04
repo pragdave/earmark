@@ -112,9 +112,7 @@ defmodule Earmark.Inline do
   defp converter_for_tag({src, context, result, lnb}, _renderer) do
     case Regex.run(context.rules.tag, src) do
       [match] ->
-        out = context.options.do_sanitize.(match)
-        {behead(src, match), context, prepend(result, out), lnb}
-
+        {behead(src, match), context, prepend(result, match), lnb}
       _ ->
         nil
     end
