@@ -59,11 +59,6 @@ defmodule Earmark.Block do
     @moduledoc false
     defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: "" 
   end
-  defmodule Plugin do
-    @moduledoc false
-    defstruct lnb: 0, attrs: nil, lines: [], handler: nil, prefix: "" # prefix is app ended to $$ end
-  end
-
   defmodule Table do
     @moduledoc false
     defstruct lnb: 0, attrs: nil, rows: [], header: nil, alignments: []

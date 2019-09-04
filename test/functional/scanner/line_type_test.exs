@@ -153,17 +153,6 @@ defmodule Functional.Scanner.LineTypeTest do
       #
       { "[^1]: bar baz", %Earmark.Line.Text{content: "[^1]: bar baz", inside_code: false,
                        line: "[^1]: bar baz", lnb: 42}},
-      #
-      # Plugins
-      #
-      { "$$",                       %Line.Plugin{prefix: "", content: ""}},
-      { "$$ ",                      %Line.Plugin{prefix: "", content: ""}},
-      { "$$pfx ",                   %Line.Plugin{prefix: "pfx", content: ""}},
-      { "$$pfx",                    %Line.Plugin{prefix: "pfx", content: ""}},
-
-      { "$$ my line for plugin",    %Line.Plugin{prefix: "", content: "my line for plugin"}},
-      { "$$pfx my line for plugin", %Line.Plugin{prefix: "pfx", content: "my line for plugin"}},
-
           ]
   |> Enum.each(fn { text, type } ->
     test("line: '" <> text <> "'") do
