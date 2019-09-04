@@ -305,21 +305,6 @@ defmodule Earmark.Parser do
     _parse(rest, result, options)
   end
 
-  ##########
-  # Plugin #
-  ##########
-
-  defp _parse( lines = [%Line.Plugin{prefix: prefix, lnb: lnb}|_], result, options) do
-    handler =  Options.plugin_for_prefix(options, prefix)
-    {plugin_lines, rest1} = collect_plugin_lines(lines, prefix, [])
-    if handler do
-      _parse(rest1, [%Block.Plugin{handler: handler, prefix: prefix, lines: plugin_lines, lnb: lnb}|result], options)
-    else
-      _parse(rest1, result,
-        add_message(options, {:warning, lnb,  "lines for undefined plugin prefix #{inspect prefix} ignored (#{lnb}..#{lnb + Enum.count(plugin_lines) - 1})"}))
-    end
-  end
-
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
@@ -511,16 +496,6 @@ defmodule Earmark.Parser do
       true                            -> find_closing_tags(needed, rest_tl, [rest_hd|html_lines])
     end
   end
-
-  ##################
-  # Plugin related #
-  ##################
-
-  defp collect_plugin_lines(lines, prefix, result)
-  defp collect_plugin_lines([], _, result), do: {Enum.reverse(result), []}
-  defp collect_plugin_lines([%Line.Plugin{prefix: prefix, content: content, lnb: lnb} | rest], prefix, result),
-    do: collect_plugin_lines(rest, prefix, [{content, lnb} | result])
-  defp collect_plugin_lines( lines, _, result ), do: {Enum.reverse(result), lines}
 
   ###########
   # Helpers #

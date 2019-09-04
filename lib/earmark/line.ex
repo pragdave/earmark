@@ -93,10 +93,6 @@ defmodule Earmark.Line do
     defstruct(lnb: 0, line: "", content: "", inside_code: false)
   end
 
-  defmodule Plugin  do
-    @moduledoc false
-    defstruct(lnb: 0, line: "", content: "", prefix: "$$")
-  end
 
   @type t ::
           %Blank{}
@@ -116,7 +112,6 @@ defmodule Earmark.Line do
           | %TableLine{}
           | %Ial{}
           | %Text{}
-          | %Plugin{}
 
   @type ts :: list(t)
 end
