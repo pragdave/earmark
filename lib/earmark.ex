@@ -487,13 +487,6 @@ defmodule Earmark do
     end
   end
 
-  # TODO: Remove in 1.4
-  @doc false
-  def parse(lines, options) do 
-    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
-    {blocks, context |> Earmark.Message.add_message({:deprecation, "DEPRECATED: This will not be part of the public API in Earmark 1.4",0})}
-  end
-
   defp _as_ast(lines, options) do
     {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
     Earmark.AstRenderer.render(blocks, context)
