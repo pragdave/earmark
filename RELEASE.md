@@ -3,6 +3,17 @@
 
 # 1.4.0 2019/09/05
 
+- [145 Expose AST for output manipulation]( https://github.com/pragdave/earmark/issues/145)
+
+- [238 Pure Links are default now]( https://github.com/pragdave/earmark/issues/238)
+
+- [256 Align needed Elixir Version with ex_doc (>= 1.7)]( https://github.com/pragdave/earmark/issues/256)
+
+- [259 Deprecated option `sanitize` removed]( https://github.com/pragdave/earmark/issues/259)
+
+- [261 Deprecated Plugins removed]( https://github.com/pragdave/earmark/issues/261)
+
+- [265 Make deprecated `Earmark.parse/2` private]( https://github.com/pragdave/earmark/issues/265)
 
 
 # 1.3.6 2019/08/30
