@@ -1,5 +1,7 @@
 defmodule Earmark.Transform do
 
+  import Earmark.Helpers, only: [escape: 1]
+
   @moduledoc """
   Public Interface to functions operating on the AST
   exposed by `Earmark.as_ast`
@@ -33,7 +35,12 @@ defmodule Earmark.Transform do
   defp to_html(element, options, level) when is_binary(element) do
     escape(element, options, level)
   end
-  # TODO: Match void tags first
+  # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
+  defp to_html({"area", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp to_html({"br", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
   defp to_html({tag, atts, children}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
@@ -51,8 +58,14 @@ defmodule Earmark.Transform do
     [make_indent(options, level), element, "\n"]
   end
 
-  defp make_att({name, value}) do
-    [name, "=\"", value, "\""]
+  defp make_att(name_value_pair, tag)
+  defp make_att({"src", value}, "img"), do: _make_encoded_attr("src", value)
+  defp make_att({"href", value}, "a"), do: _make_encoded_attr("href", value)
+  defp make_att({name, value}, _) do
+    [" ", name, "=\"", value, "\""]
+  end
+  defp _make_encoded_attr(name, value) do
+    [" ", name, "=\"", escape(value), "\""]
   end
 
   defp make_indent(%{initial_indent: initial, indent: indent}, level) do
@@ -60,7 +73,15 @@ defmodule Earmark.Transform do
     |> Enum.take((initial+level)*indent) 
   end
 
-  defp open_tag(tag, atts) do
-    ["<", tag, atts |> Enum.map(&make_att/1) |> Enum.intersperse(" ") , ">"]
+  defp open_tag(tag, atts, void? \\ false) do
+    closer =
+      if void?, do: " />", else: ">"
+    ["<", tag, atts |> Enum.map(&make_att(&1, tag)), closer]
+  end
+  
+  defp void_tag({tag, atts, []}, options, level) do
+    [ make_indent(options, level),
+      open_tag(tag, atts, true),
+      "\n" ]
   end
 end

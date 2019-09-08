@@ -3,6 +3,7 @@ defmodule Acceptance.Html1.AtxHeadersTest do
   
   import Support.Html1Helpers
   
+  @moduletag :html1
   describe "ATX headers" do
 
     test "from one to six" do
