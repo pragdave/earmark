@@ -384,7 +384,7 @@ defmodule Earmark do
         ...(9)> ast
         [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
 
-  Options are passes like to `as_html`, some do not have an effect though (e.g. `smarty_pants`) as formatting and escaping is not done
+  Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
         iex(10)> markdown = "```elixir\\nIO.puts 42\\n```"

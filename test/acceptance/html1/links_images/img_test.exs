@@ -1,7 +1,6 @@
 defmodule Acceptance.Html1.LinkImages.ImgTest do
   use ExUnit.Case, async: true
 
-  import Support.Helpers, only: [as_html: 1]
   import Support.Html1Helpers
   
   @moduletag :html1
@@ -10,7 +9,7 @@ defmodule Acceptance.Html1.LinkImages.ImgTest do
 
     test "img with title" do
       markdown = "[foo]: /url \"title\"\n\n![foo]\n"
-      html = "\n<p>\n  <img src=\"/url\" alt=\"foo\" title=\"title\" />\n</p>\n"
+      html = "<p>\n  <img src=\"/url\" alt=\"foo\" title=\"title\" />\n</p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -18,7 +17,7 @@ defmodule Acceptance.Html1.LinkImages.ImgTest do
 
     test "this ain't no img (and no link)" do
       markdown = "[foo]: /url \"title\"\n\n![bar]\n"
-      html = "\n<p>\n  ![bar]\n</p>\n"
+      html = "<p>\n  ![bar]\n</p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

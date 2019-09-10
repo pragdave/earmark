@@ -1,6 +1,6 @@
 defmodule Earmark.Transform do
 
-  import Earmark.Helpers, only: [escape: 1]
+  import Earmark.Helpers, only: [escape: 1, replace: 3]
 
   @moduledoc """
   Public Interface to functions operating on the AST
@@ -11,7 +11,7 @@ defmodule Earmark.Transform do
   Takes an ast, and optional options (I love this pun), which can be
   a map or keyword list of which the following keys will be used:
 
-  - `smarty_pants:` `boolean`
+  - `smartypants:` `boolean`
   - `initial_indent:` `number`
   - `indent:` `number`
 
@@ -41,6 +41,13 @@ defmodule Earmark.Transform do
   defp to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
   defp to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
   defp to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp to_html({tag, atts, []}, options, level) do
+    [ make_indent(options, level),
+      open_tag(tag, atts),
+      "</",
+      tag,
+      ">\n" ]
+  end
   defp to_html({tag, atts, children}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
@@ -53,9 +60,16 @@ defmodule Earmark.Transform do
     [make_indent(options, level), "</", tag, ">\n"]
   end
 
-  # TODO: Implement HTML escapes and option smartypants
+  defp escape(element, options, level)
+  defp escape("", _opions, _level) do
+    []
+  end
   defp escape(element, options, level) do
-    [make_indent(options, level), element, "\n"]
+    element1 =
+        element
+        |> smartypants(options)
+        |> Earmark.Helpers.escape(true)
+    [make_indent(options, level), element1, "\n"]
   end
 
   defp make_att(name_value_pair, tag)
@@ -79,6 +93,23 @@ defmodule Earmark.Transform do
     ["<", tag, atts |> Enum.map(&make_att(&1, tag)), closer]
   end
   
+  @dashes_rgx ~r{--}
+  @dbl1_rgx ~r{(^|[-—/\(\[\{"”“\s])'}
+  @single_rgx ~r{\'}
+  @dbl2_rgx ~r{(^|[-—/\(\[\{‘\s])\"}
+  @dbl3_rgx ~r{"}
+  defp smartypants(text, options)
+  defp smartypants(text, %{smartypants: true}) do
+    text
+    |> replace(@dashes_rgx, "—")
+    |> replace(@dbl1_rgx, "\\1‘")
+    |> replace(@single_rgx, "’")
+    |> replace(@dbl2_rgx, "\\1“")
+    |> replace(@dbl3_rgx, "”")
+    |> String.replace("...", "…")
+  end
+  defp smartypants(text, _options), do: text
+
   defp void_tag({tag, atts, []}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts, true),
