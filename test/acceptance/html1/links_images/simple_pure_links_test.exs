@@ -1,63 +1,109 @@
 defmodule Acceptance.Html1.LinksImages.SimplePureLinksTest do
-  use Support.AcceptanceTestCase
+  use ExUnit.Case, async: true
+
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "simple pure links not yet enabled" do
     test "old behavior" do
       markdown = "https://github.com/pragdave/earmark"
-      html = "<p>https://github.com/pragdave/earmark</p>\n"
+      html = construct([
+        :p,
+        "https://github.com/pragdave/earmark"
+      ])
       messages = []
 
-      assert as_html(markdown, pure_links: false) == {:ok, html, messages}
+      assert to_html1(markdown, pure_links: false) == {:ok, html, messages}
     end
 
     test "explicitly enabled" do
       markdown = "https://github.com/pragdave/earmark"
-      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a></p>\n"
+      html = construct([
+        :p,
+        {:a, "href=\"https://github.com/pragdave/earmark\""},
+        "https://github.com/pragdave/earmark",
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
   describe "enabled pure links" do
     test "two in a row" do
       markdown = "https://github.com/pragdave/earmark https://github.com/RobertDober/extractly"
-      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a> <a href=\"https://github.com/RobertDober/extractly\">https://github.com/RobertDober/extractly</a></p>\n"
+      html = construct([
+        :p,
+        {:a, "href=\"https://github.com/pragdave/earmark\""},
+        "https://github.com/pragdave/earmark",
+        :POP,
+        {:a, "href=\"https://github.com/RobertDober/extractly\""},
+        "https://github.com/RobertDober/extractly",
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "more text" do
       markdown = "Header http://wikipedia.org in between <http://hex.pm> Trailer"
-      html = "<p>Header <a href=\"http://wikipedia.org\">http://wikipedia.org</a> in between <a href=\"http://hex.pm\">http://hex.pm</a> Trailer</p>\n"
+      html = construct([
+        :p,
+        "Header ",
+        {:a, "href=\"http://wikipedia.org\""},
+        "http://wikipedia.org",
+        :POP,
+        " in between ",
+        {:a, "href=\"http://hex.pm\""},
+        "http://hex.pm",
+        :POP,
+        " Trailer" ])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "more links" do
       markdown = "[Erlang](https://erlang.org) & https://elixirforum.com"
-      html = "<p><a href=\"https://erlang.org\">Erlang</a> &amp; <a href=\"https://elixirforum.com\">https://elixirforum.com</a></p>\n"
+
+      html = construct([
+        :p,
+        {:a, "href=\"https://erlang.org\""},
+        "Erlang",
+        :POP,
+        " &amp; ",
+        {:a, "href=\"https://elixirforum.com\""},
+        "https://elixirforum.com" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "be aware of the double up" do
       markdown = "[https://erlang.org](https://erlang.org)"
-      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a></p>\n"
+      html = construct([
+        :p,
+        {:a, "href=\"https://erlang.org\""},
+        "https://erlang.org" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "inner pure_links disabling does not leak out" do
       markdown = "[https://erlang.org](https://erlang.org) https://elixir.lang"
-      html = "<p><a href=\"https://erlang.org\">https://erlang.org</a> <a href=\"https://elixir.lang\">https://elixir.lang</a></p>\n"
+      html = construct([
+        :p,
+        {:a, "href=\"https://erlang.org\""},
+        "https://erlang.org",
+        :POP,
+        {:a, "href=\"https://elixir.lang\""},
+        "https://elixir.lang",
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
 
     end
   end
