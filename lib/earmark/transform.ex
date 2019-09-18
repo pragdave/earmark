@@ -22,37 +22,47 @@ defmodule Earmark.Transform do
   def transform(ast, options) when is_list(options) do
     transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
   end
+  def transform(ast, options) when is_map(options) do
+    options1 = options
+      |> Map.put_new(:indent, 2)
+
+    to_html(ast, options1)
+  end
   def transform(ast, options) do
-    to_html(ast, options, 0) |> IO.iodata_to_binary
+    to_html(ast, options)
   end
 
 
-  defp to_html(ast, options, level)
-  defp to_html(elements, options, level) when is_list(elements) do
+  defp to_html(ast, options) do
+    _to_html(ast, options, Map.get(options, :initial_indent, 0)) |> IO.iodata_to_binary
+  end
+
+  defp _to_html(ast, options, level)
+  defp _to_html(elements, options, level) when is_list(elements) do
     elements
-    |> Enum.map(&to_html(&1, options, level))
+    |> Enum.map(&_to_html(&1, options, level))
   end
-  defp to_html(element, options, level) when is_binary(element) do
+  defp _to_html(element, options, level) when is_binary(element) do
     escape(element, options, level)
   end
   # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
-  defp to_html({"area", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp to_html({"br", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp to_html({tag, atts, []}, options, level) do
+  defp _to_html({"area", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({"br", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({tag, atts, []}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
       "</",
       tag,
       ">\n" ]
   end
-  defp to_html({tag, atts, children}, options, level) do
+  defp _to_html({tag, atts, children}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
       "\n",
-      to_html(children, options, level+1),
+      _to_html(children, options, level+1),
       close_tag(tag, options, level)]
   end
   
@@ -82,9 +92,9 @@ defmodule Earmark.Transform do
     [" ", name, "=\"", escape(value), "\""]
   end
 
-  defp make_indent(%{initial_indent: initial, indent: indent}, level) do
+  defp make_indent(%{indent: indent}, level) do
     Stream.cycle([" "])
-    |> Enum.take((initial+level)*indent) 
+    |> Enum.take(level*indent) 
   end
 
   defp open_tag(tag, atts, void? \\ false) do

@@ -18,6 +18,8 @@ defmodule Support.Html1Helpers do
     result
   end
 
+  def para(constructions), do: construct([:p|constructions])
+
   defp _construct(constructions, indent, open)
   defp _construct([], _indent, []), do: []
   defp _construct([], indent, [open|rest]) do
@@ -25,6 +27,9 @@ defmodule Support.Html1Helpers do
   end
   defp _construct([:POP|rest], indent, [tag|rest1]) do
     [_indent(indent-2), "</", to_string(tag), ">\n", _construct(rest, indent - 2, rest1)]
+  end
+  defp _construct([{:img, atts} | rest], indent, open) do
+    [_indent(indent), "<img ", atts, " />", "\n", _construct(rest, indent, open)]
   end
   defp _construct([tag | rest], indent, open) when is_atom(tag) do
     [_indent(indent), "<", to_string(tag), ">", "\n", _construct(rest, indent + 2, [tag | open])]
