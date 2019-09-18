@@ -51,6 +51,11 @@ defmodule Earmark.Transform do
   defp _to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
   defp _to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
   defp _to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
+  defp _to_html({:comment, _, children}, options, level) do
+    indent = make_indent(options, level)
+    [ indent,
+      "<!--", Enum.intersperse(children, ["\n", indent, "    "]), "-->"]
+  end
   defp _to_html({tag, atts, []}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
