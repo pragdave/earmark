@@ -1,106 +1,128 @@
 defmodule Acceptance.Html1.EmphasisTest do
   use ExUnit.Case, async: true
 
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
-  # describe "Emphasis" do
+  describe "Emphasis" do
     test "important" do
       markdown = "*foo bar*\n"
-      html     = "<p><em>foo bar</em></p>\n"
+      html     = para([ :em, "foo bar" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "imporatant quotes" do
       markdown = "a*\"foo\"*\n"
-      html     = "<p>a<em>&quot;foo&quot;</em></p>\n"
+      html     = para([
+        "a",
+        :em,
+        "&quot;foo&quot;" ])
       messages = []
 
-      assert as_html(markdown, smartypants: false) == {:ok, html, messages}
+      assert to_html1(markdown, smartypants: false) == {:ok, html, messages}
     end
 
     test "important _" do
       markdown = "_foo bar_\n"
-      html     = "<p><em>foo bar</em></p>\n"
+      html     = para([ :em, "foo bar" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
-    test "dont get confused" do
+    test "dont get confused (unless you want to)" do
       markdown = "_foo*\n"
-      html     = "<p>_foo*</p>\n"
+      html     = para("_foo*")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "that should make you smile" do
       markdown = "_foo_bar_baz_\n"
-      html     = "<p><em>foo_bar_baz</em></p>\n"
+      html     = para([ :em, "foo_bar_baz" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "stronger" do
       markdown = "**foo bar**\n"
-      html     = "<p><strong>foo bar</strong></p>\n"
-      messages = []
+      html     = para([
+        :strong, "foo bar"
+      ])
+      messages = [] 
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "stronger insisde" do
       markdown = "foo**bar**\n"
-      html     = "<p>foo<strong>bar</strong></p>\n"
+      html     = para([ 
+        "foo",
+        :strong,
+        "bar" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "stronger together" do
       markdown = "__foo bar__\n"
-      html     = "<p><strong>foo bar</strong></p>\n"
+      html     = para([:strong, "foo bar"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "let no evil underscores divide us" do
       markdown = "**foo__bar**\n"
-      html     = "<p><strong>foo__bar</strong></p>\n"
+      html     = para([:strong, "foo__bar"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "strong **and** stronger" do
       markdown = "*(**foo**)*\n"
-      html     = "<p><em>(<strong>foo</strong>)</em></p>\n"
+      html     = para([
+        :em,
+        "(",
+        :strong,
+        "foo",
+        :POP,
+        ")"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "stronger **and** strong" do
       markdown = "**(*foo*)**\n"
-      html     = "<p><strong>(<em>foo</em>)</strong></p>\n"
+      html     = para([
+        :strong,
+        "(",
+        :em,
+        "foo",
+        :POP,
+        ")" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "one is not strong enough" do
       markdown = "foo*\n"
-      html     = "<p>foo*</p>\n"
+      html     = para("foo*")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
-  # end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
