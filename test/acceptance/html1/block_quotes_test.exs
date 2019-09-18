@@ -1,84 +1,153 @@
 defmodule Acceptance.Html1.BlockQuotesTest do
   use ExUnit.Case, async: true
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "with breaks: true" do
     test "acceptance test 490 with breaks" do
-      expected = "<blockquote><p>bar<br />baz<br />foo</p>\n</blockquote>\n"
+      html = construct([
+        :blockquote,
+        :p,
+        "bar",
+        :br,
+        "baz",
+        :br,
+        "foo" ])
+
       markdown = "> bar\nbaz\n> foo\n"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "acceptance test 580 with breaks" do
-      expected = "<ol>\n<li>foo<br />bar\n</li>\n</ol>\n"
+      html = construct([
+        :ol,
+        :li,
+        "foo",
+        :br,
+        "bar" ])
       markdown = "1. foo\nbar"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "acceptance test 581 with breaks" do
-      expected = "<ul>\n<li>a<br />b<br />c\n</li>\n</ul>\n"
+      html = construct([
+        :ul,
+        :li,
+        "a",
+        :br,
+        "b",
+        :br,
+        "c" ])
       markdown = "* a\n  b\nc"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "acceptance test 582 with breaks" do
-      expected = "<ul>\n<li>x<br />a<br />| A | B |\n</li>\n</ul>\n"
+      html = construct([
+        :ul,
+        :li,
+        "x",
+        :br,
+        "a",
+        :br,
+        "| A | B |" ])
       markdown = "* x\n  a\n| A | B |"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "acceptance test 583 with breaks" do
-      expected = "<ul>\n<li>x<br />| A | B |\n</li>\n</ul>\n"
+      html = construct([
+        :ul,
+        :li,
+        "x",
+        :br,
+        "| A | B |" ])
       markdown = "* x\n | A | B |"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "acceptance test 630 with breaks" do
-      expected = "<p>*not emphasized*<br />[not a link](/foo)<br />`not code`<br />1. not a list<br />* not a list<br /># not a header<br />[foo]: /url “not a reference”</p>\n"
+      html = para([
+        "*not emphasized*", :br, "[not a link](/foo)", :br, "`not code`",
+        :br, "1. not a list", :br, "* not a list", :br, "# not a header",
+        :br, "[foo]: /url &quot;not a reference&quot;" ])
       markdown = "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code\\`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n"
-      assert Earmark.as_html!(markdown, breaks: true) == expected
+      assert to_html1(markdown, breaks: true) == {:ok, html, []}
     end
 
     test "more" do
-      html = "<blockquote><h1>Foo</h1>\n<p>bar<br />baz</p>\n</blockquote>\n"
+      html = construct([
+        :blockquote,
+        :h1,
+        "Foo",
+        :POP,
+        :p,
+        "bar",
+        :br,
+        "baz" ])
       markdown = "> # Foo\n> bar\n> baz\n"
       messages = []
 
-      assert Earmark.as_html(markdown, breaks: true) == {:ok, html, messages}
+      assert to_html1(markdown, breaks: true) == {:ok, html, messages}
     end
   end
 
   describe "with breaks: false" do
     test "quote my block" do
       markdown = "> Foo"
-      html     = "<blockquote><p>Foo</p>\n</blockquote>\n"
+      html     = construct([
+        :blockquote,
+        :p,
+        "Foo"])
+
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
 
     test "and block my quotes" do
       markdown = "> # Foo\n> bar\n> baz\n"
-      html     = "<blockquote><h1>Foo</h1>\n<p>bar\nbaz</p>\n</blockquote>\n"
+      html     = construct([
+        :blockquote,
+        :h1,
+        "Foo",
+        :POP,
+        :p,
+        "bar\nbaz" ])
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "linient we are" do
       markdown = "> bar\nbaz\n> foo\n"
-      html     = "<blockquote><p>bar\nbaz\nfoo</p>\n</blockquote>\n"
+      html     = construct([
+        :blockquote,
+        :p,
+        "bar\nbaz\nfoo" ])
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "lists in blockquotes? Coming up Sir" do
       markdown = "> - foo\n- bar\n"
-      html     = "<blockquote><ul>\n<li>foo\n</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar\n</li>\n</ul>\n"
+      html     = construct([
+        :blockquote,
+        :ul,
+        :li,
+        "foo",
+        :POP,
+        :POP,
+        :POP,
+        :ul,
+        :li,
+        "bar" ])
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
   end

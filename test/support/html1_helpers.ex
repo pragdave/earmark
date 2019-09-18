@@ -30,6 +30,9 @@ defmodule Support.Html1Helpers do
   defp _construct([:POP|rest], indent, [tag|rest1]) do
     [_indent(indent-2), "</", to_string(tag), ">\n", _construct(rest, indent - 2, rest1)]
   end
+  defp _construct([:br | rest], indent, open) do
+    [_indent(indent), "<br />", "\n", _construct(rest, indent, open)]
+  end
   defp _construct([{:img, atts} | rest], indent, open) do
     [_indent(indent), "<img ", atts, " />", "\n", _construct(rest, indent, open)]
   end
