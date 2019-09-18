@@ -1,31 +1,35 @@
 defmodule Acceptance.Html1.DiverseTest do
   use ExUnit.Case, async: true
 
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
-      html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
+      html     = para([
+        {:code, ~s{class="inline"}},
+        "f&amp;ouml;&amp;ouml;" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
-    test "spaec preserving" do
+    test "space preserving" do
       markdown = "Multiple     spaces\n"
-      html     = "<p>Multiple     spaces</p>\n"
+      html     = para("Multiple     spaces")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "syntax errors" do
       markdown ="A\nB\n="
-      html     = "<p>A\nB</p>\n<p></p>\n"
+      html     = "<p>\n  A\nB\n</p>\n<p></p>\n"
       messages = [{:warning, 3, "Unexpected line =" }]
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert to_html1(markdown) == {:error, html, messages}
     end
    end
 
