@@ -18,6 +18,8 @@ defmodule Support.Html1Helpers do
     result
   end
 
+  def para(constructions)
+  def para(construction) when is_binary(construction), do: construct([:p, construction])
   def para(constructions), do: construct([:p|constructions])
 
   defp _construct(constructions, indent, open)
