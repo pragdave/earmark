@@ -116,6 +116,13 @@ defmodule Earmark.Transform do
   defp smartypants(text, options)
   defp smartypants(text, %{smartypants: true}) do
     text
+    # |> replace(~r{--}, "—")
+    # |> replace(~r{(^|[-—/\(\[\{"”“\s])'}, "\\1‘")
+    # |> replace(~r{\'}, "’")
+    # |> replace(~r{(^|[-—/\(\[\{‘\s])\"}, "\\1“")
+    # |> replace(~r{"}, "”")
+    # |> IO.inspect
+    # |> replace(~r{\.\.\.}, "…")
     |> replace(@dashes_rgx, "—")
     |> replace(@dbl1_rgx, "\\1‘")
     |> replace(@single_rgx, "’")
