@@ -2,30 +2,36 @@ defmodule Acceptance.Html1.Html1BlocksTest do
   use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
+      html     = construct([
+        {:table, nil, {:tr, nil, {:td, nil, "           hi"}}},
+        {:p, nil, "okay."} ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      html     = "<div>\n  *hello*\n         <foo><a>\n</div>"
+      html     = construct({:div, nil, ["  *hello*", "         &lt;foo&gt;&lt;a&gt;"]})
+
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "we are leaving html alone" do
       markdown = "<div>\n*Emphasized* text.\n</div>"
-      html     = "<div>\n*Emphasized* text.\n</div>"
+      html     = construct({:div, nil, "*Emphasized* text."})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
   end
@@ -33,107 +39,132 @@ defmodule Acceptance.Html1.Html1BlocksTest do
   describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
-      html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
+      html     = construct([
+        {:area, ~s{shape="rect" coords="0,0,1,1" href="xxx" alt="yyy"}},
+        {:p, nil, [{:strong, nil, "emphasized"}, " text"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "we are outside the void now (lucky us)" do
       markdown = "<br>\n**emphasized** text"
-      html     = "<br><p><strong>emphasized</strong> text</p>\n"
+      html     = construct([
+        :br,
+        {:p, nil, [{:strong, nil, "emphasized"}, " text"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "high regards???" do
       markdown = "<hr />\n**emphasized** text"
-      html     = "<hr /><p><strong>emphasized</strong> text</p>\n"
+      html     = construct([
+        :hr,
+        {:p, nil, [{:strong, nil, "emphasized"}, " text"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "img (a punless test)" do
       markdown = "<img src=\"hello\">\n**emphasized** text"
-      html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
+      html     = construct([
+        {:img, ~s{src="hello"}},
+        {:p, nil, [{:strong, nil, "emphasized"}, " text"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "not everybode knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
-      html = "<wbr><p><strong>emphasized</strong> text</p>\n"
+      html     = construct([
+        :wbr,
+        {:p, nil, [{:strong, nil, "emphasized"}, " text"]}])
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
   describe "HTML and paragraphs" do
     test "void elements close para" do
       markdown = "alpha\n<hr />beta"
-      html     = "<p>alpha</p>\n<hr />beta"
+      html     = construct([
+        {:p, nil, "alpha"},
+        :hr
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "void elements close para but only at BOL" do
       markdown = "alpha\n <hr />beta"
-      html     = "<p>alpha\n <hr />beta</p>\n"
+      html     = para("alpha\n &lt;hr /&gt;beta")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para" do
       markdown = "alpha\n<div/>beta"
-      html     = "<p>alpha</p>\n<div/>beta"
+      html     = construct([
+        {:p, nil, "alpha"},
+        "<div></div>"
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"/>beta"
-      html     = "<p>alpha</p>\n<div class=\"first\"/>beta"
+      html     = construct([
+        {:p, nil, "alpha"},
+        "<div class=\"first\"></div>"
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
-      html     = "<p>alpha</p>\n<div class=\"first\"   />beta<p>gamma</p>\n"
+      html     = construct([
+        {:p, nil, "alpha"},
+        "<div class=\"first\"></div>",
+        :p, "gamma" ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para but only at BOL" do
       markdown = "alpha\n <div/>beta"
-      html     = "<p>alpha\n <div/>beta</p>\n"
+      html     = para("alpha\n &lt;div/&gt;beta")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "self closing block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
-      html     = "<p>alpha\ngamma<div class=\"fourty two\"/>beta</p>\n"
+      html     = para("alpha\ngamma&lt;div class=&quot;fourty two&quot;/&gt;beta")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
-      html     = "<p>alpha</p>\n<div></div>beta"
+      html     = construct([
+        {:p, nil, "alpha"},
+        "<div></div>"
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para, atts do not matter" do
@@ -146,18 +177,18 @@ defmodule Acceptance.Html1.Html1BlocksTest do
 
     test "block elements close para but only at BOL" do
       markdown = "alpha\n <div></div>beta"
-      html     = "<p>alpha\n <div></div>beta</p>\n"
+      html     = para("alpha\n &lt;div&gt;&lt;/div&gt;beta")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"></div>beta"
-      html     = "<p>alpha\ngamma<div class=\"fourty two\"></div>beta</p>\n"
+      html     = para("alpha\ngamma&lt;div class=&quot;fourty two&quot;&gt;&lt;/div&gt;beta")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
   end

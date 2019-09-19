@@ -39,6 +39,12 @@ defmodule Support.Html1Helpers do
   defp _construct([:hr | rest], indent, open) do
     _void_tag("<hr />\n", rest, indent, open)
   end
+  defp _construct([:wbr | rest], indent, open) do
+    _void_tag("<wbr />\n", rest, indent, open)
+  end
+  defp _construct([{:area, atts} | rest], indent, open) do
+    _void_tag_with_atts("<area ", atts, rest, indent, open)
+  end
   defp _construct([{:hr, atts} | rest], indent, open) do
     _void_tag_with_atts("<hr ", atts, rest, indent, open)
   end
