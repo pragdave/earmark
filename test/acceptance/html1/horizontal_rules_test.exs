@@ -1,99 +1,119 @@
 defmodule Acceptance.Html1.HorizontalRulesTest do
   use ExUnit.Case, async: true
   
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "Horizontal rules" do
 
     test "thick, thin & medium" do
       markdown = "***\n---\n___\n"
-      html     = "<hr class=\"thick\" />\n<hr class=\"thin\" />\n<hr class=\"medium\" />\n"
+      html     = construct([
+        {:hr, ~s{class="thick"}},
+        {:hr, ~s{class="thin"}},
+        {:hr, ~s{class="medium"}}])
+
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "not a rule" do
       markdown = "+++"
-      html     = "<p>+++</p>\n"
+      html     = para("+++")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
-    test "a rule" do
+    test "still not a rule" do
       markdown = "+++\n"
-      html     = "<p>+++</p>\n"
+      html     = para("+++")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
 
     test "not in code" do
       markdown = "    ***\n    \n     a"
-      html     = "<pre><code>***\n\n a</code></pre>\n"
+      html     = construct({:pre, nil, {:code, nil, "***\n\n a"}})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "not in code, second line" do
       markdown = "Foo\n    ***\n"
-      html     = "<p>Foo</p>\n<pre><code>***</code></pre>\n"
+      html     = construct([
+        {:p, nil, "Foo"},
+        {:pre, nil, {:code, nil, "***"}}
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "medium, long" do
       markdown = "_____________________________________\n"
-      html     = "<hr class=\"medium\" />\n"
+      html     = construct({:hr, ~s{class="medium"}})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
-      html     = "<p> <em>-</em></p>\n"
+      html     = construct(
+        {:p, nil, [" ", {:em, nil, "-"}]})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "in lists" do
       markdown = "- foo\n***\n- bar\n"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<hr class=\"thick\" />\n<ul>\n<li>bar\n</li>\n</ul>\n"
+      html     = construct([
+        {:ul, nil, {:li, nil, "foo"}},
+        {:hr, ~s{class="thick"}},
+        {:ul, nil, {:li, nil, "bar"}}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "setext rules over rules (why am I soo witty?)" do
       markdown = "Foo\n---\nbar\n"
-      html     = "<h2>Foo</h2>\n<p>bar</p>\n"
+      html     = construct([
+        {:h2, nil, "Foo"},
+        {:p, nil, "bar"}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "in lists, thick this time (why am I soo good to you?)" do
       markdown = "* Foo\n* * *\n* Bar\n"
-      html = "<ul>\n<li>Foo\n</li>\n</ul>\n<hr class=\"thick\" />\n<ul>\n<li>Bar\n</li>\n</ul>\n"
+      html     = construct([
+        {:ul, nil, {:li, nil, "Foo"}},
+        {:hr, ~s{class="thick"}},
+        {:ul, nil, {:li, nil, "Bar"}}])
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
   describe "Horizontal Rules and IAL" do 
     test "add a class and an id" do
       markdown = "***\n{: .custom}\n---\n{: .klass #id42}\n___\n"
-      html     = "<hr class=\"thick custom\" />\n<hr class=\"thin klass\" id=\"id42\" />\n<hr class=\"medium\" />\n"
+      html     = construct([
+        {:hr, ~s{class="custom thick"}},
+        {:hr, ~s{class="klass thin" id="id42"}},
+        {:hr, ~s{class="medium"}}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
-
+      assert to_html1(markdown) == {:ok, html, messages}
     end
     
   end

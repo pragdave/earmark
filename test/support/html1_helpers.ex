@@ -30,14 +30,20 @@ defmodule Support.Html1Helpers do
   defp _construct([:POP|rest], indent, [tag|rest1]) do
     [_indent(indent-2), "</", to_string(tag), ">\n", _construct(rest, indent - 2, rest1)]
   end
+  defp _construct(head, indent, open) when is_tuple(head) do
+    _construct([head], indent, open)
+  end
   defp _construct([:br | rest], indent, open) do
     _void_tag("<br />\n", rest, indent, open)
   end
   defp _construct([:hr | rest], indent, open) do
     _void_tag("<hr />\n", rest, indent, open)
   end
+  defp _construct([{:hr, atts} | rest], indent, open) do
+    _void_tag_with_atts("<hr ", atts, rest, indent, open)
+  end
   defp _construct([{:img, atts} | rest], indent, open) do
-    [_indent(indent), "<img ", atts, " />", "\n", _construct(rest, indent, open)]
+    _void_tag_with_atts("<img ", atts, rest, indent, open)
   end
   defp _construct([tag | rest], indent, open) when is_atom(tag) do
     [_indent(indent), "<", to_string(tag), ">", "\n", _construct(rest, indent + 2, [tag | open])]
@@ -70,5 +76,9 @@ defmodule Support.Html1Helpers do
 
   defp _void_tag( tag, rest, indent, open) do
     [_indent(indent), tag, _construct(rest, indent, open)]
+  end
+
+  defp _void_tag_with_atts(tag, atts, rest, indent, open) do
+    [_indent(indent), tag, atts, " />", "\n", _construct(rest, indent, open)]
   end
 end
