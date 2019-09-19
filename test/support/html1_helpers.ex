@@ -31,7 +31,10 @@ defmodule Support.Html1Helpers do
     [_indent(indent-2), "</", to_string(tag), ">\n", _construct(rest, indent - 2, rest1)]
   end
   defp _construct([:br | rest], indent, open) do
-    [_indent(indent), "<br />", "\n", _construct(rest, indent, open)]
+    _void_tag("<br />\n", rest, indent, open)
+  end
+  defp _construct([:hr | rest], indent, open) do
+    _void_tag("<hr />\n", rest, indent, open)
   end
   defp _construct([{:img, atts} | rest], indent, open) do
     [_indent(indent), "<img ", atts, " />", "\n", _construct(rest, indent, open)]
@@ -45,6 +48,27 @@ defmodule Support.Html1Helpers do
   defp _construct([{tag, atts}|rest], indent, open) do
     [_indent(indent), "<", to_string(tag), " ", atts, ">", "\n", _construct(rest, indent + 2, [tag | open])]
   end
+  defp _construct([{tag, atts, content}|rest], indent, open) when is_binary(content) do
+    _construct([{tag, atts, [content]}|rest], indent, open)
+  end
+  defp _construct([{tag, nil, content}|rest], indent, open) do
+    [_indent(indent), "<", to_string(tag), ">",
+     "\n",
+     _construct(content, indent + 2, []),
+     _indent(indent), "</", to_string(tag), ">\n",
+     _construct(rest, indent, open)]
+  end
+  defp _construct([{tag, atts, content}|rest], indent, open) do
+    [_indent(indent), "<", to_string(tag), " ", atts, ">",
+     "\n",
+     _construct(content, indent + 2, []),
+     _indent(indent), "</", to_string(tag), ">\n",
+     _construct(rest, indent, open)]
+  end
 
   defp _indent(n), do: Stream.cycle([" "]) |> Enum.take(n)
+
+  defp _void_tag( tag, rest, indent, open) do
+    [_indent(indent), tag, _construct(rest, indent, open)]
+  end
 end
