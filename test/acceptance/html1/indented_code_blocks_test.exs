@@ -1,7 +1,6 @@
 defmodule Acceptance.Html1.IndentedCodeBlocksTest do
   use ExUnit.Case, async: true
   
-  import Support.Helpers, only: [as_html: 1]
   import Support.Html1Helpers
   
   @moduletag :html1
