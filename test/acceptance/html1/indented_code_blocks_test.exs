@@ -2,54 +2,60 @@ defmodule Acceptance.Html1.IndentedCodeBlocksTest do
   use ExUnit.Case, async: true
   
   import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "Indented code blocks" do
     test "simple (but easy?)" do
       markdown = "    a simple\n      indented code block\n"
-      html     = "<pre><code>a simple\n  indented code block</code></pre>\n"
+      html     = icode("a simple\n  indented code block")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "code is soo verbatim" do
       markdown = "    <a/>\n    *hi*\n\n    - one\n"
-      html     = "<pre><code>&lt;a/&gt;\n*hi*\n\n- one</code></pre>\n"
+      html     = icode("&lt;a/&gt;\n*hi*\n\n- one")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "chunky bacon (RIP: Why)" do
       markdown = "    chunk1\n\n    chunk2\n  \n \n \n    chunk3\n"
-      html     = "<pre><code>chunk1\n\nchunk2\n\n\n\nchunk3</code></pre>\n"
+      html     = icode("chunk1\n\nchunk2\n\n\n\nchunk3")
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "foo and bar (now you are surprised!)" do
       markdown = "    foo\nbar\n"
-      html     = "<pre><code>foo</code></pre>\n<p>bar</p>\n"
+      html     = construct([
+        {:pre, nil, {:code, nil, "foo"}},
+        {:p, nil, "bar"}
+      ])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "not the alpha, not the omega (gamma maybe?)" do
       markdown = "\n    \n    foo\n    \n\n"
-      html = "<pre><code>foo</code></pre>\n"
+      html     = icode("foo")
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
   describe "Indented Code Blocks with IAL" do
     test "just an example" do
       markdown = "\n    wunderbar\n{: lang=\"de:at\"}\n"
-      html = "<pre lang=\"de:at\"><code>wunderbar</code></pre>\n"
+      html     = construct({ :pre, ~s{lang="de:at"}, {:code, nil, "wunderbar"}})
       messages = []
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 end

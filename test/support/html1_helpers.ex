@@ -18,6 +18,10 @@ defmodule Support.Html1Helpers do
     result
   end
 
+  def icode(constructions)
+  def icode(construction) when is_binary(construction), do: construct([:pre, :code, construction])
+  def icode(constructions), do: construct([:pre, :code | constructions])
+
   def para(constructions)
   def para(construction) when is_binary(construction), do: construct([:p, construction])
   def para(constructions), do: construct([:p|constructions])
