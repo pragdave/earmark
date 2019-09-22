@@ -61,6 +61,8 @@ defmodule Support.Html1Helpers do
   defp _construct([content|rest], indent, open) when is_binary(content) do
     [_indent(indent), content, "\n", _construct(rest, indent, open)]
   end
+  defp _construct([{tag, content}|rest], indent, open) when is_tuple(content), do: _construct([{tag, nil, content}|rest], indent, open)
+  defp _construct([{tag, content}|rest], indent, open) when is_list(content), do: _construct([{tag, nil, content}|rest], indent, open)
   defp _construct([{tag, atts}|rest], indent, open) do
     [_indent(indent), "<", to_string(tag), " ", atts, ">", "\n", _construct(rest, indent + 2, [tag | open])]
   end
