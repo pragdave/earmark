@@ -10,6 +10,7 @@ defmodule Acceptance.Html1.EscapeTest do
     # resolved by a regex I do not understand; therefore, to remain sane, I'll ignore it
     # for this release, that is why ast and transformer support is still experimental!!!!
     @tag :wip
+    @tag :i280
     test "dizzy?" do
       markdown = "\\\\!\\\\\""
       html     = para("\\!\\“")
