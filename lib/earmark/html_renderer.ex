@@ -109,7 +109,7 @@ defmodule Earmark.HtmlRenderer do
         context2
       end
 
-    context4 = add_trs(context3, rows, "td", aligns, lnb)
+    context4 = append(add_trs(append(context3, "<tbody>\n"), rows, "td", aligns, lnb), "</tbody>\n")
 
     {context4, [context4.value, "</table>\n"]}
   end

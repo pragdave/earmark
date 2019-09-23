@@ -62,50 +62,18 @@ defmodule TableTest do
     assert result == {[ expected ], options()}
   end
 
-
-
-  test "Simple table render" do
-    result = Earmark.as_html!(["a | b | c", "d | e | f"])
-    expected = """
-    <table>
-    <tr>
-    <td style="text-align: left">a</td><td style="text-align: left">b</td><td style="text-align: left">c</td>
-    </tr>
-    <tr>
-    <td style="text-align: left">d</td><td style="text-align: left">e</td><td style="text-align: left">f</td>
-    </tr>
-    </table>
-    """
-    assert result == expected
-  end
-
-  test "Table with heading and alignment" do
-    result = Earmark.as_html!(["a | b | c", ":-- | :--: |--:", "d | e | f"])
-    expected = """
-    <table>
-    <thead>
-    <tr>
-    <th style="text-align: left">a</th><th style="text-align: center">b</th><th style="text-align: right">c</th>
-    </tr>
-    </thead>
-    <tr>
-    <td style="text-align: left">d</td><td style="text-align: center">e</td><td style="text-align: right">f</td>
-    </tr>
-    </table>
-    """
-    assert result == expected
-  end
-
   test "markdown in cells" do
     result = Earmark.as_html!(["a | _b_ | `c`", " <xx>d</xx> | **e** | __f__"])
     expected = """
     <table>
+    <tbody>
     <tr>
     <td style="text-align: left">a</td><td style="text-align: left"><em>b</em></td><td style="text-align: left"><code class="inline">c</code></td>
     </tr>
     <tr>
     <td style="text-align: left"><xx>d</xx></td><td style="text-align: left"><strong>e</strong></td><td style="text-align: left"><strong>f</strong></td>
     </tr>
+    </tbody>
     </table>
     """
     assert result == expected

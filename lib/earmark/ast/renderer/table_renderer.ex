@@ -14,9 +14,11 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
   end
 
   def render_rows(rows, lnb, aligns, context) do
-    rows
-    |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
-    |> Enum.map_reduce(context, &_render_row(&1, &2, aligns))
+    {rows1, context1} =
+      rows
+        |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
+        |> Enum.map_reduce(context, &_render_row(&1, &2, aligns))
+    {[{"tbody", [], rows1}], context1} 
   end
 
 
