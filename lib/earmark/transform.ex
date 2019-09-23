@@ -16,6 +16,8 @@ defmodule Earmark.Transform do
   - `initial_indent:` `number`
   - `indent:` `number`
 
+        iex(1)> Earmark.Transform.transform({"p", [], [{"em", [], "help"}, "me"]})
+        "<p>\\n  <em>\\n    help\\n  </em>\\n  me\\n</p>\\n"
 
   Right now only transformation to HTML is supported.
   """

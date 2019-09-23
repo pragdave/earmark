@@ -388,7 +388,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 ## `Earmark.as_ast/2`
 
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
 
       iex(9)> markdown = "My `code` is **best**"
       ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
@@ -438,6 +438,8 @@ a map or keyword list of which the following keys will be used:
 - `initial_indent:` `number`
 - `indent:` `number`
 
+      iex(1)> Earmark.Transform.transform({"p", [], [{"em", [], "help"}, "me"]})
+      "<p>\n  <em>\n    help\n  </em>\n  me\n</p>\n"
 
 Right now only transformation to HTML is supported.
 
