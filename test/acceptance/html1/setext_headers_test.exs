@@ -1,32 +1,33 @@
 defmodule Acceptance.Html1.SetextHeadersTest do
   use ExUnit.Case, async: true
   
-  import Support.Helpers, only: [as_html: 1]
-
+  import Support.Html1Helpers
+  
+  @moduletag :html1
   describe "Base cases" do
 
     test "Level one" do 
       markdown = "foo\n==="
-      html     = "<h1>foo</h1>\n"
+      html     = construct([:h1, "foo"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "Level two" do 
       markdown = "foo\n---"
-      html     = "<h2>foo</h2>\n"
+      html     = construct([:h2, "foo"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "narrow escape" do
       markdown = "Foo\\\n----\n"
-      html = "<h2>Foo\\</h2>\n"
+      html     = construct([:h2, "Foo\\"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
   end
@@ -35,18 +36,20 @@ defmodule Acceptance.Html1.SetextHeadersTest do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
-      html     = "<h1>Foo <em>bar</em></h1>\n<h2>Foo <em>bar</em></h2>\n"
+      html     = construct([
+        {:h1, ["Foo ", :em, "bar"]},
+        {:h2, ["Foo ", :em, "bar"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "and levels two and one" do
       markdown = "Foo\n-------------------------\n\nFoo\n=\n"
-      html     = "<h2>Foo</h2>\n<h1>Foo</h1>\n"
+      html     = construct([:h2, "Foo", :POP, :h1, "Foo"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
   end
@@ -60,42 +63,53 @@ defmodule Acceptance.Html1.SetextHeadersTest do
 
     test "h1 after an unordered list" do 
       markdown = "* foo\n\nbar\n==="
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h1>bar</h1>\n"
+      html     = construct([
+        {:ul, {:li, nil, "foo"}}, :h1, "bar"])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "h2 after an unordered list" do 
       markdown = "* foo\n\nbar\n---"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n"
+      html     = construct([
+        {:ul, {:li, nil, "foo"}}, :h2, "bar"])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "h1 after an ordered list and pending text" do 
       markdown = "1. foo\n\nbar\n===\ntext"
-      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n<p>text</p>\n"
+      html     = construct([
+        {:ol, {:li, nil, "foo"}},
+        {:h1, nil, "bar"},
+        :p, "text"])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "h2 between two lists" do 
       markdown = "* foo\n\nbar\n---\n\n1. baz"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n<ol>\n<li>baz\n</li>\n</ol>\n"
+      html     = construct([
+        {:ul, {:li, nil, "foo"}},
+        {:h2, nil, "bar"},
+        {:ol, [:li, "baz"]}])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "h2 between two lists more blank lines" do
       markdown = "1. foo\n\n\nbar\n---\n\n\n* baz"
-      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h2>bar</h2>\n<ul>\n<li>baz\n</li>\n</ul>\n"
+      html     = construct([
+        {:ol, [:li, "foo"]},
+        {:h2, nil, "bar"},
+        {:ul, [:li, "baz"]}])
       messages = []
       
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
@@ -103,10 +117,21 @@ defmodule Acceptance.Html1.SetextHeadersTest do
     
     test "h2 after a table" do
       markdown = "|a|b|\n|d|e|\nbar\n---"
-      html     = "<table>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n<h2>bar</h2>\n"
+      html     = construct([
+        {:table, [
+          {:tr, [
+            {:td, ~s{style="text-align: left;"}, "a"},
+            {:td, ~s{style="text-align: left;"}, "b"}
+          ]},
+          {:tr, [
+            {:td, ~s{style="text-align: left;"}, "d"},
+            {:td, ~s{style="text-align: left;"}, "e"}
+          ]}
+        ]},
+        :h2, "bar"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
