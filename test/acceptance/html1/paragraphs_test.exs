@@ -1,35 +1,35 @@
 defmodule Acceptance.Html1.ParagraphsTest do
   use ExUnit.Case, async: true
   
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
 
   describe "Paragraphs" do
     test "a para" do
       markdown = "aaa\n\nbbb\n"
-      html     = "<p>aaa</p>\n<p>bbb</p>\n"
+      html     = construct([:p, "aaa", :POP, :p, "bbb"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "and another one" do
       markdown = "aaa\n\n\nbbb\n"
-      html     = "<p>aaa</p>\n<p>bbb</p>\n"
+      html     = construct([:p, "aaa", :POP, :p, "bbb"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
 
     test "striketrhough" do
       markdown = "~~or maybe not?~~"
-      html     = "<p><del>or maybe not?</del></p>\n"
-
+      html     = para({:del, nil, "or maybe not?"})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
-
   end
 
 end
