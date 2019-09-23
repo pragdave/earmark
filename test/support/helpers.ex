@@ -61,7 +61,6 @@ defmodule Support.Helpers do
   def convert_gfm(string, lnb \\ 0) do
     Inline.convert(string, lnb, gfm_context())
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

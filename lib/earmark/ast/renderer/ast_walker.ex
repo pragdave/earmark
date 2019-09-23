@@ -2,7 +2,26 @@ defmodule Earmark.Ast.Renderer.AstWalker do
   
   @moduledoc false
 
+  def walk(anything, fun), do: _walk(anything, fun)
+
   def walk_ast(ast, fun), do: _walk_ast(ast, fun, [])
+
+
+  defp _walk([], _fun), do: []
+  defp _walk(list, fun) when is_list(list) do
+    Enum.map(list, &(_walk(&1, fun)))
+  end
+  defp _walk(map, fun) when is_map(map) do
+    map
+    |> Enum.into(%{}, &(_walk(&1, fun)))
+  end
+  defp _walk(tuple, fun) when is_tuple(tuple) do
+    tuple
+    |> Tuple.to_list
+    |> Enum.map(&(_walk(&1, fun)))
+    |> List.to_tuple
+  end
+  defp _walk(ele, fun), do: fun.(ele)
 
 
   defp _walk_ast(ast, fun, res)

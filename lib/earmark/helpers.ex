@@ -40,7 +40,7 @@ defmodule Earmark.Helpers do
   # `&`, `<`, `>`, `"`, `'`.
   def encode(html, escape \\ true)
   def encode(html, true) do
-    URI.encode(html) |> escape(true)
+    html |> URI.encode |> escape(true)
   end
   def encode(html, false) do
     URI.encode(html)

@@ -377,14 +377,14 @@ defmodule Earmark do
   end
 
   @doc """
-  NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+  **EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
 
         iex(9)> markdown = "My `code` is **best**"
         ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
         ...(9)> ast
         [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
 
-  Options are passes like to `as_html`, some do not have an effect though (e.g. `smarty_pants`) as formatting and escaping is not done
+  Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
         iex(10)> markdown = "```elixir\\nIO.puts 42\\n```"

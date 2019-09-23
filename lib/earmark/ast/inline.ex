@@ -235,7 +235,6 @@ defmodule Earmark.Ast.Inline do
         [match] -> match
       end
 
-
     line_count = matched |> String.split(@line_ending) |> Enum.count
 
     ast = hard_line_breaks(matched, context.options.gfm)

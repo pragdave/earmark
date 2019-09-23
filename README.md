@@ -13,6 +13,9 @@
 * [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
+* [`Earmark.as_html/2`](#`earmark.as_html/2`)
+* [`Earmark.as_ast/2`](#`earmark.as_ast/2`)
+* [`Earmark.Transform.transform/2`](#`earmark.transform.transform/2`)
 * [Contributing](#contributing)
 * [Author](#author)
 <!-- END generated TOC -->
@@ -318,6 +321,8 @@ For the escript only the `timeout` command line argument can be used.
 
 ## Details
 
+## `Earmark.as_html/2`
+
 <!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
 Given a markdown document (as either a list of lines or
 a string containing newlines), returns a tuple containing either
@@ -374,49 +379,23 @@ Where `html_doc` is an HTML representation of the markdown document and
 
 * `pure_links`: boolean
 
-  Pure links of the form `~r{\bhttps?://\S+\b}` are not rendered as links in this version yet.
-  However, by setting the `pure_links` option to `true` one can enable this behavior.
-
-  There are three possible cases
-
-  - Default (option is set to `nil`), gives a deprecation warning
-
-    ```elixir  
-     Earmark.as_html("https://github.com/pragdave")                
-     {:ok, "<p>https://github.com/pragdave</p>\n",
-       [
-         {:deprecation, 1,
-          "The string "https://github.com/pragdave/earmark" will be rendered as a link if the option `pure_links` is enabled.\nThis will be the case by default in version 1.4.\nDisable the option explicitly with `false` to avoid this message."}
-       ]}
-
-    ```
-
-  - `pure_links: true`
-       ```elixir  
-        Earmark.as_html("https://github.com/pragdave", pure_links: true)
-        {:ok,
-          "<p><a href="https://github.com/pragdave">https://github.com/pragdave</a></p>\n", []}
-       ```
-
-  - Explicitly setting `pure_links` to `false` surpresses the deprecation warning
-       ```elixir  
-        Earmark.as_html("https://github.com/pragdave", pure_links: false)
-        {:ok, "<p>https://github.com/pragdave</p>\n", []}
-
-       ```
-
+  Pure links of the form `~r{\bhttps?://\S+\b}` are rendered as links from now on.
+  However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4 
+  behavior can be used.
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
 
+## `Earmark.as_ast/2`
+
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
 
       iex(9)> markdown = "My `code` is **best**"
       ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
       ...(9)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
 
-Options are passes like to `as_html`, some do not have an effect though (e.g. `smarty_pants`) as formatting and escaping is not done
+Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
 for the AST.
 
       iex(10)> markdown = "```elixir\nIO.puts 42\n```"
@@ -447,6 +426,24 @@ Therefore `as_ast` is of the following type
       @type  ast  :: list(node)
 
 <!-- END inserted functiondoc Earmark.as_ast/2 -->
+
+## `Earmark.Transform.transform/2`
+
+<!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
+**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
+Takes an ast, and optional options (I love this pun), which can be
+a map or keyword list of which the following keys will be used:
+
+- `smartypants:` `boolean`
+- `initial_indent:` `number`
+- `indent:` `number`
+
+      iex(1)> Earmark.Transform.transform({"p", [], [{"em", [], "help"}, "me"]})
+      "<p>\n  <em>\n    help\n  </em>\n  me\n</p>\n"
+
+Right now only transformation to HTML is supported.
+
+<!-- END inserted functiondoc Earmark.Transform.transform/2 -->
 
 ## Contributing
 

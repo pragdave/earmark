@@ -65,8 +65,8 @@ defmodule Acceptance.Html.LineBreaksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
     test "or in code blocks" do
-      markdown = "```\nThe \nquick\n```"
-      html     = "<pre><code class=\"\">The \nquick</code></pre>\n"
+      markdown = "```\nThe  \nquick\n```"
+      html     = "<pre><code class=\"\">The  \nquick</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
