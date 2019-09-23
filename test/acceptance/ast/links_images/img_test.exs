@@ -16,6 +16,16 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       assert as_ast(markdown) == {:ok, ["", ast], messages}
     end
 
+    test "url encoding is **not** our job" do
+      markdown = "[foo]: /url?é=42 \"title\"\n\n![foo]\n"
+      html = "<p><img src=\"/url?é=42\" alt=\"foo\" title=\"title\" /></p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ["", ast], messages}
+    end
+
+
     test "this ain't no img (and no link)" do
       markdown = "[foo]: /url \"title\"\n\n![bar]\n"
       html = "<p>![bar]</p>\n"
@@ -114,17 +124,15 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
 
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
-      html = "<p><img src=\"/url%20&#39;title%22\" alt=\"foo[([])]\"/></p>\n"
-      ast      = parse_html(html)
-
+      ast      = [{"p", [], [{"img", [{"src", "/url 'title\""}, {"alt", "foo[([])]"}], []}]}]
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "url escapes of course" do
       markdown = "![foo](/url no title)\n"
-      html = "<p><img src=\"/url%20no%20title\" alt=\"foo\"/></p>\n"
+      html = "<p><img src=\"/url no title\" alt=\"foo\"/></p>\n"
       ast      = parse_html(html)
       messages = []
 

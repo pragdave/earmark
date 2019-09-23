@@ -265,10 +265,9 @@ defmodule Earmark.Ast.Inline do
     link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
     text = link
     href = "mailto:" <> text
-    {encode(href), text}
+    {href, text}
   end
   defp convert_autolink(link, _separator) do
-    link = encode(link)
     {link, link}
   end
 
@@ -301,7 +300,6 @@ defmodule Earmark.Ast.Inline do
   end
 
   defp output_link(context, text, href, title, lnb) do
-    href = encode(href, false)
     context1 = %{context | options: %{context.options | pure_links: false}}
 
     context2 = _convert(text, lnb, set_value(context1, []), false)

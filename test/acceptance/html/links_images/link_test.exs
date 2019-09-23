@@ -11,6 +11,13 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+    test "assure url encoding is not done here" do
+      markdown = "[foo]: /url?url=https%3A%2F%2Fsomewhere \"title\"\n\n[foo]\n"
+      html = "<p><a href=\"/url?url=https%3A%2F%2Fsomewhere\" title=\"title\">foo</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
 
     test "link with utf8 title" do
       markdown = "[foo]: /url \"Überschrift\"\n\n[foo]\n"
@@ -120,6 +127,14 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "let us not uri encode the url" do
+      markdown = "[link](x?//)\n"
+      html = "<p><a href=\"x?//\">link</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "nowhere in a bottle" do
       markdown = "[link](())\n"
       html = "<p><a href=\"()\">link</a></p>\n"
@@ -150,6 +165,15 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "still no uri encoding here" do
+      markdown = "<http://foo.bar.baz?url=é>\n"
+      html = "<p><a href=\"http://foo.bar.baz?url=é\">http://foo.bar.baz?url=é</a></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
 
     test "as was this" do
       markdown = "<irc://foo.bar:2233/baz>\n"

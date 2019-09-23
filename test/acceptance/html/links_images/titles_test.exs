@@ -66,7 +66,7 @@ defmodule Acceptance.Html.LinksImages.TitlesTest do
 
     test "titled link, with deprecated quote mismatch" do
       markdown = "[link](/uri \"title')\n"
-      html = "<p><a href=\"/uri%20%22title&#39;\">link</a></p>\n"
+      html = "<p><a href=\"/uri \"title'\">link</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

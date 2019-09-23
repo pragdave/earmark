@@ -275,11 +275,10 @@ defmodule Earmark.Inline do
     link = if String.at(link, 6) == ":", do: behead(link, 7), else: link
     text = mangle_link(link)
     href = mangle_link("mailto:") <> text
-    {encode(href), escape(text)}
+    {href, escape(text)}
   end
 
   defp convert_autolink(link, _separator) do
-    link = encode(link)
     {link, link}
   end
 
@@ -301,16 +300,15 @@ defmodule Earmark.Inline do
     link
   end
 
+  defp output_image_or_link(context, img_or_link, text, href, title, lnb)
   defp output_image_or_link(context, "!" <> _, text, href, title, _lnb) do
     output_image(context.options.renderer, text, href, title)
   end
-
   defp output_image_or_link(context, _, text, href, title, lnb) do
     output_link(context, text, href, title, lnb)
   end
 
   defp output_link(context, text, href, title, lnb) do
-    href = encode(href)
     title = if title, do: escape(title), else: nil
 
     context1 = %{context | options: %{context.options | pure_links: false}}
@@ -324,14 +322,11 @@ defmodule Earmark.Inline do
   end
 
   defp output_footnote_link(context, ref, back_ref, number) do
-    ref = encode(ref)
-    back_ref = encode(back_ref)
     context.options.renderer.footnote_link(ref, back_ref, number)
   end
 
   @remove_escapes ~r{ \\ (?! \\ ) }x
   defp output_image(renderer, text, href, title) do
-    href = encode(href)
     title = if title, do: escape(title), else: nil
     alt = text |> escape() |> String.replace(@remove_escapes, "")
 

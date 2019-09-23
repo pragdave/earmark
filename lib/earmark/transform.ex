@@ -1,6 +1,6 @@
 defmodule Earmark.Transform do
 
-  import Earmark.Helpers, only: [escape: 1, replace: 3]
+  import Earmark.Helpers, only: [replace: 3]
 
   @moduledoc """
   Public Interface to functions operating on the AST
@@ -91,13 +91,8 @@ defmodule Earmark.Transform do
   end
 
   defp make_att(name_value_pair, tag)
-  defp make_att({"src", value}, "img"), do: _make_encoded_attr("src", value)
-  defp make_att({"href", value}, "a"), do: _make_encoded_attr("href", value)
   defp make_att({name, value}, _) do
     [" ", name, "=\"", value, "\""]
-  end
-  defp _make_encoded_attr(name, value) do
-    [" ", name, "=\"", escape(value), "\""]
   end
 
   defp make_indent(%{indent: indent}, level) do

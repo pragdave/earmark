@@ -22,8 +22,9 @@ defmodule Regressions.I051FencedCodeAndInlineCodeTest do
 
   test"Escape html in text different than in url" do
     result = Earmark.as_html! @url_to_validate
+    # It is the author's responsibility to provide legal urls
     assert result == """
-    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#%3C%3C%3E%3E/1">&lt;&lt;&gt;&gt;/1</a></p>
+    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1">&lt;&lt;&gt;&gt;/1</a></p>
     """
 
     result = Earmark.as_html! @code_block_to_validate
@@ -33,7 +34,7 @@ defmodule Regressions.I051FencedCodeAndInlineCodeTest do
 
     result = Earmark.as_html! "[&expr/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1)"
     assert result == """
-    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&amp;expr/1">&amp;expr/1</a></p>
+    <p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1">&amp;expr/1</a></p>
     """
   end
 
