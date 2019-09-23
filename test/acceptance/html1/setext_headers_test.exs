@@ -119,14 +119,8 @@ defmodule Acceptance.Html1.SetextHeadersTest do
       markdown = "|a|b|\n|d|e|\nbar\n---"
       html     = construct([
         {:table, [
-          {:tr, [
-            {:td, ~s{style="text-align: left;"}, "a"},
-            {:td, ~s{style="text-align: left;"}, "b"}
-          ]},
-          {:tr, [
-            {:td, ~s{style="text-align: left;"}, "d"},
-            {:td, ~s{style="text-align: left;"}, "e"}
-          ]}
+          {:tr, [ td("a"), td("b") ]},
+          {:tr, [ td("d"), td("e") ]}
         ]},
         :h2, "bar"])
       messages = []

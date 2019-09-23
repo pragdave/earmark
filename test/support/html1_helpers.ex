@@ -26,6 +26,14 @@ defmodule Support.Html1Helpers do
   def para(construction) when is_binary(construction), do: construct([:p, construction])
   def para(constructions), do: construct([:p|constructions])
 
+  def td(content, style \\ "left") do
+    {:td, ~s{style="text-align: #{style};"}, content}
+  end
+
+  def th(content, style \\ "left") do
+    {:th, ~s{style="text-align: #{style};"}, content}
+  end
+
   defp _construct(constructions, indent, open)
   defp _construct([], _indent, []), do: []
   defp _construct([], indent, [open|rest]) do

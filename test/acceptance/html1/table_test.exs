@@ -1,61 +1,92 @@
 defmodule Acceptance.Html1.TableTest do
   use ExUnit.Case, async: true
 
-  import Support.Helpers, only: [as_html: 1]
+  import Support.Html1Helpers
+  
+  @moduletag :html1
   
   describe "complex rendering inside tables:" do 
 
     test "simple table" do 
       markdown = "|a|b|\n|d|e|"
-      html     = "<table>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n" 
+      html     = construct(
+        {:table, [
+            {:tr, [ td("a"), td("b") ]},
+            {:tr, [ td("d"), td("e") ]}]})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
-      
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "table with link with inline ial, no errors" do 
       
       markdown = "|a|b|c|\n|d|e|[link](url){:target=blank}|"
-      html     = "<table>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td><td style=\"text-align: left\">c</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td><td style=\"text-align: left\"><a href=\"url\" target=\"blank\">link</a></td>\n</tr>\n</table>\n" 
+      html     = construct(
+        {:table, [
+            {:tr, [ td("a"), td("b"), td("c") ]},
+            {:tr, [ 
+              td("d"),
+              td("e"),
+              td({:a, ~s{href="url" target="blank"}, "link"})
+            ]}]})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "table with link with inline ial, errors" do 
       
       markdown = "|a|b|c|\n|d|e|[link](url){:target=blank xxx}|"
-      html     = "<table>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td><td style=\"text-align: left\">c</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td><td style=\"text-align: left\"><a href=\"url\" target=\"blank\">link</a></td>\n</tr>\n</table>\n" 
+      html     = construct(
+        {:table, [
+            {:tr, [ td("a"), td("b"), td("c") ]},
+            {:tr, [ 
+              td("d"),
+              td("e"),
+              td({:a, ~s{href="url" target="blank"}, "link"})
+            ]}]})
       messages = [{:warning, 2, "Illegal attributes [\"xxx\"] ignored in IAL"}]
 
-      assert as_html(markdown) == {:error, html, messages}
+      assert to_html1(markdown) == {:error, html, messages}
     end
 
     test "table with header" do
       markdown = "|alpha|beta|\n|-|-:|\n|1|2|"
-      html     = "<table>\n<thead>\n<tr>\n<th style=\"text-align: left\">alpha</th><th style=\"text-align: right\">beta</th>\n</tr>\n</thead>\n<tr>\n<td style=\"text-align: left\">1</td><td style=\"text-align: right\">2</td>\n</tr>\n</table>\n"
+      html     = construct(
+        {:table, [
+            {:thead, 
+              {:tr, [ th("alpha"), th("beta", :right) ] }},
+            {:tr, [ td("1"), td("2", :right) ]}]})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "table with header inside context" do
       markdown = "before\n\n|alpha|beta|\n|-|-:|\n|1|2|\nafter"
-      html     = "<p>before</p>\n<table>\n<thead>\n<tr>\n<th style=\"text-align: left\">alpha</th><th style=\"text-align: right\">beta</th>\n</tr>\n</thead>\n<tr>\n<td style=\"text-align: left\">1</td><td style=\"text-align: right\">2</td>\n</tr>\n</table>\n<p>after</p>\n"
+      html     = construct([
+        :p, "before", :POP,
+        {:table, [
+          {:thead, 
+            {:tr, [ th("alpha"), th("beta", :right) ] }},
+            {:tr, [ td("1"), td("2", :right) ]}]},
+        :p, "after"])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 
   describe "Tables and IAL" do
     test "as mentioned above" do
       markdown = "|a|b|\n|d|e|\n{:#the-table}"
-      html     = "<table id=\"the-table\">\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</table>\n" 
+      html     = construct(
+        {:table, ~s{id="the-table"}, [
+            {:tr, [ td("a"), td("b") ]},
+            {:tr, [ td("d"), td("e") ]}]})
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
+      assert to_html1(markdown) == {:ok, html, messages}
     end
   end
 end
