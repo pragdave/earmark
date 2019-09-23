@@ -25,6 +25,8 @@
 
 %functiondoc Earmark.as_ast/2
 
+%functiondoc Earmark.Transform.transform/2
+
 ## Contributing
 
 Pull Requests are happily accepted.

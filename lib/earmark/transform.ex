@@ -8,6 +8,7 @@ defmodule Earmark.Transform do
   """
 
   @doc """
+  **EXPERIMENTAL**
   Takes an ast, and optional options (I love this pun), which can be
   a map or keyword list of which the following keys will be used:
 
