@@ -3,7 +3,7 @@ defmodule Acceptance.Html.FencedCodeBlocksTest do
 
   import Support.Helpers, only: [as_html: 1, as_html: 2]
 
-  # describe "Fenced code blocks" do
+  describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
       html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
@@ -43,8 +43,33 @@ defmodule Acceptance.Html.FencedCodeBlocksTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+  end
 
-  # end
+  describe "do not make too many assumptions about programming language names" do
+    test "at least the existing ones shall work" do
+      markdown = "```c#\nI do not know c# code\n```\n"
+      html     = "<pre><code class=\"c#\">I do not know c# code</code></pre>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "and let us anticipate creative language designers too" do
+      markdown = "```42lang!\nassert x == 42\n```\n"
+      html     = "<pre><code class=\"42lang!\">assert x == 42</code></pre>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "be careful about what can go into an HTML attribute though" do
+      markdown = "```a<b&\nassert x == 42\n```\n"
+      html     = "<pre><code class=\"a&lt;b&amp;\">assert x == 42</code></pre>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
