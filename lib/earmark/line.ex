@@ -81,7 +81,7 @@ defmodule Earmark.Line do
 
   defmodule TableLine  do
     @moduledoc false
-    defstruct(lnb: 0, line: "", content: "", columns: 0, inside_code: false)
+    defstruct(lnb: 0, line: "", content: "", columns: 0, inside_code: false, is_header: false, needs_header: false)
   end
 
   defmodule Ial  do
