@@ -62,7 +62,38 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
       assert to_html1(markdown) == {:ok, html, messages}
     end
+  end
 
+  describe "do not make too many assumptions about programming language names" do
+    test "at least the existing ones shall work" do
+      markdown = "```c#\nI do not know c# code\n```\n"
+      html     = construct([
+        :pre,
+        {:code, ~s{class="c#"}, "I do not know c# code"}])
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
+    test "and let us anticipate creative language designers too" do
+      markdown = "```42lang!\nassert x == 42\n```\n"
+      html     = construct([
+        :pre,
+        {:code, ~s{class="42lang!"}, "assert x == 42"}])
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
+    test "be careful about what can go into an HTML attribute though" do
+      markdown = "```a<b&\nassert x == 42\n```\n"
+      html     = construct([
+        :pre,
+        {:code, ~s{class="a&lt;b&amp;"}, "assert x == 42"}])
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
   end
 end
 

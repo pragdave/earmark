@@ -111,9 +111,9 @@ defmodule Earmark.LineScanner do
         [_, spaces, code] = match
         %Line.Indent{level: div(String.length(spaces), 4), content: code}
 
-      match = Regex.run(~r/^\s*(```|~~~)\s*([\w\-]*)\s*$/u, line) ->
+      match = Regex.run(~r/^\s*(```|~~~)\s*([^`\s]*)\s*$/u, line) ->
         [_, fence, language] = match
-        %Line.Fence{delimiter: fence, language: language}
+        %Line.Fence{delimiter: fence, language: _attribute_escape(language)}
 
       #   Although no block tags I still think they should close a preceding para as do many other
       #   implementations.
@@ -217,6 +217,13 @@ defmodule Earmark.LineScanner do
         %Line.Text{content: line}
     end
   end
+
+
+  defp _attribute_escape(string), do:
+    string
+    |> String.replace("&", "&amp;")
+    |> String.replace("<", "&lt;")
+
 
   @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
               |> Enum.into(MapSet.new())
