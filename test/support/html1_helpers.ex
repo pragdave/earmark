@@ -9,9 +9,9 @@ defmodule Support.Html1Helpers do
   end
 
 
-  def construct(constructions) do
+  def construct(constructions, indent \\ 2) do
     result =
-    _construct(constructions, 0, []) |> IO.iodata_to_binary
+    _construct(constructions, 0, [], indent) |> IO.iodata_to_binary
     if System.get_env("DEBUG") do
       IO.inspect({:constructed, result})
     end
@@ -34,71 +34,71 @@ defmodule Support.Html1Helpers do
     {:th, ~s{style="text-align: #{style};"}, content}
   end
 
-  defp _construct(constructions, indent, open)
-  defp _construct([], _indent, []), do: []
-  defp _construct([], indent, [open|rest]) do
-    [_indent(indent - 2), "</", to_string(open), ">\n", _construct([], indent - 2, rest) ]
+  defp _construct(constructions, indent, open, iby)
+  defp _construct([], _indent, [], _iby), do: []
+  defp _construct([], indent, [open|rest], iby) do
+    [_indent(indent - iby), "</", to_string(open), ">\n", _construct([], indent - iby, rest, iby) ]
   end
-  defp _construct([:POP|rest], indent, [tag|rest1]) do
-    [_indent(indent-2), "</", to_string(tag), ">\n", _construct(rest, indent - 2, rest1)]
+  defp _construct([:POP|rest], indent, [tag|rest1], iby) do
+    [_indent(indent-iby), "</", to_string(tag), ">\n", _construct(rest, indent - iby, rest1, iby)]
   end
-  defp _construct(head, indent, open) when is_tuple(head) do
-    _construct([head], indent, open)
+  defp _construct(head, indent, open, iby) when is_tuple(head) do
+    _construct([head], indent, open, iby)
   end
-  defp _construct([:br | rest], indent, open) do
-    _void_tag("<br />\n", rest, indent, open)
+  defp _construct([:br | rest], indent, open, iby) do
+    _void_tag("<br />\n", rest, indent, open, iby)
   end
-  defp _construct([:hr | rest], indent, open) do
-    _void_tag("<hr />\n", rest, indent, open)
+  defp _construct([:hr | rest], indent, open, iby) do
+    _void_tag("<hr />\n", rest, indent, open, iby)
   end
-  defp _construct([:wbr | rest], indent, open) do
-    _void_tag("<wbr />\n", rest, indent, open)
+  defp _construct([:wbr | rest], indent, open, iby) do
+    _void_tag("<wbr />\n", rest, indent, open, iby)
   end
-  defp _construct([{:area, atts} | rest], indent, open) do
-    _void_tag_with_atts("<area ", atts, rest, indent, open)
+  defp _construct([{:area, atts} | rest], indent, open, iby) do
+    _void_tag_with_atts("<area ", atts, rest, indent, open, iby)
   end
-  defp _construct([{:hr, atts} | rest], indent, open) do
-    _void_tag_with_atts("<hr ", atts, rest, indent, open)
+  defp _construct([{:hr, atts} | rest], indent, open, iby) do
+    _void_tag_with_atts("<hr ", atts, rest, indent, open, iby)
   end
-  defp _construct([{:img, atts} | rest], indent, open) do
-    _void_tag_with_atts("<img ", atts, rest, indent, open)
+  defp _construct([{:img, atts} | rest], indent, open, iby) do
+    _void_tag_with_atts("<img ", atts, rest, indent, open, iby)
   end
-  defp _construct([tag | rest], indent, open) when is_atom(tag) do
-    [_indent(indent), "<", to_string(tag), ">", "\n", _construct(rest, indent + 2, [tag | open])]
+  defp _construct([tag | rest], indent, open, iby) when is_atom(tag) do
+    [_indent(indent), "<", to_string(tag), ">", "\n", _construct(rest, indent + iby, [tag | open], iby)]
   end
-  defp _construct([content|rest], indent, open) when is_binary(content) do
-    [_indent(indent), content, "\n", _construct(rest, indent, open)]
+  defp _construct([content|rest], indent, open, iby) when is_binary(content) do
+    [_indent(indent), content, "\n", _construct(rest, indent, open, iby)]
   end
-  defp _construct([{tag, content}|rest], indent, open) when is_tuple(content), do: _construct([{tag, nil, content}|rest], indent, open)
-  defp _construct([{tag, content}|rest], indent, open) when is_list(content), do: _construct([{tag, nil, content}|rest], indent, open)
-  defp _construct([{tag, atts}|rest], indent, open) do
-    [_indent(indent), "<", to_string(tag), " ", atts, ">", "\n", _construct(rest, indent + 2, [tag | open])]
+  defp _construct([{tag, content}|rest], indent, open, iby) when is_tuple(content), do: _construct([{tag, nil, content}|rest], indent, open, iby)
+  defp _construct([{tag, content}|rest], indent, open, iby) when is_list(content), do: _construct([{tag, nil, content}|rest], indent, open, iby)
+  defp _construct([{tag, atts}|rest], indent, open, iby) do
+    [_indent(indent), "<", to_string(tag), " ", atts, ">", "\n", _construct(rest, indent + iby, [tag | open], iby)]
   end
-  defp _construct([{tag, atts, content}|rest], indent, open) when is_binary(content) do
-    _construct([{tag, atts, [content]}|rest], indent, open)
+  defp _construct([{tag, atts, content}|rest], indent, open, iby) when is_binary(content) do
+    _construct([{tag, atts, [content]}|rest], indent, open, iby)
   end
-  defp _construct([{tag, nil, content}|rest], indent, open) do
+  defp _construct([{tag, nil, content}|rest], indent, open, iby) do
     [_indent(indent), "<", to_string(tag), ">",
      "\n",
-     _construct(content, indent + 2, []),
+     _construct(content, indent + iby, [], iby),
      _indent(indent), "</", to_string(tag), ">\n",
-     _construct(rest, indent, open)]
+     _construct(rest, indent, open, iby)]
   end
-  defp _construct([{tag, atts, content}|rest], indent, open) do
+  defp _construct([{tag, atts, content}|rest], indent, open, iby) do
     [_indent(indent), "<", to_string(tag), " ", atts, ">",
      "\n",
-     _construct(content, indent + 2, []),
+     _construct(content, indent + iby, [], iby),
      _indent(indent), "</", to_string(tag), ">\n",
-     _construct(rest, indent, open)]
+     _construct(rest, indent, open, iby)]
   end
 
   defp _indent(n), do: Stream.cycle([" "]) |> Enum.take(n)
 
-  defp _void_tag( tag, rest, indent, open) do
-    [_indent(indent), tag, _construct(rest, indent, open)]
+  defp _void_tag( tag, rest, indent, open, iby) do
+    [_indent(indent), tag, _construct(rest, indent, open, iby)]
   end
 
-  defp _void_tag_with_atts(tag, atts, rest, indent, open) do
-    [_indent(indent), tag, atts, " />", "\n", _construct(rest, indent, open)]
+  defp _void_tag_with_atts(tag, atts, rest, indent, open, iby) do
+    [_indent(indent), tag, atts, " />", "\n", _construct(rest, indent, open, iby)]
   end
 end

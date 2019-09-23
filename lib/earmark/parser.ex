@@ -126,7 +126,7 @@ defmodule Earmark.Parser do
   # Table #
   #########
 
-  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1},
+  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
                         %Line.TableLine{columns: cols2}
                       | _rest
                       ], result, options)
@@ -138,6 +138,17 @@ defmodule Earmark.Parser do
     _parse(rest, [ table1 | result ], options)
   end
 
+  defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: true},
+                        %Line.TableLine{columns: cols2, is_header: true}
+                      | _rest
+                      ], result, options)
+  when length(cols1) == length(cols2)
+  do
+    columns = length(cols1)
+    { table, rest } = read_table(lines, columns, Block.Table.new_for_columns(columns))
+    table1          = %{table | lnb: lnb1}
+    _parse(rest, [ table1 | result ], options)
+  end
   #############
   # Paragraph #
   #############
@@ -390,6 +401,7 @@ defmodule Earmark.Parser do
   # Read in a table (consecutive TableLines with
   # the same number of columns)
 
+  defp read_table(lines, col_count, into_table)
   defp read_table([ %Line.TableLine{columns: cols} | rest ],
                     col_count,
                     table = %Block.Table{})
@@ -397,7 +409,6 @@ defmodule Earmark.Parser do
   do
     read_table(rest, col_count, update_in(table.rows, &[ cols | &1 ]))
   end
-
   defp read_table( rest, col_count, %Block.Table{rows: rows}) do
     rows  = Enum.reverse(rows)
     table = Block.Table.new_for_columns(col_count)

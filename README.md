@@ -140,8 +140,25 @@ default to left.
         | Texas | TX     | Austin  |
         | Maine | ME     | Augusta |
 
-Currently we assume there are always spaces around interior vertical
-bars. It isn't clear what the expectation is.
+Currently we assume there are always spaces around interior vertical unless
+there are exterior bars.
+
+However in order to be more GFM compatible the `gfm_tables: true` option
+can be used to interpret only interior vertical bars as a table if a seperation
+line is given, therefor
+
+         Language|Rating
+         --------|------
+         Elixir  | awesome
+
+is a table (iff `gfm_tables: true`) while
+
+         Language|Rating
+         Elixir  | awesome
+
+never is.
+ 
+
 
 ### Adding HTML attributes with the IAL extension
 

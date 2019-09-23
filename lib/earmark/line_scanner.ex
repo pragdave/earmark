@@ -184,11 +184,15 @@ defmodule Earmark.LineScanner do
           |> String.trim("|")
 
         columns = split_table_columns(body)
-        %Line.TableLine{content: line, columns: columns}
+        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns)}
 
       line =~ ~r/ \s \| \s /x ->
         columns = split_table_columns(line)
-        %Line.TableLine{content: line, columns: columns}
+        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns)}
+
+      line =~ ~r/ \| /x && options.gfm_tables ->
+        columns = split_table_columns(line)
+        %Line.TableLine{content: line, columns: columns, is_header: _determine_if_header(columns), needs_header: true}
 
       match = Regex.run(~r/^(=|-)+\s*$/, line) ->
         [_, type] = match
@@ -229,6 +233,11 @@ defmodule Earmark.LineScanner do
               |> Enum.into(MapSet.new())
   defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
 
+  @column_rgx ~r{\A[\s|:-]+\z}
+  defp _determine_if_header(columns) do
+    columns
+    |> Enum.all?(fn col -> Regex.run(@column_rgx, col) end)
+  end
   defp split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})
