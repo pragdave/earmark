@@ -118,10 +118,11 @@ defmodule Acceptance.Html1.SetextHeadersTest do
     test "h2 after a table" do
       markdown = "|a|b|\n|d|e|\nbar\n---"
       html     = construct([
-        {:table, [
+        {:table, 
+          {:tbody, [
           {:tr, [ td("a"), td("b") ]},
           {:tr, [ td("d"), td("e") ]}
-        ]},
+        ]}},
         :h2, "bar"])
       messages = []
 

@@ -10,9 +10,10 @@ defmodule Acceptance.Html1.TableTest do
     test "simple table" do 
       markdown = "|a|b|\n|d|e|"
       html     = construct(
-        {:table, [
+        {:table,
+          {:tbody, [
             {:tr, [ td("a"), td("b") ]},
-            {:tr, [ td("d"), td("e") ]}]})
+            {:tr, [ td("d"), td("e") ]}]}})
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -22,13 +23,14 @@ defmodule Acceptance.Html1.TableTest do
       
       markdown = "|a|b|c|\n|d|e|[link](url){:target=blank}|"
       html     = construct(
-        {:table, [
+        {:table,
+          {:tbody, [
             {:tr, [ td("a"), td("b"), td("c") ]},
             {:tr, [ 
               td("d"),
               td("e"),
               td({:a, ~s{href="url" target="blank"}, "link"})
-            ]}]})
+            ]}]}})
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -38,13 +40,14 @@ defmodule Acceptance.Html1.TableTest do
       
       markdown = "|a|b|c|\n|d|e|[link](url){:target=blank xxx}|"
       html     = construct(
-        {:table, [
+        {:table,
+          {:tbody, [
             {:tr, [ td("a"), td("b"), td("c") ]},
             {:tr, [ 
               td("d"),
               td("e"),
               td({:a, ~s{href="url" target="blank"}, "link"})
-            ]}]})
+            ]}]}})
       messages = [{:warning, 2, "Illegal attributes [\"xxx\"] ignored in IAL"}]
 
       assert to_html1(markdown) == {:error, html, messages}
@@ -56,7 +59,8 @@ defmodule Acceptance.Html1.TableTest do
         {:table, [
             {:thead, 
               {:tr, [ th("alpha"), th("beta", :right) ] }},
-            {:tr, [ td("1"), td("2", :right) ]}]})
+            {:tbody,
+              {:tr, [ td("1"), td("2", :right) ]}}]})
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -69,7 +73,8 @@ defmodule Acceptance.Html1.TableTest do
         {:table, [
           {:thead, 
             {:tr, [ th("alpha"), th("beta", :right) ] }},
-            {:tr, [ td("1"), td("2", :right) ]}]},
+          {:tbody,
+            {:tr, [ td("1"), td("2", :right) ]}}]},
         :p, "after"])
       messages = []
 
@@ -81,9 +86,10 @@ defmodule Acceptance.Html1.TableTest do
     test "as mentioned above" do
       markdown = "|a|b|\n|d|e|\n{:#the-table}"
       html     = construct(
-        {:table, ~s{id="the-table"}, [
+        {:table, ~s{id="the-table"}, 
+          {:tbody, [
             {:tr, [ td("a"), td("b") ]},
-            {:tr, [ td("d"), td("e") ]}]})
+            {:tr, [ td("d"), td("e") ]}]}})
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

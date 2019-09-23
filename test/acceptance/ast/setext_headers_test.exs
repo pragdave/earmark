@@ -114,7 +114,7 @@ defmodule Acceptance.Ast.SetextHeadersTest do
     
     test "h2 after a table" do
       markdown = "|a|b|\n|d|e|\nbar\n---"
-      html     = "<table><tr>\n<td style=\"text-align: left;\">a</td><td style=\"text-align: left;\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left;\">d</td><td style=\"text-align: left;\">e</td>\n</tr>\n</table>\n<h2>bar</h2>\n"
+      html     = "<table><tbody><tr>\n<td style=\"text-align: left;\">a</td><td style=\"text-align: left;\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left;\">d</td><td style=\"text-align: left;\">e</td>\n</tr>\n</tbody>\n</table>\n<h2>bar</h2>\n"
       ast      = parse_html(html)
       messages = []
 
