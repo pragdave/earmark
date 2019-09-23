@@ -130,10 +130,7 @@ defmodule Acceptance.Html1.LinksImages.TitlesTest do
 
     test "titled link, with deprecated quote mismatch" do
       markdown = "[link](/uri \"title')\n"
-      html = para([
-        {:a, "href=\"/uri%20%22title&#39;\""},
-        "link"
-      ])
+      html = para( {:a, ~s{href="/uri \"title'"}, "link"} )
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

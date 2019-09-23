@@ -172,6 +172,16 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "still no uri encoding here" do
+      markdown = "<http://foo.bar.baz?url=é>\n"
+      html = "<p><a href=\"http://foo.bar.baz?url=é\">http://foo.bar.baz?url=é</a></p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+
     test "as was this" do
       markdown = "<irc://foo.bar:2233/baz>\n"
       html = "<p><a href=\"irc://foo.bar:2233/baz\">irc://foo.bar:2233/baz</a></p>\n"

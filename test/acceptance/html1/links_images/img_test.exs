@@ -120,7 +120,7 @@ defmodule Acceptance.Html1.LinkImages.ImgTest do
 
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
-      html = "<p>\n  <img src=\"/url%20&#39;title%22\" alt=\"foo[([])]\" />\n</p>\n"
+      html = "<p>\n  <img src=\"/url 'title\"\" alt=\"foo[([])]\" />\n</p>\n"
 
       messages = []
 
@@ -129,7 +129,7 @@ defmodule Acceptance.Html1.LinkImages.ImgTest do
 
     test "url escapes of course" do
       markdown = "![foo](/url no title)\n"
-      html = "<p>\n  <img src=\"/url%20no%20title\" alt=\"foo\" />\n</p>\n"
+      html = "<p>\n  <img src=\"/url no title\" alt=\"foo\" />\n</p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

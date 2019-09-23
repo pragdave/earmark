@@ -14,6 +14,14 @@ defmodule Acceptance.Html1.LinkImages.LinkTest do
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
+    test "assure url encoding is not done here" do
+      markdown = "[foo]: /url?url=https%3A%2F%2Fsomewhere \"title\"\n\n[foo]\n"
+      html     = para( {:a, ~s{href="/url?url=https%3A%2F%2Fsomewhere" title="title"}, "foo"})
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
     test "link with utf8 title" do
       markdown = "[foo]: /url \"Überschrift\"\n\n[foo]\n"
       html = "<p>\n  <a href=\"/url\" title=\"Überschrift\">\n    foo\n  </a>\n</p>\n"
@@ -154,6 +162,14 @@ defmodule Acceptance.Html1.LinkImages.LinkTest do
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
+    test "let us not uri encode the url" do
+      markdown = "[link](x?//)\n"
+      html     = para( {:a, ~s{href="x?//"}, "link"} )
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
     test "nowhere in a bottle" do
       markdown = "[link](())\n"
       html = "<p>\n  <a href=\"()\">\n    link\n  </a>\n</p>\n"
@@ -190,6 +206,14 @@ defmodule Acceptance.Html1.LinkImages.LinkTest do
     test "that was easy" do
       markdown = "<http://foo.bar.baz>\n"
       html = "<p>\n  <a href=\"http://foo.bar.baz\">\n    http://foo.bar.baz\n  </a>\n</p>\n"
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
+    test "still no uri encoding here" do
+      markdown = "<http://foo.bar.baz?url=http://>\n"
+      html     = para({:a, ~s{href="http://foo.bar.baz?url=http://"}, "http://foo.bar.baz?url=http://"} )
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

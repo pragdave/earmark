@@ -33,19 +33,6 @@ defmodule Earmark.Helpers do
     Regex.replace(regex, text, replacement, options)
   end
 
-  @doc false
-  # Encode URIs to be included in the `<a>` elements.
-
-  # Percent-escapes a URI, and after that escapes any
-  # `&`, `<`, `>`, `"`, `'`.
-  def encode(html, escape \\ true)
-  def encode(html, true) do
-    html |> URI.encode |> escape(true)
-  end
-  def encode(html, false) do
-    URI.encode(html)
-  end
-
   @doc """
   Replace <, >, and quotes with the corresponding entities. If
   `encode` is true, convert ampersands, too, otherwise only

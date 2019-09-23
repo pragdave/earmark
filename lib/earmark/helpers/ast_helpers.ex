@@ -39,7 +39,6 @@ defmodule Earmark.Helpers.AstHelpers do
   @remove_escapes ~r{ \\ (?! \\ ) }x
   @doc false
   def render_image(text, href, title) do
-    href = encode(href, false)
     alt = text |> escape() |> String.replace(@remove_escapes, "")
 
     if title do

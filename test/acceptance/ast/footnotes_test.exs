@@ -21,7 +21,7 @@ defmodule Acceptance.Ast.FootnotesTest do
         messages = []
 
         assert as_ast(markdown, footnotes: true) == {:ok, ast, messages}
-        end
+    end
 
     test "undefined footnotes" do
       markdown = "foo[^1]\nhello\n\n[^2]: bar baz"
