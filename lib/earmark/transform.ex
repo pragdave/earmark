@@ -8,7 +8,7 @@ defmodule Earmark.Transform do
   """
 
   @doc """
-  **EXPERIMENTAL**
+  **EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
   Takes an ast, and optional options (I love this pun), which can be
   a map or keyword list of which the following keys will be used:
 

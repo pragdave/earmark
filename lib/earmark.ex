@@ -377,7 +377,7 @@ defmodule Earmark do
   end
 
   @doc """
-  NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+  EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
 
         iex(9)> markdown = "My `code` is **best**"
         ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)

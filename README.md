@@ -13,6 +13,9 @@
 * [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
+* [`Earmark.as_html/2`](#`earmark.as_html/2`)
+* [`Earmark.as_ast/2`](#`earmark.as_ast/2`)
+* [`Earmark.Transform.transform/2`](#`earmark.transform.transform/2`)
 * [Contributing](#contributing)
 * [Author](#author)
 <!-- END generated TOC -->
@@ -318,6 +321,8 @@ For the escript only the `timeout` command line argument can be used.
 
 ## Details
 
+## `Earmark.as_html/2`
+
 <!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
 Given a markdown document (as either a list of lines or
 a string containing newlines), returns a tuple containing either
@@ -380,8 +385,10 @@ Where `html_doc` is an HTML representation of the markdown document and
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
 
+## `Earmark.as_ast/2`
+
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-NEW and EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
+EXPERIMENTAL, but well tested, just expect API changes in the 1.4 branch
 
       iex(9)> markdown = "My `code` is **best**"
       ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
@@ -420,8 +427,10 @@ Therefore `as_ast` is of the following type
 
 <!-- END inserted functiondoc Earmark.as_ast/2 -->
 
+## `Earmark.Transform.transform/2`
+
 <!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
-**EXPERIMENTAL**
+**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
 Takes an ast, and optional options (I love this pun), which can be
 a map or keyword list of which the following keys will be used:
 
