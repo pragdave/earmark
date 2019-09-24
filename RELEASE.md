@@ -1,4 +1,24 @@
-# 1.4.1 ????/??/??
+# 1.4.1 2019/09/24
+
+- [277 Expose an AST to HTML Transformer](https://github.com/pragdave/earmark/issues/277)
+  While it should be faster to call `to_ast|>transform` it cannot be used instead of `as_html` yet
+  as the API is not yet stable and some subtle differences in the output need to be addressed.
+
+- [278 Implementing better GFM Table support ](https://github.com/pragdave/earmark/issues/278)
+  Because of compatility issues we use a new option `gfm_tables` defaulting to `false` for this.
+  Using this option `Earmark` will implement its own table extension **+** GFM tables at the same
+  time.
+
+
+- [279 Languages in code blocks were limited to alphanum names, thus excluding, e.g. C# ](https://github.com/pragdave/earmark/issues/279)
+- [281 Urls in links were URL endoded, that is actually a bug ](https://github.com/pragdave/earmark/issues/281)
+    It is the markdown author's responsability to url encode her urls, if she does so correctly
+    we double encoded the url before this fix.
+
+- [282 Always create a `<tbody>` in tables](https://github.com/pragdave/earmark/issues/282)
+    Although strictly speaking a `<tbody>` is only needed when there is a `<thead>`, semantic
+    HTML suggests the presence of `<tbody>` anyway.
+
 
 
 # 1.4.0 2019/09/05
