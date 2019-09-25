@@ -74,7 +74,7 @@ defmodule Acceptance.Html1.ListTest do
         {:ol, nil,
           {:li, nil, [
             {:p, nil, "A paragraph\nwith two lines."},
-            {:pre, {:code, nil, "indented code"}},
+            "<pre><code>indented code</code></pre>",
             {:blockquote, {:p, nil, "A block quote."}}]}})
       messages = []
 

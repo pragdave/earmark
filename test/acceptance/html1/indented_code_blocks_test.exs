@@ -33,9 +33,9 @@ defmodule Acceptance.Html1.IndentedCodeBlocksTest do
     test "foo and bar (now you are surprised!)" do
       markdown = "    foo\nbar\n"
       html     = construct([
-        {:pre, nil, {:code, nil, "foo"}},
+        icode("foo"),
         {:p, nil, "bar"}
-      ])
+      ]) |> String.replace("\n\n", "\n")
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -52,7 +52,7 @@ defmodule Acceptance.Html1.IndentedCodeBlocksTest do
   describe "Indented Code Blocks with IAL" do
     test "just an example" do
       markdown = "\n    wunderbar\n{: lang=\"de:at\"}\n"
-      html     = construct({ :pre, ~s{lang="de:at"}, {:code, nil, "wunderbar"}})
+      html     = ~s{<pre lang="de:at"><code>wunderbar</code></pre>\n}
       messages = []
       assert to_html1(markdown) == {:ok, html, messages}
     end

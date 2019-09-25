@@ -38,7 +38,7 @@ defmodule Acceptance.Html1.HorizontalRulesTest do
 
     test "not in code" do
       markdown = "    ***\n    \n     a"
-      html     = construct({:pre, nil, {:code, nil, "***\n\n a"}})
+      html     = "<pre><code>***\n\n a</code></pre>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -48,7 +48,7 @@ defmodule Acceptance.Html1.HorizontalRulesTest do
       markdown = "Foo\n    ***\n"
       html     = construct([
         {:p, nil, "Foo"},
-        {:pre, nil, {:code, nil, "***"}}
+        "<pre><code>***</code></pre>"
       ])
       messages = []
 

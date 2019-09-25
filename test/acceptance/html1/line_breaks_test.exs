@@ -71,7 +71,7 @@ defmodule Acceptance.Html1.LineBreaksTest do
     end
     test "or in code blocks" do
       markdown = "```\nThe  \nquick\n```"
-      html     = construct( {:pre, nil, {:code, ~s{class=""}, "The  \nquick"}})
+      html     = ~s{<pre><code class="">The  \nquick</code></pre>\n}
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

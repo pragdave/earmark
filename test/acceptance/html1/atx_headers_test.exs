@@ -56,7 +56,7 @@ defmodule Acceptance.Html1.AtxHeadersTest do
 
     test "code comes first" do
       markdown = "    # foo\nnext"
-      html     = "<pre>\n  <code>\n    # foo\n  </code>\n</pre>\n<p>\n  next\n</p>\n"
+      html     = "<pre><code># foo</code></pre>\n<p>\n  next\n</p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

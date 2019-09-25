@@ -16,7 +16,7 @@ defmodule Acceptance.Html1.InlineIalTest do
 
     test "code with simple ial" do
       markdown = "`some code`{: .classy}"
-      html     = para({:code, ~s{class="inline classy"}, "some code"})
+      html     = ~s{<p>\n<code class="inline classy">some code</code></p>\n}
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

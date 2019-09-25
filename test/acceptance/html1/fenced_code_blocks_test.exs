@@ -8,10 +8,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
   describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class=""}},
-        "&lt;\n &gt;" ])
+      html     = fcode("&lt;\n &gt;", "") 
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -19,10 +16,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
     test "still no lang" do
       markdown = "~~~\n<\n >\n~~~\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class=""}},
-        "&lt;\n &gt;" ])
+      html     = fcode("&lt;\n &gt;", "") 
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -30,22 +24,15 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
     test "elixir 's the name" do
       markdown = "```elixir\naaa\n~~~\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class="elixir"}},
-        "aaa\n~~~" ])
+      html     = fcode("aaa\n~~~", "elixir")
       messages = []
-
 
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
     test "with a code_class_prefix" do
       markdown = "```elixir\naaa\n~~~\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class="elixir lang-elixir"}},
-        "aaa\n~~~" ])
+      html     = fcode("aaa\n~~~", "elixir lang-elixir")
       messages = []
 
       assert to_html1(markdown, code_class_prefix: "lang-") == {:ok, html, messages}
@@ -53,11 +40,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
     test "look mam, more lines" do
       markdown = "   ```\naaa\nb\n  ```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class=""}},
-        "aaa\nb"
-      ])
+      html     = fcode("aaa\nb", "")
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -67,9 +50,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
   describe "do not make too many assumptions about programming language names" do
     test "at least the existing ones shall work" do
       markdown = "```c#\nI do not know c# code\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class="c#"}, "I do not know c# code"}])
+      html     = fcode("I do not know c# code", "c#")
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -77,9 +58,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
     test "and let us anticipate creative language designers too" do
       markdown = "```42lang!\nassert x == 42\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class="42lang!"}, "assert x == 42"}])
+      html     = fcode("assert x == 42", "42lang!")
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -87,9 +66,7 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
     test "be careful about what can go into an HTML attribute though" do
       markdown = "```a<b&\nassert x == 42\n```\n"
-      html     = construct([
-        :pre,
-        {:code, ~s{class="a&lt;b&amp;"}, "assert x == 42"}])
+      html     = fcode("assert x == 42", "a&lt;b&amp;")
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
