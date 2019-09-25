@@ -67,6 +67,18 @@ defmodule Earmark.Transform do
       tag,
       ">\n" ]
   end
+  defp _to_html({"code", atts, children}, options, level) do
+    [ make_indent(options, 0),
+      open_tag("code", atts),
+      Enum.join(children, "\n"),
+      "</code>"]
+  end
+  defp _to_html({"pre", atts, children}, options, level) do
+    [ make_indent(options, level),
+      open_tag("pre", atts),
+      _to_html(children, options, level),
+      "</pre>\n"]
+  end
   defp _to_html({tag, atts, children}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts),
