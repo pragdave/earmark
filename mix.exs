@@ -9,6 +9,7 @@ defmodule Earmark.Mixfile do
     # {:credo, "~> 0.10", only: [:dev, :test]},
     # {:dialyxir, "~> 0.5", only: [:dev, :test]}
     {:floki, "~> 0.21", only: [:dev, :test]},
+    {:benchfella, "~> 0.3.0", only: [:dev]}
   ]
 
   @description """
@@ -71,7 +72,7 @@ defmodule Earmark.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
-  defp elixirc_paths(:dev), do: ["lib", "dev"]
+  defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
   defp elixirc_paths(_), do: ["lib"]
 
   @prerequisites """
