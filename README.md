@@ -13,9 +13,9 @@
 * [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
-* [`Earmark.as_html/2`](#`earmark.as_html/2`)
-* [`Earmark.as_ast/2`](#`earmark.as_ast/2`)
-* [`Earmark.Transform.transform/2`](#`earmark.transform.transform/2`)
+* [`Earmark.as_html/2`](#earmarkas_html2)
+* [`Earmark.as_ast/2`](#earmarkas_ast2)
+* [`Earmark.Transform.transform/2`](#earmarktransformtransform2)
 * [Contributing](#contributing)
 * [Author](#author)
 <!-- END generated TOC -->
@@ -447,7 +447,8 @@ Therefore `as_ast` is of the following type
 ## `Earmark.Transform.transform/2`
 
 <!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
-**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
+**EXPERIMENTAL**
+But well tested, just expect API changes in the 1.4 branch
 Takes an ast, and optional options (I love this pun), which can be
 a map or keyword list of which the following keys will be used:
 

@@ -45,7 +45,7 @@ defmodule Mix.Tasks.Readme do
 
   defp add_doc(line) do
     [ "<!-- BEGIN inserted #{line} -->",
-      line 
+      line
       |> String.split()
       |> doc_for(),
       "<!-- END inserted #{line} -->" ]
@@ -102,12 +102,12 @@ defmodule Mix.Tasks.Readme do
     end
   end
 
-  defp make_h2_anchor(title), do: title |> String.downcase() |> String.replace(~r{\s+}, "-")
+  defp make_h2_anchor(title), do: title |> String.downcase() |> String.replace(~r{\s+}, "-") |> String.replace(~r{[^\w-]}, "")
 
   defp make_toc_entry(title), do: "* [#{title}](##{make_h2_anchor(title)})"
 
   defp make_toc_string(tocs),
-    do: 
+    do:
       [ "<!-- BEGIN generated TOC -->",
         tocs |> Enum.join("\n"),
         "<!-- END generated TOC -->"
