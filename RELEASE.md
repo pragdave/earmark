@@ -1,3 +1,8 @@
+# 1.4.2 ????/??/??
+
+- [PR#293 Nice fix for broken TOC links in README](https://github.com/pragdave/earmark/pull/293)
+  Kudos to Ray Gesualdo [raygesualdo](https://github.com/raygesualdo)
+
 # 1.4.1 2019/09/24
 
 - [277 Expose an AST to HTML Transformer](https://github.com/pragdave/earmark/issues/277)
