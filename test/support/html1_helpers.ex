@@ -18,13 +18,18 @@ defmodule Support.Html1Helpers do
     result
   end
 
-  def icode(constructions)
-  def icode(construction) when is_binary(construction), do: construct([:pre, :code, construction])
-  def icode(constructions), do: construct([:pre, :code | constructions])
+  def icode(code) when is_binary(code) do
+    ~s{<pre><code>#{code}</code></pre>\n}
+  end
 
-  def para(constructions)
-  def para(construction) when is_binary(construction), do: construct([:p, construction])
-  def para(constructions), do: construct([:p|constructions])
+  def fcode(code, lang)
+  def fcode(code, lang) do
+    ~s{<pre><code class="#{lang}">#{code}</code></pre>\n}
+  end
+
+  def para(constructions, indent \\ 2)
+  def para(construction, indent) when is_binary(construction), do: construct([:p, construction], indent)
+  def para(constructions, indent), do: construct([:p|constructions], indent)
 
   def td(content, style \\ "left") do
     {:td, ~s{style="text-align: #{style};"}, content}

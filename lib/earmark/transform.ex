@@ -70,7 +70,7 @@ defmodule Earmark.Transform do
   defp _to_html({"code", atts, children}, options, level) do
     [ make_indent(options, 0),
       open_tag("code", atts),
-      Enum.join(children, "\n"),
+      Enum.join(children, "\n")|>Earmark.Helpers.escape(),
       "</code>"]
   end
   defp _to_html({"pre", atts, children}, options, level) do

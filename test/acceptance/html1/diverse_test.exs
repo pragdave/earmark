@@ -8,9 +8,7 @@ defmodule Acceptance.Html1.DiverseTest do
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
-      html     = para([
-        {:code, ~s{class="inline"}},
-        "f&amp;ouml;&amp;ouml;" ])
+      html     = "<p>\n<code class=\"inline\">f&ouml;&ouml;</code></p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}

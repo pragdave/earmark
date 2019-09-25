@@ -37,7 +37,7 @@ defmodule Acceptance.Html1.EscapeTest do
 
     test "less obviously - escpe the escapes" do
       markdown = "\\\\` code`"
-      html     = para([ "\\", {:code, ~s{class="inline"}}, "code" ])
+      html     = "<p>\n  \\\n<code class=\"inline\">code</code></p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
