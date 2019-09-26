@@ -5,18 +5,15 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
   @moduledoc false
 
   # Structural Renderer for html blocks
-  def render_html_block([opening_tag | html_lines]=lines) do
-    case parse_html(opening_tag) do
-      {tag, atts} -> {tag, atts, html_lines}
-      _           -> lines
+  def render_html_block(lines) do
+    case parse_html(lines) do
+      [tag] -> tag
+      _     -> lines
     end
   end
 
   def render_html_oneline([line|_]) do
-    case parse_html(line) do
-      {tag, atts}   -> {tag, atts, []} 
-      original      -> original
-    end
+    parse_html([line])
   end
   
   @html_comment_start ~r{\A\s*<!--}

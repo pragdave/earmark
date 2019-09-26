@@ -13,7 +13,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "url encoding is **not** our job" do
@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
 
@@ -32,7 +32,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
   end

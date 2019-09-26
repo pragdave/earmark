@@ -11,7 +11,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "link with utf8 title" do
@@ -20,7 +20,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "this ain't no link" do
@@ -29,7 +29,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ["", ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "strange syntaxes exist in Markdown" do
@@ -38,7 +38,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast, ""], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "sometimes strange text is just strange text" do
@@ -54,7 +54,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       markdown = "[foo]: /url \"title\"\n"
       messages = []
 
-      assert as_ast(markdown) == {:ok, [""], messages}
+      assert as_ast(markdown) == {:ok, [], messages}
     end
 
     test "or this one, but you might be wrong" do
@@ -62,7 +62,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
 
       lhs = "<h1><a href=\"/url\" title=\"\">Foo</a></h1>"
       rhs = "<blockquote><p>bar</p>\n</blockquote>\n"
-      ast  = [Floki.parse(lhs), "", Floki.parse(rhs)]
+      ast  = [Floki.parse(lhs), Floki.parse(rhs)]
 
       messages = []
 

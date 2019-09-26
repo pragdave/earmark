@@ -1,14 +1,16 @@
 defmodule Acceptance.Ast.HtmlBlocksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
-
+  import Support.AstHelpers, only: [p: 1, void_tag: 1]
+  
   @moduletag :ast
 
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = "<table>\n  <tr>\n    <td>           hi</td>\n  </tr>\n</table><p>okay.</p>\n"
-      ast      = parse_html(html)
+      ast      = [
+        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"]},
+        {"p", [], ["okay."]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -89,7 +91,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "void elements close para" do
       markdown = "alpha\n<hr>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [{"p", [], ["alpha"]}, {"hr", [], []}]
+      ast      = [p("alpha"), void_tag("hr"), "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -106,7 +108,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "self closing block elements close para" do
       markdown = "alpha\n<div/>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      =[{"p", [], ["alpha"]}, {"div", [], []}]
+      ast      =[{"p", [], ["alpha"]}, {"div", [], []}, "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -115,7 +117,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "self closing block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"/>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -124,7 +126,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, {"p", [], ["gamma"]}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, "beta", {"p", [], ["gamma"]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -151,7 +153,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
       # SIC just do not write that markup
-      ast      = [{"p", [], ["alpha"]}, {"div", [], []}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [], ["</div>beta"]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -160,7 +162,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     test "block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"></div>beta"
       # SIC just do not write that markup
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], ["</div>beta"]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -188,31 +190,28 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
   describe "multiple tags in closing line" do
     test "FTF" do
       markdown = "<div class=\"my-div\">\nline\n</div>"
-      ast      = [{"div", [{"class", "my-div"}], "line"}]
+      ast      = [{"div", [{"class", "my-div"}], ["line"]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "this is not closing" do
       markdown = "<div>\nline\n</hello></div>"
-      html     = "<div>\nline\n</hello></div>"
-      ast      = [{"div", [], "line\n</hello></div>"}]
+      ast      = [{"div", [], ["line", "</hello></div>"]}]
       messages = [{:warning, 1, "Failed to find closing <div>"}]
 
       assert as_ast(markdown) == {:error, ast, messages}
     end
     test "therefore the div continues" do
       markdown = "<div>\nline\n</hello></div>\n</div>"
-      html     = "<div>\nline\n</hello></div></div>"
-      ast      = [{"div", [], "line\n</hello></div>"}]
-      messages = [{:warning, 1, "Failed to find closing <div>"}]
+      ast      = [{"div", [], ["line", "</hello></div>"]}]
+      messages = []
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "...nor is this" do
       markdown = "<div>\nline\n<hello></div>"
-      html     = "<div>\nline\n<hello></div>"
-      ast      = []
+      ast      = [{"div", [], ["line", "<hello></div>"]}]
       messages = [{:warning, 1, "Failed to find closing <div>"},
         {:warning, 3, "Failed to find closing <hello>"}]
 
@@ -220,32 +219,28 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     end
     test "however, this closes and keeps the garbage" do
       markdown = "<div>\nline\n</div><hello>"
-      html     = "<div>\nline\n</div><hello>"
-      ast      = []
+      ast      = [{"div", [], ["line"]}, "<hello>"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and keeps **whatever** garbage" do
       markdown = "<div>\nline\n</div> `garbage`"
-      html     = "<div>\nline\n</div> `garbage`"
-      ast      = []
+      ast      = [{"div", [], ["line"]}, "`garbage`"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and keeps not even warnings" do
       markdown = "<div>\nline\n</div> `garbage"
-      html     = "<div>\nline\n</div> `garbage"
-      ast      = []
+      ast      = [{"div", [], ["line"]}, "`garbage"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and kept garbage is not even inline formatted" do
       markdown = "<div>\nline\n</div> _garbage_"
-      html     = "<div>\nline\n</div> _garbage_"
-      ast      = []
+      ast      = [{"div", [], ["line"]}, "_garbage_"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
