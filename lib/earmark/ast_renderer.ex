@@ -42,11 +42,13 @@ defmodule Earmark.AstRenderer do
   ########
   # Html #
   ########
-  defp render_block(%Block.Html{html: html}, context) do
+  defp render_block(%Block.Html{html: html}=b, context) do
+    IO.inspect b
     {context, render_html_block(html)}
   end
 
-  defp render_block(%Block.HtmlOneline{html: html}, context) do
+  defp render_block(%Block.HtmlOneline{html: html}=b, context) do
+    IO.inspect b
     {context, render_html_oneline(html)}
   end
 

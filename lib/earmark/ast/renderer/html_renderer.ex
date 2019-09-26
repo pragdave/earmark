@@ -5,16 +5,15 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
   @moduledoc false
 
   # Structural Renderer for html blocks
-  def render_html_block(html_lines) do
-    case Enum.map(html_lines, &parse_html/1) do
-      [] -> []
-      [{tag, atts}|rest] -> _render_html_block(rest, [{tag, atts, []}])
-      _                  -> raise "Internal Error, must not call render_html_block/1 without a leading HTML Tag"
+  def render_html_block([opening_tag | html_lines]=lines) do
+    case parse_html(opening_tag) do
+      {tag, atts} -> {tag, atts, html_lines}
+      _           -> lines
     end
   end
 
   def render_html_oneline([line|_]) do
-    case parse_html(line, false) do
+    case parse_html(line) do
       {tag, atts}   -> {tag, atts, []} 
       original      -> original
     end
@@ -26,26 +25,6 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
     line
     |> String.replace(@html_comment_start, "")
     |> String.replace(@html_comment_end, "")
-  end
-
-  defp _render_html_block(lines, open)
-  defp _render_html_block([], open) do
-    _close_all_open_tags(open)
-  end
-  defp _render_html_block([{tag, atts}|rest], open) do
-    _render_html_block(rest, [{tag, atts, []}|open])
-  end
-  defp _render_html_block([{tag}|_rest], [{tag, atts, content}]) do 
-    {tag, atts, Enum.reverse(content)}
-  end
-  defp _render_html_block([{tag}|rest], [{tag, _, _}|_]=open) do
-    _render_html_block(rest, _close_open_tag(open))
-  end
-  defp _render_html_block([{tag} | rest], [{_, _, _}|_]=open) do
-    _render_html_block(rest, _flatten_into_opening(tag, open, []))
-  end
-  defp _render_html_block([line|rest], open) do
-    _render_html_block(rest, _add_content_to_open(line, open))
   end
 
   defp _add_content_to_open(new_content, [{tag, atts, content} | rest]) do

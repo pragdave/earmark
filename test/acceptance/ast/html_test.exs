@@ -30,6 +30,13 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "even block elements" do
+      markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
+      ast      = [{"div", [], ["```elixir", "defmodule Mine do", "```"]}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "HTML void elements" do
@@ -176,7 +183,73 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+  end
 
+  describe "multiple tags in closing line" do
+    test "FTF" do
+      markdown = "<div class=\"my-div\">\nline\n</div>"
+      ast      = [{"div", [{"class", "my-div"}], "line"}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "this is not closing" do
+      markdown = "<div>\nline\n</hello></div>"
+      html     = "<div>\nline\n</hello></div>"
+      ast      = [{"div", [], "line\n</hello></div>"}]
+      messages = [{:warning, 1, "Failed to find closing <div>"}]
+
+      assert as_ast(markdown) == {:error, ast, messages}
+    end
+    test "therefore the div continues" do
+      markdown = "<div>\nline\n</hello></div>\n</div>"
+      html     = "<div>\nline\n</hello></div></div>"
+      ast      = [{"div", [], "line\n</hello></div>"}]
+      messages = [{:warning, 1, "Failed to find closing <div>"}]
+
+      assert as_ast(markdown) == {:error, ast, messages}
+    end
+    test "...nor is this" do
+      markdown = "<div>\nline\n<hello></div>"
+      html     = "<div>\nline\n<hello></div>"
+      ast      = []
+      messages = [{:warning, 1, "Failed to find closing <div>"},
+        {:warning, 3, "Failed to find closing <hello>"}]
+
+      assert as_ast(markdown) == {:error, ast, messages}
+    end
+    test "however, this closes and keeps the garbage" do
+      markdown = "<div>\nline\n</div><hello>"
+      html     = "<div>\nline\n</div><hello>"
+      ast      = []
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "however, this closes and keeps **whatever** garbage" do
+      markdown = "<div>\nline\n</div> `garbage`"
+      html     = "<div>\nline\n</div> `garbage`"
+      ast      = []
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "however, this closes and keeps not even warnings" do
+      markdown = "<div>\nline\n</div> `garbage"
+      html     = "<div>\nline\n</div> `garbage"
+      ast      = []
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+    test "however, this closes and kept garbage is not even inline formatted" do
+      markdown = "<div>\nline\n</div> _garbage_"
+      html     = "<div>\nline\n</div> _garbage_"
+      ast      = []
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 end
 
