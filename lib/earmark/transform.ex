@@ -41,49 +41,67 @@ defmodule Earmark.Transform do
     _to_html(ast, options, Map.get(options, :initial_indent, 0)) |> IO.iodata_to_binary
   end
 
-  defp _to_html(ast, options, level)
-  defp _to_html(elements, options, level) when is_list(elements) do
+  defp _to_html(ast, options, level, verbatim \\ false)
+  defp _to_html(elements, options, level, verbatim) when is_list(elements) do
     elements
-    |> Enum.map(&_to_html(&1, options, level))
+    |> Enum.map(&_to_html(&1, options, level, verbatim))
   end
-  defp _to_html(element, options, level) when is_binary(element) do
+  defp _to_html(element, options, level, false) when is_binary(element) do
     escape(element, options, level)
   end
+  defp _to_html(element, options, level, true) when is_binary(element) do
+    [make_indent(options, level), element]
+  end
   # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
-  defp _to_html({"area", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp _to_html({"br", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp _to_html({"hr", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp _to_html({"img", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp _to_html({"wbr", _, _}=tag, options, level), do: void_tag(tag, options, level)
-  defp _to_html({:comment, _, children}, options, level) do
+  defp _to_html({"area", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"br", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"hr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"img", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"wbr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({:comment, _, children}, options, level, _verbatim) do
     indent = make_indent(options, level)
     [ indent,
       "<!--", Enum.intersperse(children, ["\n", indent, "    "]), "-->"]
   end
-  defp _to_html({tag, atts, []}, options, level) do
+  defp _to_html({tag, atts, []}, options, level, _verbatim) do
     [ make_indent(options, level),
       open_tag(tag, atts),
       "</",
       tag,
       ">\n" ]
   end
-  defp _to_html({"code", atts, children}, options, level) do
+  defp _to_html({"code", atts, children}, options, level, _verbatim) do
     [ make_indent(options, 0),
       open_tag("code", atts),
       Enum.join(children, "\n")|>Earmark.Helpers.escape(),
       "</code>"]
   end
-  defp _to_html({"pre", atts, children}, options, level) do
+  defp _to_html({"pre", atts, children}, options, level, _verbatim) do
     [ make_indent(options, level),
       open_tag("pre", atts),
       _to_html(children, options, level),
       "</pre>\n"]
   end
-  defp _to_html({tag, atts, children}, options, level) do
+  defp _to_html({"pre", atts, children, meta}, options, level, _verbatim) do
+    verbatim = Map.get(meta, :meta, %{}) |> Map.get(:verbatim, false)
+    [ make_indent(options, level),
+      open_tag("pre", atts),
+      _to_html(children, options, level, verbatim),
+      "</pre>\n"]
+  end
+  defp _to_html({tag, atts, children}, options, level, _verbatim) do
     [ make_indent(options, level),
       open_tag(tag, atts),
       "\n",
       _to_html(children, options, level+1),
+      close_tag(tag, options, level)]
+  end
+  defp _to_html({tag, atts, children, meta}, options, level, _verbatim) do
+    verbatim = Map.get(meta, :meta, %{}) |> Map.get(:verbatim, false)
+    [ make_indent(options, level),
+      open_tag(tag, atts),
+      "\n",
+      _to_html(children, options, level+1, verbatim),
       close_tag(tag, options, level)]
   end
   

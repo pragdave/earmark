@@ -66,6 +66,7 @@ defmodule Earmark.Helpers.HtmlParser do
   # Iterate over lines inside a tag
   # -------------------------------
 
+  @verbatim %{meta: %{verbatim: true}}
   defp _parse_rest(rest, tag_tpl, lines)
   # Hu? That should never have happened but let us return some
   # sensible data, allowing rendering after the corruped block
@@ -74,9 +75,9 @@ defmodule Earmark.Helpers.HtmlParser do
   end
   defp _parse_rest([last_line], {tag, _}=tag_tpl, lines) do
     case Regex.run(~r{\A</#{tag}>\s*(.*)}, last_line) do
-      nil         -> tag_tpl |> Tuple.append(Enum.reverse([last_line|lines]))
-      [_, ""]     -> tag_tpl |> Tuple.append(Enum.reverse(lines))
-      [_, suffix] -> [tag_tpl |> Tuple.append(Enum.reverse(lines)), suffix]
+      nil         -> tag_tpl |> Tuple.append(Enum.reverse([last_line|lines])) |> Tuple.append(@verbatim)
+      [_, ""]     -> tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
+      [_, suffix] -> [tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim), suffix]
     end
   end
   defp _parse_rest([inner_line|rest], tag_tpl, lines) do
