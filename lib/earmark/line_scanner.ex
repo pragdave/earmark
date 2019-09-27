@@ -42,6 +42,8 @@ defmodule Earmark.LineScanner do
         .*?
         >
   '''x
+  @doc false
+  def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>") 
 
   @doc false
   # We want to add the original source line into every

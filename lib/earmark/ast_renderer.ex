@@ -15,19 +15,17 @@ defmodule Earmark.AstRenderer do
   def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
+    {ast, new_messages} = _render(blocks, context, {[], messages})
+    {put_in(context.options.messages, new_messages), ast}
+  end
 
-    {contexts, ast} =
-      get_mapper(context.options).(
-        blocks,
-        &render_block(&1, put_in(context.options.messages, []))
-      )
-      |> Enum.unzip()
 
-    all_messages =
-      contexts
-      |> Enum.reduce(messages, fn ctx, messages1 -> messages1 ++ get_messages(ctx) end)
-
-    {put_in(context.options.messages, all_messages), ast}
+  defp _render(blocks, context, result)
+  defp _render([], context, {result, messages}), do: {Enum.reverse(result), messages}
+  defp _render([block|blocks], context, {result, messages}) do
+    case render_block(block, context) do
+      {ctxt, ast} -> _render(blocks, context, {_append_to_result(ast, result), Enum.uniq(messages ++ get_messages(ctxt))})
+    end
   end
 
   #############
@@ -200,6 +198,21 @@ defmodule Earmark.AstRenderer do
       |> Enum.reverse
       |> List.flatten
   end
+
+
+  # Helpers
+  # -------
+
+  defp _append_to_result(ast, result)
+  defp _append_to_result([], result), do: result
+  defp _append_to_result([head|tail], result) when is_list(head) do
+    _append_to_result(tail, _append_to_result(head, result))
+  end
+  defp _append_to_result([head|tail], result) do
+    _append_to_result(tail, [head|result])
+  end
+  defp _append_to_result("", result), do: result
+  defp _append_to_result(scalar, result), do: [scalar | result]
 
 end
 

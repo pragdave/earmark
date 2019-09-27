@@ -28,6 +28,14 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "even block elements" do
+      markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
+      html     = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
   end
 
   describe "HTML void elements" do
@@ -159,7 +167,52 @@ defmodule Acceptance.Html.HtmlBlocksTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+  end
 
+  describe "multiple tags in closing line" do
+    test "this is not closing" do
+      markdown = "<div>\nline\n</hello></div>"
+      html     = "<div>\nline\n</hello></div>"
+      messages = [{:warning, 1, "Failed to find closing <div>"}]
+
+      assert as_html(markdown) == {:error, html, messages}
+    end
+    test "...nor is this" do
+      markdown = "<div>\nline\n<hello></div>"
+      html     = "<div>\nline\n<hello></div>"
+      messages = [{:warning, 1, "Failed to find closing <div>"},
+        {:warning, 3, "Failed to find closing <hello>"}]
+
+      assert as_html(markdown) == {:error, html, messages}
+    end
+    test "however, this closes and keeps the garbage" do
+      markdown = "<div>\nline\n</div><hello>"
+      html     = "<div>\nline\n</div><hello>"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "however, this closes and keeps **whatever** garbage" do
+      markdown = "<div>\nline\n</div> `garbage`"
+      html     = "<div>\nline\n</div> `garbage`"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "however, this closes and keeps not even warnings" do
+      markdown = "<div>\nline\n</div> `garbage"
+      html     = "<div>\nline\n</div> `garbage"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+    test "however, this closes and kept garbage is not even inline formatted" do
+      markdown = "<div>\nline\n</div> _garbage_"
+      html     = "<div>\nline\n</div> _garbage_"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
   end
 end
 

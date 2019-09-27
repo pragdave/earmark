@@ -7,6 +7,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
   @moduletag :html1
 
   describe "HTML blocks" do
+    @tag :wip
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
       html     = construct([
@@ -92,7 +93,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
       markdown = "alpha\n<hr />beta"
       html     = construct([
         {:p, nil, "alpha"},
-        :hr
+        :hr, "beta"
       ])
       messages = []
 
@@ -111,7 +112,8 @@ defmodule Acceptance.Html1.Html1BlocksTest do
       markdown = "alpha\n<div/>beta"
       html     = construct([
         {:p, nil, "alpha"},
-        "<div></div>"
+        "<div></div>",
+	"beta"
       ])
       messages = []
 
@@ -122,7 +124,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
       markdown = "alpha\n<div class=\"first\"/>beta"
       html     = construct([
         {:p, nil, "alpha"},
-        "<div class=\"first\"></div>"
+        "<div class=\"first\"></div>", "beta"
       ])
       messages = []
 
@@ -134,6 +136,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
       html     = construct([
         {:p, nil, "alpha"},
         "<div class=\"first\"></div>",
+        "beta",
         :p, "gamma" ])
       messages = []
 
@@ -156,11 +159,12 @@ defmodule Acceptance.Html1.Html1BlocksTest do
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
+    @tag :wip
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
       html     = construct([
         {:p, nil, "alpha"},
-        "<div></div>"
+        "<div></div>beta"
       ])
       messages = []
 
