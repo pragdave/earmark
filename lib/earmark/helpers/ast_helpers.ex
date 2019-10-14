@@ -50,8 +50,6 @@ defmodule Earmark.Helpers.AstHelpers do
 
   @doc false
   def render_link(url, text), do: {"a", [{"href", url}], [text]}
-  def render_link(url, text, nil), do: ~s[<a href="#{url}">#{text}</a>]
-  def render_link(url, text, title), do: {"a", [{"href", url}, {"title", title}], [text]}
 
 
   ##############################################

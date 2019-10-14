@@ -8,11 +8,9 @@ defmodule Earmark.AstRenderer do
   import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Ast.Renderer.TableRenderer
   import Earmark.Message, only: [get_messages: 1]
-  import Earmark.Options, only: [get_mapper: 1]
 
   @moduledoc false
 
-  def render(blocks), do: render(blocks, Context.update_context)
   def render(blocks, context = %Context{options: %Options{}}) do
     messages = get_messages(context)
     {ast, new_messages} = _render(blocks, context, {[], messages})
@@ -21,7 +19,7 @@ defmodule Earmark.AstRenderer do
 
 
   defp _render(blocks, context, result)
-  defp _render([], context, {result, messages}), do: {Enum.reverse(result), messages}
+  defp _render([], _context, {result, messages}), do: {Enum.reverse(result), messages}
   defp _render([block|blocks], context, {result, messages}) do
     case render_block(block, context) do
       {ctxt, ast} -> _render(blocks, context, {_append_to_result(ast, result), Enum.uniq(messages ++ get_messages(ctxt))})

@@ -5,11 +5,13 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
   
   @moduletag :ast
 
+  @verbatim %{meta: %{verbatim: true}}
+
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
       ast      = [
-        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"]},
+        {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], @verbatim},
         {"p", [], ["okay."]}]
       messages = []
 
@@ -18,7 +20,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
 
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      ast      = [{"div", [], ["  *hello*", "         <foo><a>"]}]
+      ast      = [{"div", [], ["  *hello*", "         <foo><a>"], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -26,7 +28,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
 
     test "we are leaving html alone" do
       markdown = "<div>\n*Emphasized* text.\n</div>"
-      ast      = [{"div", [], ["*Emphasized* text."]}]
+      ast      = [{"div", [], ["*Emphasized* text."], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -34,7 +36,7 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
 
     test "even block elements" do
       markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
-      ast      = [{"div", [], ["```elixir", "defmodule Mine do", "```"]}]
+      ast      = [{"div", [], ["```elixir", "defmodule Mine do", "```"], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -190,28 +192,28 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
   describe "multiple tags in closing line" do
     test "FTF" do
       markdown = "<div class=\"my-div\">\nline\n</div>"
-      ast      = [{"div", [{"class", "my-div"}], ["line"]}]
+      ast      = [{"div", [{"class", "my-div"}], ["line"], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "this is not closing" do
       markdown = "<div>\nline\n</hello></div>"
-      ast      = [{"div", [], ["line", "</hello></div>"]}]
+      ast      = [{"div", [], ["line", "</hello></div>"], @verbatim}]
       messages = [{:warning, 1, "Failed to find closing <div>"}]
 
       assert as_ast(markdown) == {:error, ast, messages}
     end
     test "therefore the div continues" do
       markdown = "<div>\nline\n</hello></div>\n</div>"
-      ast      = [{"div", [], ["line", "</hello></div>"]}]
+      ast      = [{"div", [], ["line", "</hello></div>"], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "...nor is this" do
       markdown = "<div>\nline\n<hello></div>"
-      ast      = [{"div", [], ["line", "<hello></div>"]}]
+      ast      = [{"div", [], ["line", "<hello></div>"], @verbatim}]
       messages = [{:warning, 1, "Failed to find closing <div>"},
         {:warning, 3, "Failed to find closing <hello>"}]
 
@@ -219,28 +221,28 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
     end
     test "however, this closes and keeps the garbage" do
       markdown = "<div>\nline\n</div><hello>"
-      ast      = [{"div", [], ["line"]}, "<hello>"]
+      ast      = [{"div", [], ["line"], @verbatim}, "<hello>"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and keeps **whatever** garbage" do
       markdown = "<div>\nline\n</div> `garbage`"
-      ast      = [{"div", [], ["line"]}, "`garbage`"]
+      ast      = [{"div", [], ["line"], @verbatim}, "`garbage`"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and keeps not even warnings" do
       markdown = "<div>\nline\n</div> `garbage"
-      ast      = [{"div", [], ["line"]}, "`garbage"]
+      ast      = [{"div", [], ["line"], @verbatim}, "`garbage"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
     test "however, this closes and kept garbage is not even inline formatted" do
       markdown = "<div>\nline\n</div> _garbage_"
-      ast      = [{"div", [], ["line"]}, "_garbage_"]
+      ast      = [{"div", [], ["line"], @verbatim}, "_garbage_"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

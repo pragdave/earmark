@@ -7,12 +7,9 @@ defmodule Acceptance.Html1.Html1BlocksTest do
   @moduletag :html1
 
   describe "HTML blocks" do
-    @tag :wip
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = construct([
-        {:table, nil, {:tr, nil, {:td, nil, "           hi"}}},
-        {:p, nil, "okay."} ])
+      html     = "<table>\n    <tr>      <td>             hi      </td>    </tr></table>\n<p>\n  okay.\n</p>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -20,8 +17,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
 
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      html     = construct({:div, nil, ["  *hello*", "         &lt;foo&gt;&lt;a&gt;"]})
-
+      html     = "<div>\n    *hello*           <foo><a></div>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -29,7 +25,7 @@ defmodule Acceptance.Html1.Html1BlocksTest do
 
     test "we are leaving html alone" do
       markdown = "<div>\n*Emphasized* text.\n</div>"
-      html     = construct({:div, nil, "*Emphasized* text."})
+      html     ="<div>\n  *Emphasized* text.</div>\n"
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
@@ -154,18 +150,6 @@ defmodule Acceptance.Html1.Html1BlocksTest do
     test "self closing block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
       html     = para("alpha\ngamma&lt;div class=&quot;fourty two&quot;/&gt;beta")
-      messages = []
-
-      assert to_html1(markdown) == {:ok, html, messages}
-    end
-
-    @tag :wip
-    test "block elements close para" do
-      markdown = "alpha\n<div></div>beta"
-      html     = construct([
-        {:p, nil, "alpha"},
-        "<div></div>beta"
-      ])
       messages = []
 
       assert to_html1(markdown) == {:ok, html, messages}
