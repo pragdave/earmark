@@ -8,8 +8,9 @@ defmodule Earmark.Mixfile do
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
     # {:dialyxir, "~> 0.5", only: [:dev, :test]}
+    {:benchfella, "~> 0.3.0", only: [:dev]},
+    {:excoveralls, "~> 0.11.2", only: [:test]},
     {:floki, "~> 0.21", only: [:dev, :test]},
-    {:benchfella, "~> 0.3.0", only: [:dev]}
   ]
 
   @description """
@@ -34,6 +35,13 @@ defmodule Earmark.Mixfile do
       deps: @deps,
       description: @description,
       package: package(),
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      test_coverage: [tool: ExCoveralls],
       aliases: [docs: &build_docs/1, readme: &readme/1]
     ]
   end
