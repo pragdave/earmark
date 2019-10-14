@@ -58,7 +58,6 @@ defmodule Earmark.Mixfile do
         "lib",
         "src/*.xrl",
         "src/*.yrl",
-        "tasks",
         "mix.exs",
         "README.md"
       ],

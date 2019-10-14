@@ -456,10 +456,18 @@ a map or keyword list of which the following keys will be used:
 - `initial_indent:` `number`
 - `indent:` `number`
 
-      iex(1)> Earmark.Transform.transform({"p", [], [{"em", [], "help"}, "me"]})
+      iex(1)> transform({"p", [], [{"em", [], "help"}, "me"]})
       "<p>\n  <em>\n    help\n  </em>\n  me\n</p>\n"
 
 Right now only transformation to HTML is supported.
+
+The transform is also agnostic to any annotation map that is added to the AST.
+
+Only the `:meta` key is reserved and by passing annotation maps with a `:meta` key
+into the AST the result might become altered or an exception might be raised, otherwise...
+
+      iex(2)> transform({"p", [], [{"em", [], ["help"], %{inner: true}}], %{level: 1}})
+      "<p>\n  <em>\n    help\n  </em>\n</p>\n"
 
 <!-- END inserted functiondoc Earmark.Transform.transform/2 -->
 
