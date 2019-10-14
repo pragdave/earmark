@@ -10,12 +10,9 @@ defmodule Earmark.Ast.Inline do
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Helpers.AstHelpers
-  import Earmark.Context, only: [set_value: 2, update_context: 0]
+  import Context, only: [set_value: 2]
 
   @typep conversion_data :: {String.t, non_neg_integer(), Earmark.Context.t, boolean()}
-  def conv(src) do
-    _convert(src, 0, update_context(), true).value
-  end
   def convert(src, lnb, context)
   def convert(list, lnb, context) when is_list(list),
     do: _convert(Enum.join(list, "\n"), lnb, context, true)

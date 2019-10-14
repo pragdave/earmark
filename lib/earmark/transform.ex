@@ -32,9 +32,6 @@ defmodule Earmark.Transform do
 
     to_html(ast, options1)
   end
-  def transform(ast, options) do
-    to_html(ast, options)
-  end
 
 
   defp to_html(ast, options) do
@@ -70,7 +67,7 @@ defmodule Earmark.Transform do
       tag,
       ">\n" ]
   end
-  defp _to_html({"code", atts, children}, options, level, _verbatim) do
+  defp _to_html({"code", atts, children}, options, _level, _verbatim) do
     [ make_indent(options, 0),
       open_tag("code", atts),
       Enum.join(children, "\n")|>Earmark.Helpers.escape(),

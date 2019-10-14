@@ -2,26 +2,34 @@ defmodule Earmark.Ast.Renderer.AstWalker do
   
   @moduledoc false
 
-  def walk(anything, fun), do: _walk(anything, fun)
+  def walk(anything, fun, ignore_map_keys \\ false), do: _walk(anything, fun, ignore_map_keys, false)
 
   def walk_ast(ast, fun), do: _walk_ast(ast, fun, [])
 
 
-  defp _walk([], _fun), do: []
-  defp _walk(list, fun) when is_list(list) do
-    Enum.map(list, &(_walk(&1, fun)))
+  defp _walk([], _fun, _ignore_map_keys, _child_of_map), do: []
+  defp _walk(list, fun, ignore_map_keys, _child_of_map) when is_list(list) do
+    Enum.map(list, &(_walk(&1, fun, ignore_map_keys, false)))
   end
-  defp _walk(map, fun) when is_map(map) do
+  defp _walk(map, fun, ignore_map_keys, _child_of_map) when is_map(map) do
     map
-    |> Enum.into(%{}, &(_walk(&1, fun)))
+      |> Enum.into(%{}, &(_walk(&1, fun, ignore_map_keys, true)))
   end
-  defp _walk(tuple, fun) when is_tuple(tuple) do
-    tuple
-    |> Tuple.to_list
-    |> Enum.map(&(_walk(&1, fun)))
-    |> List.to_tuple
+  defp _walk(tuple, fun, ignore_map_keys, child_of_map) when is_tuple(tuple) do
+    if child_of_map && ignore_map_keys do
+      _walk_map_element(tuple, fun, ignore_map_keys)
+    else
+      tuple
+      |> Tuple.to_list
+      |> Enum.map(&(_walk(&1, fun, ignore_map_keys, false)))
+      |> List.to_tuple
+    end
   end
-  defp _walk(ele, fun), do: fun.(ele)
+  defp _walk(ele, fun, _ignore_map_keys, _child_of_map), do: fun.(ele)
+
+  defp _walk_map_element({key, value}, fun, ignore_map_keys) do 
+    {key, _walk(value, fun, ignore_map_keys, false)}
+  end
 
 
   defp _walk_ast(ast, fun, res)

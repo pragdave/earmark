@@ -1,5 +1,9 @@
 defmodule Support.AstHelpers do
   
+  def ast_from_md(md) do
+    with {:ok, ast, []} <- Earmark.as_ast(md), do: ast
+  end
+
   def p(content, atts \\ [])
   def p(content, atts) when is_binary(content),
     do: {"p", atts, [content]}

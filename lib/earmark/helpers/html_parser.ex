@@ -27,13 +27,6 @@ defmodule Earmark.Helpers.HtmlParser do
     end
   end
 
-  @attribute ~r{\A([-\w]+)=(["'])(.*?)\2\s*(>?)}
-  defp _parse_atts(string, tag, atts) do
-    case Regex.run(@attribute, string) do
-      [all, name, _delim, value,] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
-      _                          -> _parse_tag_tail(string, tag, atts)
-    end
-  end
   # Are leading and trailing "-"s ok?
   @tag_head ~r{\A\s*<([-\w]+)\s*}
   defp _parse_tag(string) do
