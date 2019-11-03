@@ -76,7 +76,7 @@ defmodule Earmark.Line do
 
   defmodule SetextUnderlineHeading  do
     @moduledoc false
-    defstruct(lnb: 0, line: "", level: 1, inside_code: false, inside_code: false)
+    defstruct(lnb: 0, line: "", level: 1, inside_code: false)
   end
 
   defmodule TableLine  do
