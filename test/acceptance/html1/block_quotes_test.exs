@@ -150,6 +150,24 @@ defmodule Acceptance.Html1.BlockQuotesTest do
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
+    test "indented case" do
+      markdown = " > - foo\n- bar\n"
+      html     = construct([
+        :blockquote,
+        :ul,
+        :li,
+        "foo",
+        :POP,
+        :POP,
+        :POP,
+        :ul,
+        :li,
+        "bar" ])
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
   end
 end
 
