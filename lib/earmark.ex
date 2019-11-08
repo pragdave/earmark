@@ -453,7 +453,8 @@ defmodule Earmark do
     `iex` usage.
   """
   def version() do
-    with {:ok, version} = :application.get_key(:earmark, :vsn), do: version
+    with {:ok, version} = :application.get_key(:earmark, :vsn),
+      do: to_string(version)
   end
 
   @default_timeout_in_ms 5000
