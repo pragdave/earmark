@@ -107,6 +107,15 @@ defmodule Acceptance.Ast.BlockQuotesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
+    test "indented case" do
+      markdown = " > - foo\n- bar\n"
+      html     = "<blockquote><ul>\n<li>foo</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar</li>\n</ul>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
   end
 end
 

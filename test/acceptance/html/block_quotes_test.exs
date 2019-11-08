@@ -81,6 +81,14 @@ defmodule Acceptance.Html.BlockQuotesTest do
       assert Earmark.as_html(markdown) == {:ok, html, messages}
     end
 
+    test "indented case" do
+      markdown = " > - foo\n- bar\n"
+      html     = "<blockquote><ul>\n<li>foo\n</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar\n</li>\n</ul>\n"
+      messages = []
+
+      assert Earmark.as_html(markdown) == {:ok, html, messages}
+    end
+
   end
 end
 
