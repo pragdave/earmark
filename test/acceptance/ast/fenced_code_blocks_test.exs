@@ -23,9 +23,27 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "longer with shorter inside" do
+      markdown = "~~~~\n<\n~~~\nsome code\n ~~~\n >\n~~~~\n"
+      html     = "<pre><code class=\"\">&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
     test "elixir 's the name" do
       markdown = "```elixir\naaa\n~~~\n```\n"
       html     = "<pre><code class=\"elixir\">aaa\n~~~</code></pre>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "elixir with longer fence" do
+      markdown = "`````elixir\n````\n```\n````\n`````"
+      html     = "<pre><code class=\"elixir\">````\n```\n````</code></pre>"
       ast      = parse_html(html)
       messages = []
 
