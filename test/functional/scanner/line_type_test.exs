@@ -63,12 +63,14 @@ defmodule Functional.Scanner.LineTypeTest do
     { "```java",  %Line.Fence{delimiter: "```", language: "java", line: "```java"} },
     { "```language-java",  %Line.Fence{delimiter: "```", language: "language-java"} },
     { "```language-élixir",  %Line.Fence{delimiter: "```", language: "language-élixir"} },
+    { "   `````",  %Line.Fence{delimiter: "`````", language: "", line: "   `````"} },
 
     { "~~~",      %Line.Fence{delimiter: "~~~", language: "",     line: "~~~"} },
     { "~~~ java", %Line.Fence{delimiter: "~~~", language: "java", line: "~~~ java"} },
     { "  ~~~java",  %Line.Fence{delimiter: "~~~", language: "java", line: "  ~~~java"} },
     { "~~~ language-java", %Line.Fence{delimiter: "~~~", language: "language-java"} },
     { "~~~ language-élixir",  %Line.Fence{delimiter: "~~~", language: "language-élixir"} },
+    { "~~~~ language-élixir",  %Line.Fence{delimiter: "~~~~", language: "language-élixir"} },
 
     { "``` hello ```", %Line.Text{content: "``` hello ```"} },
     { "```hello```", %Line.Text{content: "```hello```"} },

@@ -22,6 +22,15 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
       assert to_html1(markdown) == {:ok, html, messages}
     end
 
+    test "longer with shorter inside" do
+      markdown = "~~~~\n<\n~~~\nsome code\n ~~~\n >\n~~~~\n"
+      html     = "<pre><code class=\"\">&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
+
     test "elixir 's the name" do
       markdown = "```elixir\naaa\n~~~\n```\n"
       html     = fcode("aaa\n~~~", "elixir")
@@ -29,6 +38,15 @@ defmodule Acceptance.Html1.FencedCodeBlocksTest do
 
       assert to_html1(markdown) == {:ok, html, messages}
     end
+
+    test "elixir with longer fence" do
+      markdown = "`````elixir\n````\n```\n````\n`````"
+      html     = "<pre><code class=\"elixir\">````\n```\n````</code></pre>\n"
+      messages = []
+
+      assert to_html1(markdown) == {:ok, html, messages}
+    end
+
 
     test "with a code_class_prefix" do
       markdown = "```elixir\naaa\n~~~\n```\n"
