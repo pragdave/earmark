@@ -1,4 +1,10 @@
-# 1.4.3 ????/??/??
+# 1.4.3 2019/11/23
+
+- [309 fenced code allows for more than 3 backticks/tildes now](https://github.com/pragdave/earmark/issues/309)
+
+- [302 Earmark.version returned a charlist, now a string](https://github.com/pragdave/earmark/issues/302)
+
+- [298 Blockquotes nested in lists only work with an indentation of 2 spaces](https://github.com/pragdave/earmark/issues/298)
 
 
 # 1.4.2 2019/10/14
