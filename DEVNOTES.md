@@ -3,18 +3,9 @@
 
 This is tricky as we have a circular dependency problem between `Earmark` and `ExDoc`
 
-Therfore we will use an alias `mix doc` task that will use an ex_doc escript built apart
+However, helped by José Valim it can be done with a rather simple workaround for the doc task
+in [mix.exs](mix.exs)  
 
-E.g.
-
-```
-  git clone https://github.com/elixir-lang/ex_doc
-  git checkout v0.19.3 # or latest version
-  mix escript.build
-  cd <earmark>
-  EX_DOC_ESCRIPT=<your local escript path unless in $PATH> mix docs 
-
-```
 
 ###### How block elements are rendered:
 
