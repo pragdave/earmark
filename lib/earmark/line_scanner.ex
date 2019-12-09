@@ -231,9 +231,42 @@ defmodule Earmark.LineScanner do
     |> String.replace("<", "&lt;")
 
 
-  @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
-              |> Enum.into(MapSet.new())
-  defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
+  # @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
+  #             |> Enum.into(MapSet.new())
+  # defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
+
+  defp block_tag?("address"), do: true
+  defp block_tag?("article"), do: true
+  defp block_tag?("aside"), do: true
+  defp block_tag?("blockquote"), do: true
+  defp block_tag?("canvas"), do: true
+  defp block_tag?("dd"), do: true
+  defp block_tag?("div"), do: true
+  defp block_tag?("dl"), do: true
+  defp block_tag?("fieldset"), do: true
+  defp block_tag?("figcaption"), do: true
+  defp block_tag?("h1"), do: true
+  defp block_tag?("h2"), do: true
+  defp block_tag?("h3"), do: true
+  defp block_tag?("h4"), do: true
+  defp block_tag?("h5"), do: true
+  defp block_tag?("h6"), do: true
+  defp block_tag?("header"), do: true
+  defp block_tag?("hgroup"), do: true
+  defp block_tag?("li"), do: true
+  defp block_tag?("main"), do: true
+  defp block_tag?("nav"), do: true
+  defp block_tag?("noscript"), do: true
+  defp block_tag?("ol"), do: true
+  defp block_tag?("output"), do: true
+  defp block_tag?("p"), do: true
+  defp block_tag?("pre"), do: true
+  defp block_tag?("section"), do: true
+  defp block_tag?("table"), do: true
+  defp block_tag?("tfoot"), do: true
+  defp block_tag?("ul"), do: true
+  defp block_tag?("video"), do: true
+  defp block_tag?(_), do: false
 
   @column_rgx ~r{\A[\s|:-]+\z}
   defp _determine_if_header(columns) do
