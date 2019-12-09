@@ -1,5 +1,11 @@
 # 1.4.4 ????/??/??
 
+- [PR #313 by [Arjan Scherpenisse]for issue #312](https://github.com/arjan)](https://github.com/pragdave/earmark/issues/313)
+
+- [312 AST Transformer: as_plaintext](https://github.com/pragdave/earmark/issues/312)
+
+
+
 # 1.4.3 2019/11/23
 
 - [309 fenced code allows for more than 3 backticks/tildes now](https://github.com/pragdave/earmark/issues/309)

@@ -7,7 +7,7 @@ defmodule Earmark.Mixfile do
 
   @deps [
     # {:credo, "~> 0.10", only: [:dev, :test]},
-    # {:dialyxir, "~> 0.5", only: [:dev, :test]}
+    {:dialyxir, "~> 0.5", only: [:dev, :test]},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:excoveralls, "~> 0.11.2", only: [:test]},
     {:floki, "~> 0.21", only: [:dev, :test]},

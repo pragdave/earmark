@@ -1,38 +1,9 @@
-defmodule Earmark.Transform do
-
-  alias Earmark.Options
+defmodule Earmark.Transformers.Html do
   import Earmark.Helpers, only: [replace: 3]
-
+  
   @moduledoc """
-  **EXPERIMENTAL**
-  But well tested, just expect API changes in the 1.4 branch.
+  The _Standard_ Transformer from AST to HTML, still **EXPERIMENTAL**.
   """
-
-  @doc """
-  AST transformation, frontend.
-  This is a convenience method.
-
-  Takes markdown, a transformer and options.
-
-  As a matter of fact this can be wrapped around a transformer function that accepts an ast and options and will
-  feed the parsed markdown into the transfomer function iff the parser did not issue any errors.
-
-  E.g
-
-        iex(0)> ~s{a} |> transform_markdown(fn ast, _ -> Enum.count(ast) end)
-        {:ok, 1, []}
-
-  However if parsing encounters errors, the transformer is not invoked and the parser's result is returned
-
-        iex(1)> ~s{`a} |> transform_markdown(nil)
-        {:error, [{\"p\", [], [\"`a\"]}], [{:warning, 1, \"Closing unclosed backquotes ` at end of input\"}]}
-  """
-  def transform_markdown(markdown, transformer, options \\ %Options{}) do
-    with {:ok, ast, messages} <- Earmark.as_ast(markdown, options) do
-      {:ok, transformer.(ast, options), messages}
-    end
-  end
-
 
   @doc """
   Takes an ast, and optional options (I love this pun), which can be
@@ -42,7 +13,7 @@ defmodule Earmark.Transform do
   - `initial_indent:` `number`
   - `indent:` `number`
 
-        iex(2)> transform({"p", [], [{"em", [], "help"}, "me"]})
+        iex(1)> ast_to_html({"p", [], [{"em", [], "help"}, "me"]})
         "<p>\\n  <em>\\n    help\\n  </em>\\n  me\\n</p>\\n"
 
   Right now only transformation to HTML is supported.
@@ -52,14 +23,14 @@ defmodule Earmark.Transform do
   Only the `:meta` key is reserved and by passing annotation maps with a `:meta` key
   into the AST the result might become altered or an exception might be raised, otherwise...
 
-        iex(3)> transform({"p", [], [{"em", [], ["help"], %{inner: true}}], %{level: 1}})
+        iex(2)> ast_to_html({"p", [], [{"em", [], ["help"], %{inner: true}}], %{level: 1}})
         "<p>\\n  <em>\\n    help\\n  </em>\\n</p>\\n"
   """
-  def transform(ast, options \\ %{initial_indent: 0, indent: 2})
-  def transform(ast, options) when is_list(options) do
-    transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
+  def ast_to_html(ast, options \\ %{initial_indent: 0, indent: 2})
+  def ast_to_html(ast, options) when is_list(options) do
+    ast_to_html(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
   end
-  def transform(ast, options) when is_map(options) do
+  def ast_to_html(ast, options) when is_map(options) do
     options1 = options
       |> Map.put_new(:indent, 2)
 

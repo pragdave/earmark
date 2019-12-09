@@ -5,7 +5,7 @@ defmodule Support.Html1Helpers do
     if System.get_env("DEBUG") do
       IO.inspect({:ast, ast})
     end
-    {status, Earmark.Transform.transform(ast, options), messages}
+    {status, Earmark.Transformers.Html.ast_to_html(ast, options), messages}
   end
 
 
