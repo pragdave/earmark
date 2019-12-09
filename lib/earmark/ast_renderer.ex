@@ -1,4 +1,5 @@
 defmodule Earmark.AstRenderer do
+
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options
