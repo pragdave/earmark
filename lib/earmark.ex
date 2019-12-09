@@ -449,6 +449,34 @@ defmodule Earmark do
   end
 
   @doc """
+  A convenience method that strips all markdown tags from the markdown document passed in.
+  """
+  def as_plaintext(lines) do
+    case as_ast(lines, %Options{}) do
+      {:ok, ast, _messages} ->
+        plaintext =
+          markdown_ast_to_iodata(ast)
+          |> IO.chardata_to_string()
+
+        {:ok, plaintext}
+
+      {:error, _ast, messages} ->
+        {:error, messages}
+    end
+  end
+
+  defp markdown_ast_to_iodata(ast) when is_list(ast) do
+    ast
+    |> Enum.map(fn
+      v when is_binary(v) ->
+        v
+
+      {_tag, _attr, ast} ->
+        markdown_ast_to_iodata(ast)
+    end)
+  end
+
+  @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
     `iex` usage.
   """
