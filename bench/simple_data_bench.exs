@@ -48,7 +48,7 @@ defmodule Bench.SimpleDataBench do
 
   #### Options:
 
-  Options can be passed into `as_html` or `as_html!` according to the [documentation](#as_html/2).
+  Options can be passed into `as_html` or `as_html!` according to the [documentation](#earmark.as_html/2).
 
         html_doc = Earmark.as_html!(markdown)
 
