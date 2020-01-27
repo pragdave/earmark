@@ -32,24 +32,22 @@
 
 #### Earmark.as_html
 
-      {:ok, html_doc, []}                   = Earmark.as_html(markdown)
-      {:ok, html_doc, deprecation_messages} = Earmark.as_html(markdown)
-      {:error, html_doc, error_messages}    = Earmark.as_html(markdown)
-
+    {:ok, html_doc, []}                   = Earmark.as_html(markdown)
+    {:ok, html_doc, deprecation_messages} = Earmark.as_html(markdown)
+    {:error, html_doc, error_messages}    = Earmark.as_html(markdown)
 
 #### Earmark.as_html!
 
-      html_doc = Earmark.as_html!(markdown, options)
+    html_doc = Earmark.as_html!(markdown, options)
 
-  All messages are printed to _stderr_.
+All messages are printed to _stderr_.
 
-#### Options:
+#### Options
 
-Options can be passed into `as_html` or `as_html!` according to the [documentation](#as_html/2).
+Options can be passed into `as_html/2` or `as_html!/2` according to the documentation.
 
-      html_doc = Earmark.as_html!(markdown)
-
-      html_doc = Earmark.as_html!(markdown, options)
+    html_doc = Earmark.as_html!(markdown)
+    html_doc = Earmark.as_html!(markdown, options)
 
 Formats the error_messages returned by `as_html` and adds the filename to each.
 Then prints them to stderr and just returns the html_doc
@@ -80,7 +78,6 @@ will call
 
     Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
 
-
 ## Supports
 
 Standard [Gruber markdown][gruber].
@@ -91,54 +88,68 @@ Standard [Gruber markdown][gruber].
 
 ### Github Flavored Markdown
 
-
 GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
 
-* Strike Through
+#### Strike Through
 
-        iex(1)> Earmark.as_html! ["~~hello~~"]
-        "<p><del>hello</del></p>\n"
+    iex(1)> Earmark.as_html! ["~~hello~~"]
+    "<p><del>hello</del></p>\n"
 
+#### Syntax Highlighting
 
-* Syntax Highlighting
+All backquoted or fenced code blocks with a language string are rendered with the given
+language as a _class_ attribute of the _code_ tag.
 
-The generated code blocks have a corresponding `class` attribute:
+For example:
 
+    iex(8)> [
+    ...(8)>    "```elixir",
+    ...(8)>    " @tag :hello",
+    ...(8)>    "```"
+    ...(8)> ] |> Earmark.as_html!()
+    "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
 
+will be rendered as shown in the doctest above.
 
-      iex(2)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"]
-      "<pre><code class=\"elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n"
+If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
+put before the language string.
 
+Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
+as a `code_class_prefix` to `Earmark.Options`.
 
-which can be customized with the `code_class_prefix` option
+In the following example we want more than one additional class, so we add more prefixes.
 
+    Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
 
-      iex(3)> Earmark.as_html! ["```elixir", "   [] |> Enum.into(%{})", "```"] , %Earmark.Options{code_class_prefix: "lang-"}
-      "<pre><code class=\"elixir lang-elixir\">   [] |&gt; Enum.into(%{})</code></pre>\n"
+which is rendering
 
+    <pre><code class="elixir lang-elixir language-elixir">...
 
+As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
 
-* Tables
+    earmark --code-class-prefix "language- lang-" ...
+
+#### Tables
 
 Are supported as long as they are preceded by an empty line.
 
-        State | Abbrev | Capital
-        ----: | :----: | -------
-        Texas | TX     | Austin
-        Maine | ME     | Augusta
+    State | Abbrev | Capital
+    ----: | :----: | -------
+    Texas | TX     | Austin
+    Maine | ME     | Augusta
 
 Tables may have leading and trailing vertical bars on each line
 
-        | State | Abbrev | Capital |
-        | ----: | :----: | ------- |
-        | Texas | TX     | Austin  |
-        | Maine | ME     | Augusta |
+    | State | Abbrev | Capital |
+    | ----: | :----: | ------- |
+    | Texas | TX     | Austin  |
+    | Maine | ME     | Augusta |
 
 Tables need not have headers, in which case all column alignments
 default to left.
 
-        | Texas | TX     | Austin  |
-        | Maine | ME     | Augusta |
+    | Texas | TX     | Austin  |
+    | Maine | ME     | Augusta |
 
 Currently we assume there are always spaces around interior vertical unless
 there are exterior bars.
@@ -147,18 +158,16 @@ However in order to be more GFM compatible the `gfm_tables: true` option
 can be used to interpret only interior vertical bars as a table if a seperation
 line is given, therefor
 
-         Language|Rating
-         --------|------
-         Elixir  | awesome
+     Language|Rating
+     --------|------
+     Elixir  | awesome
 
 is a table (iff `gfm_tables: true`) while
 
-         Language|Rating
-         Elixir  | awesome
+     Language|Rating
+     Elixir  | awesome
 
 never is.
- 
-
 
 ### Adding HTML attributes with the IAL extension
 
@@ -169,53 +178,50 @@ the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
 
 _attrs_ can be one or more of:
 
-* `.className`
-* `#id`
-* name=value, name="value", or name='value'
+  * `.className`
+  * `#id`
+  * name=value, name="value", or name='value'
 
 For example:
 
-        # Warning
-        {: .red}
+    # Warning
+    {: .red}
 
-        Do not turn off the engine
-        if you are at altitude.
-        {: .boxed #warning spellcheck="true"}
-
+    Do not turn off the engine
+    if you are at altitude.
+    {: .boxed #warning spellcheck="true"}
 
 #### To links or images
 
 It is possible to add IAL attributes to generated links or images in the following
 format.
 
-      iex(4)> markdown = "[link](url) {: .classy}"
-      ...(4)> Earmark.as_html(markdown)
-      { :ok, "<p><a href=\"url\" class=\"classy\">link</a></p>\n", []}
-
+    iex(4)> markdown = "[link](url) {: .classy}"
+    ...(4)> Earmark.as_html(markdown)
+    { :ok, "<p><a href=\"url\" class=\"classy\">link</a></p>\n", []}
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
-      {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+    iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
+    {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
-      iex(6)> markdown = "[link](url)\\{: .classy}"
-      ...(6)> Earmark.as_html(markdown)
-      {:ok, "<p><a href=\"url\">link</a>{: .classy}</p>\n", []}
-
+    iex(6)> markdown = "[link](url)\\{: .classy}"
+    ...(6)> Earmark.as_html(markdown)
+    {:ok, "<p><a href=\"url\">link</a>{: .classy}</p>\n", []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
-      iex(7)> markdown = "hello {:world}"
-      ...(7)> Earmark.as_html!(markdown)
-      "<p>hello {:world}</p>\n"
+    iex(7)> markdown = "hello {:world}"
+    ...(7)> Earmark.as_html!(markdown)
+    "<p>hello {:world}</p>\n"
 
 ## Limitations
 
-* Block-level HTML is correctly handled only if each HTML
-  tag appears on its own line. So
+  * Block-level HTML is correctly handled only if each HTML
+    tag appears on its own line. So
 
         <div>
         <div>
@@ -274,43 +280,6 @@ containing an IAL-like string, as in the following example
         <p>mypara
          <hr /></p>
 
-## Integration
-
-### Syntax Highlighting
-
-All backquoted or fenced code blocks with a language string are rendered with the given
-language as a _class_ attribute of the _code_ tag.
-
-For example:
-
-      iex(8)> [
-      ...(8)>    "```elixir",
-      ...(8)>    " @tag :hello",
-      ...(8)>    "```"
-      ...(8)> ] |> Earmark.as_html!()
-      "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
-
-will be rendered as shown in the doctest above.
-
-
-If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
-put before the language string.
-
-Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
-as a `code_class_prefix` to `Earmark.Options`.
-
-In the following example we want more than one additional class, so we add more prefixes.
-
-      Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
-
-which is rendering
-
-       <pre><code class="elixir lang-elixir language-elixir">...
-
-As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
-
-      earmark --code-class-prefix "language- lang-" ...
-
 ## Timeouts
 
 By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`,
@@ -328,11 +297,10 @@ For the escript only the `timeout` command line argument can be used.
 
 ## Security
 
-  Please be aware that Markdown is not a secure format. It produces
-  HTML from Markdown and HTML. It is your job to sanitize and or
-  filter the output of `Earmark.as_html` if you cannot trust the input
-  and are to serve the produced HTML on the Web.
-
+Please be aware that Markdown is not a secure format. It produces
+HTML from Markdown and HTML. It is your job to sanitize and or
+filter the output of `Earmark.as_html` if you cannot trust the input
+and are to serve the produced HTML on the Web.
 
 <!-- END inserted moduledoc Earmark -->
 

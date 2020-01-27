@@ -87,7 +87,7 @@ defmodule Earmark.Mixfile do
   """
   defp build_docs(_) do
     Mix.Task.run("compile")
-    ex_doc = Path.join(Mix.Local.path_for(:escript), "ex_doc")
+    ex_doc = Path.join(Mix.path_for(:escripts), "ex_doc")
     Mix.shell.info("Using escript: #{ex_doc} to build the docs")
 
     unless File.exists?(ex_doc) do
@@ -103,7 +103,7 @@ defmodule Earmark.Mixfile do
   end
 
   defp readme(args) do
-    Code.load_file("tasks/readme.exs")
+    Code.require_file("tasks/readme.exs")
     Mix.Tasks.Readme.run(args)
   end
 end
