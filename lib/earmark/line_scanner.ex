@@ -105,7 +105,7 @@ defmodule Earmark.LineScanner do
         [_, level, heading] = match
         %Line.Heading{level: String.length(level), content: String.trim(heading)}
 
-      match = Regex.run(~r/\A {0,3}>(?|(\s*)$|\s(.*))/, line) ->
+      match = Regex.run(~r/\A {0,3}>(?|(\s*)$|\s?(.*))/, line) ->
         [_, quote] = match
         %Line.BlockQuote{content: quote}
 
