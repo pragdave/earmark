@@ -70,7 +70,7 @@ defmodule Earmark.Line do
       content: "text",
       initial_indent: 0,
       inside_code: false,
-      list_indent: 0
+      list_indent: 0,
     )
   end
 

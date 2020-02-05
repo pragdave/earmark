@@ -10,14 +10,15 @@ defmodule Earmark.Helpers.ReparseHelpers do
     it can be reparsed (as elements of list items).
   """
   # In case we are inside a code block we return the verbatim text
+  def indent_list_item_body(pending_inline_code, level, list_indent)
   def indent_list_item_body(%{inside_code: true, line: line}, _level, _list_indent) do
     line
   end
   # Sublistitems are **always** 2 spaces relative to the main list
   # That however is not GFM compliant
-  def indent_list_item_body(%Line.ListItem{line: line}, _target_level, list_indent) do
-    behead_indent(line, list_indent)
-  end
+  # def indent_list_item_body(%Line.ListItem{line: line}, _target_level, list_indent) do
+  #   behead_indent(line, list_indent)
+  # end
   # Add additional spaces for any indentation past level 1
   # def indent_list_item_body(%Line.Indent{level: level, content: content} = line, target_level, _)
   # when level * 4 == target_level do
@@ -30,8 +31,7 @@ defmodule Earmark.Helpers.ReparseHelpers do
   # when level * 4  > target_level do
   #   String.duplicate(" ", level * 4 - target_level) <> content
   # end
-
-  def indent_list_item_body(line, _, list_indent) do
+  def indent_list_item_body(line, _target_level, list_indent) do
     behead_indent(line.line, list_indent)
   end
 

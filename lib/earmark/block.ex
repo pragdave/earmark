@@ -50,14 +50,26 @@ defmodule Earmark.Block do
     @moduledoc false
     defstruct lnb: 0, attrs: nil, content: nil, verbatim: ""
   end
-  # List does not need line number
   defmodule List do
     @moduledoc false
-    defstruct lnb: 1, attrs: nil, type: :ul, blocks:  [], start: ""
+    defstruct attrs: nil,
+      blocks: [], 
+      bullet: "-",
+      lnb: 0,
+      loose?: false,
+      start: "",
+      type: :ul
   end
   defmodule ListItem do
     @moduledoc false
-    defstruct lnb: 0, attrs: nil, type: :ul, spaced: true, blocks: [], bullet: ""
+    defstruct attrs: nil,
+      blocks: [],
+      bullet: "",
+      lnb: 0,
+      loose?: false,
+      spaced: true,
+      starts_list?: false,
+      type: :ul
   end
   defmodule Table do
     @moduledoc false

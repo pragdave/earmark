@@ -11,6 +11,7 @@ defmodule Earmark.Parser do
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.ReparseHelpers
   import Earmark.Message, only: [add_message: 2, add_messages: 2]
+  import Earmark.Parser.ListParser, only: [parse_list: 3]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -184,15 +185,11 @@ defmodule Earmark.Parser do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet, lnb: lnb} | rest ], result, options, recursive) do
-    {spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
+  defp _parse( [ %Line.ListItem{}|_ ]=input, result, options, recursive) do
 
-    spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
-    lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0, first.list_indent)
-    lines = [content | lines]
-    {blocks, _, options1} = parse(lines, %{options | line: lnb}, :list)
+    {with_prepended_lists, rest, options1} = parse_list(input, result, options)
+    _parse([%Line.Blank{lnb: 0} | rest], with_prepended_lists, options1, recursive)
 
-    _parse([%Line.Blank{lnb: 0} | rest], [ %Block.ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1, recursive)
   end
 
   #################
@@ -545,10 +542,11 @@ defmodule Earmark.Parser do
     head.__struct__ == struct && head.type == type
   end
 
-  defp extract_start(%{bullet: "1."}), do: ""
+  @start_number_rgx ~r{\A0*(\d+)\.}
   defp extract_start(%{bullet: bullet}) do
-    case Regex.run(~r{^(\d+)\.}, bullet) do
+    case Regex.run(@start_number_rgx, bullet) do
       nil -> ""
+      [_, "1"] -> ""
       [_, start] -> ~s{ start="#{start}"}
     end
   end

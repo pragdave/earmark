@@ -83,13 +83,14 @@ defmodule Earmark.Helpers.LookaheadHelpers do
   We also slurp in lines that are inside a multiline inline
   code block as indicated by `pending`.
   """
+  def read_list_lines(lines, pending_tuple, initial_indent)
   def read_list_lines(lines, {pending, pending_lnb}, initial_indent) do
     _read_list_lines(lines, [], %{
       pending: pending,
       pending_lnb: pending_lnb,
       min_indent: nil,
       initial_indent: initial_indent
-    })
+    }) |> IO.inspect
   end
 
   @type read_list_info :: %{
