@@ -1,5 +1,9 @@
 # 1.4.4 ????/??/??
 
+- [320 Nested Blockquotes](https://github.com/pragdave/earmark/issues/320)
+
+
+
 # 1.4.3 2019/11/23
 
 - [309 fenced code allows for more than 3 backticks/tildes now](https://github.com/pragdave/earmark/issues/309)

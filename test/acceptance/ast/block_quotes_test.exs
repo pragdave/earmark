@@ -115,7 +115,26 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+  end
 
+  describe "Nested blockquotes" do
+    test "just two blocks" do
+      markdown = ">>foo\n> bar\n"
+      html     = "<blockquote>\n<blockquote>\n<p>foo\nbar</p></blockquote></blockquote>"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "attached list" do 
+      markdown = " >- foo\n- bar\n"
+      html     = "<blockquote><ul>\n<li>foo</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar</li>\n</ul>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 end
 
