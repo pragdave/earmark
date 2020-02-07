@@ -88,7 +88,7 @@ defmodule Earmark.Mixfile do
   defp build_docs(_) do
     Mix.Task.run("compile")
     ex_doc = Path.join(Mix.path_for(:escripts), "ex_doc")
-    Mix.shell.info("Using escript: #{ex_doc} to build the docs")
+    Mix.shell().info("Using escript: #{ex_doc} to build the docs")
 
     unless File.exists?(ex_doc) do
       raise "cannot build docs because escript for ex_doc is not installed, make sure to \n#{@prerequisites}"
@@ -97,9 +97,9 @@ defmodule Earmark.Mixfile do
     args = ["Earmark", @version, Mix.Project.compile_path()]
     opts = ~w[--main Earmark --source-ref v#{@version} --source-url #{@url}]
 
-    Mix.shell.info("Running: #{ex_doc} #{inspect(args ++ opts)}")
+    Mix.shell().info("Running: #{ex_doc} #{inspect(args ++ opts)}")
     System.cmd(ex_doc, args ++ opts)
-    Mix.shell.info("Docs built successfully")
+    Mix.shell().info("Docs built successfully")
   end
 
   defp readme(args) do
