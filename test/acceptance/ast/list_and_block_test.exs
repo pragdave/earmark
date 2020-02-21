@@ -9,7 +9,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
     test "two spaces" do
       markdown = "- a\n  > b"
       html     = "<ul>\n<li>a</li>\n</ul>\n<blockquote><p>b</p>\n</blockquote>\n"
-      ast      = parse_html(html)
+      ast      = parse_html(html) |> IO.inspect(label: :ast)
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -17,7 +17,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
 
     test "four spaces" do
       markdown = "- c\n    > d"
-      html     = "<ul>\n<li><p>c</p>\n<blockquote><p>d</p>\n</blockquote>\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>c<blockquote><p>d</p>\n</blockquote>\n</li>\n</ul>\n"
       ast      = parse_html(html)
       messages = []
 

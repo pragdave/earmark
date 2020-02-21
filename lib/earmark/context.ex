@@ -1,6 +1,7 @@
 defmodule Earmark.Context do
 
   @moduledoc false
+  @derive {Inspect, only: [:options, :value]}
   use Earmark.Types
   import Earmark.Helpers
 

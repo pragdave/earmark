@@ -147,7 +147,7 @@ defmodule Earmark.AstRenderer do
          context
        )
        when length(blocks) == 1 do
-    {context1, [{"p", _, ast}]} = render(blocks, context)
+    {context1, ast} = render(blocks, context) |> IO.inspect
     {context1, {"li", merge_attrs(attrs), ast}}
   end
 
@@ -155,6 +155,14 @@ defmodule Earmark.AstRenderer do
   defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
     {context1, ast} = render(blocks, context)
     {context1, {"li", merge_attrs(attrs), ast}}
+  end
+
+  ########
+  # Text #
+  ########
+
+  defp render_block(%Block.Text{line: line}, context) do
+    {context, [line]}
   end
 
   ##################
