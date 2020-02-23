@@ -3,6 +3,8 @@ defmodule Functional.Scanner.LineTypeTest do
 
   alias Earmark.Line
 
+  @all_but_leading_ws ~r{\S.*}
+
   id1 = ~S{[ID1]: http://example.com  "The title"}
   id2 = ~S{[ID2]: http://example.com  'The title'}
   id3 = ~S{[ID3]: http://example.com  (The title)}
@@ -50,12 +52,15 @@ defmodule Functional.Scanner.LineTypeTest do
     { ">    quote", %Line.BlockQuote{content: "   quote"} },
     { ">quote",     %Line.BlockQuote{content: "quote"} },
 
-    #1234567890
-    { "   a",        %Line.Text{content: "   a"} },
-    { "    b",       %Line.Indent{level: 1, content: "b"} },
-    { "      c",     %Line.Indent{level: 1, content: "  c"} },
-    { "        d",   %Line.Indent{level: 2, content: "d"} },
-    { "          e", %Line.Indent{level: 2, content: "  e"} },
+    #1234567890123
+    { "   a",         %Line.Text{content: "   a"} },
+    { "    b",        %Line.Indent{level: 1, content: "b"} },
+    { "      c",      %Line.Indent{level: 1, content: "  c"} },
+    { "        d",    %Line.Indent{level: 2, content: "d"} },
+    { "          e",  %Line.Indent{level: 2, content: "  e"} },
+    { "    - f",      %Line.Indent{bullet: "-", level: 1, content: "- f"} },
+    { "     *  g",    %Line.Indent{bullet: "*", level: 1, content: " *  g"} },
+    { "      012) h", %Line.Indent{bullet: "012)", level: 1, content: "  012) h"} },
 
     { "```",      %Line.Fence{delimiter: "```", language: "",     line: "```"} },
     { "``` java", %Line.Fence{delimiter: "```", language: "java", line: "``` java"} },
@@ -105,6 +110,8 @@ defmodule Functional.Scanner.LineTypeTest do
     { "<h2>Headline</h2>",               %Line.HtmlOneLine{tag: "h2", content: "<h2>Headline</h2>"} },
     { "<h2 id='headline'>Headline</h2>", %Line.HtmlOneLine{tag: "h2", content: "<h2 id='headline'>Headline</h2>"} },
 
+    { "<h3>Headline",               %Line.HtmlOpenTag{tag: "h3", content: "<h3>Headline"} },
+
     { id1, %Line.IdDef{id: "ID1", url: "http://example.com", title: "The title"} },
     { id2, %Line.IdDef{id: "ID2", url: "http://example.com", title: "The title"} },
     { id3, %Line.IdDef{id: "ID3", url: "http://example.com", title: "The title"} },
@@ -124,12 +131,15 @@ defmodule Functional.Scanner.LineTypeTest do
       { "+ ul2", %Line.ListItem{ type: :ul, bullet: "+", content: "ul2", list_indent: 2} },
       { "- ul3", %Line.ListItem{ type: :ul, bullet: "-", content: "ul3", list_indent: 2} },
 
-      { "*     ul1", %Line.ListItem{ type: :ul, bullet: "*", content: "ul1", list_indent: 6} },
-      { "*ul1",      %Line.Text{content: "*ul1"} },
+      { "*     ul4", %Line.ListItem{ type: :ul, bullet: "*", content: "    ul4", list_indent: 6} },
+      { "*ul5",      %Line.Text{content: "*ul5"} },
 
       { "1. ol1",          %Line.ListItem{ type: :ol, bullet: "1.", content: "ol1", list_indent: 3} },
-      { "12345.      ol1", %Line.ListItem{ type: :ol, bullet: "12345.", content: "ol1", list_indent: 12} },
-      { "1.ol1", %Line.Text{ content: "1.ol1"} },
+      { "12345.      ol2", %Line.ListItem{ type: :ol, bullet: "12345.", content: "     ol2", list_indent: 7} },
+      { "12345)      ol3", %Line.ListItem{ type: :ol, bullet: "12345)", content: "     ol3", list_indent: 7} },
+
+      { "1234567890. ol4", %Line.Text{ content: "1234567890. ol4"} },
+      { "1.ol5", %Line.Text{ content: "1.ol5"} },
 
       { "=",        %Line.SetextUnderlineHeading{level: 1} },
       { "========", %Line.SetextUnderlineHeading{level: 1} },
@@ -156,11 +166,18 @@ defmodule Functional.Scanner.LineTypeTest do
       { "[^1]: bar baz", %Earmark.Line.Text{content: "[^1]: bar baz", inside_code: false,
                        line: "[^1]: bar baz", lnb: 42}},
           ]
-  |> Enum.each(fn { text, type } ->
-    test("line: '" <> text <> "'") do
-      struct = unquote(Macro.escape type)
-      struct = %{ struct | line: unquote(text), lnb: 42 }
-      assert Earmark.LineScanner.type_of({unquote(text), 42}, false) == struct
+  |> Enum.each(fn { text, %{__struct__: module}=type } ->
+    tag =  module |> inspect |> String.split(".") |> Enum.reverse |> hd() |> String.to_atom
+    quote do
+      unquote do
+        @tag tag
+        test("line: '" <> text <> "'") do
+          struct = unquote(Macro.escape type)
+          indent = unquote(text) |> String.replace(@all_but_leading_ws, "") |> String.length
+          struct = %{ struct | indent: indent, line: unquote(text), lnb: 42 }
+          assert Earmark.LineScanner.type_of({unquote(text), 42}, false) == struct
+        end
+      end
     end
   end)
 

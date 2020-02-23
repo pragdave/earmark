@@ -542,7 +542,7 @@ defmodule Earmark.Parser do
     head.__struct__ == struct && head.type == type
   end
 
-  @start_number_rgx ~r{\A0*(\d+)\.}
+  @start_number_rgx ~r{\A0*(\d+)[.)]}
   defp extract_start(%{bullet: bullet}) do
     case Regex.run(@start_number_rgx, bullet) do
       nil -> ""

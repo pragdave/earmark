@@ -34,24 +34,20 @@ defmodule Earmark.AstRenderer do
     ast   = { "p", merge_attrs(attrs), context1.value |> Enum.reverse}
     {context1, ast}
   end
-
   ########
   # Html #
   ########
   defp render_block(%Block.Html{html: html}, context) do
     {context, render_html_block(html)}
   end
-
   defp render_block(%Block.HtmlOneline{html: html}, context) do
     {context, render_html_oneline(html)}
   end
-
   defp render_block(%Block.HtmlComment{lines: lines}, context) do
     lines1 =
       lines |> Enum.map(&render_html_comment_line/1)
     {context, {:comment, [], lines1}}
   end
-
   #########
   # Ruler #
   #########
@@ -64,7 +60,6 @@ defmodule Earmark.AstRenderer do
   defp render_block(%Block.Ruler{type: "*", attrs: attrs}, context) do
     {context, {"hr", merge_attrs(attrs, %{"class" => "thick"}), []}}
   end
-
   ###########
   # Heading #
   ###########
@@ -77,20 +72,16 @@ defmodule Earmark.AstRenderer do
     # merge_attrs(children, ast, attrs, [], lnb)
     {context1, ast}
   end
-
   ##############
   # Blockquote #
   ##############
-
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context) do
     {context1, ast} = render(blocks, context)
     {context1, {"blockquote", merge_attrs(attrs), ast}}
   end
-
   #########
   # Table #
   #########
-
   defp render_block(
          %Block.Table{lnb: lnb, header: header, rows: rows, alignments: aligns, attrs: attrs},
          context
@@ -107,54 +98,49 @@ defmodule Earmark.AstRenderer do
 
     {context2, {"table", merge_attrs(attrs), rows_ast1}}
   end
-
   ########
   # Code #
   ########
-
   defp render_block(
          %Block.Code{language: language, attrs: attrs} = block,
          context = %Context{options: options}
        ) do
     classes =
-      if language, do: [code_classes(language, options.code_class_prefix)], else: []
+      if language && language != "", do: [code_classes(language, options.code_class_prefix)], else: []
 
     lines = render_code(block)
     ast = { "pre", merge_attrs(attrs), [{"code", classes, [lines]}] }
     {context, ast}
   end
-
   #########
   # Lists #
   #########
-
-  @start_rgx ~r{\d+}
+  @start_rgx ~r{\A\d+}
   defp render_block(
-         %Block.List{type: type, blocks: items, attrs: attrs, start: start},
+         %Block.List{type: type, bullet: bullet, blocks: items, attrs: attrs},
          context
        ) do
     {context1, ast} = render(items, context)
-    start_map = case start && Regex.run(@start_rgx, start) do
-      [start1] -> %{start: start1}
-      _        -> %{}
+    start_map = case bullet && Regex.run(@start_rgx, bullet) do
+      nil      -> %{}
+      ["1"]    -> %{}
+      [start1] -> %{start: _normalize_start(start1)}
     end
     {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
   end
-
   # format a single paragraph list item, and remove the para tags
-  defp render_block(
-         %Block.ListItem{blocks: blocks, spaced: false, attrs: attrs},
-         context
-       )
-       when length(blocks) == 1 do
-    {context1, ast} = render(blocks, context) |> IO.inspect
-    {context1, {"li", merge_attrs(attrs), ast}}
-  end
+  # defp render_block(
+  #        %Block.ListItem{blocks: blocks, loose?: false, attrs: attrs},
+  #        context
+  #      ) do
+  #   {context1, ast} = render(blocks, context) |> IO.inspect
+  #   {context1, {"li", merge_attrs(attrs), ast}}
+  # end
 
   # format a spaced list item
-  defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs}, context) do
+  defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs, loose?: loose?}, context) do
     {context1, ast} = render(blocks, context)
-    {context1, {"li", merge_attrs(attrs), ast}}
+    {context1, {"li", merge_attrs(attrs), _fix_text_lines(ast, loose?)}}
   end
 
   ########
@@ -162,7 +148,7 @@ defmodule Earmark.AstRenderer do
   ########
 
   defp render_block(%Block.Text{line: line}, context) do
-    {context, [line]}
+    {context, {:text, [], Enum.join(line, "\n")}}
   end
 
   ##################
@@ -220,6 +206,25 @@ defmodule Earmark.AstRenderer do
   defp _append_to_result("", result), do: result
   defp _append_to_result(scalar, result), do: [scalar | result]
 
+  defp _fix_text_lines(ast, loose?)
+  defp _fix_text_lines(ast, false), do: Enum.map(ast, &_fix_tight_text_line/1)
+  defp _fix_text_lines(ast, true), do: Enum.map(ast, &_fix_loose_text_line/1)
+
+  defp _fix_loose_text_line(node)
+  defp _fix_loose_text_line({:text, _, lines}), do: {"p", [], [lines]}
+  defp _fix_loose_text_line(node), do: node
+
+  defp _fix_tight_text_line(node)
+  defp _fix_tight_text_line({:text, _, lines}), do: [lines]
+  defp _fix_tight_text_line(node), do: node
+
+  # INLINE CANDIDATE
+  defp _normalize_start(start) do
+    case String.trim_leading(start, "0") do
+      "" -> "0"
+      start1 -> start1
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
