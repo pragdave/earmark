@@ -147,8 +147,10 @@ defmodule Earmark.AstRenderer do
   # Text #
   ########
 
-  defp render_block(%Block.Text{line: line}, context) do
-    {context, {:text, [], Enum.join(line, "\n")}}
+  defp render_block(%Block.Text{line: line, lnb: lnb}, context) do
+    context1 = convert(line, lnb, context)
+    ast   =  context1.value |> Enum.reverse
+    {context1, ast}
   end
 
   ##################
@@ -211,11 +213,12 @@ defmodule Earmark.AstRenderer do
   defp _fix_text_lines(ast, true), do: Enum.map(ast, &_fix_loose_text_line/1)
 
   defp _fix_loose_text_line(node)
+  defp _fix_loose_text_line({:text, _, lines}) when is_list(lines), do: {"p", [], lines}
   defp _fix_loose_text_line({:text, _, lines}), do: {"p", [], [lines]}
   defp _fix_loose_text_line(node), do: node
 
   defp _fix_tight_text_line(node)
-  defp _fix_tight_text_line({:text, _, lines}), do: [lines]
+  defp _fix_tight_text_line({:text, _, lines}), do: lines
   defp _fix_tight_text_line(node), do: node
 
   # INLINE CANDIDATE

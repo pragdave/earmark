@@ -8,11 +8,11 @@ defmodule Acceptance.Ast.ListAndBlockTest do
     # Incorrect behavior needs to be fixed with #249 or #304
     test "two spaces" do
       markdown = "- a\n  > b"
-      html     = "<ul>\n<li>a</li>\n</ul>\n<blockquote><p>b</p>\n</blockquote>\n"
-      ast      = parse_html(html) |> IO.inspect(label: :ast)
+      html     = "<ul>\n<li>a<blockquote><p>b</p>\n</blockquote></li>\n</ul>\n"
+      ast      = parse_html(html) # |> IO.inspect(label: :ast)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "four spaces" do

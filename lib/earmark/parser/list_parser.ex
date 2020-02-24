@@ -125,8 +125,8 @@ defmodule Earmark.Parser.ListParser do
   defp _parse_list_items_start_np([], list_items, ctxt) do
     _finish_list_items([], list_items, true, ctxt)
   end
-  defp _parse_list_items_start_np([%Line.Ruler{}|rest], list_items, ctxt) do
-    _finish_list_items(rest, list_items, true, ctxt)
+  defp _parse_list_items_start_np([%Line.Ruler{}|_]=input, list_items, ctxt) do
+    _finish_list_items(input, list_items, true, ctxt)
   end
   defp _parse_list_items_start_np([%Line.ListItem{initial_indent: ii}=item|rest], list_items, %{list_info: %{indent: i, width: w}}=ctxt)
     when ii < w do
@@ -176,6 +176,8 @@ defmodule Earmark.Parser.ListParser do
                             |> Earmark.Parser.parse(ctxt.options, :list)
                             # |> IO.inspect(label: "Inner parse result")
                             # |> _maybe_remove_para(loose?)
+    # loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) |> IO.inspect || _loose_by_spaced(blocks, ctxt.list_info.spaced) |> IO.inspect
+    # IO.inspect {item.loose?, item.starts_list?, at_start?, items}
     loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) || _loose_by_spaced(blocks, ctxt.list_info.spaced)
     # loose1? = _loose_by_spaced(blocks, ctxt.list_info.spaced)
     {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
@@ -188,6 +190,7 @@ defmodule Earmark.Parser.ListParser do
 
   defp _is_loose(loose?, starts_list?, at_start?, parents)
   defp _is_loose(true, _, _, _), do: true
+  defp _is_loose(false, true, _,  []), do: false
   defp _is_loose(false, true, at_start?, _), do: !at_start?
   defp _is_loose(false, false, at_start?, [%{loose?: loose?}|_]), do: loose? || !at_start?
 

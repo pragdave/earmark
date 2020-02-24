@@ -7,7 +7,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
   describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
-      html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -16,7 +16,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "still no lang" do
       markdown = "~~~\n<\n >\n~~~\n"
-      html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -25,7 +25,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "longer with shorter inside" do
       markdown = "~~~~\n<\n~~~\nsome code\n ~~~\n >\n~~~~\n"
-      html     = "<pre><code class=\"\">&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -61,7 +61,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "look mam, more lines" do
       markdown = "   ```\naaa\nb\n  ```\n"
-      html     = "<pre><code class=\"\">aaa\nb</code></pre>\n"
+      html     = "<pre><code>aaa\nb</code></pre>\n"
       ast      = parse_html(html)
       messages = []
 
