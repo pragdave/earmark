@@ -36,7 +36,6 @@ defmodule Acceptance.Html1.GfmListTest do
 
       assert to_html2(markdown) == expected
     end
-    @tag :wip
     test "List items #236" do
       markdown = " -    one\n\n      two\n"
       expected = parse_trimmed("<ul>\n<li>\n<p>one</p>\n<p>two</p>\n</li>\n</ul>\n")
@@ -322,7 +321,6 @@ defmodule Acceptance.Html1.GfmListTest do
 
       assert to_html2(markdown) == expected
     end
-    @tag :wip
     test "Lists #287" do
       markdown = "- foo\n  - bar\n    - baz\n\n\n      bim\n"
       expected = parse_trimmed("<ul>\n<li>foo\n<ul>\n<li>bar\n<ul>\n<li>\n<p>baz</p>\n<p>bim</p>\n</li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n")

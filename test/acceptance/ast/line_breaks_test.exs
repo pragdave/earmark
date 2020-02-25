@@ -75,7 +75,7 @@ defmodule Acceptance.Ast.LineBreaksTest do
     end
     test "or in code blocks" do
       markdown = "```\nThe \nquick\n```"
-      html     = "<pre><code class=\"\">The \nquick</code></pre>\n"
+      html     = "<pre><code>The \nquick</code></pre>\n"
       ast      = parse_html(html)
       messages = []
 
