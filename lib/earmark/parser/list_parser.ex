@@ -190,29 +190,14 @@ defmodule Earmark.Parser.ListParser do
                             # |> _maybe_remove_para(loose?)
     # loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) |> IO.inspect || _loose_by_spaced(blocks, ctxt.list_info.spaced) |> IO.inspect
     # IO.inspect {item.loose?, item.starts_list?, at_start?, items}
-    loose1? = _is_loose(item.loose?, at_start?, items) || _loose_by_spaced(blocks, ctxt.list_info.spaced)
     # loose1? = _loose_by_spaced(blocks, ctxt.list_info.spaced)
-    {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
+    {[%{item | blocks: blocks, loose?: false}|items], options1}
   end
 
   defp _finish_list_items(input, items, at_start?, ctxt) do
     {items1, options1} = _finish_list_item(items, at_start?, ctxt)
     parse_list_items(:end, input, items1, %{ctxt|options: options1})
   end
-
-  defp _is_loose(loose?, at_start?, parents)
-  defp _is_loose(true, _, _), do: true
-  defp _is_loose(true, _, _), do: true
-  defp _is_loose(false, _,  []), do: false
-  defp _is_loose(false, at_start?, _), do: !at_start?
-  defp _is_loose(false, at_start?, [%{loose?: loose?}|_]), do: loose? || !at_start?
-  defp _is_loose(_, _, _, _), do: false
-
-
-  defp _loose_by_spaced(blocks, spaced)
-  defp _loose_by_spaced(blocks, false), do: false
-  defp _loose_by_spaced([_, _|_], true), do: true
-  defp _loose_by_spaced(_, true), do: false
 
   # INLINE CANDIDATE
   defp _make_and_prepend_list_item(%Line.ListItem{bullet: bullet, lnb: lnb, type: type}=item, list_items) do
