@@ -26,10 +26,10 @@ defmodule Earmark.Parser.ListParser do
 
   def parse_list(lines, result, options \\ %Options{}) do
     {items, rest, options1} = parse_list_items(lines, options)
-    {list, items1}          = _make_list(items|>Enum.reverse)
-    lists                   = _make_lists(items1, [], list)
+    list                    = _make_list(items, _empty_list(items) )
+    # lists                 = _make_lists(items1, [], list)
     # IO.inspect lists, label: "parsed lists"
-    {lists ++ result, rest, options1}
+    {[list|result], rest, options1}
   end
 
   def parse_list_items(input, options) do
@@ -78,8 +78,12 @@ defmodule Earmark.Parser.ListParser do
   end
   defp _parse_list_items_spaced_np([%Line.ListItem{initial_indent: ii}=item|_]=input, list_items, %{list_info: %{width: w}}=ctxt)
     when ii < w do
-      {items1, options1} = _finish_list_item(list_items, false, ctxt)
-      parse_list_items(:init, input, items1, options1)
+      if _starts_list?(item, list_items) do
+        _finish_list_items(input, list_items, false, ctxt)
+      else
+        {items1, options1} = _finish_list_item(list_items, false, ctxt)
+        parse_list_items(:init, input, items1, options1)
+      end
   end
   # TODO: Check if this branch is not redundant, maybe even bogus! -- probably not as we do not have the same indentation rules
   #                                                                   for list_items and other lines
@@ -128,11 +132,14 @@ defmodule Earmark.Parser.ListParser do
   defp _parse_list_items_start_np([%Line.Ruler{}|_]=input, list_items, ctxt) do
     _finish_list_items(input, list_items, true, ctxt)
   end
-  defp _parse_list_items_start_np([%Line.ListItem{initial_indent: ii}=item|rest], list_items, %{list_info: %{indent: i, width: w}}=ctxt)
+  defp _parse_list_items_start_np([%Line.ListItem{initial_indent: ii}=item|rest]=input, list_items, %{list_info: %{indent: i, width: w}}=ctxt)
     when ii < w do
-      {items1, options1} = _finish_list_item(list_items, true, ctxt)
-      ctxt1 = %Ctxt{lines: [item.content], list_info: ListInfo.new(item), options: options1}
-      parse_list_items(:start, rest, _make_and_prepend_list_item(item, items1), ctxt1)
+      if _starts_list?(item, list_items) do
+        _finish_list_items(input, list_items, true, ctxt)
+      else
+        {items1, options1} = _finish_list_item(list_items, true, ctxt)
+        parse_list_items(:init, input, items1, options1)
+      end
   end
   # Slurp in everything else before a first blank line
   defp _parse_list_items_start_np([%{line: str_line}=line|rest], items, ctxt) do
@@ -152,6 +159,11 @@ defmodule Earmark.Parser.ListParser do
 
   defp _behead_spaces(str, len) do
     Regex.replace(~r/\A\s{1,#{len}}/, str, "")
+  end
+
+  # INLINE CANDIDATE
+  defp _empty_list([%Block.ListItem{loose?: loose?, type: type}|_]) do
+    %Block.List{loose?: loose?, type: type}
   end
 
   # INLINE CANDIDATE
@@ -178,7 +190,7 @@ defmodule Earmark.Parser.ListParser do
                             # |> _maybe_remove_para(loose?)
     # loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) |> IO.inspect || _loose_by_spaced(blocks, ctxt.list_info.spaced) |> IO.inspect
     # IO.inspect {item.loose?, item.starts_list?, at_start?, items}
-    loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) || _loose_by_spaced(blocks, ctxt.list_info.spaced)
+    loose1? = _is_loose(item.loose?, at_start?, items) || _loose_by_spaced(blocks, ctxt.list_info.spaced)
     # loose1? = _loose_by_spaced(blocks, ctxt.list_info.spaced)
     {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
   end
@@ -188,11 +200,14 @@ defmodule Earmark.Parser.ListParser do
     parse_list_items(:end, input, items1, %{ctxt|options: options1})
   end
 
-  defp _is_loose(loose?, starts_list?, at_start?, parents)
-  defp _is_loose(true, _, _, _), do: true
-  defp _is_loose(false, true, _,  []), do: false
-  defp _is_loose(false, true, at_start?, _), do: !at_start?
-  defp _is_loose(false, false, at_start?, [%{loose?: loose?}|_]), do: loose? || !at_start?
+  defp _is_loose(loose?, at_start?, parents)
+  defp _is_loose(true, _, _), do: true
+  defp _is_loose(true, _, _), do: true
+  defp _is_loose(false, _,  []), do: false
+  defp _is_loose(false, at_start?, _), do: !at_start?
+  defp _is_loose(false, at_start?, [%{loose?: loose?}|_]), do: loose? || !at_start?
+  defp _is_loose(_, _, _, _), do: false
+
 
   defp _loose_by_spaced(blocks, spaced)
   defp _loose_by_spaced(blocks, false), do: false
@@ -201,25 +216,21 @@ defmodule Earmark.Parser.ListParser do
 
   # INLINE CANDIDATE
   defp _make_and_prepend_list_item(%Line.ListItem{bullet: bullet, lnb: lnb, type: type}=item, list_items) do
-    starts_list? = _starts_list?(item, list_items)
-    [%Block.ListItem{bullet: bullet, lnb: lnb, spaced: false, starts_list?: starts_list?, type: type}|list_items]
+    [%Block.ListItem{bullet: bullet, lnb: lnb, spaced: false, type: type}|list_items]
+  end
+
+  defp _make_list(items, list)
+  defp _make_list([%Block.ListItem{bullet: bullet, lnb: lnb, type: type}=item], %Block.List{blocks: blocks, loose?: loose?}=list) do
+    %{list | blocks: [%{item | loose?: loose?}|list.blocks],
+      bullet: bullet,
+      lnb: lnb,
+      start: _extract_start(item)}
   end
 
   # INLINE CANDIDATE
-  defp _make_list([%Block.ListItem{bullet: bullet, lnb: lnb, loose?: loose, type: type}=item|rest]) do
-    {%Block.List{blocks: [item], bullet: bullet, lnb: lnb, loose?: loose, start: _extract_start(item), type: type}, rest}
+  defp _make_list([%Block.ListItem{}=item|rest], %Block.List{loose?: loose?}=list) do
+   _make_list(rest, %{list | blocks: [%{item | loose?: loose?}|list.blocks]})
   end
-
-  defp _make_lists(items, result, list)
-  defp _make_lists([], result, list), do: [_finish_list(list)|result]
-  defp _make_lists([%Block.ListItem{starts_list?: true}|_]=items, result, list) do
-    {list1, items1} = _make_list(items)
-    _make_lists(items1, [_finish_list(list)|result], list1)
-  end
-  defp _make_lists([%Block.ListItem{}=item|items], result, list) do
-    _make_lists(items, result, _prepend_item(list, item))
-  end
-
 
 
   defp _prepend_item(%Block.List{blocks: [%{spaced: spaced}|_]=blocks, loose?: lloose}=list, %Block.ListItem{loose?: liloose}=item) do

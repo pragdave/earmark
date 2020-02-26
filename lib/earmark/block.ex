@@ -68,7 +68,6 @@ defmodule Earmark.Block do
       lnb: 0,
       loose?: false,
       spaced: true,
-      starts_list?: false,
       type: :ul
   end
   defmodule Table do
