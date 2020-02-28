@@ -27,6 +27,7 @@ defmodule Earmark.Parser.ListParser do
   def parse_list(lines, result, options \\ %Options{}) do
     {items, rest, options1} = parse_list_items(lines, options)
     list                    = _make_list(items, _empty_list(items) )
+    _debug({:final, list})
     # lists                 = _make_lists(items1, [], list)
     # IO.inspect lists, label: "parsed lists"
     {[list|result], rest, options1}
@@ -51,16 +52,7 @@ defmodule Earmark.Parser.ListParser do
   end
   defp _parse_list_items(:end, rest, items, ctxt), do: {items, rest, ctxt.options}
   defp _parse_list_items(:start, rest, items, ctxt), do: _parse_list_items_start(rest, items, ctxt)
-  defp _parse_list_items(:blank, rest, items, ctxt), do: _parse_list_items_blank(rest, items, ctxt)
   defp _parse_list_items(:spaced, rest, items, ctxt), do: _parse_list_items_spaced(rest, items, ctxt)
-
-  defp _parse_list_items_blank(input, list_items, ctxt)
-  defp _parse_list_items_blank([], list_items, ctxt), do: _finish_list_items([], list_items, true, ctxt)
-  defp _parse_list_items_blank([%Line.Blank{}|rest], list_items, ctxt), do: parse_list_items(:blank, rest, list_items, _prepend_line(ctxt, ""))
-  defp _parse_list_items_blank([%{indent: i}=line|rest], list_items, %{list_info: %{width: w}}=ctxt) when i >= w do
-    parse_list_items(:blank, rest, list_items, _update_ctxt(ctxt, behead(line.line, w), line))
-  end
-  defp _parse_list_items_blank(input, list_items, ctxt), do: parse_list_items(:spaced, input, list_items, ctxt)
 
   defp _parse_list_items_spaced(input, items, ctxt)
   defp _parse_list_items_spaced(input, items, %{list_info: %{pending: @not_pending}}=ctxt) do
@@ -124,7 +116,7 @@ defmodule Earmark.Parser.ListParser do
 
   defp _parse_list_items_start_np(input, list_items, ctxt)
   defp _parse_list_items_start_np([%Line.Blank{}|input], items, ctxt) do
-    parse_list_items(:blank, input, items, _prepend_line(_set_spaced(ctxt), ""))
+    parse_list_items(:spaced, input, items, _prepend_line(_set_spaced(ctxt), ""))
   end
   defp _parse_list_items_start_np([], list_items, ctxt) do
     _finish_list_items([], list_items, true, ctxt)
@@ -191,7 +183,8 @@ defmodule Earmark.Parser.ListParser do
     # loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) |> IO.inspect || _loose_by_spaced(blocks, ctxt.list_info.spaced) |> IO.inspect
     # IO.inspect {item.loose?, item.starts_list?, at_start?, items}
     # loose1? = _loose_by_spaced(blocks, ctxt.list_info.spaced)
-    {[%{item | blocks: blocks, loose?: false}|items], options1}
+    loose1? = _already_loose?(items) || !at_start? && Enum.count(blocks) > 1 
+    {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
   end
 
   defp _finish_list_items(input, items, at_start?, ctxt) do
@@ -211,6 +204,11 @@ defmodule Earmark.Parser.ListParser do
       lnb: lnb,
       start: _extract_start(item)}
   end
+
+  # INLINE CANDIDATE
+  defp _already_loose?(items)
+  defp _already_loose?([]), do: false # Can this happen?
+  defp _already_loose?([%{loose?: loose?}|_]), do: true
 
   # INLINE CANDIDATE
   defp _make_list([%Block.ListItem{}=item|rest], %Block.List{loose?: loose?}=list) do
