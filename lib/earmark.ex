@@ -278,7 +278,7 @@ defmodule Earmark do
 
   alias Earmark.Error
   alias Earmark.Options
-  import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
+  import Earmark.Message, only: [emit_messages: 2, sort_messages: 1]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -347,18 +347,8 @@ defmodule Earmark do
   end
 
   def as_html(lines, options) do
-    {context, html} = _as_html(lines, options)
-    messages = sort_messages(context)
-
-    status =
-      case Enum.any?(messages, fn {severity, _, _} ->
-             severity == :error || severity == :warning
-           end) do
-        true -> :error
-        _ -> :ok
-      end
-
-    {status, html, messages}
+    {status, ast, messages} = as_ast(lines, options)
+    {status, Earmark.Transform.transform(ast, options), messages}
   end
 
   @doc """
@@ -429,18 +419,9 @@ defmodule Earmark do
     as_html!(lines, struct(Options, options))
   end
   def as_html!(lines, options = %Options{}) do
-    {context, html} = _as_html(lines, options)
-    emit_messages(context)
+    {_status, html, messages} = as_html(lines, options)
+    emit_messages(messages, options)
     html
-  end
-
-  defp _as_html(lines, options) do
-    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
-
-    case blocks do
-      [] -> {context, ""}
-      _ -> options.renderer.render(blocks, context)
-    end
   end
 
   defp _as_ast(lines, options) do
