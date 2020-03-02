@@ -18,16 +18,16 @@ defmodule Acceptance.Ast.ListIndentTest do
 
     test "mixed two levels (by 2)" do
       markdown = "1. One\n  - two\n  - three"
-      html     = "<ol>\n<li><p>One</p>\n<ul>\n<li>two</li>\n<li>three</li>\n</ul>\n</li>\n</ol>\n"
+      html     = "<ol>\n<li>One</li></ol><ul>\n<li>two</li>\n<li>three</li>\n</ul>"
       ast      = parse_html(html)
       messages = []
 
-      assert as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "mixed two levels (by 4)" do
       markdown = "1. One\n    - two\n    - three"
-      html     = "<ol>\n<li><p>One</p>\n<ul>\n<li>two</li>\n<li>three</li>\n</ul>\n</li>\n</ol>\n"
+      html     = "<ol>\n<li>One<ul>\n<li>two</li>\n<li>three</li>\n</ul>\n</li>\n</ol>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -54,7 +54,7 @@ defmodule Acceptance.Ast.ListIndentTest do
 
     test "4 level correct pop up" do
       markdown = "- 1\n    - 1.1\n        - 1.1.1\n    - 1.2"
-      html     = "<ul>\n<li><p>1</p>\n<ul>\n<li><p>1.1</p>\n<ul>\n<li>1.1.1</li>\n</ul>\n</li>\n<li>1.2</li>\n</ul>\n</li>\n</ul>\n"
+      html     = "<ul>\n<li>1<ul>\n<li>1.1<ul>\n<li>1.1.1</li>\n</ul>\n</li>\n<li>1.2</li>\n</ul>\n</li>\n</ul>\n"
       ast      = parse_html(html)
       messages = []
 

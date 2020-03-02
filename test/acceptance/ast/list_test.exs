@@ -44,7 +44,7 @@ defmodule Acceptance.Ast.ListTest do
     # Not GFM conformant, >3 goes into the head of the item
     test "Indented items, by 4 (removed from func tests)" do
       markdown = "1. one\n    - two\n        - three"
-      html     = "<ol><li><p>one</p><ul><li><p>two</p><ul><li>three</li></ul></li></ul></li></ol>"
+      html     = "<ol><li>one<ul><li>two<ul><li>three</li></ul></li></ul></li></ol>"
       ast      = parse_html(html)
       messages = []
 
