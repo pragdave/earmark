@@ -159,6 +159,13 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "link with nested elements" do
+      markdown = "[_foo_ bar](link)"
+      html     = "<p><a href=\"link\"><em>foo</em> bar</a></p>\n"
+      ast = parse_html(html)
+      messages = []
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 
 

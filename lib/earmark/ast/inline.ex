@@ -301,9 +301,9 @@ defmodule Earmark.Ast.Inline do
 
     context2 = _convert(text, lnb, set_value(context1, []), false)
     if title do
-      { "a", [{"href", href}, {"title", title}], context2.value }
+      { "a", [{"href", href}, {"title", title}], Enum.reverse(context2.value) }
     else
-      { "a", [{"href", href}], context2.value }
+      { "a", [{"href", href}], Enum.reverse(context2.value) }
     end
   end
 
