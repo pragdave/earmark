@@ -1,6 +1,10 @@
-# 1.4.4 ????/??/??
+# 1.5.0 ????/??/??
+
+- [324 Fix AST for links with nested elements](https://github.com/pragdave/earmark/pull/324) 
+    Kudos to [Wojtek Mach](https://github.com/wojtekmach)
 
 - [320 Nested Blockquotes](https://github.com/pragdave/earmark/issues/320)
+
 
 
 
