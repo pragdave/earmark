@@ -1,7 +1,5 @@
 defmodule Acceptance.Html.TableTest do
-  use ExUnit.Case, async: true
-
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  use Support.AcceptanceTestCase
   
   describe "complex rendering inside tables:" do 
 
@@ -53,6 +51,13 @@ defmodule Acceptance.Html.TableTest do
     test "as mentioned above" do
       markdown = "|a|b|\n|d|e|\n{:#the-table}"
       html     = "<table id=\"the-table\">\n<tbody>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</tbody>\n</table>\n" 
+      html     = gen({:table, [id: "the-table"],
+        {:tbody, [
+          {:tr, [{:td, [style: "text-align: left;"], "a"},
+            {:td, [style: "text-align: left;"], "b"}]},
+          {:tr, [{:td, [style: "text-align: left;"], "d"},
+            {:td, [style: "text-align: left;"], "e"}
+          ]}]}})
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -1,8 +1,6 @@
 defmodule Acceptance.Ast.ListIndentTest do
   use ExUnit.Case, async: true
 
-  @moduletag :ast
-
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
   describe "different levels of indent" do

@@ -4,7 +4,6 @@ defmodule Acceptance.Ast.CommentTest do
   import Support.Helpers, only: [as_ast: 1]
 
   describe "HTML Comments" do
-    @moduletag :ast
     test "one line" do
       markdown = "<!-- Hello -->"
       ast      = {:comment, [], [" Hello "]}

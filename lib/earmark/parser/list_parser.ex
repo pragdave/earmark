@@ -15,8 +15,6 @@ defmodule Earmark.Parser.ListParser do
   @not_pending {nil, 0}
 
   defmodule Ctxt do
-    @derive { Inspect, only: [:lines, :list_info] }
-
     defstruct(
       lines: [],
       list_info: %ListInfo{},

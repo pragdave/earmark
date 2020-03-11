@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.ReflinkTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "undefined reflinks" do
     test "simple case" do
       markdown = "[text] [reference]\n[reference1]: some_url"

@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Indented code blocks" do
     test "simple (but easy?)" do
       markdown = "    a simple\n      indented code block\n"

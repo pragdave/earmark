@@ -1,20 +1,20 @@
 defmodule Acceptance.Html.DiverseTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
 
-  import Support.Helpers, only: [as_html: 1]
 
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
-      html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
+      html     = "<p>\n<code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
+    
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "spaec preserving" do
-      markdown = "Multiple     spaces\n"
-      html     = "<p>Multiple     spaces</p>\n"
+      markdown = "Multiple     spaces"
+      html     = para(markdown)
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -22,12 +22,12 @@ defmodule Acceptance.Html.DiverseTest do
 
     test "syntax errors" do
       markdown ="A\nB\n="
-      html     = "<p>A\nB</p>\n<p></p>\n"
+      html     = gen([{:p, "A\nB"}, {:p, []}])
       messages = [{:warning, 3, "Unexpected line =" }]
 
       assert as_html(markdown) == {:error, html, messages}
     end
-   end
+  end
 
 end
 

@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.LineBreaksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Forced Line Breaks" do
     test "with two spaces" do
       markdown = "The  \nquick"

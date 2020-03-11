@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Links with titles" do
     test "two titled links" do
       mark_tmp = "[link](/uri \"title\")"

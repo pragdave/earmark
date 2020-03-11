@@ -66,7 +66,7 @@ defmodule Earmark.Transform do
   defp _to_html({:comment, _, children}, options, level, _verbatim) do
     indent = make_indent(options, level)
     [ indent,
-      "<!--", Enum.intersperse(children, ["\n", indent, "    "]), "-->"]
+      "<!--", Enum.intersperse(children, ["\n", indent]), "-->"]
   end
   defp _to_html({tag, atts, []}, options, level, _verbatim) do
     [ make_indent(options, level),
@@ -78,7 +78,7 @@ defmodule Earmark.Transform do
   defp _to_html({"code", atts, children}, options, _level, _verbatim) do
     [ make_indent(options, 0),
       open_tag("code", atts),
-      Enum.join(children, "\n")|>Earmark.Helpers.escape(),
+      Enum.join(children, "\n")|>Earmark.Helpers.escape(true),
       "</code>"]
   end
   defp _to_html({"pre", atts, children}, options, level, _verbatim) do
@@ -122,7 +122,7 @@ defmodule Earmark.Transform do
     element1 =
         element
         |> smartypants(options)
-        |> Earmark.Helpers.escape(true)
+        |> Earmark.Helpers.escape()
     [make_indent(options, level), element1, "\n"]
   end
 

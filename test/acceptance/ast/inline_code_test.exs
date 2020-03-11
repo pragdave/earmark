@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.InlineCodeTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Inline Code" do
     test "plain simple" do
       markdown = "`foo`\n"

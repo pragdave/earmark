@@ -5,19 +5,6 @@ defmodule Earmark.Parser.ListInfo do
 
   @not_pending {nil, 0}
 
-  # @derive {Inspect, only: [:pending, :width]}
-  defimpl Inspect, for: __MODULE__ do
-    import Inspect.Algebra
-
-    def inspect(subject, opts)
-    def inspect(%{pending: {nil, _}}=subject, opts) do
-      concat(["LInfo<", "width: ", to_doc(subject.width, opts), ">"])
-    end
-    def inspect(%{pending: {pending, _}}=subject, opts) do
-      concat(["LInfo<", "width: ", to_doc(subject.width, opts), " pending: ", to_doc(pending, opts), ">"])
-    end
-  end
-
   defstruct(
     indent: 0,
     pending: @not_pending,

@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.ListAndBlockTest do
   use ExUnit.Case
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Block Quotes in Lists" do
     # Incorrect behavior needs to be fixed with #249 or #304
     test "two spaces" do

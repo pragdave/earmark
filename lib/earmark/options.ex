@@ -1,7 +1,6 @@
 defmodule Earmark.Options do
 
   use Earmark.Types
-  @derive {Inspect, only: [:messages]}
 
   # What we use to render
   defstruct renderer: Earmark.HtmlRenderer,

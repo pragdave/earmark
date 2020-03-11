@@ -3,8 +3,6 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   import Support.AstHelpers, only: [p: 1, void_tag: 1]
   
-  @moduletag :ast
-
   @verbatim %{meta: %{verbatim: true}}
 
   describe "HTML blocks" do

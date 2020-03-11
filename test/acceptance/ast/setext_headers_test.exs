@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.SetextHeadersTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Base cases" do
 
     test "Level one" do 

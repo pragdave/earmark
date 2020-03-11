@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.DiverseTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"

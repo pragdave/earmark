@@ -14,6 +14,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+
     test "link with utf8 title" do
       markdown = "[foo]: /url \"Überschrift\"\n\n[foo]\n"
       html = "<p><a href=\"/url\" title=\"Überschrift\">foo</a></p>\n"

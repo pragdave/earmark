@@ -1,9 +1,7 @@
 defmodule Acceptance.Ast.TableTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
   
-  @moduletag :ast
-
   describe "complex rendering inside tables:" do 
 
     test "simple table" do 
@@ -61,6 +59,35 @@ defmodule Acceptance.Ast.TableTest do
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "GFM Tables" do
+    test "do not need spaces around mid `\|`" do
+      markdown = "a|b\n-|-\nd|e\n"
+      html     = "<table>\n<thead>\n<tr>\n<th style=\"text-align: left;\">a</th><th style=\"text-align: left;\">b</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align: left;\">d</td><td style=\"text-align: left;\">e</td>\n</tr>\n</tbody>\n</table>\n" 
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown, gfm_tables: true) == {:ok, [ast], messages}
+    end
+
+    test "do not need spaces around mid `\|` but w/o gfm_tables this is no good" do
+      markdown = "a|b\n-|-\nd|e\n"
+      html     = "<p>a|b\n-|-\nd|e</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown, gfm_tables: false) == {:ok, [ast], messages}
+    end
+
+    test "however a header line needs to be used" do
+      markdown = "a|b\nd|e\n"
+      html     = "<p>a|b\nd|e</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown, gfm_tables: true) == {:ok, [ast], messages}
     end
   end
 end

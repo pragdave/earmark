@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.InlineIalTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "IAL no errors" do
     test "link with simple ial" do
       markdown = "[link](url){: .classy}"
