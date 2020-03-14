@@ -243,10 +243,19 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
     end
   end
 
-  describe "link with parentheses" do
-    test "was regtest #70" do
+  describe "some special chars inside links" do
+    test "parentheses inside the url (was regtest #70)" do
       markdown = ~s{[Wikipedia article on PATH](https://en.wikipedia.org/wiki/PATH_(variable))}
       html     = ~s{<p><a href="https://en.wikipedia.org/wiki/PATH_(variable)">Wikipedia article on PATH</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "quotes in text (was regtest #72)" do 
+      markdown = ~s{["Earmark"](https://github.com/pragdave/earmark/)}
+      html     = ~s{<p><a href="https://github.com/pragdave/earmark/">"Earmark"</a></p>\n}
       ast      = parse_html(html)
       messages = []
 

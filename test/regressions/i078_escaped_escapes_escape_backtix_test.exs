@@ -31,7 +31,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   end
 
   @short_html """
-  <p>Hello <code class="inline">\\\\</code> \\</p>\n<pre><code>World</code></pre>
+  <p>\n  Hello \n<code class="inline">\\\\</code>   \\\n</p>\n<pre><code>World</code></pre>
   """
   test "Issue https://github.com/pragdave/earmark/issues/78 correct blocks" do
     assert blox_from_file("test/fixtures/i078_short.md") ==
