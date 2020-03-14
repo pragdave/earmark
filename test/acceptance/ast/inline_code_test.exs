@@ -124,6 +124,14 @@ defmodule Acceptance.Ast.InlineCodeTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
+    test "inline code inside lists (was regtest #48)" do 
+      markdown = " * `a\n * b`"
+      html     = ~s[<ul>\n<li><code class="inline">a * b</code>\n</li>\n</ul>\n]
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 end
 

@@ -46,6 +46,19 @@ defmodule Acceptance.Ast.IndentedCodeBlocksTest do
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
+    test "2nd line less indented (was regtest #43)" do 
+      markdown =  
+        """
+                 alpha
+             beta
+        """
+      html = ~s[<pre><code>     alpha\n beta</code></pre>\n]
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 
   describe "Indented Code Blocks with IAL" do

@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.ListTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "List items" do
     test "Unnumbered" do
       markdown = "* one\n* two"
@@ -169,6 +167,30 @@ defmodule Acceptance.Ast.ListTest do
     end
   end
 
+  describe "list after para" do
+    test "indented (was regtest #13)" do
+      markdown = """
+    Para
+
+    1. l1
+
+    2. l2
+  """
+      html     = """
+                     <p>  Para</p>
+                     <ol>
+                     <li><p>l1</p>
+                     </li>
+                     <li><p>l2</p>
+                     </li>
+                     </ol>
+                  """
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+  end
   # describe "Inline code" do
   #   @tag :wip
   #   test "perserves spaces" do

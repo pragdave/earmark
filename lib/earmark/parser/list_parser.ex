@@ -26,7 +26,7 @@ defmodule Earmark.Parser.ListParser do
   def parse_list(lines, result, options \\ %Options{}) do
     {items, rest, options1} = parse_list_items(lines, options)
     list                    = _make_list(items, _empty_list(items) )
-    # _debug({:final, list})
+    _debug({:final, list})
     # lists                 = _make_lists(items1, [], list)
     # IO.inspect lists, label: "parsed lists"
     {[list|result], rest, options1}
@@ -47,7 +47,8 @@ defmodule Earmark.Parser.ListParser do
 
   defp _parse_list_items(state, input, output, ctxt)
   defp _parse_list_items(:init, [item|rest], list_items, options) do
-    parse_list_items(:start, rest, _make_and_prepend_list_item(item, list_items), %Ctxt{lines: [item.content], list_info: ListInfo.new(item), options: options})
+    options1 = %{options|line: item.lnb}
+    parse_list_items(:start, rest, _make_and_prepend_list_item(item, list_items), %Ctxt{lines: [item.content], list_info: ListInfo.new(item), options: options1})
   end
   defp _parse_list_items(:end, rest, items, ctxt), do: {items, rest, ctxt.options}
   defp _parse_list_items(:start, rest, items, ctxt), do: _parse_list_items_start(rest, items, ctxt)
@@ -62,7 +63,8 @@ defmodule Earmark.Parser.ListParser do
   end
 
   defp _parse_list_items_spaced_np([%Line.Blank{}|rest], items, ctxt) do
-    parse_list_items(:spaced, rest, items, ctxt)
+    ctxt1 = %{ctxt|options: %{ctxt.options|line: ctxt.options.line + 1}}
+    parse_list_items(:spaced, rest, items, ctxt1)
   end
   defp _parse_list_items_spaced_np([%Line.Ruler{}|_]=lines, items, ctxt) do
     _finish_list_items(lines, items, false, ctxt)
@@ -141,10 +143,8 @@ defmodule Earmark.Parser.ListParser do
   end
 
   defp _parse_list_items_start_pdg(input, items, ctxt)
-  defp _parse_list_items_start_pdg([], items, lines, %{list_info: %{pending: {pending, lnb}}, options: options}=ctxt) do
-    options1 =
-      add_message(options, {:warning, lnb, "Closing unclosed backquotes #{pending} at end of input"})
-    _finish_list_items(lines, items, true, %{ctxt|options: options1})
+  defp _parse_list_items_start_pdg([], items, %{lines: lines, list_info: %{pending: {pending, lnb}}}=ctxt) do
+    _finish_list_items([], items, true, ctxt)
   end
   defp _parse_list_items_start_pdg([line|rest], items, ctxt) do
     parse_list_items(:start, rest, items, _update_ctxt(ctxt, line.line, line))
