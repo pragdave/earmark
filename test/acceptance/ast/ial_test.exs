@@ -1,4 +1,4 @@
-defmodule Acceptance.Ast.InlineIalTest do
+defmodule Acceptance.Ast.IalTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
@@ -38,6 +38,14 @@ defmodule Acceptance.Ast.InlineIalTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
+    test "missing element for ial (was regtest #99)" do
+      markdown = "{.hello}"
+      ast      = [{"p", [], [markdown]}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
   end
 
   describe "Error Handling" do
@@ -58,6 +66,7 @@ defmodule Acceptance.Ast.InlineIalTest do
 
       assert as_ast(markdown) == {:error, [ast], messages}
     end
+
   end
 end
 

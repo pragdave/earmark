@@ -246,6 +246,20 @@ defmodule Acceptance.Ast.HtmlBlocksTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
   end
+
+  describe "arbitrary tags" do
+    # Needs a fix with issue [#326](https://github.com/pragdave/earmark/issues/326)
+    @tag :wip
+    test "mixture of tags (was regtest #103)" do 
+      markdown = "<x>a\n<y></y>\n<y>\n<z>\n</z>\n<z>\n</x>"
+      html     = "<x>a\n<y></y>\n<y>\n<z>\n</z>\n<z>\n</x>"
+      ast      = parse_html(html)
+      messages = Enum.zip(1..3, ~w[x y z])
+                 |> Enum.map(fn {lnb, tag} -> {:warning, lnb, "Failed to find closing <#{tag}>"} end)
+
+      assert as_ast(markdown) == {:error, [ast], messages}
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
