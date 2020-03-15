@@ -38,7 +38,6 @@ defmodule Acceptance.Html.BlockQuotesTest do
 
     test "indented case" do
       markdown = " > - foo\n- bar\n"
-      html     = "<blockquote><ul>\n<li>foo\n</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar\n</li>\n</ul>\n"
       html     = gen([
         {:blockquote, {:ul, {:li, "foo"}}},
         {:ul, {:li, "bar"}} ])

@@ -20,7 +20,6 @@ defmodule Acceptance.Html.BlockIalTest do
 
     test "Associated" do
       markdown = "Before\n{:hello=world}"
-      html     = "<p hello=\"world\">Before</p>\n"
       html     = gen({:p, [hello: "world"], "Before"})
       messages = []
 
