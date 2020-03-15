@@ -83,7 +83,7 @@ defmodule CodeTest do
 
   test "simple code block" do
     result = Earmark.as_html! "```\ndefmodule\n```"
-    assert result == ~s(<pre><code class="">defmodule</code></pre>\n)
+    assert result == ~s(<pre><code>defmodule</code></pre>\n)
   end
   test "indented code block" do
     result = Earmark.as_html! "    defmodule\n    end"
