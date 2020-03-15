@@ -262,6 +262,34 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
+
+  describe "Escapes in text (was regtest #198)" do
+    test "escaped backticks" do 
+      markdown = "[hello \\`code\\`](http://some.where)"
+      ast      = [{"p", [], [{"a", [{"href", "http://some.where"}], ["hello `code`"]}]}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "escaped stars" do
+      markdown = "[hello \\*world\\*](http://some.where)"
+      html     = ~s{<p><a href="http://some.where">hello *world*</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ ast ], messages}
+    end
+
+    test "although brackets do not need escapes, we still have to render them correctly" do
+      markdown = "[hello \\[world\\]](http://some.where)"
+      html     = ~s{<p><a href="http://some.where">hello [world]</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

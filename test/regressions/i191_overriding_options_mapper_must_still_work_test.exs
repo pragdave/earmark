@@ -4,10 +4,11 @@ defmodule Regressions.I191OverridingOptionsMapperMustStillWorkTest do
   alias Earmark.Options
 
   @simple "**hello**"
+  @result "<p>\n  <strong>\n    hello\n  </strong>\n</p>\n"
 
   test "new implementation works" do
     {:ok, result, []} = Earmark.as_html(@simple, %Options{timeout: 10_000})
-    assert result == "<p><strong>hello</strong></p>\n"
+    assert result == @result
   end
 
   test "timeout is really set" do
@@ -21,6 +22,6 @@ defmodule Regressions.I191OverridingOptionsMapperMustStillWorkTest do
 
   test "users could have done something like the following, so it must still work" do
     {:ok, result, []} = Earmark.as_html(@simple, %Options{mapper: &Enum.map/2})
-    assert result == "<p><strong>hello</strong></p>\n"
+    assert result == @result
   end
 end

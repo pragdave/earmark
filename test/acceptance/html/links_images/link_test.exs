@@ -1,8 +1,9 @@
 defmodule Acceptance.Html.LinkImages.LinkTest do
   use ExUnit.Case, async: true
 
-  import Support.GenHtml
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  use Support.AcceptanceTestCase
+  # import Support.GenHtml
+  # import Support.Helpers, only: [as_html: 1, as_html: 2]
 
   describe "Link reference definitions" do
     test "link with title" do
@@ -62,6 +63,17 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
+
+  describe "Escapes in text" do
+    test "escaped backticks" do 
+      markdown = "[hello \\`code\\`](http://some.where)"
+      html     = para({:a, [href: "http://some.where"], "hello `code`"})
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+  end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0
