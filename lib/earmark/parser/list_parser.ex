@@ -24,9 +24,6 @@ defmodule Earmark.Parser.ListParser do
   def parse_list(lines, result, options \\ %Options{}) do
     {items, rest, options1} = parse_list_items(lines, options)
     list                    = _make_list(items, _empty_list(items) )
-    _debug({:final, list})
-    # lists                 = _make_lists(items1, [], list)
-    # IO.inspect lists, label: "parsed lists"
     {[list|result], rest, options1}
   end
 
@@ -35,11 +32,6 @@ defmodule Earmark.Parser.ListParser do
   end
 
   defp parse_list_items(state, input, output, ctxt) do
-    lnb = case input do
-      [] -> "EOF"
-      [%{lnb: lnb}|_] -> lnb
-    end
-    _debug {state, lnb, input, output, ctxt}
     _parse_list_items(state, input, output, ctxt)
   end
 
@@ -233,13 +225,6 @@ defmodule Earmark.Parser.ListParser do
   defp _update_list_info(%{pending: pending}=list_info, line) do
     pending1 = still_inline_code(line, pending)
     %{list_info | pending: pending1}
-  end
-
-  # TODO: REMOVE
-  defp _debug(value) do
-    if System.get_env("DEBUG") do
-      IO.inspect value
-    end
   end
 
 end

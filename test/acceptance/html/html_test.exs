@@ -27,9 +27,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
 
   describe "HTML and paragraphs" do
 
-    # Maybe we shall go mainstream here and render as <hr />
-    # but only if the effort is managable
-    # TODO: Check effort when all tests are green again
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
     @tag :wip
     test "void elements close para but only at BOL" do
       markdown = "alpha\n <hr />beta"
@@ -51,9 +49,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    # Maybe we shall go mainstream here and render as <hr />
-    # but only if the effort is managable
-    # TODO: Check effort when all tests are green again
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
     @tag :wip
     test "self closing block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
@@ -63,9 +59,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    # Maybe we shall go mainstream here and render as <hr />
-    # but only if the effort is managable
-    # TODO: Check effort when all tests are green again
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
     @tag :wip
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"

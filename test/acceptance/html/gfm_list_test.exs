@@ -1,9 +1,7 @@
-defmodule Acceptance.Html1.GfmListTest do
-  use ExUnit.Case, async: true
+defmodule Acceptance.Html.GfmListTest do
+  use Support.AcceptanceTestCase
 
   import Support.Html1Helpers
-
-  @moduletag :html1
 
   describe "Lists and ListItems according to https://github.com/github/cmark-gfm/tree/master/test" do
     test "List items #231" do
