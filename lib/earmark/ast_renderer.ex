@@ -18,7 +18,7 @@ defmodule Earmark.AstRenderer do
   end
 
 
-  defp _render(blocks, context, result, loose? \\ true)
+  defp _render(blocks, context, result, loose?)
   defp _render([], _context, {result, messages}, _loose?), do: {Enum.reverse(result), messages}
   defp _render([block|blocks], context, {result, messages}, loose?) do
     case render_block(block, context, loose?) do
@@ -26,7 +26,7 @@ defmodule Earmark.AstRenderer do
     end
   end
 
-  defp render_block(block, context, loose? \\ true)
+  defp render_block(block, context, loose?)
   #############
   # Paragraph #
   #############

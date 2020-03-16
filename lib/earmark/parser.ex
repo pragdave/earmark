@@ -6,7 +6,7 @@ defmodule Earmark.Parser do
   alias Earmark.LineScanner
   alias Earmark.Options
 
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
+  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.ReparseHelpers
@@ -69,7 +69,7 @@ defmodule Earmark.Parser do
   end
 
 
-  defp _parse([], result, options, recursive), do: {result, options}
+  defp _parse([], result, options, _recursive), do: {result, options}
 
   ###################
   # setext headings #
@@ -536,11 +536,6 @@ defmodule Earmark.Parser do
     %{pending: pending, continue: true}
   end
 
-
-  defp peek([], _, _), do: false
-  defp peek([head | _], struct, type) do
-    head.__struct__ == struct && head.type == type
-  end
 
   @start_number_rgx ~r{\A0*(\d+)[.)]}
   defp extract_start(%{bullet: bullet}) do

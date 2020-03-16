@@ -1,7 +1,8 @@
 defmodule Functional.Scanner.LineTypeTest do
   use ExUnit.Case, async: true
-
   alias Earmark.Line
+
+  @moduletag :dev
 
   @all_but_leading_ws ~r{\S.*}
 

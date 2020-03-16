@@ -1,7 +1,8 @@
 defmodule HelpersTest do
   use ExUnit.Case, async: true
-
   import Earmark.Helpers
+
+  @moduletag :dev
 
   test "expand_tab spaces only" do
     assert expand_tabs("   ") == "   "

@@ -175,9 +175,7 @@ defmodule Earmark.LineScanner do
           type: :ul,
           bullet: bullet,
           content: spaces <> text,
-          # TODO: Remove intial_indent
           indent: String.length(leading),
-          initial_indent: String.length(leading),
           list_indent:  String.length(leading <> bullet <> spaces) + 1,
         }
 
@@ -192,9 +190,7 @@ defmodule Earmark.LineScanner do
           type: :ol,
           bullet: bullet,
           content: spaces <> text,
-          # TODO: Remove intial_indent
           indent: String.length(leading),
-          initial_indent: String.length(leading),
           list_indent:  String.length(leading) + sl2,
         }
 

@@ -4,10 +4,8 @@ defmodule Earmark.Parser.ListParser do
   alias Earmark.Options
   alias Earmark.Parser.ListInfo
 
-  import ListInfo, only: [update_pending: 2]
-
   import Earmark.Helpers.StringHelpers, only: [behead: 2]
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
+  import Earmark.Helpers.LookaheadHelpers, only: [ still_inline_code: 2]
   import Earmark.Message, only: [add_message: 2]
 
   @moduledoc false
@@ -69,7 +67,7 @@ defmodule Earmark.Parser.ListParser do
   defp _parse_list_items_spaced_np([%Line.Ruler{}|_]=lines, items, ctxt) do
     _finish_list_items(lines, items, false, ctxt)
   end
-  defp _parse_list_items_spaced_np([%Line.ListItem{initial_indent: ii}=item|_]=input, list_items, %{list_info: %{width: w}}=ctxt)
+  defp _parse_list_items_spaced_np([%Line.ListItem{indent: ii}=item|_]=input, list_items, %{list_info: %{width: w}}=ctxt)
     when ii < w do
       if _starts_list?(item, list_items) do
         _finish_list_items(input, list_items, false, ctxt)
@@ -127,7 +125,7 @@ defmodule Earmark.Parser.ListParser do
   defp _parse_list_items_start_np([%Line.Ruler{}|_]=input, list_items, ctxt) do
     _finish_list_items(input, list_items, true, ctxt)
   end
-  defp _parse_list_items_start_np([%Line.ListItem{initial_indent: ii}=item|rest]=input, list_items, %{list_info: %{indent: i, width: w}}=ctxt)
+  defp _parse_list_items_start_np([%Line.ListItem{indent: ii}=item|_]=input, list_items, %{list_info: %{ width: w}}=ctxt)
     when ii < w do
       if _starts_list?(item, list_items) do
         _finish_list_items(input, list_items, true, ctxt)
@@ -143,7 +141,7 @@ defmodule Earmark.Parser.ListParser do
   end
 
   defp _parse_list_items_start_pdg(input, items, ctxt)
-  defp _parse_list_items_start_pdg([], items, %{lines: lines, list_info: %{pending: {pending, lnb}}}=ctxt) do
+  defp _parse_list_items_start_pdg([], items, ctxt) do
     _finish_list_items([], items, true, ctxt)
   end
   defp _parse_list_items_start_pdg([line|rest], items, ctxt) do
@@ -169,10 +167,6 @@ defmodule Earmark.Parser.ListParser do
     end
   end
 
-
-  # INLINE CANDIDATE
-  defp _finish_list(%Block.List{blocks: blocks}=list), do: %{list|blocks: Enum.reverse(blocks)}
-
   # INLINE CANDIDATE
   defp _finish_list_item([%Block.ListItem{}=item|items], _at_start?, ctxt) do
     {blocks, _, options1} = ctxt.lines
@@ -194,16 +188,19 @@ defmodule Earmark.Parser.ListParser do
   end
 
   # INLINE CANDIDATE
-  defp _make_and_prepend_list_item(%Line.ListItem{bullet: bullet, lnb: lnb, type: type}=item, list_items) do
+  defp _make_and_prepend_list_item(%Line.ListItem{bullet: bullet, lnb: lnb, type: type}, list_items) do
     [%Block.ListItem{bullet: bullet, lnb: lnb, spaced: false, type: type}|list_items]
   end
 
   defp _make_list(items, list)
-  defp _make_list([%Block.ListItem{bullet: bullet, lnb: lnb, type: type}=item], %Block.List{blocks: blocks, loose?: loose?}=list) do
+  defp _make_list([%Block.ListItem{bullet: bullet, lnb: lnb}=item], %Block.List{loose?: loose?}=list) do
     %{list | blocks: [%{item | loose?: loose?}|list.blocks],
       bullet: bullet,
       lnb: lnb,
       start: _extract_start(item)}
+  end
+  defp _make_list([%Block.ListItem{}=item|rest], %Block.List{loose?: loose?}=list) do
+   _make_list(rest, %{list | blocks: [%{item | loose?: loose?}|list.blocks]})
   end
 
   # INLINE CANDIDATE
@@ -215,33 +212,9 @@ defmodule Earmark.Parser.ListParser do
   defp _loose(ctxt), do: %{ctxt| loose?: true}
 
   # INLINE CANDIDATE
-  defp _make_list([%Block.ListItem{}=item|rest], %Block.List{loose?: loose?}=list) do
-   _make_list(rest, %{list | blocks: [%{item | loose?: loose?}|list.blocks]})
-  end
-
-
-  defp _prepend_item(%Block.List{blocks: [%{spaced: spaced}|_]=blocks, loose?: lloose}=list, %Block.ListItem{loose?: liloose}=item) do
-    blocks1 = [item | blocks]
-    loose   = lloose || liloose || spaced
-    %{list | loose?: loose, blocks: blocks1}
-  end
-
-  # INLINE CANDIDATE
   defp _prepend_line(%Ctxt{lines: lines}=ctxt, line) do
     %{ctxt|lines: [line|lines]}
   end
-  # INLINE CANDIDATE
-  defp _part_of_list?(block_list, line_list_item)
-  defp _part_of_list?(%Block.List{bullet: bullet1}, %Line.ListItem{bullet: bullet2}), do: String.last(bullet1) == String.last(bullet2)
-
-  # INLINE CANDIDATE
-  defp _prepend_to_list(%Block.List{blocks: blocks}=list, items), do: %{list | blocks: [items ++ blocks]}
-
-  # INLINE CANDIDATE
-  defp _reverse_items(%Block.List{blocks: blocks}=list), do: %{list | blocks: Enum.reverse(blocks)}
-
-  # INLINE CANDIDATE
-  defp _set_spaced(ctxt), do: %{ctxt|list_info: %{ctxt.list_info|spaced: true}}
 
   defp _starts_list?(line_list_item, list_items)
   defp _starts_list?(_item, []), do: true
