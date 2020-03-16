@@ -135,14 +135,6 @@ defmodule Earmark.AstRenderer do
     end
     {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
   end
-  # format a single paragraph list item, and remove the para tags
-  # defp render_block(
-  #        %Block.ListItem{blocks: blocks, loose?: false, attrs: attrs},
-  #        context
-  #      ) do
-  #   {context1, ast} = render(blocks, context) |> IO.inspect
-  #   {context1, {"li", merge_attrs(attrs), ast}}
-  # end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs, loose?: loose?}, context, _loose?) do
@@ -158,7 +150,6 @@ defmodule Earmark.AstRenderer do
     context1 = convert(line, lnb, context)
     ast =  context1.value |> Enum.reverse
     if loose? do   
-      # ??? or [ast] ???
       {context1, {"p", [], ast}}
     else
       {context1, ast}

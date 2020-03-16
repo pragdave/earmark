@@ -163,13 +163,7 @@ defmodule Earmark.Parser.ListParser do
   defp _finish_list_item([%Block.ListItem{}=item|items], _at_start?, ctxt) do
     {blocks, _, options1} = ctxt.lines
                             |> Enum.reverse
-                            # |> IO.inspect(label: "Into parser:")
                             |> Earmark.Parser.parse(ctxt.options, :list)
-                            # |> IO.inspect(label: "Inner parse result")
-                            # |> _maybe_remove_para(loose?)
-    # loose1? = _is_loose(item.loose?, item.starts_list?, at_start?, items) |> IO.inspect || _loose_by_spaced(blocks, ctxt.list_info.spaced) |> IO.inspect
-    # IO.inspect {item.loose?, item.starts_list?, at_start?, items}
-    # loose1? = _loose_by_spaced(blocks, ctxt.list_info.spaced)
     loose1? = _already_loose?(items) || ctxt.loose?
     {[%{item | blocks: blocks, loose?: loose1?}|items], options1}
   end
