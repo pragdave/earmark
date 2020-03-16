@@ -3,6 +3,17 @@ defmodule Earmark do
 
   ### API
 
+  Earmark now exposes a welldefined and stable Abstratc Syntax Tree
+
+  #### Earmark.as_ast
+  
+  The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
+  the structure of the result of `as_ast`.
+
+      {:ok, ast, []}                   = Earmark.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
+      {:error, ast, error_messages}    = Earmark.as_ast(markdown)
+
   #### Earmark.as_html
 
       {:ok, html_doc, []}                   = Earmark.as_html(markdown)
@@ -13,24 +24,16 @@ defmodule Earmark do
 
       html_doc = Earmark.as_html!(markdown, options)
 
-  All messages are printed to _stderr_.
-
-  #### Options
-
-  Options can be passed into `as_html/2` or `as_html!/2` according to the documentation.
-
-      html_doc = Earmark.as_html!(markdown)
-      html_doc = Earmark.as_html!(markdown, options)
-
   Formats the error_messages returned by `as_html` and adds the filename to each.
   Then prints them to stderr and just returns the html_doc
 
-  #### NEW and EXPERIMENTAL: `Earmark.as_ast`
+  #### Options
 
-  Although well tested the way the exposed AST will look in future versions may change, a stable
-  API is expected for Earmark v1.6, when the rendered HTML shall be derived from the ast too.
+  Options can be passed into `as_ast/2`as well as `as_html/2` or `as_html!/2` according to the documentation.
 
-  More details can be found in the function's description below.
+      {status, html_doc, errors} = Earmark.as_html(markdown, options)
+      html_doc = Earmark.as_html!(markdown, options)
+      {status, ast, errors} = Earmark.as_ast(markdown, options)
 
   ### Command line
 
@@ -352,8 +355,6 @@ defmodule Earmark do
   end
 
   @doc """
-  **EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
-
         iex(9)> markdown = "My `code` is **best**"
         ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
         ...(9)> ast
@@ -369,25 +370,7 @@ defmodule Earmark do
 
   **Rationale**:
 
-  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
-  differences and we chose to **always** have tripples, even for comments.
-  We also do return a list for a single node
-
-
-        Floki.parse("<!-- comment -->")           
-        {:comment, " comment "}
-
-        Earmark.as_ast("<!-- comment -->")
-        {:ok, [{:comment, [], [" comment "]}], []}
-
-  Therefore `as_ast` is of the following type
-
-        @typep tag  :: String.t | :comment
-        @typep att  :: {String.t, String.t}
-        @typep atts :: list(att)
-        @typep node :: String.t | {tag, atts, ast}
-
-        @type  ast  :: list(node)
+  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
   def as_ast(lines, options \\ %Options{})
   def as_ast(lines, options) when is_list(options) do
