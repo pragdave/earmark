@@ -31,6 +31,21 @@ defmodule Support.Performance do
     |> IO.iodata_to_binary
   end
 
+  @doc """
+  Simply converts a file from `test/fixtures`
+
+      convert_file("medium.md") #=> returns the AST
+      convert_file("medium.md", 10, :html) #=> returns the HTML of 10 times the file
+  """
+  def convert_file(filename, times \\ 1, format \\ :ast) do
+    content = File.read!(Path.join("test/fixtures", filename))
+    content1 = Stream.cycle([content]) |> Enum.take(times) |> Enum.join("\n")
+    {:ok, ast, []} = Earmark.as_ast(content1)
+    case format do
+      :ast -> ast
+      :html -> ast |> Earmark.Transform.transform
+    end
+  end
   defp _make_list(elements_per_level, indent)
   defp _make_list([{header, n}], indent) do
     prefix = Stream.cycle([" "])|>Enum.take(indent)
