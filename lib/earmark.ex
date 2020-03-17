@@ -3,6 +3,17 @@ defmodule Earmark do
 
   ### API
 
+  Earmark now exposes a welldefined and stable Abstratc Syntax Tree
+
+  #### Earmark.as_ast
+  
+  The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
+  the structure of the result of `as_ast`.
+
+      {:ok, ast, []}                   = Earmark.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
+      {:error, ast, error_messages}    = Earmark.as_ast(markdown)
+
   #### Earmark.as_html
 
       {:ok, html_doc, []}                   = Earmark.as_html(markdown)
@@ -13,24 +24,16 @@ defmodule Earmark do
 
       html_doc = Earmark.as_html!(markdown, options)
 
-  All messages are printed to _stderr_.
-
-  #### Options
-
-  Options can be passed into `as_html/2` or `as_html!/2` according to the documentation.
-
-      html_doc = Earmark.as_html!(markdown)
-      html_doc = Earmark.as_html!(markdown, options)
-
   Formats the error_messages returned by `as_html` and adds the filename to each.
   Then prints them to stderr and just returns the html_doc
 
-  #### NEW and EXPERIMENTAL: `Earmark.as_ast`
+  #### Options
 
-  Although well tested the way the exposed AST will look in future versions may change, a stable
-  API is expected for Earmark v1.6, when the rendered HTML shall be derived from the ast too.
+  Options can be passed into `as_ast/2`as well as `as_html/2` or `as_html!/2` according to the documentation.
 
-  More details can be found in the function's description below.
+      {status, html_doc, errors} = Earmark.as_html(markdown, options)
+      html_doc = Earmark.as_html!(markdown, options)
+      {status, ast, errors} = Earmark.as_ast(markdown, options)
 
   ### Command line
 
@@ -66,7 +69,7 @@ defmodule Earmark do
   #### Strike Through
 
       iex(1)> Earmark.as_html! ["~~hello~~"]
-      "<p><del>hello</del></p>\\n"
+      "<p>\\n  <del>\\n    hello\\n  </del>\\n</p>\\n"
 
   #### Syntax Highlighting
 
@@ -171,25 +174,25 @@ defmodule Earmark do
 
       iex(4)> markdown = "[link](url) {: .classy}"
       ...(4)> Earmark.as_html(markdown)
-      { :ok, "<p><a href=\\"url\\" class=\\"classy\\">link</a></p>\\n", []}
+      { :ok, "<p>\\n  <a class=\\"classy\\" href=\\"url\\">\\n    link\\n  </a>\\n</p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
       iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
-      {:error, "<p>Some text</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
+      {:error, "<p>\\n  Some text\\n</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
       iex(6)> markdown = "[link](url)\\\\{: .classy}"
       ...(6)> Earmark.as_html(markdown)
-      {:ok, "<p><a href=\\"url\\">link</a>{: .classy}</p>\\n", []}
+      {:ok, "<p>\\n  <a href=\\"url\\">\\n    link\\n  </a>\\n  {: .classy}\\n</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
       iex(7)> markdown = "hello {:world}"
       ...(7)> Earmark.as_html!(markdown)
-      "<p>hello {:world}</p>\\n"
+      "<p>\\n  hello {:world}\\n</p>\\n"
 
   ## Limitations
 
@@ -278,7 +281,7 @@ defmodule Earmark do
 
   alias Earmark.Error
   alias Earmark.Options
-  import Earmark.Message, only: [emit_messages: 1, sort_messages: 1]
+  import Earmark.Message, only: [emit_messages: 2, sort_messages: 1]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -347,23 +350,11 @@ defmodule Earmark do
   end
 
   def as_html(lines, options) do
-    {context, html} = _as_html(lines, options)
-    messages = sort_messages(context)
-
-    status =
-      case Enum.any?(messages, fn {severity, _, _} ->
-             severity == :error || severity == :warning
-           end) do
-        true -> :error
-        _ -> :ok
-      end
-
-    {status, html, messages}
+    {status, ast, messages} = as_ast(lines, options)
+    {status, Earmark.Transform.transform(ast, options), messages}
   end
 
   @doc """
-  **EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
-
         iex(9)> markdown = "My `code` is **best**"
         ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
         ...(9)> ast
@@ -379,25 +370,7 @@ defmodule Earmark do
 
   **Rationale**:
 
-  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
-  differences and we chose to **always** have tripples, even for comments.
-  We also do return a list for a single node
-
-
-        Floki.parse("<!-- comment -->")           
-        {:comment, " comment "}
-
-        Earmark.as_ast("<!-- comment -->")
-        {:ok, [{:comment, [], [" comment "]}], []}
-
-  Therefore `as_ast` is of the following type
-
-        @typep tag  :: String.t | :comment
-        @typep att  :: {String.t, String.t}
-        @typep atts :: list(att)
-        @typep node :: String.t | {tag, atts, ast}
-
-        @type  ast  :: list(node)
+  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
   def as_ast(lines, options \\ %Options{})
   def as_ast(lines, options) when is_list(options) do
@@ -429,18 +402,9 @@ defmodule Earmark do
     as_html!(lines, struct(Options, options))
   end
   def as_html!(lines, options = %Options{}) do
-    {context, html} = _as_html(lines, options)
-    emit_messages(context)
+    {_status, html, messages} = as_html(lines, options)
+    emit_messages(messages, options)
     html
-  end
-
-  defp _as_html(lines, options) do
-    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
-
-    case blocks do
-      [] -> {context, ""}
-      _ -> options.renderer.render(blocks, context)
-    end
   end
 
   defp _as_ast(lines, options) do

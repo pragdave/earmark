@@ -25,7 +25,7 @@ defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
   end
 
   defp _render_footnote_backlink(%{class: _, href: _, title: _}=atts) do
-    [{"a", merge_attrs(atts), ["\u21a9"]}]
+    [{"a", merge_attrs(atts), ["&#x21A9;"]}]
   end
 
 

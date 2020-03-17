@@ -6,11 +6,12 @@ defmodule Earmark.Parser do
   alias Earmark.LineScanner
   alias Earmark.Options
 
-  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2, read_list_lines: 3]
+  import Earmark.Helpers.LookaheadHelpers, only: [opens_inline_code: 1, still_inline_code: 2]
   import Earmark.Helpers.LineHelpers
   import Earmark.Helpers.AttrParser
   import Earmark.Helpers.ReparseHelpers
   import Earmark.Message, only: [add_message: 2, add_messages: 2]
+  import Earmark.Parser.ListParser, only: [parse_list: 3]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -47,7 +48,7 @@ defmodule Earmark.Parser do
   def parse(text_lines, options = %Options{}, recursive) do
     ["" | text_lines ++ [""]]
     |> LineScanner.scan_lines(options, recursive)
-    |> parse_lines(options)
+    |> parse_lines(options, recursive)
   end
 
   @doc false
@@ -55,20 +56,20 @@ defmodule Earmark.Parser do
   # Then extract any id definitions, and build a map from them. Not
   # for external consumption.
 
-  def parse_lines(lines, options) do
-    {blocks, options} = lines |> remove_trailing_blank_lines() |> lines_to_blocks(options)
+  def parse_lines(lines, options, recursive) do
+    {blocks, options} = lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
     links  = links_from_blocks(blocks)
     {blocks, links, options}
   end
 
-  defp lines_to_blocks(lines, options) do
-    with {blocks, options1} <- lines |> _parse([], options) do
+  defp lines_to_blocks(lines, options, recursive) do
+    with {blocks, options1} <- lines |> _parse([], options, recursive) do
       { blocks |> assign_attributes_to_blocks([]) |> consolidate_list_items([]), options1 }
     end
   end
 
 
-  defp _parse([], result, options), do: {result, options}
+  defp _parse([], result, options, _recursive), do: {result, options}
 
   ###################
   # setext headings #
@@ -80,9 +81,9 @@ defmodule Earmark.Parser do
 
              |
                 rest
-             ], result, options) do
+             ], result, options, recursive) do
 
-    _parse(rest, [ %Block.Heading{content: heading, level: level, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.Heading{content: heading, level: level, lnb: lnb} | result ], options, recursive)
   end
 
   defp _parse([  %Line.Blank{},
@@ -90,36 +91,36 @@ defmodule Earmark.Parser do
                 %Line.Ruler{type: "-"}
              |
                 rest
-             ], result, options) do
+             ], result, options, recursive) do
 
-    _parse(rest, [ %Block.Heading{content: heading, level: 2, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.Heading{content: heading, level: 2, lnb: lnb} | result ], options, recursive)
   end
 
   #################
   # Other heading #
   #################
 
-  defp _parse([ %Line.Heading{content: content, level: level, lnb: lnb} | rest ], result, options) do
-    _parse(rest, [ %Block.Heading{content: content, level: level, lnb: lnb} | result ], options)
+  defp _parse([ %Line.Heading{content: content, level: level, lnb: lnb} | rest ], result, options, recursive) do
+    _parse(rest, [ %Block.Heading{content: content, level: level, lnb: lnb} | result ], options, recursive)
   end
 
   #########
   # Ruler #
   #########
 
-  defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options) do
-    _parse(rest, [ %Block.Ruler{type: type, lnb: lnb} | result ], options)
+  defp _parse([ %Line.Ruler{type: type, lnb: lnb} | rest], result, options, recursive) do
+    _parse(rest, [ %Block.Ruler{type: type, lnb: lnb} | result ], options, recursive)
   end
 
   ###############
   # Block Quote #
   ###############
 
-  defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options) do
+  defp _parse( lines = [ %Line.BlockQuote{lnb: lnb} | _ ], result, options, recursive) do
     {quote_lines, rest} = Enum.split_while(lines, &blockquote_or_text?/1)
     lines = for line <- quote_lines, do: line.content
     {blocks, _, options1} = parse(lines, %{options | line: lnb}, true)
-    _parse(rest, [ %Block.BlockQuote{blocks: blocks, lnb: lnb} | result ], options1)
+    _parse(rest, [ %Block.BlockQuote{blocks: blocks, lnb: lnb} | result ], options1, recursive)
   end
 
   #########
@@ -129,37 +130,37 @@ defmodule Earmark.Parser do
   defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: false},
                         %Line.TableLine{columns: cols2}
                       | _rest
-                      ], result, options)
+                      ], result, options, recursive)
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
     { table, rest } = read_table(lines, columns, Block.Table.new_for_columns(columns))
     table1          = %{table | lnb: lnb1}
-    _parse(rest, [ table1 | result ], options)
+    _parse(rest, [ table1 | result ], options, recursive)
   end
 
   defp _parse( lines = [ %Line.TableLine{columns: cols1, lnb: lnb1, needs_header: true},
                         %Line.TableLine{columns: cols2, is_header: true}
                       | _rest
-                      ], result, options)
+                      ], result, options, recursive)
   when length(cols1) == length(cols2)
   do
     columns = length(cols1)
     { table, rest } = read_table(lines, columns, Block.Table.new_for_columns(columns))
     table1          = %{table | lnb: lnb1}
-    _parse(rest, [ table1 | result ], options)
+    _parse(rest, [ table1 | result ], options, recursive)
   end
   #############
   # Paragraph #
   #############
 
-  defp _parse( lines = [ %Line.TableLine{lnb: lnb} | _ ], result, options) do
+  defp _parse( lines = [ %Line.TableLine{lnb: lnb} | _ ], result, options, recursive) do
     {para_lines, rest} = Enum.split_while(lines, &text?/1)
     line_text = (for line <- para_lines, do: line.line)
-    _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb + 1} | result ], options)
+    _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb + 1} | result ], options, recursive)
   end
 
-  defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options)
+  defp _parse( lines = [ %Line.Text{lnb: lnb} | _ ], result, options, recursive)
   do
     {reversed_para_lines, rest, pending} = consolidate_para(lines)
 
@@ -171,7 +172,11 @@ defmodule Earmark.Parser do
       end
 
     line_text = (for line <- (reversed_para_lines |> Enum.reverse), do: line.line)
-    _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb} | result ], options1)
+    if recursive == :list do
+        _parse(rest, [ %Block.Text{line: line_text, lnb: lnb} | result ], options1, recursive)
+    else
+        _parse(rest, [ %Block.Para{lines: line_text, lnb: lnb} | result ], options1, recursive)
+    end
   end
 
   #########
@@ -180,71 +185,67 @@ defmodule Earmark.Parser do
   # We handle lists in two passes. In the first, we build list items,
   # in the second we combine adjacent items into lists. This is pass one
 
-  defp _parse( [first = %Line.ListItem{type: type, initial_indent: initial_indent, content: content, bullet: bullet, lnb: lnb} | rest ], result, options) do
-    {spaced, list_lines, rest, _offset, indent_level} = read_list_lines(rest, opens_inline_code(first), initial_indent)
+  defp _parse( [ %Line.ListItem{}|_ ]=input, result, options, recursive) do
 
-    spaced = (spaced || blank_line_in?(list_lines)) && peek(rest, Line.ListItem, type)
-    lines = for line <- list_lines, do: indent_list_item_body(line, indent_level || 0, first.list_indent)
-    lines = [content | lines]
-    {blocks, _, options1} = parse(lines, %{options | line: lnb}, true)
+    {with_prepended_lists, rest, options1} = parse_list(input, result, options)
+    _parse([%Line.Blank{lnb: 0} | rest], with_prepended_lists, options1, recursive)
 
-    _parse([%Line.Blank{lnb: 0} | rest], [ %Block.ListItem{type: type, blocks: blocks, spaced: spaced, bullet: bullet, lnb: lnb} | result ], options1)
   end
 
   #################
   # Indented code #
   #################
 
-  defp _parse( list = [%Line.Indent{lnb: lnb} | _], result, options) do
+  defp _parse( list = [%Line.Indent{lnb: lnb} | _], result, options, recursive) do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = (for line <- code_lines, do: properly_indent(line, 1))
-    _parse(rest, [ %Block.Code{lines: code, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.Code{lines: code, lnb: lnb} | result ], options, recursive)
   end
 
   ###############
   # Fenced code #
   ###############
 
-  defp _parse([%Line.Fence{delimiter: delimiter, language: language, lnb: lnb} | rest], result, options) do
+  defp _parse([%Line.Fence{delimiter: delimiter, language: language, lnb: lnb} | rest], result, options, recursive) do
     {code_lines, rest} = Enum.split_while(rest, fn (line) ->
       !match?(%Line.Fence{delimiter: ^delimiter, language: _}, line)
     end)
     rest = if length(rest) == 0, do: rest, else: tl(rest)
     code = (for line <- code_lines, do: line.line)
-    _parse(rest, [ %Block.Code{lines: code, language: language, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.Code{lines: code, language: language, lnb: lnb} | result ], options, recursive)
   end
 
   ##############
   # HTML block #
   ##############
-  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options) do
+  defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options, recursive) do
     {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
     options1 = add_messages(options,
                             unclosed
                             |> Enum.map(fn %{lnb: lnb1, tag: tag} -> {:warning, lnb1, "Failed to find closing <#{tag}>"} end))
 
     html = (for line <- Enum.reverse(html_lines), do: line.line)
-    _parse(rest, [ %Block.Html{tag: tag, html: html, lnb: lnb} | result ], options1)
+    _parse(rest, [ %Block.Html{tag: tag, html: html, lnb: lnb} | result ], options1, recursive)
   end
 
   ####################
   # HTML on one line #
   ####################
 
-  defp _parse([ %Line.HtmlOneLine{line: line, lnb: lnb} | rest], result, options) do
-    _parse(rest, [ %Block.HtmlOneline{html: [ line ], lnb: lnb} | result ], options)
+  defp _parse([ %Line.HtmlOneLine{line: line, lnb: lnb} | rest], result, options, recursive) do
+    _parse(rest, [ %Block.HtmlOneline{html: [ line ], lnb: lnb} | result ], options, recursive)
   end
 
   ################
   # HTML Comment #
   ################
 
-  defp _parse([ line = %Line.HtmlComment{complete: true, lnb: lnb} | rest], result, options) do
-    _parse(rest, [ %Block.HtmlComment{lines: [ line.line ], lnb: lnb} | result ], options)
+  defp _parse([ line = %Line.HtmlComment{complete: true, lnb: lnb} | rest], result, options, recursive) do
+    _parse(rest, [ %Block.HtmlComment{lines: [ line.line ], lnb: lnb} | result ], options, recursive)
   end
 
-  defp _parse(lines = [ %Line.HtmlComment{complete: false, lnb: lnb} | _], result, options) do
+  defp _parse(lines = [ %Line.HtmlComment{complete: false, lnb: lnb} | _], result, options, recursive) do
     {html_lines, rest} = Enum.split_while(lines, fn (line) ->
       !(line.line =~ ~r/-->/)
     end)
@@ -254,7 +255,7 @@ defmodule Earmark.Parser do
       {html_lines ++ [ hd(rest) ], tl(rest)}
     end
     html = (for line <- html_lines, do: line.line)
-    _parse(rest, [ %Block.HtmlComment{lines: html, lnb: lnb} | result ], options)
+    _parse(rest, [ %Block.HtmlComment{lines: html, lnb: lnb} | result ], options, recursive)
   end
 
   #################
@@ -262,7 +263,7 @@ defmodule Earmark.Parser do
   #################
 
   # the title may be on the line following the iddef
-  defp _parse( [ defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest ], result, options)
+  defp _parse( [ defn = %Line.IdDef{title: title, lnb: lnb}, maybe_title | rest ], result, options, recursive)
   when title == nil
   do
     title = case maybe_title do
@@ -271,40 +272,40 @@ defmodule Earmark.Parser do
     end
 
     if title do
-      _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result], options)
+      _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: title, lnb: lnb} | result], options, recursive)
     else
-      _parse([maybe_title | rest], [ %Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result], options)
+      _parse([maybe_title | rest], [ %Block.IdDef{id: defn.id, url: defn.url, lnb: lnb} | result], options, recursive)
     end
   end
 
   # or not
-  defp _parse( [ defn = %Line.IdDef{lnb: lnb} | rest ], result, options) do
-    _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: defn.title, lnb: lnb} | result], options)
+  defp _parse( [ defn = %Line.IdDef{lnb: lnb} | rest ], result, options, recursive) do
+    _parse(rest, [ %Block.IdDef{id: defn.id, url: defn.url, title: defn.title, lnb: lnb} | result], options, recursive)
   end
 
   #######################
   # Footnote Definition #
   #######################
 
-  defp _parse( [ defn = %Line.FnDef{id: _id, lnb: lnb} | rest ], result , options) do
+  defp _parse( [ defn = %Line.FnDef{id: _id, lnb: lnb} | rest ], result , options, recursive) do
     {para_lines, rest} = Enum.split_while(rest, &text?/1)
     first_line = %Line.Text{line: defn.content, lnb: lnb}
-    {para, options1} = _parse([ first_line | para_lines ], [], options)
+    {para, options1} = _parse([ first_line | para_lines ], [], options, recursive)
     {indent_lines, rest} = Enum.split_while(rest, &indent_or_blank?/1)
     {blocks, _, options2} = remove_trailing_blank_lines(indent_lines)
                 |> Enum.map(&(properly_indent(&1, 1)))
                 |> parse(%{options1 | line: lnb + 1}, true)
     blocks = Enum.concat(para, blocks)
-    _parse( rest, [ %Block.FnDef{id: defn.id, blocks: blocks , lnb: lnb} | result ], options2)
+    _parse( rest, [ %Block.FnDef{id: defn.id, blocks: blocks , lnb: lnb} | result ], options2, recursive)
   end
 
   ####################
   # IAL (attributes) #
   ####################
 
-  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options) do
+  defp _parse( [ %Line.Ial{attrs: attrs, lnb: lnb, verbatim: verbatim} | rest ], result, options, recursive) do
     {options1, attributes} = parse_attrs( options, attrs, lnb )
-    _parse(rest, [ %Block.Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options1)
+    _parse(rest, [ %Block.Ial{attrs: attributes, content: attrs, lnb: lnb, verbatim: verbatim} | result ], options1, recursive)
   end
 
   ###############
@@ -312,17 +313,17 @@ defmodule Earmark.Parser do
   ###############
   # We've reached the point where empty lines are no longer significant
 
-  defp _parse( [ %Line.Blank{} | rest ], result, options) do
-    _parse(rest, result, options)
+  defp _parse( [ %Line.Blank{} | rest ], result, options, recursive) do
+    _parse(rest, result, options, recursive)
   end
 
   ##############################################################
   # Anything else... we warn, then treat it as if it were text #
   ##############################################################
 
-  defp _parse( [ anything = %{lnb: lnb} | rest ], result, options) do
+  defp _parse( [ anything = %{lnb: lnb} | rest ], result, options, recursive) do
     _parse( [ %Line.Text{content: anything.line, lnb: lnb} | rest], result,
-      add_message(options, {:warning, anything.lnb, "Unexpected line #{anything.line}"}))
+      add_message(options, {:warning, anything.lnb, "Unexpected line #{anything.line}"}), recursive)
   end
 
   #######################################################
@@ -536,15 +537,11 @@ defmodule Earmark.Parser do
   end
 
 
-  defp peek([], _, _), do: false
-  defp peek([head | _], struct, type) do
-    head.__struct__ == struct && head.type == type
-  end
-
-  defp extract_start(%{bullet: "1."}), do: ""
+  @start_number_rgx ~r{\A0*(\d+)[.)]}
   defp extract_start(%{bullet: bullet}) do
-    case Regex.run(~r{^(\d+)\.}, bullet) do
+    case Regex.run(@start_number_rgx, bullet) do
       nil -> ""
+      [_, "1"] -> ""
       [_, start] -> ~s{ start="#{start}"}
     end
   end

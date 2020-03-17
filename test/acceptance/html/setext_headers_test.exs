@@ -1,29 +1,11 @@
 defmodule Acceptance.Html.SetextHeadersTest do
-  use ExUnit.Case, async: true
-  
-  import Support.Helpers, only: [as_html: 1]
+  use Support.AcceptanceTestCase
 
   describe "Base cases" do
 
     test "Level one" do 
       markdown = "foo\n==="
-      html     = "<h1>foo</h1>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "Level two" do 
-      markdown = "foo\n---"
-      html     = "<h2>foo</h2>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "narrow escape" do
-      markdown = "Foo\\\n----\n"
-      html = "<h2>Foo\\</h2>\n"
+      html     = gen({:h1, "foo"})
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -35,15 +17,8 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
-      html     = "<h1>Foo <em>bar</em></h1>\n<h2>Foo <em>bar</em></h2>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "and levels two and one" do
-      markdown = "Foo\n-------------------------\n\nFoo\n=\n"
-      html     = "<h2>Foo</h2>\n<h1>Foo</h1>\n"
+      html     = gen([{:h1, ["Foo ", {:em, "bar"}]}, 
+        {:h2, ["Foo ", {:em, "bar"}]}])
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -60,54 +35,12 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "h1 after an unordered list" do 
       markdown = "* foo\n\nbar\n==="
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h1>bar</h1>\n"
+      html     = gen([{:ul, {:li, "foo"}}, {:h1, "bar"}])
       messages = []
       
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    test "h2 after an unordered list" do 
-      markdown = "* foo\n\nbar\n---"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n"
-      messages = []
-      
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "h1 after an ordered list and pending text" do 
-      markdown = "1. foo\n\nbar\n===\ntext"
-      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h1>bar</h1>\n<p>text</p>\n"
-      messages = []
-      
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "h2 between two lists" do 
-      markdown = "* foo\n\nbar\n---\n\n1. baz"
-      html     = "<ul>\n<li>foo\n</li>\n</ul>\n<h2>bar</h2>\n<ol>\n<li>baz\n</li>\n</ol>\n"
-      messages = []
-      
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "h2 between two lists more blank lines" do
-      markdown = "1. foo\n\n\nbar\n---\n\n\n* baz"
-      html     = "<ol>\n<li>foo\n</li>\n</ol>\n<h2>bar</h2>\n<ul>\n<li>baz\n</li>\n</ul>\n"
-      messages = []
-      
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-  end
-
-  describe "after a table" do 
-    
-    test "h2 after a table" do
-      markdown = "|a|b|\n|d|e|\nbar\n---"
-      html     = "<table>\n<tbody>\n<tr>\n<td style=\"text-align: left\">a</td><td style=\"text-align: left\">b</td>\n</tr>\n<tr>\n<td style=\"text-align: left\">d</td><td style=\"text-align: left\">e</td>\n</tr>\n</tbody>\n</table>\n<h2>bar</h2>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
   end
 
 end

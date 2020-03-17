@@ -21,13 +21,13 @@
 
 ## Details
 
-## `Earmark.as_html/2`
-
-%functiondoc Earmark.as_html/2
-
 ## `Earmark.as_ast/2`
 
 %functiondoc Earmark.as_ast/2
+
+## `Earmark.as_html/2`
+
+%functiondoc Earmark.as_html/2
 
 ## `Earmark.Transform.transform/2`
 

@@ -11,6 +11,7 @@ defmodule Earmark.Mixfile do
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:excoveralls, "~> 0.11.2", only: [:test]},
     {:floki, "~> 0.21", only: [:dev, :test]},
+    {:traverse, "~> 1.0.0", only: [:dev, :test]},
   ]
 
   @description """

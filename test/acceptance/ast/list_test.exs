@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.ListTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "List items" do
     test "Unnumbered" do
       markdown = "* one\n* two"
@@ -44,7 +42,7 @@ defmodule Acceptance.Ast.ListTest do
     # Not GFM conformant, >3 goes into the head of the item
     test "Indented items, by 4 (removed from func tests)" do
       markdown = "1. one\n    - two\n        - three"
-      html     = "<ol><li><p>one</p><ul><li><p>two</p><ul><li>three</li></ul></li></ul></li></ol>"
+      html     = "<ol><li>one<ul><li>two<ul><li>three</li></ul></li></ul></li></ol>"
       ast      = parse_html(html)
       messages = []
 
@@ -53,7 +51,7 @@ defmodule Acceptance.Ast.ListTest do
 
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
-      html     = "<ol>\n<li><p>A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"
+      html     = "<ol>\n<li><p> A paragraph\nwith two lines.</p>\n<pre><code>indented code</code></pre>\n<blockquote><p>A block quote.</p>\n</blockquote>\n</li>\n</ol>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -62,7 +60,7 @@ defmodule Acceptance.Ast.ListTest do
 
     test "More numbers" do
       markdown = "1.  space one\n\n1. space two"
-      html     = "<ol>\n<li><p>space one</p>\n</li>\n<li><p>space two</p>\n</li>\n</ol>\n"
+      html     = "<ol>\n<li><p> space one</p>\n</li>\n<li><p>space two</p>\n</li>\n</ol>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -169,6 +167,30 @@ defmodule Acceptance.Ast.ListTest do
     end
   end
 
+  describe "list after para" do
+    test "indented (was regtest #13)" do
+      markdown = """
+    Para
+
+    1. l1
+
+    2. l2
+  """
+      html     = """
+                     <p>  Para</p>
+                     <ol>
+                     <li><p>l1</p>
+                     </li>
+                     <li><p>l2</p>
+                     </li>
+                     </ol>
+                  """
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+  end
   # describe "Inline code" do
   #   @tag :wip
   #   test "perserves spaces" do

@@ -8,6 +8,16 @@ defmodule Support.Html1Helpers do
     {status, Earmark.Transform.transform(ast, options), messages}
   end
 
+  def to_html2(markdown, options \\ []) do
+    {:ok, ast, []} = Earmark.as_ast(markdown, options)
+    if System.get_env("DEBUG") do
+      IO.inspect({:ast, ast})
+    end
+    ast
+    |> Earmark.Transform.transform(options)
+    |> parse_trimmed()
+  end
+
 
   def construct(constructions, indent \\ 2) do
     result =
@@ -30,6 +40,12 @@ defmodule Support.Html1Helpers do
   def para(constructions, indent \\ 2)
   def para(construction, indent) when is_binary(construction), do: construct([:p, construction], indent)
   def para(constructions, indent), do: construct([:p|constructions], indent)
+
+  def parse_trimmed(html) do
+    html
+    |> Floki.parse
+    |> Traverse.map!(fn x when is_binary(x) -> String.trim(x) end)
+  end
 
   def td(content, style \\ "left") do
     {:td, ~s{style="text-align: #{style};"}, content}

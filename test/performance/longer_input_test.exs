@@ -11,6 +11,4 @@ defmodule Performance.LongerInputTest do
       IO.puts convert_file("medium.md", :html)
     end
   end
-
-  
 end

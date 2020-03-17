@@ -1,93 +1,34 @@
 defmodule Acceptance.Html.HtmlBlocksTest do
-  use ExUnit.Case, async: true
-  
-  import Support.Helpers, only: [as_html: 1]
+  use Support.AcceptanceTestCase
 
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table><p>okay.</p>\n"
+      html     = [
+        "<table>\n    <tr>      <td>             hi      </td>    </tr></table>",
+        para("okay.")
+      ] |> Enum.join("\n")
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
-
-    test "div (ine?)" do
-      markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      html     = "<div>\n  *hello*\n         <foo><a>\n</div>"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "we are leaving html alone" do
-      markdown = "<div>\n*Emphasized* text.\n</div>"
-      html     = "<div>\n*Emphasized* text.\n</div>"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "even block elements" do
-      markdown = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
-      html     = "<div>\n```elixir\ndefmodule Mine do\n```\n</div>"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
   end
 
   describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
-      html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
+      html     = gen([{:area, [shape: "rect", coords: "0,0,1,1", href: "xxx", alt: "yyy"], nil},
+        {:p, [{:strong, "emphasized"}, " text"]}])
       messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "we are outside the void now (lucky us)" do
-      markdown = "<br>\n**emphasized** text"
-      html     = "<br><p><strong>emphasized</strong> text</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "high regards???" do
-      markdown = "<hr />\n**emphasized** text"
-      html     = "<hr /><p><strong>emphasized</strong> text</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "img (a punless test)" do
-      markdown = "<img src=\"hello\">\n**emphasized** text"
-      html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "not everybode knows this one (hint: take a break)" do
-      markdown = "<wbr>\n**emphasized** text"
-      html = "<wbr><p><strong>emphasized</strong> text</p>\n"
-      messages = []
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
 
   describe "HTML and paragraphs" do
-    test "void elements close para" do
-      markdown = "alpha\n<hr />beta"
-      html     = "<p>alpha</p>\n<hr />beta"
-      messages = []
 
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
+    @tag :wip
     test "void elements close para but only at BOL" do
       markdown = "alpha\n <hr />beta"
       html     = "<p>alpha\n <hr />beta</p>\n"
@@ -96,38 +37,20 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    test "self closing block elements close para" do
-      markdown = "alpha\n<div/>beta"
-      html     = "<p>alpha</p>\n<div/>beta"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "self closing block elements close para, atts do not matter" do
-      markdown = "alpha\n<div class=\"first\"/>beta"
-      html     = "<p>alpha</p>\n<div class=\"first\"/>beta"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
-      html     = "<p>alpha</p>\n<div class=\"first\"   />beta<p>gamma</p>\n"
+      html     = gen([
+        {:p, "alpha"},
+        {:div, [class: "first"], []},
+        "beta",
+        {:p, "gamma"}])
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
-    test "self closing block elements close para but only at BOL" do
-      markdown = "alpha\n <div/>beta"
-      html     = "<p>alpha\n <div/>beta</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
+    @tag :wip
     test "self closing block elements close para but only at BOL, atts do not matter" do
       markdown = "alpha\ngamma<div class=\"fourty two\"/>beta"
       html     = "<p>alpha\ngamma<div class=\"fourty two\"/>beta</p>\n"
@@ -136,6 +59,8 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    # Related to [#326](https://github.com/pragdave/earmark/issues/326)
+    @tag :wip
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
       html     = "<p>alpha</p>\n<div></div>beta"
@@ -143,77 +68,8 @@ defmodule Acceptance.Html.HtmlBlocksTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
-
-    test "block elements close para, atts do not matter" do
-      markdown = "alpha\n<div class=\"first\"></div>beta"
-      html     = "<p>alpha</p>\n<div class=\"first\"></div>beta"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "block elements close para but only at BOL" do
-      markdown = "alpha\n <div></div>beta"
-      html     = "<p>alpha\n <div></div>beta</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "block elements close para but only at BOL, atts do not matter" do
-      markdown = "alpha\ngamma<div class=\"fourty two\"></div>beta"
-      html     = "<p>alpha\ngamma<div class=\"fourty two\"></div>beta</p>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
   end
 
-  describe "multiple tags in closing line" do
-    test "this is not closing" do
-      markdown = "<div>\nline\n</hello></div>"
-      html     = "<div>\nline\n</hello></div>"
-      messages = [{:warning, 1, "Failed to find closing <div>"}]
-
-      assert as_html(markdown) == {:error, html, messages}
-    end
-    test "...nor is this" do
-      markdown = "<div>\nline\n<hello></div>"
-      html     = "<div>\nline\n<hello></div>"
-      messages = [{:warning, 1, "Failed to find closing <div>"},
-        {:warning, 3, "Failed to find closing <hello>"}]
-
-      assert as_html(markdown) == {:error, html, messages}
-    end
-    test "however, this closes and keeps the garbage" do
-      markdown = "<div>\nline\n</div><hello>"
-      html     = "<div>\nline\n</div><hello>"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-    test "however, this closes and keeps **whatever** garbage" do
-      markdown = "<div>\nline\n</div> `garbage`"
-      html     = "<div>\nline\n</div> `garbage`"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-    test "however, this closes and keeps not even warnings" do
-      markdown = "<div>\nline\n</div> `garbage"
-      html     = "<div>\nline\n</div> `garbage"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-    test "however, this closes and kept garbage is not even inline formatted" do
-      markdown = "<div>\nline\n</div> _garbage_"
-      html     = "<div>\nline\n</div> _garbage_"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

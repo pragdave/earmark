@@ -1,12 +1,10 @@
 defmodule Acceptance.Html.FencedCodeBlocksTest do
-  use ExUnit.Case, async: true
-
-  import Support.Helpers, only: [as_html: 1, as_html: 2]
+  use Support.AcceptanceTestCase
 
   describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
-      html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -14,7 +12,7 @@ defmodule Acceptance.Html.FencedCodeBlocksTest do
 
     test "still no lang" do
       markdown = "~~~\n<\n >\n~~~\n"
-      html     = "<pre><code class=\"\">&lt;\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -22,7 +20,7 @@ defmodule Acceptance.Html.FencedCodeBlocksTest do
 
     test "longer with shorter inside" do
       markdown = "~~~~\n<\n~~~\nsome code\n ~~~\n >\n~~~~\n"
-      html     = "<pre><code class=\"\">&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
+      html     = "<pre><code>&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -54,7 +52,7 @@ defmodule Acceptance.Html.FencedCodeBlocksTest do
 
     test "look mam, more lines" do
       markdown = "   ```\naaa\nb\n  ```\n"
-      html     = "<pre><code class=\"\">aaa\nb</code></pre>\n"
+      html     = "<pre><code>aaa\nb</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

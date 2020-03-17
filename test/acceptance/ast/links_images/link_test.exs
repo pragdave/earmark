@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Link reference definitions" do
     test "link with title" do
       markdown = "[foo]: /url \"title\"\n\n[foo]\n"
@@ -13,6 +11,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
 
     test "link with utf8 title" do
       markdown = "[foo]: /url \"Überschrift\"\n\n[foo]\n"
@@ -144,6 +143,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
     test "minimal case, ) as suffix" do
       markdown = "([]())"
       html     = "<p>(<a href=\"\"></a>)</p>\n"
@@ -151,6 +151,7 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
     test "normal case" do
       markdown = "([text](link))"
       html     = "<p>(<a href=\"link\">text</a>)</p>\n"
@@ -162,6 +163,22 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
     test "link with nested elements" do
       markdown = "[_foo_ bar](link)"
       html     = "<p><a href=\"link\"><em>foo</em> bar</a></p>\n"
+      ast = parse_html(html)
+      messages = []
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "illegal ulrs are not Earmark's responsability (was regtest #51)" do
+      markdown = "[<<>>/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1)"
+      html     = ~s[<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#<<>>/1">&lt;&lt;&gt;&gt;/1</a></p>]
+      ast = parse_html(html)
+      messages = []
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+    
+    test "escapes in link's name (was regtest #51)" do
+      markdown = "[&expr/1](http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1)"
+      html     = ~s{<p><a href="http://elixir-lang.org/docs/master/elixir/Kernel.SpecialForms.htm#&expr/1">&amp;expr/1</a></p>}
       ast = parse_html(html)
       messages = []
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -221,6 +238,55 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
       html = "<p>&lt;&gt;</p>\n"
       ast      = parse_html(html)
       messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "some special chars inside links" do
+    test "parentheses inside the url (was regtest #70)" do
+      markdown = ~s{[Wikipedia article on PATH](https://en.wikipedia.org/wiki/PATH_(variable))}
+      html     = ~s{<p><a href="https://en.wikipedia.org/wiki/PATH_(variable)">Wikipedia article on PATH</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "quotes in text (was regtest #72)" do 
+      markdown = ~s{["Earmark"](https://github.com/pragdave/earmark/)}
+      html     = ~s{<p><a href="https://github.com/pragdave/earmark/">"Earmark"</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "Escapes in text (was regtest #198)" do
+    test "escaped backticks" do 
+      markdown = "[hello \\`code\\`](http://some.where)"
+      ast      = [{"p", [], [{"a", [{"href", "http://some.where"}], ["hello `code`"]}]}]
+      messages = []
+
+      assert as_ast(markdown) == {:ok, ast, messages}
+    end
+
+    test "escaped stars" do
+      markdown = "[hello \\*world\\*](http://some.where)"
+      html     = ~s{<p><a href="http://some.where">hello *world*</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ ast ], messages}
+    end
+
+    test "although brackets do not need escapes, we still have to render them correctly" do
+      markdown = "[hello \\[world\\]](http://some.where)"
+      html     = ~s{<p><a href="http://some.where">hello [world]</a></p>\n}
+      ast      = parse_html(html)
+      messages = []
+
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end

@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.EmphasisTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Emphasis" do
     test "important" do
       markdown = "*foo bar*\n"

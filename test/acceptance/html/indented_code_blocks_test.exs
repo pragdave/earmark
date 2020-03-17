@@ -1,7 +1,5 @@
 defmodule Acceptance.Html.IndentedCodeBlocksTest do
-  use ExUnit.Case, async: true
-  
-  import Support.Helpers, only: [as_html: 1]
+  use Support.AcceptanceTestCase
 
   describe "Indented code blocks" do
     test "simple (but easy?)" do
@@ -23,14 +21,6 @@ defmodule Acceptance.Html.IndentedCodeBlocksTest do
     test "chunky bacon (RIP: Why)" do
       markdown = "    chunk1\n\n    chunk2\n  \n \n \n    chunk3\n"
       html     = "<pre><code>chunk1\n\nchunk2\n\n\n\nchunk3</code></pre>\n"
-      messages = []
-
-      assert as_html(markdown) == {:ok, html, messages}
-    end
-
-    test "foo and bar (now you are surprised!)" do
-      markdown = "    foo\nbar\n"
-      html     = "<pre><code>foo</code></pre>\n<p>bar</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

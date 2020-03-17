@@ -14,12 +14,13 @@ defmodule Performance.ListTest do
       ])
       Earmark.as_html!(input)
     end
-    # test "99_000 lines" do
-    #   input = make_list([
-    #     {"1.", 30}, {"-", 5}, {"23.", 10}, {"*", 6}, {"-", 11}
-    #   ])
-    #   Earmark.as_html!(input)
-    # end
+    # Working since #249 which made list processing O(Prod(elements by level)) instead of exponential
+    test "99_000 lines" do
+      input = make_list([
+        {"1.", 30}, {"-", 5}, {"23.", 10}, {"*", 6}, {"-", 11}
+      ])
+      Earmark.as_html!(input)
+    end
   end
 
 

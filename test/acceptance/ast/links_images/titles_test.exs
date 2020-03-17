@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Links with titles" do
     test "two titled links" do
       mark_tmp = "[link](/uri \"title\")"
@@ -31,7 +29,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
     end
 
-    test "titled, follwoed by untitled and titled" do
+    test "titled, followed by untitled and titled" do
       markdown = "[a](a 't') [b](b) [c](c 't')"
       ast      = [{"p", [], [{"a", [{"href", "a"}, {"title", "t"}], ["a"]}, {"a", [{"href", "b"}], ["b"]}, {"a", [{"href", "c"}, {"title", "t"}], ["c"]}]}]
       messages = []
@@ -109,4 +107,41 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
     end
   end
 
+  describe "titleoids after link (was regtest # 244)" do
+    test "title must not come from outside -- double / double" do
+      markdown = "The [Foo](/dash \"foo\") page (in \"bar\")\n"
+      html     = "<p>The <a href=\"/dash\" title=\"foo\">Foo</a> page (in \"bar\")</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "title must not come from outside -- double / single" do
+      markdown = "The [Foo](/dash \"foo\") page (in 'bar')\n"
+      html     = "<p>The <a href=\"/dash\" title=\"foo\">Foo</a> page (in 'bar')</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "title must not come from outside -- single / double" do
+      markdown = "The [Foo](/dash 'foo') page (in \"bar\")\n"
+      html     = "<p>The <a href=\"/dash\" title=\"foo\">Foo</a> page (in \"bar\")</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "title must not come from outside -- single / single " do
+      markdown = "The [Foo](/dash 'foo') page (in 'bar')\n"
+      html     = "<p>The <a href=\"/dash\" title=\"foo\">Foo</a> page (in 'bar')</p>\n"
+      ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
 end

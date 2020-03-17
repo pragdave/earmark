@@ -3,8 +3,6 @@ defmodule Acceptance.Ast.BlockIalTest do
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "IAL" do
 
     test "Not associated" do

@@ -2,10 +2,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
   use Support.AcceptanceTestCase
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
 
-  @moduletag :ast
-
   describe "simple pure links not yet enabled" do
-
     test "issue deprecation warning surpressed" do
       markdown = "https://github.com/pragdave/earmark"
       html = "<p>https://github.com/pragdave/earmark</p>\n"
@@ -62,7 +59,7 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
-    test "inner pure_links disabling does not leak out" do
+    test "correct mix" do
       markdown = "[https://erlang.org](https://erlang.org) https://elixir.lang"
       html = "<p><a href=\"https://erlang.org\">https://erlang.org</a> <a href=\"https://elixir.lang\">https://elixir.lang</a></p>\n"
       ast      = parse_html(html)

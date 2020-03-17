@@ -2,7 +2,6 @@ defmodule Support.Helpers do
 
   alias Earmark.Block.IdDef
   alias Earmark.Context
-  alias Earmark.Inline
 
   ###############
   # Helpers.... #
@@ -54,13 +53,6 @@ defmodule Support.Helpers do
     Context.update_context(context())
   end
 
-  def convert_pedantic(string, lnb \\ 0) do
-    Inline.convert(string, lnb, pedantic_context()).value
-  end
-
-  def convert_gfm(string, lnb \\ 0) do
-    Inline.convert(string, lnb, gfm_context())
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0

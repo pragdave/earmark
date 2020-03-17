@@ -3,8 +3,6 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
 
-  @moduletag :ast
-
   describe "Image reference definitions" do
 
     test "img with title" do

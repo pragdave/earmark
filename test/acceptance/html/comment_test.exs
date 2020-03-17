@@ -21,8 +21,8 @@ defmodule Acceptance.Html.CommentTest do
     end
 
     test "what about the closing" do
-      markdown = "<!-- Hello\n World -->garbish"
-      html     = "<!-- Hello\n World -->garbish"
+      markdown = "<!-- Hello\n World -->"
+      html     = "<!-- Hello\n World -->"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

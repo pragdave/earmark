@@ -2,8 +2,6 @@ defmodule Acceptance.Ast.HardLineBreaksTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
 
-  @moduletag :ast
-  
   describe "gfm" do 
     test "hard line breaks are enabled" do 
       markdown = "line 1\nline 2\\\nline 3"

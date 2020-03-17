@@ -1,6 +1,12 @@
 defmodule Regressions.I095OpeningHtmlTagClosesParaTest do
   use ExUnit.Case, async: true
 
+  @moduledoc """
+  Addressed in issue [#326](https://github.com/pragdave/earmark/issues/326)
+  """
+
+  @moduletag :wip
+
   test "html inline tag as a complete line" do
     expected = "<p>foo\n<b>bar</b></p>\n"
     assert Earmark.as_html!("foo\n<b>bar</b>") == expected

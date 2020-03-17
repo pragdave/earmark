@@ -32,10 +32,8 @@ defmodule Earmark.Message do
   def set_messages(container, messages)
   def set_messages(c = %Context{}, messages), do: put_in(c.options.messages, messages)
 
-  def emit_messages(%Context{options: options}), do: emit_messages(options)
-  def emit_messages(options = %Options{file: file}) do
-    options
-    |> sort_messages()
+  def emit_messages(messages, %Options{file: file}) do
+    messages
     |> Enum.each(&(emit_message(file, &1)))
   end
 

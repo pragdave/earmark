@@ -2,7 +2,6 @@ defmodule Acceptance.Ast.AtxHeadersTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
   
-  @moduletag :ast
   describe "ATX headers" do
 
     test "from one to six" do
