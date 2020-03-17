@@ -35,11 +35,11 @@ defmodule Support.Performance do
   Simply converts a file from `test/fixtures`
 
       convert_file("medium.md") #=> returns the AST
-      convert_file("medium.md", 10, :html) #=> returns the HTML of 10 times the file
+      convert_file("medium.md", :html, 10) #=> returns the HTML of 10 times the file
   """
-  def convert_file(filename, times \\ 1, format \\ :ast) do
+  def convert_file(filename, format \\ :ast, count \\ 1) do
     content = File.read!(Path.join("test/fixtures", filename))
-    content1 = Stream.cycle([content]) |> Enum.take(times) |> Enum.join("\n")
+    content1 = Stream.cycle([content]) |> Enum.take(count) |> Enum.join("\n")
     {:ok, ast, []} = Earmark.as_ast(content1)
     case format do
       :ast -> ast
