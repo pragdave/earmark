@@ -155,9 +155,9 @@ defmodule Earmark.LineScanner do
         [_, tag] = match
         %Line.HtmlOpenTag{tag: tag, content: line, indent: 0}
 
-      match = !recursive && Regex.run(~r/\A<\/([-\w]+?)>/, line) ->
-        [_, tag] = match
-        %Line.HtmlCloseTag{tag: tag, indent: 0}
+      match = !recursive && Regex.run(~r/\A(\s{0,3})<\/([-\w]+?)>/, line) ->
+        [_, leading_spaces, tag] = match
+        %Line.HtmlCloseTag{tag: tag, indent: String.length(leading_spaces)}
 
       match = Regex.run(@id_re, line) ->
         [_, leading, id, url | title] = match
