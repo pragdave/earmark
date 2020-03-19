@@ -220,13 +220,12 @@ defmodule Earmark.Parser do
   # HTML block #
   ##############
   defp _parse([ opener = %Line.HtmlOpenTag{tag: tag, lnb: lnb} | rest], result, options, recursive) do
-    {html_lines, rest, unclosed} = html_match_to_closing(opener, rest)
+    {html_lines, rest1, unclosed} = _html_match_to_closing(opener, rest) 
     options1 = add_messages(options,
                             unclosed
                             |> Enum.map(fn %{lnb: lnb1, tag: tag} -> {:warning, lnb1, "Failed to find closing <#{tag}>"} end))
-
-    html = (for line <- Enum.reverse(html_lines), do: line.line)
-    _parse(rest, [ %Block.Html{tag: tag, html: html, lnb: lnb} | result ], options1, recursive)
+    html = Enum.reverse(html_lines)
+    _parse(rest1, [ %Block.Html{tag: tag, html: html, lnb: lnb} | result ], options1, recursive)
   end
 
   ####################
@@ -351,7 +350,7 @@ defmodule Earmark.Parser do
   end
 
   defp _consolidate_para( [line | rest] = lines, result, pending ) do
-    case inline_or_text?( line, pending ) do
+    case _inline_or_text?( line, pending ) do
       %{pending: still_pending, continue: true} -> _consolidate_para( rest, [line | result], still_pending )
       _                                         -> {result, lines, @not_pending}
     end
@@ -492,20 +491,19 @@ defmodule Earmark.Parser do
   # Consume HTML, taking care of nesting. Assumes one tag per line. #
   ###################################################################
 
-  defp html_match_to_closing(opener, rest), do: find_closing_tags([opener], rest, [opener])
+  defp _html_match_to_closing(opener, rest), do: _find_closing_tags([opener], rest, [String.trim_leading(opener.line)])
 
+  defp _find_closing_tags(needed, input, html_lines)
   # No more open tags, happy case
-  defp find_closing_tags([], rest, html_lines), do: {html_lines, rest, []}
-
+  defp _find_closing_tags([], rest, html_lines), do: {html_lines, rest, []}
   # run out of input, unhappy case
-  defp find_closing_tags(needed, [], html_lines), do: {html_lines, [], needed}
-
+  defp _find_closing_tags(needed, [], html_lines), do: {html_lines, [], needed}
   # still more lines, still needed closing
-  defp find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines) do
+  defp _find_closing_tags(needed = [needed_hd|needed_tl], [rest_hd|rest_tl], html_lines) do
     cond do
-      closes_tag?(rest_hd, needed_hd) -> find_closing_tags(needed_tl, rest_tl, [rest_hd|html_lines])
-      opens_tag?(rest_hd)             -> find_closing_tags([rest_hd|needed], rest_tl, [rest_hd|html_lines])
-      true                            -> find_closing_tags(needed, rest_tl, [rest_hd|html_lines])
+      _closes_tag?(rest_hd, needed_hd) -> _find_closing_tags(needed_tl, rest_tl, [String.trim_leading(rest_hd.line)|html_lines])
+      _opens_tag?(rest_hd)             -> _find_closing_tags([rest_hd|needed], rest_tl, [String.trim_leading(rest_hd.line)|html_lines])
+      true                             -> _find_closing_tags(needed, rest_tl, [rest_hd.line|html_lines])
     end
   end
 
@@ -513,25 +511,26 @@ defmodule Earmark.Parser do
   # Helpers #
   ###########
 
-  defp closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}), do: ctag == otag
-  defp closes_tag?(_, _), do: false
+  defp _closes_tag?(%Line.HtmlCloseTag{tag: ctag}, %Line.HtmlOpenTag{tag: otag}) do 
+    ctag == otag
+  end
+  defp _closes_tag?(_, _), do: false
 
-  defp opens_tag?(%Line.HtmlOpenTag{}), do: true
-  defp opens_tag?(_), do: false
+  defp _opens_tag?(%Line.HtmlOpenTag{}), do: true
+  defp _opens_tag?(_), do: false
 
 
-  # (_,{'nil' | binary(),number()}) -> #{}jj
-  defp inline_or_text?(line, pending)
-  defp inline_or_text?(line = %Line.Text{}, @not_pending) do
+  defp _inline_or_text?(line, pending)
+  defp _inline_or_text?(line = %Line.Text{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
-  defp inline_or_text?(line = %Line.TableLine{}, @not_pending) do
+  defp _inline_or_text?(line = %Line.TableLine{}, @not_pending) do
     pending = opens_inline_code(line)
     %{pending: pending, continue: true}
   end
-  defp inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
-  defp inline_or_text?( line, pending ) do
+  defp _inline_or_text?( _line, @not_pending), do: %{pending: @not_pending, continue: false}
+  defp _inline_or_text?( line, pending ) do
     pending = still_inline_code(line, pending)
     %{pending: pending, continue: true}
   end

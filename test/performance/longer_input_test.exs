@@ -4,7 +4,7 @@ defmodule Performance.LongerInputTest do
   describe "some test data" do
     test "medium" do
       ast = convert_file("medium.md", :ast, 100)
-      assert Enum.count(ast) == 8300
+      assert Enum.count(ast) == 8500
     end
 
     test "show data" do

@@ -85,6 +85,7 @@ defmodule Functional.Scanner.LineTypeTest do
     { "<pre>",             %Line.HtmlOpenTag{tag: "pre", content: "<pre>"} },
     { "<pre class='123'>", %Line.HtmlOpenTag{tag: "pre", content: "<pre class='123'>"} },
     { "</pre>",            %Line.HtmlCloseTag{tag: "pre"} },
+    { "   </pre>",            %Line.HtmlCloseTag{indent: 3, tag: "pre"} },
 
     { "<pre>a</pre>",      %Line.HtmlOneLine{tag: "pre", content: "<pre>a</pre>"} },
 
