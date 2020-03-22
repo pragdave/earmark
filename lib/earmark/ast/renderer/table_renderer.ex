@@ -2,6 +2,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
   @moduledoc false
 
   alias Earmark.Ast.Inline
+  alias Earmark.Context
 
   def render_header(header, lnb, aligns, context) do
     {th_ast, context1} = 
@@ -29,7 +30,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
   end
 
   defp _render_col({col, align}, context, lnb, coltype) do
-    context1 = Inline.convert(col, lnb, context|>Earmark.Context.set_value([])) 
+    context1 = Inline.convert(col, lnb, Context.clear_value(context))
     {{"#{coltype}", _align_to_style(align), context1.value}, context1}
   end
 

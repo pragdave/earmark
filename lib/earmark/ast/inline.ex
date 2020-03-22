@@ -212,7 +212,7 @@ defmodule Earmark.Ast.Inline do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
       new_tags = augment_tag_with_ial(context.value, ial_attrs)
-      {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
+      {behead(src, match), lnb, set_value(context1, new_tags), use_linky?} # |> IO.inspect
     end
   end
   defp converter_for_inline_ial(_conv_data), do: nil

@@ -377,7 +377,7 @@ defmodule Earmark do
     as_ast(lines, struct(Options, options))
   end
   def as_ast(lines, options) do
-    {context, ast} = _as_ast(lines, options)
+    context = _as_ast(lines, options)
     messages = sort_messages(context)
 
     status =
@@ -388,7 +388,7 @@ defmodule Earmark do
         _ -> :ok
       end
 
-    {status, ast, messages}
+    {status, context.value, messages}
   end
 
   @doc """
