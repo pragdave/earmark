@@ -2,28 +2,29 @@ defmodule Earmark.AstRenderer do
   alias Earmark.Block
   alias Earmark.Context
   alias Earmark.Options
+
+  import Context, only: [clear_value: 1, modify_value: 2, prepend: 2, prepend: 3]
   import Earmark.Ast.Inline, only: [convert: 3]
   import Earmark.Helpers.AstHelpers
   import Earmark.Ast.Renderer.FootnoteListRenderer
   import Earmark.Ast.Renderer.HtmlRenderer
   import Earmark.Ast.Renderer.TableRenderer
-  import Earmark.Message, only: [get_messages: 1]
 
   @moduledoc false
 
   def render(blocks, context = %Context{options: %Options{}}, loose? \\ true) do
-    messages = get_messages(context)
-    {ast, new_messages} = _render(blocks, context, {[], messages}, loose?)
-    {put_in(context.options.messages, new_messages), ast}
+    # IO.inspect blocks
+    _render(blocks, context, loose?)
   end
 
 
-  defp _render(blocks, context, result, loose?)
-  defp _render([], _context, {result, messages}, _loose?), do: {Enum.reverse(result), messages}
-  defp _render([block|blocks], context, {result, messages}, loose?) do
-    case render_block(block, context, loose?) do
-      {ctxt, ast} -> _render(blocks, context, {_append_to_result(ast, result), Enum.uniq(messages ++ get_messages(ctxt))}, loose?)
-    end
+  defp _render(blocks, context, loose?)
+  defp _render([], context, _loose?), do: context
+  defp _render([block|blocks], context, loose?) do
+    # IO.inspect({block.__struct__, context.value}, label: :before)
+    context1 = render_block(block, clear_value(context), loose?)
+    # IO.inspect(context1.value, label: :partial)
+    _render(blocks, prepend(context1, context.value), loose?)
   end
 
   defp render_block(block, context, loose?)
@@ -39,33 +40,34 @@ defmodule Earmark.AstRenderer do
     else
       value
     end
-    {context1, ast}
+    # IO.inspect ast
+    prepend(context, ast, context1.options.messages)
   end
   ########
   # Html #
   ########
   defp render_block(%Block.Html{html: html}, context, _loose?) do
-    {context, render_html_block(html)}
+    render_html_block(html, context)
   end
   defp render_block(%Block.HtmlOneline{html: html}, context, _loose?) do
-    {context, render_html_oneline(html)}
+    render_html_oneline(html,context)
   end
   defp render_block(%Block.HtmlComment{lines: lines}, context, _loose?) do
     lines1 =
       lines |> Enum.map(&render_html_comment_line/1)
-    {context, {:comment, [], lines1}}
+    prepend(context, {:comment, lines1})
   end
   #########
   # Ruler #
   #########
   defp render_block(%Block.Ruler{type: "-", attrs: attrs}, context, _loose?) do
-    {context, {"hr", merge_attrs(attrs, %{"class" => "thin"}), []}}
+    prepend(context, {"hr", merge_attrs(attrs, %{"class" => "thin"}), []})
   end
   defp render_block(%Block.Ruler{type: "_", attrs: attrs}, context, _loose?) do
-    {context, {"hr", merge_attrs( attrs, %{"class" => "medium"}), []}}
+    prepend(context, {"hr", merge_attrs( attrs, %{"class" => "medium"}), []})
   end
   defp render_block(%Block.Ruler{type: "*", attrs: attrs}, context, _loose?) do
-    {context, {"hr", merge_attrs(attrs, %{"class" => "thick"}), []}}
+    prepend(context, {"hr", merge_attrs(attrs, %{"class" => "thick"}),[]})
   end
   ###########
   # Heading #
@@ -74,17 +76,16 @@ defmodule Earmark.AstRenderer do
          %Block.Heading{lnb: lnb, level: level, content: content, attrs: attrs},
          context, _loose?
        ) do
-    context1 = convert(content, lnb, context)
-    ast = { "h#{level}", merge_attrs(attrs), context1.value |> Enum.reverse }
+    context1 = convert(content, lnb, clear_value(context))
     # merge_attrs(children, ast, attrs, [], lnb)
-    {context1, ast}
+    modify_value(context1, fn _ -> [{ "h#{level}", merge_attrs(attrs), context1.value |> Enum.reverse }] end)
   end
   ##############
   # Blockquote #
   ##############
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, _loose?) do
-    {context1, ast} = render(blocks, context)
-    {context1, {"blockquote", merge_attrs(attrs), ast}}
+    context1 = render(blocks, clear_value(context))
+    modify_value(context1, fn ast -> [{"blockquote", merge_attrs(attrs), ast}] end)
   end
   #########
   # Table #
@@ -103,7 +104,7 @@ defmodule Earmark.AstRenderer do
         {rows_ast, context1}
       end
 
-    {context2, {"table", merge_attrs(attrs), rows_ast1}}
+    prepend(clear_value(context2), {"table", merge_attrs(attrs), rows_ast1})
   end
   ########
   # Code #
@@ -117,7 +118,7 @@ defmodule Earmark.AstRenderer do
 
     lines = render_code(block)
     ast = { "pre", merge_attrs(attrs), [{"code", classes, [lines]}] }
-    {context, ast}
+    prepend(context, ast)
   end
   #########
   # Lists #
@@ -127,19 +128,21 @@ defmodule Earmark.AstRenderer do
          %Block.List{type: type, bullet: bullet, blocks: items, attrs: attrs},
          context, _loose?
        ) do
-    {context1, ast} = render(items, context)
+    context1 = render(items, clear_value(context))
     start_map = case bullet && Regex.run(@start_rgx, bullet) do
       nil      -> %{}
       ["1"]    -> %{}
       [start1] -> %{start: _normalize_start(start1)}
     end
-    {context1, {to_string(type), merge_attrs(attrs, start_map), ast}}
+    prepend(context, {to_string(type), merge_attrs(attrs, start_map), context1.value}, context1.options.messages)
   end
 
   # format a spaced list item
   defp render_block(%Block.ListItem{blocks: blocks, attrs: attrs, loose?: loose?}, context, _loose?) do
-    {context1, ast} = render(blocks, context, loose?)
-    {context1, {"li", merge_attrs(attrs), _fix_text_lines(ast, loose?)}}
+    # IO.inspect blocks
+    context1 = render(blocks, clear_value(context), loose?)
+    # IO.inspect(context1.value, label: :list_item_blocks)
+    prepend(context, {"li", merge_attrs(attrs), _fix_text_lines(context1.value, loose?)}, context1.options.messages)
   end
 
   ########
@@ -147,12 +150,12 @@ defmodule Earmark.AstRenderer do
   ########
 
   defp render_block(%Block.Text{line: line, lnb: lnb}, context, loose?) do
-    context1 = convert(line, lnb, context)
+    context1 = convert(line, lnb, clear_value(context))
     ast =  context1.value |> Enum.reverse
     if loose? do   
-      {context1, {"p", [], ast}}
+      modify_value(context1, fn _ -> [{"p", [], ast}] end)
     else
-      {context1, ast}
+      modify_value(context1, fn _ -> ast end) 
     end
   end
 
@@ -167,7 +170,7 @@ defmodule Earmark.AstRenderer do
         %Block.ListItem{attrs: %{id: ["#fn:#{note.number}"]}, type: :ol, blocks: blocks}
       end)
 
-    {context, render_footnote_list(items)}
+    prepend(context, render_footnote_list(items))
   end
 
   #######################################
@@ -175,15 +178,14 @@ defmodule Earmark.AstRenderer do
   #######################################
 
   defp render_block(%Block.Ial{verbatim: verbatim}, context, _loose?) do
-    {context,
-     {"p", [], ["{:#{verbatim}}"]}}
+    prepend(context, {"p", [], ["{:#{verbatim}}"]})
   end
 
   ####################
   # IDDef is ignored #
   ####################
 
-  defp render_block(%Block.IdDef{}, context, _loose?), do: {context, ""}
+  defp render_block(%Block.IdDef{}, context, _loose?), do: context
 
 
   defp append_footnote_link(note)
@@ -200,16 +202,6 @@ defmodule Earmark.AstRenderer do
   # Helpers
   # -------
 
-  defp _append_to_result(ast, result)
-  defp _append_to_result([], result), do: result
-  defp _append_to_result([head|tail], result) when is_list(head) do
-    _append_to_result(tail, _append_to_result(head, result))
-  end
-  defp _append_to_result([head|tail], result) do
-    _append_to_result(tail, [head|result])
-  end
-  defp _append_to_result("", result), do: result
-  defp _append_to_result(scalar, result), do: [scalar | result]
 
   defp _fix_text_lines(ast, loose?)
   defp _fix_text_lines(ast, false), do: Enum.map(ast, &_fix_tight_text_line/1)
@@ -231,6 +223,7 @@ defmodule Earmark.AstRenderer do
       start1 -> start1
     end
   end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0

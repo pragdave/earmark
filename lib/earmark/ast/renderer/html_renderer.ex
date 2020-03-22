@@ -1,16 +1,17 @@
 defmodule Earmark.Ast.Renderer.HtmlRenderer do
 
+  import Earmark.Context, only: [prepend: 2]
   import Earmark.Helpers.HtmlParser
 
   @moduledoc false
 
   # Structural Renderer for html blocks
-  def render_html_block(lines) do
-    with [tag] <- parse_html(lines), do: tag
+  def render_html_block(lines, context) do
+    with [tag] <- parse_html(lines), do: prepend(context, tag)
   end
 
-  def render_html_oneline([line|_]) do
-    parse_html([line])
+  def render_html_oneline([line|_], context) do
+    prepend(context, parse_html([line]))
   end
   
   @html_comment_start ~r{\A\s*<!--}
