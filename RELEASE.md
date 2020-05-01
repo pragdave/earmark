@@ -5,6 +5,9 @@
 
 - [320 Nested Blockquotes](https://github.com/pragdave/earmark/issues/320)
 
+# 1.4.4 2020/05/01
+
+- [338  Deprecation warnings in mixfile removed](https://github.com/pragdave/earmark/issues/338)
 
 # 1.4.3 2019/11/23
 

@@ -13,8 +13,8 @@
 * [Dependency](#dependency)
 * [Usage](#usage)
 * [Details](#details)
-* [`Earmark.as_ast/2`](#earmarkas_ast2)
 * [`Earmark.as_html/2`](#earmarkas_html2)
+* [`Earmark.as_ast/2`](#earmarkas_ast2)
 * [`Earmark.Transform.transform/2`](#earmarktransformtransform2)
 * [Contributing](#contributing)
 * [Author](#author)
@@ -30,17 +30,6 @@
 
 ### API
 
-Earmark now exposes a welldefined and stable Abstratc Syntax Tree
-
-#### Earmark.as_ast
-
-The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
-the structure of the result of `as_ast`.
-
-    {:ok, ast, []}                   = Earmark.as_ast(markdown)
-    {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
-    {:error, ast, error_messages}    = Earmark.as_ast(markdown)
-
 #### Earmark.as_html
 
     {:ok, html_doc, []}                   = Earmark.as_html(markdown)
@@ -51,16 +40,24 @@ the structure of the result of `as_ast`.
 
     html_doc = Earmark.as_html!(markdown, options)
 
-Formats the error_messages returned by `as_html` and adds the filename to each.
-Then prints them to stderr and just returns the html_doc
+All messages are printed to _stderr_.
 
 #### Options
 
-Options can be passed into `as_ast/2`as well as `as_html/2` or `as_html!/2` according to the documentation.
+Options can be passed into `as_html/2` or `as_html!/2` according to the documentation.
 
-    {status, html_doc, errors} = Earmark.as_html(markdown, options)
+    html_doc = Earmark.as_html!(markdown)
     html_doc = Earmark.as_html!(markdown, options)
-    {status, ast, errors} = Earmark.as_ast(markdown, options)
+
+Formats the error_messages returned by `as_html` and adds the filename to each.
+Then prints them to stderr and just returns the html_doc
+
+#### NEW and EXPERIMENTAL: `Earmark.as_ast`
+
+Although well tested the way the exposed AST will look in future versions may change, a stable
+API is expected for Earmark v1.6, when the rendered HTML shall be derived from the ast too.
+
+More details can be found in the function's description below.
 
 ### Command line
 
@@ -96,7 +93,7 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
 #### Strike Through
 
     iex(1)> Earmark.as_html! ["~~hello~~"]
-    "<p>\n  <del>\n    hello\n  </del>\n</p>\n"
+    "<p><del>hello</del></p>\n"
 
 #### Syntax Highlighting
 
@@ -201,25 +198,25 @@ format.
 
     iex(4)> markdown = "[link](url) {: .classy}"
     ...(4)> Earmark.as_html(markdown)
-    { :ok, "<p>\n  <a class=\"classy\" href=\"url\">\n    link\n  </a>\n</p>\n", []}
+    { :ok, "<p><a href=\"url\" class=\"classy\">link</a></p>\n", []}
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
     iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
-    {:error, "<p>\n  Some text\n</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+    {:error, "<p>Some text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
     iex(6)> markdown = "[link](url)\\{: .classy}"
     ...(6)> Earmark.as_html(markdown)
-    {:ok, "<p>\n  <a href=\"url\">\n    link\n  </a>\n  {: .classy}\n</p>\n", []}
+    {:ok, "<p><a href=\"url\">link</a>{: .classy}</p>\n", []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
     iex(7)> markdown = "hello {:world}"
     ...(7)> Earmark.as_html!(markdown)
-    "<p>\n  hello {:world}\n</p>\n"
+    "<p>hello {:world}</p>\n"
 
 ## Limitations
 
@@ -309,28 +306,6 @@ and are to serve the produced HTML on the Web.
 
 ## Details
 
-## `Earmark.as_ast/2`
-
-<!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-      iex(9)> markdown = "My `code` is **best**"
-      ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
-      ...(9)> ast
-      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
-
-Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
-for the AST.
-
-      iex(10)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-      ...(10)> ast
-      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
-
-**Rationale**:
-
-The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
-
-<!-- END inserted functiondoc Earmark.as_ast/2 -->
-
 ## `Earmark.as_html/2`
 
 <!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
@@ -394,6 +369,48 @@ Where `html_doc` is an HTML representation of the markdown document and
   behavior can be used.
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
+
+## `Earmark.as_ast/2`
+
+<!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
+**EXPERIMENTAL**, but well tested, just expect API changes in the 1.4 branch
+
+      iex(9)> markdown = "My `code` is **best**"
+      ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
+      ...(9)> ast
+      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+
+Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
+for the AST.
+
+      iex(10)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+      ...(10)> ast
+      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
+
+**Rationale**:
+
+The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
+differences and we chose to **always** have tripples, even for comments.
+We also do return a list for a single node
+
+
+      Floki.parse("<!-- comment -->")           
+      {:comment, " comment "}
+
+      Earmark.as_ast("<!-- comment -->")
+      {:ok, [{:comment, [], [" comment "]}], []}
+
+Therefore `as_ast` is of the following type
+
+      @typep tag  :: String.t | :comment
+      @typep att  :: {String.t, String.t}
+      @typep atts :: list(att)
+      @typep node :: String.t | {tag, atts, ast}
+
+      @type  ast  :: list(node)
+
+<!-- END inserted functiondoc Earmark.as_ast/2 -->
 
 ## `Earmark.Transform.transform/2`
 
