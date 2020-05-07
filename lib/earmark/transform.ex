@@ -141,16 +141,18 @@ defmodule Earmark.Transform do
       if void?, do: " />", else: ">"
     ["<", tag, atts |> Enum.map(&make_att(&1, tag)), closer]
   end
-  
-  @dashes_rgx ~r{--}
-  @dbl1_rgx ~r{(^|[-—/\(\[\{"”“\s])'}
+
+  @em_dash_rgx ~r{---}
+  @en_dash_rgx ~r{--}
+  @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
   @single_rgx ~r{\'}
-  @dbl2_rgx ~r{(^|[-—/\(\[\{‘\s])\"}
+  @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
   @dbl3_rgx ~r{"}
   defp smartypants(text, options)
   defp smartypants(text, %{smartypants: true}) do
     text
-    |> replace(@dashes_rgx, "—")
+    |> replace(@em_dash_rgx, "—")
+    |> replace(@en_dash_rgx, "–")
     |> replace(@dbl1_rgx, "\\1‘")
     |> replace(@single_rgx, "’")
     |> replace(@dbl2_rgx, "\\1“")

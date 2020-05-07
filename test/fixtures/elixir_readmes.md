@@ -1147,7 +1147,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 * `smartypants`: boolean
 
   Turns on smartypants processing, so quotes become curly, two
-  or four hyphens become en and em dashes, and so on. True by
+  or three hyphens become en and em dashes, and so on. True by
   default.
 
   So, to format the document in `original` and disable smartypants,

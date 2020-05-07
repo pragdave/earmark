@@ -1,6 +1,8 @@
 defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
   use Support.AcceptanceTestCase
 
+  @en_dash          "\u2013"
+  @em_dash          "\u2014"
   @open_sgl_smarty  "\u2018"
   @close_sgl_smarty "\u2019"
   @open_dbl_smarty  "\u201c"
@@ -30,7 +32,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
-    test "paired single" do 
+    test "paired single" do
       markdown = "a 'single' quote"
       html     = para("a #{sgl_quote("single")} quote")
       messages = []
@@ -63,8 +65,24 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "en dash" do
+      markdown = "1947 -- 2020"
+      html     = para("1947 #{@en_dash} 2020")
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "em dash" do
+      markdown = "Earmark---A Pure Elixir Markdown Processor"
+      html     = para("Earmark#{@em_dash}A Pure Elixir Markdown Processor")
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
   end
-  
-  defp dbl_quote(str), do: Enum.join([@open_dbl_smarty, str, @close_dbl_smarty]) 
-  defp sgl_quote(str), do: Enum.join([@open_sgl_smarty, str, @close_sgl_smarty]) 
+
+  defp dbl_quote(str), do: Enum.join([@open_dbl_smarty, str, @close_dbl_smarty])
+  defp sgl_quote(str), do: Enum.join([@open_sgl_smarty, str, @close_sgl_smarty])
 end
