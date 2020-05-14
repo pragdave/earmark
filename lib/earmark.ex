@@ -3,7 +3,7 @@ defmodule Earmark do
 
   ### API
 
-  Earmark now exposes a welldefined and stable Abstratc Syntax Tree
+  Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
   #### Earmark.as_ast
   
