@@ -1,6 +1,12 @@
-# 1.5.0 ????/??/??
+# 1.4.5 ????/??/??
 
-- [324 Fix AST for links with nested elements](https://github.com/pragdave/earmark/pull/324) 
+- [339 Typos fix](ihttps://github.com/pragdave/earmark/pull/339)
+    Kudos to [Ondrej Pinka](https://github.com/onpikono)
+
+- [336 Smartypants: Convert three hyphens to em dash](https://github.com/pragdave/earmark/pull/336)
+    Kudos to [Jony Stoten](https://github.com/jonnystoten)
+
+- [324 Fix AST for links with nested elements](https://github.com/pragdave/earmark/pull/324)
     Kudos to [Wojtek Mach](https://github.com/wojtekmach)
 
 - [320 Nested Blockquotes](https://github.com/pragdave/earmark/issues/320)
