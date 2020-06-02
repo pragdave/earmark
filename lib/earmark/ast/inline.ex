@@ -93,13 +93,16 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  @pure_link_rgx ~r{\A\s*(https?://\S+\b)}u
+  @pure_link_rgx ~r{\A\s*(https?://[[:alnum:]-._~()]+)\b}u
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
         [ match, link_text ] ->
-          out = render_link(link_text, link_text)
-          {behead(src, match), lnb, prepend(context, out), use_linky?}
+          link_text1 = String.trim_trailing(")")
+          pending_closing_parens = behead(link_text, link_text1) 
+          {link_text2, removed} = _remove_superflous_pending_closing_parens(link_text1, pending_closing_parens)
+          out = render_link(link_text2, link_text2)
+          {behead(src, String.length(match) - removed), lnb, prepend(context, out), use_linky?}
           _ -> nil
       end
     end
@@ -332,6 +335,19 @@ defmodule Earmark.Ast.Inline do
     _prepend(context, prep)
   end
 
+  defp _count_parens(graphemes, count)
+  defp _count_parens([], count), do: count
+  defp _count_parens(["("|rest], count) do
+    _count_parens(rest, count + 1)
+  end
+  defp _count_parens([")"|rest], count) do
+    _count_parens(rest, count - 1)
+  end
+  defp _count_parens([_|rest], count) do
+    _count_parens(rest, count)
+  end
+
+
   defp _prepend(context, value)
   defp _prepend(context, [bin|rest]) when is_binary(bin) do
     _prepend(_prepend(context, bin), rest)
@@ -349,6 +365,21 @@ defmodule Earmark.Ast.Inline do
   defp _remove_leading_empty(list)
   defp _remove_leading_empty([""|rest]), do: rest
   defp _remove_leading_empty(list), do: list
+
+  defp _remove_superflous_pending_closing_parens(link_text, pending_paren)
+  defp _remove_superflous_pending_closing_parens(link_text, ""), do: {link_text, 0}
+  defp _remove_superflous_pending_closing_parens(link_text, pending_paren) do
+    opening_paren_count =
+      link_text
+      |> String.graphemes
+      |> _count_parens(0)
+    if opening_paren_count < 1 do
+      {link_text, 0}
+    else
+      add = String.slice(pending_paren, 0..opening_paren_count-1) 
+      {link_text <> add, String.length(add) - String.length(pending_paren)}
+    end
+  end
 
 end
 

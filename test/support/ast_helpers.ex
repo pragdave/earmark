@@ -5,7 +5,7 @@ defmodule Support.AstHelpers do
   end
 
   def p(content, atts \\ [])
-  def p(content, atts) when is_binary(content),
+  def p(content, atts) when is_binary(content) or is_tuple(content),
     do: {"p", atts, [content]}
   def p(content, atts),
     do: {"p", atts, content}
