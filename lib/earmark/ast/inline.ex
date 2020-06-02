@@ -4,6 +4,7 @@ defmodule Earmark.Ast.Inline do
 
   alias Earmark.Context
   alias Earmark.Helpers.LinkParser
+  alias Earmark.Helpers.PureLinkHelpers
 
   import Earmark.Ast.Renderer.AstWalker
   import Earmark.Helpers
@@ -93,18 +94,26 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  @pure_link_rgx ~r{\A\s*(https?://[[:alnum:]-._~()]+)\b}u
+  @pure_link_rgx ~r{\A\s*(https?://[[:alnum:]-._~(]+)\b}u
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case Regex.run(@pure_link_rgx, src) do
         [ match, link_text ] ->
-          link_text1 = String.trim_trailing(")")
-          pending_closing_parens = behead(link_text, link_text1) 
-          {link_text2, removed} = _remove_superflous_pending_closing_parens(link_text1, pending_closing_parens)
-          out = render_link(link_text2, link_text2)
-          {behead(src, String.length(match) - removed), lnb, prepend(context, out), use_linky?}
-          _ -> nil
-      end
+          out = render_link(link_text, link_text)
+          {behead(src, match), lnb, prepend(context, out), use_linky?}
+        _ -> converter_for_pure_links_with_parens({src, lnb, context, use_linky?})
+          end
+    end
+  end
+
+  @pure_link_rgx_with_parens ~r{\A\s*(https?://[[:alnum:]-._~()]+)\b}u
+  defp converter_for_pure_links_with_parens({src, lnb, context, use_linky?}) do
+    case Regex.run(@pure_link_rgx_with_parens, src) do
+      [ match, link_text ] ->
+        {match_length, link_text1} = PureLinkHelpers.parse_pure_link_with_parens(match, link_text)
+        out = render_link(link_text1, link_text1)
+        {behead(src, match_length), lnb, prepend(context, out), use_linky?}
+        _ -> nil
     end
   end
 
@@ -366,21 +375,5 @@ defmodule Earmark.Ast.Inline do
   defp _remove_leading_empty([""|rest]), do: rest
   defp _remove_leading_empty(list), do: list
 
-  defp _remove_superflous_pending_closing_parens(link_text, pending_paren)
-  defp _remove_superflous_pending_closing_parens(link_text, ""), do: {link_text, 0}
-  defp _remove_superflous_pending_closing_parens(link_text, pending_paren) do
-    opening_paren_count =
-      link_text
-      |> String.graphemes
-      |> _count_parens(0)
-    if opening_paren_count < 1 do
-      {link_text, 0}
-    else
-      add = String.slice(pending_paren, 0..opening_paren_count-1) 
-      {link_text <> add, String.length(add) - String.length(pending_paren)}
-    end
-  end
-
 end
-
 # SPDX-License-Identifier: Apache-2.0
