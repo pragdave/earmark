@@ -1,6 +1,7 @@
-defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
+defmodule Acceptance.Ast.LinksImages.PureLinksTest do
   use Support.AcceptanceTestCase
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import Support.AstHelpers, only: [p: 1]
 
   describe "simple pure links not yet enabled" do
     test "issue deprecation warning surpressed" do
@@ -12,14 +13,6 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
       assert as_ast(markdown, pure_links: false) == {:ok, [ast], messages}
     end
 
-    test "explicitly enabled" do
-      markdown = "https://github.com/pragdave/earmark"
-      html = "<p><a href=\"https://github.com/pragdave/earmark\">https://github.com/pragdave/earmark</a></p>\n"
-      ast      = parse_html(html)
-      messages = []
-
-      assert as_ast(markdown) == {:ok, [ast], messages}
-    end
   end
 
   describe "enabled pure links" do
@@ -67,6 +60,48 @@ defmodule Acceptance.Ast.LinksImages.SimplePureLinksTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
 
+    end
+  end
+
+  describe "parenthesis (was: regression #342)" do
+    test "simplest error case" do
+      markdown = "http://my.org/robert(is_best)"
+      ast      = p({"a", [{"href", "http://my.org/robert(is_best)"}], ["http://my.org/robert(is_best)"]})
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "imbrication" do
+      markdown = "(http://my.org/robert(is_best)"
+      ast      = p(["(", {"a", [{"href", "http://my.org/robert(is_best"}], ["http://my.org/robert(is_best"]}, ")"])
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "enough imbrication" do
+      markdown = "(http://my.org/robert(is_best))"
+      ast      = p(["(", {"a", [{"href", "http://my.org/robert(is_best)"}], ["http://my.org/robert(is_best)"]}, ")"])
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "most imbricated" do
+      markdown = "((http://my.org/robert(c'estça)))"
+      ast      = p(["((", {"a", [{"href", "http://my.org/robert(c'est%C3%A7a)"}], ["http://my.org/robert(c'estça)"]}, "))"])
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+
+    test "recoding is cool" do
+      markdown = "((http://github.com(c'est%C3%A7a)))"
+      ast      = p(["((", {"a", [{"href", "http://github.com(c'est%C3%A7a)"}], ["http://github.com(c'estça)"]}, "))"])
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 end

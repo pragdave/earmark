@@ -4,6 +4,7 @@ defmodule Earmark.Ast.Inline do
 
   alias Earmark.Context
   alias Earmark.Helpers.LinkParser
+  alias Earmark.Helpers.PureLinkHelpers
 
   import Earmark.Ast.Renderer.AstWalker
   import Earmark.Helpers
@@ -93,14 +94,11 @@ defmodule Earmark.Ast.Inline do
     end
   end
 
-  @pure_link_rgx ~r{\A\s*(https?://\S+\b)}u
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
-      case Regex.run(@pure_link_rgx, src) do
-        [ match, link_text ] ->
-          out = render_link(link_text, link_text)
-          {behead(src, match), lnb, prepend(context, out), use_linky?}
-          _ -> nil
+      case PureLinkHelpers.convert_pure_link(src) do
+        {ast, length} -> {behead(src, length), lnb, prepend(context, ast), use_linky?}
+        _             -> nil
       end
     end
   end

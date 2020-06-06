@@ -49,7 +49,13 @@ defmodule Earmark.Helpers.AstHelpers do
   end
 
   @doc false
-  def render_link(url, text), do: {"a", [{"href", url}], [text]}
+  def render_link(url, text) do
+    url1 =
+      url
+      |> URI.decode
+      |> URI.encode
+    {"a", [{"href", url1}], [text|>URI.decode]}
+  end
 
 
   ##############################################

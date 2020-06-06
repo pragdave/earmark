@@ -1,4 +1,12 @@
+# 1.4.6 ????/??/??
+
 # 1.4.5 ????/??/??
+
+- Numeric options in CLI accept underscores now
+
+- URL escaping in links as in GFM now
+
+- [342 parens in pure links](https://github.com/pragdave/earmark/issues/342)
 
 - [339 Typos fix](ihttps://github.com/pragdave/earmark/pull/339)
     Kudos to [Ondrej Pinka](https://github.com/onpikono)

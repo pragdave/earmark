@@ -88,7 +88,7 @@ defmodule Earmark.CLI do
   defp numberize_options(keywords, option_names), do: Enum.map(keywords, &numberize_option(&1, option_names))
   defp numberize_option({k, v}, option_names) do
     if Enum.member?(option_names, k) do
-      case Integer.parse(v) do
+      case v |> String.replace("_","") |> Integer.parse do
         {int_val, ""}   -> {k, int_val}
         {int_val, rest} -> IO.puts(:stderr, "Warning, non numerical suffix in option #{k} ignored (#{inspect rest})")
                            {k, int_val}
