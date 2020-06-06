@@ -4,6 +4,7 @@ defmodule Earmark.Ast.Inline do
 
   alias Earmark.Context
   alias Earmark.Helpers.LinkParser
+  alias Earmark.Helpers.PureLinkHelpers
 
   import Earmark.Ast.Renderer.AstWalker
   import Earmark.Helpers
@@ -96,7 +97,7 @@ defmodule Earmark.Ast.Inline do
   defp converter_for_pure_link({src, lnb, context, use_linky?}) do
     if context.options.pure_links do
       case PureLinkHelpers.convert_pure_link(src) do
-        {ast, length} -> {behead(src, length), lnb, prepend(context, ast)}
+        {ast, length} -> {behead(src, length), lnb, prepend(context, ast), use_linky?}
         _             -> nil
       end
     end
