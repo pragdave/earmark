@@ -36,9 +36,9 @@ defmodule Earmark.Helpers.HtmlParser do
     end
   end
 
-  @tag_tail  ~r{\A(/?)>\s*(.*)\z}
+  @tag_tail ~r{\A.*?(/?)>\s*(.*)\z}
   defp _parse_tag_tail(string, tag, atts) do
-    case Regex.run(@tag_tail, string) do
+    case Regex.run(@tag_tail, string)  do
       [_, closing, suffix]  ->
         _close_tag_tail(tag, atts, closing != "", suffix)
       # [_, _, ""]            -> {:ok, {tag, Enum.reverse(atts)} }
