@@ -40,7 +40,6 @@ defmodule Earmark.AstRenderer do
     else
       value
     end
-    # IO.inspect ast
     prepend(context, ast, context1.options.messages)
   end
   ########

@@ -2,6 +2,8 @@
 
 # 1.4.5 2020/06/07
 
+- [340 IAL might cause error](https://github.com/pragdave/earmark/issues/340)
+
 - [343-error-parsing-unquoted-atts](https://github.com/pragdave/earmark/issues/343)
 
 - Numeric options in CLI accept underscores now

@@ -67,6 +67,21 @@ defmodule Acceptance.Ast.IalTest do
       assert as_ast(markdown) == {:error, [ast], messages}
     end
 
+
+  end
+
+  describe "just text" do
+    test "nothing to ial with" do
+      markdown = "{:error, {IncompatibleUnitError, message}}"
+
+      assert as_ast(markdown) == {:error, [{"p", [], ["}"]}], [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]}
+    end
+
+    test "nothing to ial with (inside list)" do
+      markdown = "* {:error, {IncompatibleUnitError, message}}"
+
+      assert as_ast(markdown) == {:error, [{"ul", '', [{"li", [], ["}"]}]}], [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]}
+    end
   end
 end
 

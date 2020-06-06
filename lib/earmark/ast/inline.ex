@@ -24,6 +24,7 @@ defmodule Earmark.Ast.Inline do
   defp _convert(src, current_lnb, context, use_linky?) do
     case _convert_next(src, current_lnb, context, use_linky?) do
       {src1, lnb1, context1, use_linky1?} -> _convert(src1, lnb1, context1, use_linky1?)
+      
       x -> raise "Internal Conversion Error\n\n#{inspect x}"
     end
   end
