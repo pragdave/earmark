@@ -12,6 +12,9 @@ defmodule Earmark.Helpers.AstHelpers do
   def augment_tag_with_ial([{t, a, c}|tags], atts) do
     [{t, merge_attrs(a, atts), c}|tags]
   end
+  def augment_tag_with_ial([], _atts) do
+    [] 
+  end
 
   @doc false
   def code_classes(language, prefix) do
