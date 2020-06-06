@@ -1,16 +1,27 @@
 # 1.4.6 ????/??/??
 
-# 1.4.5 2020/06/07
+# 1.4.5 2020/06/06
 
-- [340 IAL might cause error](https://github.com/pragdave/earmark/issues/340)
+This is mostly a bugfix release, as there were edge cases that resulted in
+Earmark crashing, notably
+
+  - Bare IAL
+  - unquoted attributes in html tags
+
+Also autolinks (GFM extension) delivered incorrect URLS where parenthesis were involved,
+for better GFM compatibility we therefore
+
+  - Fixed broken parenthesis links (99% of all cases)
+  - introduced the same URL encoding/decoding in links and link names of autolinks as GFM does
+
+And last but not least all numeric options in the CLI can now be written with
+underlines for readability.
 
 - [343-error-parsing-unquoted-atts](https://github.com/pragdave/earmark/issues/343)
 
-- Numeric options in CLI accept underscores now
-
-- URL escaping in links as in GFM now
-
 - [342 parens in pure links](https://github.com/pragdave/earmark/issues/342)
+
+- [340 IAL might cause error](https://github.com/pragdave/earmark/issues/340)
 
 - [339 Typos fix](ihttps://github.com/pragdave/earmark/pull/339)
     Kudos to [Ondrej Pinka](https://github.com/onpikono)
