@@ -7,7 +7,8 @@ defmodule Earmark.Ast.Renderer.HtmlRenderer do
 
   # Structural Renderer for html blocks
   def render_html_block(lines, context) do
-    with [tag] <- parse_html(lines), do: prepend(context, tag)
+    [tag] = parse_html(lines)
+    prepend(context, tag)
   end
 
   def render_html_oneline([line|_], context) do
