@@ -28,7 +28,6 @@ defmodule Earmark.Options do
             # serial
             mapper: &Earmark.pmap/2,
             mapper_with_timeout: &Earmark.pmap/3,
-            render_code: &Earmark.HtmlRenderer.render_code/1,
 
             # Filename and initial line number of the markdown block passed in
             # for meaningfull error messages

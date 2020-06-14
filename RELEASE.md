@@ -1,5 +1,8 @@
 # 1.4.6 ????/??/??
 
+- [347-dialyxir-errors](https://github.com/pragdave/earmark/issues/347)  
+    Fixed some of them, alas not all
+
 # 1.4.5 2020/06/06
 
 This is mostly a bugfix release, as there were edge cases that resulted in
