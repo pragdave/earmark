@@ -5,7 +5,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
   alias Earmark.Context
 
   def render_header(header, lnb, aligns, context) do
-    {th_ast, context1} = 
+    {th_ast, context1} =
       header
       |> Enum.zip(aligns)
       |> Enum.map_reduce(context, &_render_col(&1, &2, lnb, :th))
@@ -19,7 +19,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
       rows
         |> Enum.zip(Stream.iterate(lnb, &(&1 + 1)))
         |> Enum.map_reduce(context, &_render_row(&1, &2, aligns))
-    {[{"tbody", [], rows1}], context1} 
+    {[{"tbody", [], rows1}], context1}
   end
 
 
@@ -31,7 +31,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
 
   defp _render_col({col, align}, context, lnb, coltype) do
     context1 = Inline.convert(col, lnb, Context.clear_value(context))
-    {{"#{coltype}", _align_to_style(align), context1.value}, context1}
+    {{"#{coltype}", _align_to_style(align), context1.value |> Enum.reverse}, context1}
   end
 
   defp _render_row({row, lnb}, context, aligns) do
