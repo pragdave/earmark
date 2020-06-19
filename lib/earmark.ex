@@ -145,6 +145,20 @@ defmodule Earmark do
 
   never is.
 
+  #### HTML Blocks
+  
+  Are only supported if the begin and end tag is in its own line, thusly
+
+        <div>
+            Hello
+        </div>
+
+  will parse as HTML while
+
+        <div>Hello</div>
+
+  is not supported and its result is undefined
+
   ### Adding HTML attributes with the IAL extension
 
   #### To block elements

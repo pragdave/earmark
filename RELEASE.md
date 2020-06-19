@@ -1,5 +1,9 @@
 # 1.4.6 ????/??/??
 
+- [351-html-tags-without-newlines](https://github.com/pragdave/earmark/issues/351)
+
+- [335-content-inside-table-cells-reversed](https://github.com/pragdave/earmark/issues/335)
+
 - [347-dialyxir-errors](https://github.com/pragdave/earmark/issues/347)  
     Fixed some of them, alas not all
 
