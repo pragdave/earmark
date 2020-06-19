@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.TableTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import EarmarkAstDsl
   
   describe "complex rendering inside tables:" do 
 
@@ -88,6 +89,26 @@ defmodule Acceptance.Ast.TableTest do
       messages = []
 
       assert as_ast(markdown, gfm_tables: true) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "The order of things (Vorta and Jem'Hadar I guess)" do
+    test "table celles are in the correct order" do
+      markdown = """
+      | What              |
+      | ----------------- |
+      | This part is fine |
+      | This is `broken`  |
+      """
+      ast = table(["This part is fine", { "This is ", tag(:code, "broken", class: :inline) }], head: ["What"])
+      assert as_ast(markdown) == {:ok, [ast], []}
+    end
+
+    test "minimized example" do
+      markdown = "|zero|\n|alpha *beta*|"
+      ast = table(["zero", { "alpha ", tag(:em, "beta") }])
+
+      assert as_ast(markdown) == {:ok, [ast], []}
     end
   end
 end
