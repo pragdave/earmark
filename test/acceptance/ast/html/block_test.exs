@@ -1,7 +1,7 @@
 defmodule Acceptance.Ast.Html.BlockTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
-  import Support.AstHelpers, only: [p: 1, void_tag: 1]
+  import Support.Helpers, only: [as_ast: 1]
+  import Support.AstHelpers, only: [p: 1, tag: 2, verb_tag: 1, verb_tag: 3]
   
   @verbatim %{meta: %{verbatim: true}}
 
@@ -44,8 +44,10 @@ defmodule Acceptance.Ast.Html.BlockTest do
   describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
-      html     = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\"><p><strong>emphasized</strong> text</p>\n"
-      ast      = parse_html(html)
+      ast      = [
+        verb_tag("area", nil, shape: "rect", coords: "0,0,1,1", href: "xxx", alt: "yyy"),
+        p([tag("strong", "emphasized"), " text"])]
+
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -53,8 +55,8 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "we are outside the void now (lucky us)" do
       markdown = "<br>\n**emphasized** text"
-      html     = "<br><p><strong>emphasized</strong> text</p>\n"
-      ast      = parse_html(html)
+      ast      = [
+        verb_tag("br"), p([tag("strong", "emphasized"), " text"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -62,8 +64,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "high regards???" do
       markdown = "<hr>\n**emphasized** text"
-      html     = "<hr><p><strong>emphasized</strong> text</p>\n"
-      ast      = parse_html(html)
+      ast      = [verb_tag("hr"), p([tag("strong", "emphasized"), " text"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -71,8 +72,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "img (a punless test)" do
       markdown = "<img src=\"hello\">\n**emphasized** text"
-      html     = "<img src=\"hello\"><p><strong>emphasized</strong> text</p>\n"
-      ast      = parse_html(html)
+      ast      = [verb_tag("img", [], src: "hello"), p([tag("strong", "emphasized"), " text"])] 
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -80,8 +80,8 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "not everybody knows this one (hint: take a break)" do
       markdown = "<wbr>\n**emphasized** text"
-      html = "<wbr><p><strong>emphasized</strong> text</p>\n"
-      ast      = parse_html(html)
+      ast      = [
+        verb_tag("wbr"), p([tag("strong", "emphasized"), " text"])]
       messages = []
       assert as_ast(markdown) == {:ok, ast, messages}
     end
@@ -91,7 +91,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "void elements close para" do
       markdown = "alpha\n<hr>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [p("alpha"), void_tag("hr"), "beta"]
+      ast      = [p("alpha"), verb_tag("hr"), "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -108,7 +108,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "self closing block elements close para" do
       markdown = "alpha\n<div/>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      =[{"p", [], ["alpha"]}, {"div", [], []}, "beta"]
+      ast      =[{"p", [], ["alpha"]}, {"div", [], [], @verbatim}, "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -117,7 +117,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "self closing block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"/>beta"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, "beta"]
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], [], @verbatim}, "beta"]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -126,7 +126,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
       # We ignore beta now shall we deprecate for HTML????
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], []}, "beta", {"p", [], ["gamma"]}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], [], @verbatim}, "beta", {"p", [], ["gamma"]}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -153,7 +153,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "block elements close para" do
       markdown = "alpha\n<div></div>beta"
       # SIC just do not write that markup
-      ast      = [{"p", [], ["alpha"]}, {"div", [], ["</div>beta"]}]
+      ast      = [{"p", [], ["alpha"]}, {"div", [], [], @verbatim}]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -162,7 +162,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
     test "block elements close para, atts do not matter" do
       markdown = "alpha\n<div class=\"first\"></div>beta"
       # SIC just do not write that markup
-      ast      = [{"p", [], ["alpha"]}, {"div", [{"class", "first"}], ["</div>beta"]}]
+      ast      = [p("alpha"), verb_tag("div", [], class: "first")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}

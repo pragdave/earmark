@@ -10,8 +10,26 @@ defmodule Support.AstHelpers do
   def p(content, atts),
     do: {"p", atts, content}
 
+  def tag(name, content \\ nil, atts \\ []) do
+    {to_string(name), _atts(atts), _content(content)}
+  end
 
+  def verb_tag(tag, content \\ nil, atts \\ []) do
+    {to_string(tag), _atts(atts), _content(content), _verbatim()}
+  end
   def void_tag(tag, atts \\ []) do
     {to_string(tag), atts, []}
   end
+
+
+  defp _atts(atts) do
+    atts |> Enum.into(Keyword.new) |> Enum.map(fn {x, y} -> {to_string(x), to_string(y)} end)
+  end
+  
+  defp _content(c)
+  defp _content(nil), do: []
+  defp _content(s) when is_binary(s), do: [s]
+  defp _content(c), do: c
+
+  defp _verbatim, do: %{meta: %{verbatim: true}}
 end
