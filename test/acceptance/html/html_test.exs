@@ -37,11 +37,12 @@ defmodule Acceptance.Html.HtmlBlocksTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    @tag :wip
     test "self closing block elements close para, atts and spaces do not matter" do
       markdown = "alpha\n<div class=\"first\"   />beta\ngamma"
       html     = gen([
         {:p, "alpha"},
-        {:div, [class: "first"], []},
+        {:div, [class: "first"], [""]},
         "beta",
         {:p, "gamma"}])
       messages = []

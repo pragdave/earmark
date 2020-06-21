@@ -38,9 +38,10 @@ defmodule Earmark.Helpers.HtmlParser do
 
   @tag_tail ~r{\A.*?(/?)>\s*(.*)\z}
   defp _parse_tag_tail(string, tag, atts) do
-    case Regex.run(@tag_tail, string)  do
+    case Regex.run(@tag_tail, string) do
       [_, closing, suffix]  ->
-        _close_tag_tail(tag, atts, closing != "", suffix)
+        suffix1 = String.replace(suffix, ~r{\s*</#{tag}>.*}, "")
+        _close_tag_tail(tag, atts, closing != "", suffix1)
       # [_, _, ""]            -> {:ok, {tag, Enum.reverse(atts)} }
       # [_, "", suffix]       -> {:ok, {tag, Enum.reverse(atts)}, suffix }
       # [_, _closing, suffix] -> {:ext, {tag, Enum.reverse(atts)}, suffix }
@@ -61,10 +62,8 @@ defmodule Earmark.Helpers.HtmlParser do
 
   @verbatim %{meta: %{verbatim: true}}
   defp _parse_rest(rest, tag_tpl, lines)
-  # Hu? That should never have happened but let us return some
-  # sensible data, allowing rendering after the corruped block
   defp _parse_rest([], tag_tpl, lines) do
-    tag_tpl |> Tuple.append(Enum.reverse(lines))
+    tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
   end
   defp _parse_rest([last_line], {tag, _}=tag_tpl, lines) do
     case Regex.run(~r{\A</#{tag}>\s*(.*)}, last_line) do

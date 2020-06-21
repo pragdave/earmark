@@ -58,11 +58,17 @@ defmodule Earmark.Transform do
     [make_indent(options, level), element]
   end
   # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
+  # TODO: Remove 3 tuple matches in Release 1.4.6
   defp _to_html({"area", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"area", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
   defp _to_html({"br", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"br", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
   defp _to_html({"hr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"hr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
   defp _to_html({"img", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"img", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
   defp _to_html({"wbr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({"wbr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
   defp _to_html({:comment, children}, options, level, _verbatim) do
     indent = make_indent(options, level)
     [ indent,
@@ -161,7 +167,13 @@ defmodule Earmark.Transform do
   end
   defp smartypants(text, _options), do: text
 
+  # TODO: Remove 3 tuple matches in Release 1.4.6
   defp void_tag({tag, atts, []}, options, level) do
+    [ make_indent(options, level),
+      open_tag(tag, atts, true),
+      "\n" ]
+  end
+  defp void_tag({tag, atts, [], _}, options, level) do
     [ make_indent(options, level),
       open_tag(tag, atts, true),
       "\n" ]
