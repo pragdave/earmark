@@ -1,4 +1,16 @@
 defmodule Earmark do
+
+
+  @type ast_meta :: map()
+  @type ast_tag :: binary()
+  @type ast_attribute_name :: binary()
+  @type ast_attribute_value :: binary()
+  @type ast_attribute  :: {ast_attribute_name(), ast_attribute_value()}
+  @type ast_attributes :: list(ast_attribute())
+  @type ast_tuple :: {ast_tag(), ast_attributes(), ast(), ast_meta()}
+  @type ast_node :: binary() | ast_tuple()
+  @type ast :: list(ast_node())
+
   @moduledoc """
 
   ### API

@@ -1,5 +1,6 @@
 defmodule Support.AstHelpers do
   
+  @default %{}
   def ast_from_md(md) do
     with {:ok, ast, []} <- Earmark.as_ast(md), do: ast
   end
