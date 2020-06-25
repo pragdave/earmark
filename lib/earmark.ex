@@ -6,7 +6,7 @@ defmodule Earmark do
   Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
   #### Earmark.as_ast
-  
+
   The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
   the structure of the result of `as_ast`.
 
@@ -146,7 +146,7 @@ defmodule Earmark do
   never is.
 
   #### HTML Blocks
-  
+
   HTML is not parsed recursively or detected in all conditons right now, though GFM compliance
   is a goal.
 
@@ -164,9 +164,19 @@ defmodule Earmark do
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-        iex(4)> Earmark.as_ast([~s{<span class="superspan">spaniel</span>}])
-        {:ok, [{"span"}, [{"class", "superspan"}], ["spaniel"], %{meta: %{verbatim: true}}], []}
-          
+        iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
+        {:ok, [{"span"}, [{"class", "superspan"}], ["spaniel"], %{verbatim: true}], []}
+
+  #### HTML Comments
+
+  Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
+  all text after the next '-->' is ignored
+
+  E.g.
+
+      iex(5)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      {:ok, [{:comment, [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"]}], []}
+
 
 
   ### Adding HTML attributes with the IAL extension
@@ -196,26 +206,26 @@ defmodule Earmark do
   It is possible to add IAL attributes to generated links or images in the following
   format.
 
-      iex(4)> markdown = "[link](url) {: .classy}"
-      ...(4)> Earmark.as_html(markdown)
+      iex(6)> markdown = "[link](url) {: .classy}"
+      ...(6)> Earmark.as_html(markdown)
       { :ok, "<p>\\n  <a class=\\"classy\\" href=\\"url\\">\\n    link\\n  </a>\\n</p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
+      iex(7)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
       {:error, "<p>\\n  Some text\\n</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-      iex(6)> markdown = "[link](url)\\\\{: .classy}"
-      ...(6)> Earmark.as_html(markdown)
+      iex(8)> markdown = "[link](url)\\\\{: .classy}"
+      ...(8)> Earmark.as_html(markdown)
       {:ok, "<p>\\n  <a href=\\"url\\">\\n    link\\n  </a>\\n  {: .classy}\\n</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
-      iex(7)> markdown = "hello {:world}"
-      ...(7)> Earmark.as_html!(markdown)
+      iex(9)> markdown = "hello {:world}"
+      ...(9)> Earmark.as_html!(markdown)
       "<p>\\n  hello {:world}\\n</p>\\n"
 
   ## Limitations
@@ -319,7 +329,7 @@ defmodule Earmark do
   - description of the error
 
 
-  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options` 
+  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
 
   * `renderer`: ModuleName
 
@@ -364,7 +374,7 @@ defmodule Earmark do
   * `pure_links`: boolean
 
     Pure links of the form `~r{\\bhttps?://\\S+\\b}` are rendered as links from now on.
-    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4 
+    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
     behavior can be used.
   """
   def as_html(lines, options \\ %Options{})
@@ -379,17 +389,17 @@ defmodule Earmark do
   end
 
   @doc """
-        iex(8)> markdown = "My `code` is **best**"
-        ...(8)> {:ok, ast, []} = Earmark.as_ast(markdown)
-        ...(8)> ast
-        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+        iex(10)> markdown = "My `code` is **best**"
+        ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown)
+        ...(10)> ast
+        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}]
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
-        iex(9)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-        ...(9)> ast
+        iex(11)> markdown = "```elixir\\nIO.puts 42\\n```"
+        ...(11)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(11)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
 
   **Rationale**:
