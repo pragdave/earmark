@@ -8,7 +8,7 @@ Specs to be rewritten:
  ✓ ├── block_quotes_test.exs
  ✓ ├── comment_test.exs
  ✓ ├── diverse_test.exs
-   ├── emphasis_test.exs
+ ✓ ├── emphasis_test.exs
    ├── empty_test.exs
    ├── escape_test.exs
    ├── fenced_code_blocks_test.exs
