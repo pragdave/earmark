@@ -167,6 +167,22 @@ defmodule Earmark do
         iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
         {:ok, [{"span"}, [{"class", "superspan"}], ["spaniel"], %{verbatim: true}], []}
 
+  What is HTML?
+
+  We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
+
+        iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
+        ...(5)> ast
+        [
+          {"stupid", [], [], %{meta: %{verbatim: true}}},
+          {"not", [], ["better"], %{meta: %{verbatim: true}}}]
+
+  and for multiline blocks
+
+        iex(6)> {:ok, ast, []} = Earmark.as_ast([ "<hello>", "world", "</hello>"])
+        ...(6)> ast
+        [{"hello", [], ["world"], %{verbatim: true}}]
+
   #### HTML Comments
 
   Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
@@ -174,7 +190,7 @@ defmodule Earmark do
 
   E.g.
 
-      iex(5)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      iex(7)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
       {:ok, [{:comment, [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"]}], []}
 
 
@@ -206,26 +222,26 @@ defmodule Earmark do
   It is possible to add IAL attributes to generated links or images in the following
   format.
 
-      iex(6)> markdown = "[link](url) {: .classy}"
-      ...(6)> Earmark.as_html(markdown)
+      iex(8)> markdown = "[link](url) {: .classy}"
+      ...(8)> Earmark.as_html(markdown)
       { :ok, "<p>\\n  <a class=\\"classy\\" href=\\"url\\">\\n    link\\n  </a>\\n</p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(7)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
+      iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
       {:error, "<p>\\n  Some text\\n</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-      iex(8)> markdown = "[link](url)\\\\{: .classy}"
-      ...(8)> Earmark.as_html(markdown)
+      iex(10)> markdown = "[link](url)\\\\{: .classy}"
+      ...(10)> Earmark.as_html(markdown)
       {:ok, "<p>\\n  <a href=\\"url\\">\\n    link\\n  </a>\\n  {: .classy}\\n</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
-      iex(9)> markdown = "hello {:world}"
-      ...(9)> Earmark.as_html!(markdown)
+      iex(11)> markdown = "hello {:world}"
+      ...(11)> Earmark.as_html!(markdown)
       "<p>\\n  hello {:world}\\n</p>\\n"
 
   ## Limitations
@@ -389,17 +405,17 @@ defmodule Earmark do
   end
 
   @doc """
-        iex(10)> markdown = "My `code` is **best**"
-        ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown)
-        ...(10)> ast
+        iex(12)> markdown = "My `code` is **best**"
+        ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
+        ...(12)> ast
         [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}]
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
-        iex(11)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(11)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-        ...(11)> ast
+        iex(13)> markdown = "```elixir\\nIO.puts 42\\n```"
+        ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(13)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
 
   **Rationale**:
