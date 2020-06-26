@@ -6,7 +6,7 @@ defmodule Earmark do
   Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
   #### Earmark.as_ast
-  
+
   The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
   the structure of the result of `as_ast`.
 
@@ -146,18 +146,54 @@ defmodule Earmark do
   never is.
 
   #### HTML Blocks
-  
-  Are only supported if the begin and end tag is in its own line, thusly
 
-        <div>
-            Hello
-        </div>
+  HTML is not parsed recursively or detected in all conditons right now, though GFM compliance
+  is a goal.
 
-  will parse as HTML while
+  But for now the following holds:
 
-        <div>Hello</div>
+  A HTML Block defined by a tag starting a line and the same tag starting a different line is parsed
+  as one HTML AST node, marked with %{verbatim: true}
 
-  is not supported and its result is undefined
+  E.g.
+
+        iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+        ...(3)> Earmark.as_ast(lines)
+        {:ok, [{"div", [], ["<span>", "some</span><text>"], %{meta: %{verbatim: true}}}, "more text"], []}
+
+  And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
+  fashion
+
+        iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
+        {:ok, [{"span"}, [{"class", "superspan"}], ["spaniel"], %{verbatim: true}], []}
+
+  What is HTML?
+
+  We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
+
+        iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
+        ...(5)> ast
+        [
+          {"stupid", [], [], %{meta: %{verbatim: true}}},
+          {"not", [], ["better"], %{meta: %{verbatim: true}}}]
+
+  and for multiline blocks
+
+        iex(6)> {:ok, ast, []} = Earmark.as_ast([ "<hello>", "world", "</hello>"])
+        ...(6)> ast
+        [{"hello", [], ["world"], %{verbatim: true}}]
+
+  #### HTML Comments
+
+  Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
+  all text after the next '-->' is ignored
+
+  E.g.
+
+      iex(7)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      {:ok, [{:comment, [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"]}], []}
+
+
 
   ### Adding HTML attributes with the IAL extension
 
@@ -186,26 +222,26 @@ defmodule Earmark do
   It is possible to add IAL attributes to generated links or images in the following
   format.
 
-      iex(3)> markdown = "[link](url) {: .classy}"
-      ...(3)> Earmark.as_html(markdown)
+      iex(8)> markdown = "[link](url) {: .classy}"
+      ...(8)> Earmark.as_html(markdown)
       { :ok, "<p>\\n  <a class=\\"classy\\" href=\\"url\\">\\n    link\\n  </a>\\n</p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(4)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
+      iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\\n") |> Earmark.as_html()
       {:error, "<p>\\n  Some text\\n</p>\\n", [{:warning, 2,"Illegal attributes [\\"hello\\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
-      iex(5)> markdown = "[link](url)\\\\{: .classy}"
-      ...(5)> Earmark.as_html(markdown)
+      iex(10)> markdown = "[link](url)\\\\{: .classy}"
+      ...(10)> Earmark.as_html(markdown)
       {:ok, "<p>\\n  <a href=\\"url\\">\\n    link\\n  </a>\\n  {: .classy}\\n</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
-      iex(6)> markdown = "hello {:world}"
-      ...(6)> Earmark.as_html!(markdown)
+      iex(11)> markdown = "hello {:world}"
+      ...(11)> Earmark.as_html!(markdown)
       "<p>\\n  hello {:world}\\n</p>\\n"
 
   ## Limitations
@@ -309,7 +345,7 @@ defmodule Earmark do
   - description of the error
 
 
-  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options` 
+  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
 
   * `renderer`: ModuleName
 
@@ -354,7 +390,7 @@ defmodule Earmark do
   * `pure_links`: boolean
 
     Pure links of the form `~r{\\bhttps?://\\S+\\b}` are rendered as links from now on.
-    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4 
+    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
     behavior can be used.
   """
   def as_html(lines, options \\ %Options{})
@@ -369,17 +405,17 @@ defmodule Earmark do
   end
 
   @doc """
-        iex(7)> markdown = "My `code` is **best**"
-        ...(7)> {:ok, ast, []} = Earmark.as_ast(markdown)
-        ...(7)> ast
-        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+        iex(12)> markdown = "My `code` is **best**"
+        ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
+        ...(12)> ast
+        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}]
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
-        iex(8)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(8)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-        ...(8)> ast
+        iex(13)> markdown = "```elixir\\nIO.puts 42\\n```"
+        ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(13)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
 
   **Rationale**:

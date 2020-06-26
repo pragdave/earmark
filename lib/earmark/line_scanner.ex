@@ -139,17 +139,11 @@ defmodule Earmark.LineScanner do
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>}, line) ->
         [_, tag] = match
-
-        if block_tag?(tag),
-          do: %Line.HtmlOneLine{tag: tag, content: line, indent: 0},
-          else: %Line.Text{content: line, indent: 0}
+        %Line.HtmlOneLine{tag: tag, content: line, indent: 0}
 
       match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?/>.*}, line) ->
         [_, tag] = match
-
-        if block_tag?(tag),
-          do: %Line.HtmlOneLine{tag: tag, content: line, indent: 0},
-          else: %Line.Text{content: line, indent: 0}
+        %Line.HtmlOneLine{tag: tag, content: line, indent: 0}
 
       match = !recursive && Regex.run(~r/^<([-\w]+?)(?:\s.*)?>/, line) ->
         [_, tag] = match
@@ -251,9 +245,10 @@ defmodule Earmark.LineScanner do
     |> String.replace("<", "&lt;")
 
 
-  @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
-              |> Enum.into(MapSet.new())
-  defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
+  # Not sure yet if we shall enforce all tags, in that case we shall enlargen @block_tags to @html_tags
+  # @block_tags ~w< address article aside blockquote canvas dd div dl fieldset figcaption h1 h2 h3 h4 h5 h6 header hgroup li main nav noscript ol output p pre section table tfoot ul video>
+  #             |> Enum.into(MapSet.new())
+  # defp block_tag?(tag), do: MapSet.member?(@block_tags, tag)
 
   @column_rgx ~r{\A[\s|:-]+\z}
   defp _determine_if_header(columns) do
