@@ -1,70 +1,70 @@
 defmodule Acceptance.Ast.BlockQuotesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import EarmarkAstDsl
 
   @moduletag :ast
 
   describe "with breaks: true" do
     test "acceptance test 490 with breaks" do
       markdown = "> bar\nbaz\n> foo\n"
-      html = "<blockquote><p>bar<br />baz<br />foo</p>\n</blockquote>\n"
-      ast      = parse_html(html)
+      ast      = bq(p(brlist(~w[bar baz foo])))
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "acceptance test 580 with breaks" do
-      html     = "<ol>\n<li>foo<br />bar</li>\n</ol>\n"
       markdown = "1. foo\nbar"
-      ast      = parse_html(html)
+      ast      = tag("ol", [tag("li", brlist(~w[foo bar]))])
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "acceptance test 581 with breaks" do
-      html     = "<ul>\n<li>a<br />b<br />c</li>\n</ul>\n"
       markdown = "* a\n  b\nc"
-      ast      = parse_html(html)
+      ast      = tag("ul", tag("li", brlist(~w[a b c])))
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "acceptance test 582 with breaks" do
-      html     = "<ul>\n<li>x<br />a<br />| A | B |</li>\n</ul>\n"
       markdown = "* x\n  a\n| A | B |"
-      ast      = parse_html(html)
+      ast      = tag("ul", tag("li", brlist(["x", "a", "| A | B |"])))
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "acceptance test 583 with breaks" do
-      html     = "<ul>\n<li>x<br />| A | B |</li>\n</ul>\n"
       markdown = "* x\n | A | B |"
-      ast      = parse_html(html)
+      ast      = tag("ul", tag("li", brlist(["x", "| A | B |"])))
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "acceptance test 630 with breaks" do
-      html     = "<p>*not emphasized*<br />[not a link](/foo)<br />`not code`<br />1. not a list<br />* not a list<br /># not a header<br />[foo]: /url \"not a reference\"</p>\n"
       markdown = "\\*not emphasized\\*\n\\[not a link](/foo)\n\\`not code\\`\n1\\. not a list\n\\* not a list\n\\# not a header\n\\[foo]: /url \"not a reference\"\n"
-      ast      = parse_html(html)
+      ast      = p(brlist([
+        "*not emphasized*",
+        "[not a link](/foo)",
+        "`not code`",
+        "1. not a list",
+        "* not a list",
+        "# not a header",
+        "[foo]: /url \"not a reference\""]))
       messages = []
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
 
     test "more" do
-      html = "<blockquote><h1>Foo</h1>\n<p>bar<br />baz</p>\n</blockquote>\n"
       markdown = "> # Foo\n> bar\n> baz\n"
-      ast      = parse_html(html)
+      ast      = bq([tag("h1", "Foo"), p(brlist(~w[bar baz]))])
       messages = []
-
 
       assert as_ast(markdown, breaks: true) == {:ok, [ast], messages}
     end
@@ -73,8 +73,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
   describe "Block Quotes" do
     test "quote my block" do
       markdown = "> Foo"
-      html     = "<blockquote><p>Foo</p>\n</blockquote>\n"
-      ast      = parse_html(html)
+      ast      = bq(p("Foo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -82,8 +81,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
     test "and block my quotes" do
       markdown = "> # Foo\n> bar\n> baz\n"
-      html     = "<blockquote><h1>Foo</h1>\n<p>bar\nbaz</p>\n</blockquote>\n"
-      ast      = parse_html(html)
+      ast      = bq([tag("h1", "Foo"), p("bar\nbaz")])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -91,8 +89,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
     test "linient we are" do
       markdown = "> bar\nbaz\n> foo\n"
-      html     = "<blockquote><p>bar\nbaz\nfoo</p>\n</blockquote>\n"
-      ast      = parse_html(html)
+      ast      = bq(p("bar\nbaz\nfoo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -100,8 +97,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
     test "lists in blockquotes? Coming up Sir" do
       markdown = "> - foo\n- bar\n"
-      html     = "<blockquote><ul>\n<li>foo</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar</li>\n</ul>\n"
-      ast      = parse_html(html)
+      ast      = [bq(tag("ul", tag("li", "foo"))), tag("ul", tag("li", "bar"))]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -109,8 +105,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
     test "indented case" do
       markdown = " > - foo\n- bar\n"
-      html     = "<blockquote><ul>\n<li>foo</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar</li>\n</ul>\n"
-      ast      = parse_html(html)
+      ast      = [bq(tag("ul", tag("li", "foo"))), tag("ul", tag("li", "bar"))]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -120,8 +115,7 @@ defmodule Acceptance.Ast.BlockQuotesTest do
   describe "Nested blockquotes" do
     test "just two blocks" do
       markdown = ">>foo\n> bar\n"
-      html     = "<blockquote>\n<blockquote>\n<p>foo\nbar</p></blockquote></blockquote>"
-      ast      = parse_html(html)
+      ast      = bq(bq(p("foo\nbar")))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -129,12 +123,23 @@ defmodule Acceptance.Ast.BlockQuotesTest do
 
     test "attached list" do 
       markdown = " >- foo\n- bar\n"
-      html     = "<blockquote><ul>\n<li>foo</li>\n</ul>\n</blockquote>\n<ul>\n<li>bar</li>\n</ul>\n"
-      ast      = parse_html(html)
+      ast      = [bq(tag("ul", tag("li", "foo"))), tag("ul", tag("li", "bar"))]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
     end
+  end
+
+
+  defp bq(content, atts \\ []) do
+    tag("blockquote", content, atts)
+  end
+
+  defp br, do: void_tag("br")
+
+  defp brlist(elements) do
+    elements
+    |> Enum.intersperse(br())
   end
 end
 
