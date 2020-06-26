@@ -1,14 +1,14 @@
 defmodule Acceptance.Ast.BlockIalTest do
   use ExUnit.Case, async: true
 
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1]
+  import EarmarkAstDsl
 
   describe "IAL" do
 
     test "Not associated" do
       markdown = "{:hello=world}"
-      html     = "<p>{:hello=world}</p>\n"
-      ast      = parse_html(html)
+      ast      = p("{:hello=world}")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -16,8 +16,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Not associated means verbatim" do
       markdown = "{: hello=world  }"
-      html     = "<p>{: hello=world  }</p>\n"
-      ast      = parse_html(html)
+      ast      = p("{: hello=world  }")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -25,8 +24,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Not associated and incorrect" do
       markdown = "{:hello}"
-      html     = "<p>{:hello}</p>\n"
-      ast      = parse_html(html)
+      ast      = tag("p", "{:hello}")
       messages = [{:warning, 1, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -34,7 +32,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated" do
       markdown = "Before\n{:hello=world}"
-      ast     = "<p hello=\"world\">Before</p>\n" |> Floki.parse
+      ast      = tag("p", "Before", hello: "world")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -42,8 +40,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated in between" do
       markdown = "Before\n{:hello=world}\nAfter"
-      html     = "<p hello=\"world\">Before</p>\n<p>After</p>\n"
-      ast      = parse_html(html)
+      ast      = [p("Before", hello: "world"), p("After")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -51,8 +48,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated and incorrect" do
       markdown = "Before\n{:hello}"
-      html     = "<p>Before</p>\n"
-      ast      = parse_html(html)
+      ast      = tag("p", "Before")
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -60,8 +56,7 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated and partly incorrect" do
       markdown = "Before\n{:hello title=world}"
-      html     = "<p title=\"world\">Before</p>\n"
-      ast      = parse_html(html)
+      ast      = p("Before", title: "world")
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -69,13 +64,11 @@ defmodule Acceptance.Ast.BlockIalTest do
 
     test "Associated and partly incorrect and shortcuts" do
       markdown = "Before\n{:#hello .alpha hello title=world .beta class=\"gamma\" title='class'}"
-      html     = "<p class=\"gamma beta alpha\" id=\"hello\" title=\"class world\">Before</p>\n"
-      ast      = parse_html(html)
+      ast      = p("Before", class: "gamma beta alpha", id: "hello", title: "class world")
       messages = [{:warning, 2, "Illegal attributes [\"hello\"] ignored in IAL" }]
 
       assert as_ast(markdown) == {:error, [ast], messages}
     end
-
   end
 end
 

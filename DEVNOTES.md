@@ -4,7 +4,7 @@ Specs to be rewritten:
 
    .
  ✓ ├── atx_headers_test.exs
-   ├── block_ial_test.exs
+ ✓ ├── block_ial_test.exs
    ├── block_quotes_test.exs
    ├── comment_test.exs
    ├── diverse_test.exs
