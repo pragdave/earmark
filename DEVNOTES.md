@@ -9,8 +9,8 @@ Specs to be rewritten:
  ✓ ├── comment_test.exs
  ✓ ├── diverse_test.exs
  ✓ ├── emphasis_test.exs
-   ├── empty_test.exs
-   ├── escape_test.exs
+ - ├── empty_test.exs
+ ✓ ├── escape_test.exs
    ├── fenced_code_blocks_test.exs
    ├── footnotes_test.exs
    ├── hard_line_breaks_test.exs
