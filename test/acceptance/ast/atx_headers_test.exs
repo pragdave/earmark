@@ -1,14 +1,13 @@
 defmodule Acceptance.Ast.AtxHeadersTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1]
+  import EarmarkAstDsl
   
   describe "ATX headers" do
 
     test "from one to six" do
       markdown = "# foo\n## foo\n### foo\n#### foo\n##### foo\n###### foo\n"
-      html     = "<h1>foo</h1>\n<h2>foo</h2>\n<h3>foo</h3>\n<h4>foo</h4>\n<h5>foo</h5>\n<h6>foo</h6>\n"
-      ast      = parse_html(html)
-
+      ast      = (1..6) |> Enum.map(&tag("h#{&1}", "foo"))
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -16,9 +15,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "seven? kidding, right?" do
       markdown = "####### foo\n"
-      html     = "<p>####### foo</p>\n"
-      ast      = parse_html(html)
-
+      ast      = p("####### foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -26,9 +23,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "sticky (better than to have no glue)" do
       markdown = "#5 bolt\n\n#foobar\n"
-      html     = "<p>#5 bolt</p>\n<p>#foobar</p>\n"
-      ast      = parse_html(html)
-
+      ast      = [ p("#5 bolt"), p("#foobar") ]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -36,9 +31,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "close escape" do
       markdown = "\\## foo\n"
-      html     = "<p>## foo</p>\n"
-      ast      = parse_html(html)
-
+      ast      = p("## foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -46,9 +39,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "position is so important" do
       markdown = "# foo *bar* \\*baz\\*\n"
-      html     = "<h1>foo <em>bar</em> *baz*</h1>\n"
-      ast      = parse_html(html)
-
+      ast      = tag("h1", ["foo ", tag("em", "bar"), " *baz*"])
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -56,9 +47,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "spacy" do
       markdown = "#                  foo                     \n"
-      html     = "<h1>foo</h1>\n"
-      ast      = parse_html(html)
-
+      ast      = tag("h1", "foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -66,8 +55,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "code comes first" do
       markdown = "    # foo\nnext"
-      html     = "<pre><code># foo</code></pre>\n<p>next</p>\n"
-      ast      = parse_html(html)
+      ast      = [pre_code("# foo"), p("next")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -75,8 +63,7 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "some prefer to close their headers" do
       markdown = "# foo#\n"
-      html     = "<h1>foo</h1>\n"
-      ast      = parse_html(html)
+      ast      = tag("h1", "foo")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -84,13 +71,11 @@ defmodule Acceptance.Ast.AtxHeadersTest do
 
     test "yes, they do (prefer closing their header)" do
       markdown = "### foo ### "
-      html     = "<h3>foo ###</h3>\n"
-      ast      = parse_html(html)
+      ast      = tag("h3", "foo ###")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
-
   end
 end
 
