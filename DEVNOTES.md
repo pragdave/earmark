@@ -13,8 +13,8 @@ Specs to be rewritten:
  ✓ ├── escape_test.exs
  ✓ ├── fenced_code_blocks_test.exs
  ✓ ├── footnotes_test.exs
-   ├── hard_line_breaks_test.exs
-   ├── horizontal_rules_test.exs
+ ✓ ├── hard_line_breaks_test.exs
+ ✓ ├── horizontal_rules_test.exs
    ├── html
  ✓ │   ├── block_test.exs
    │   ├── oneline_test.exs
