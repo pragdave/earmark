@@ -15,7 +15,7 @@ Specs to be rewritten:
  ✓ ├── footnotes_test.exs
  ✓ ├── hard_line_breaks_test.exs
  ✓ ├── horizontal_rules_test.exs
-   ├── html
+ ✓ ├── html
  ✓ │   ├── block_test.exs
  ✓ │   ├── oneline_test.exs
  ✓ │   └── permissive_test.exs
@@ -23,11 +23,11 @@ Specs to be rewritten:
  ✓ ├── indented_code_blocks_test.exs
  ✓ ├── inline_code_test.exs
  ✓ ├── line_breaks_test.exs
-   ├── links_images
-   │   ├── img_test.exs
-   │   ├── link_test.exs
-   │   ├── pure_links_test.exs
-   │   └── titles_test.exs
+ ✓ ├── links_images
+ ✓ │   ├── img_test.exs
+ ✓ │   ├── link_test.exs
+ ✓ │   ├── pure_links_test.exs
+ ✓ │   └── titles_test.exs
  ✓ ├── list_and_block_test.exs
  ✓ ├── list_and_inline_code_test.exs
  ✓ ├── list_indent_test.exs

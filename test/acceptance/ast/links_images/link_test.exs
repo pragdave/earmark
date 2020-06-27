@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.LinkImages.LinkTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "Link reference definitions" do
     test "link with title" do
@@ -58,10 +59,9 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
 
     test "or this one, but you might be wrong" do
       markdown = "# [Foo]\n[foo]: /url\n> bar\n"
-
       lhs = "<h1><a href=\"/url\" title=\"\">Foo</a></h1>"
       rhs = "<blockquote><p>bar</p>\n</blockquote>\n"
-      ast  = [Floki.parse(lhs), Floki.parse(rhs)]
+      ast  = [parse_html(lhs), parse_html(rhs)]
 
       messages = []
 
@@ -274,10 +274,10 @@ defmodule Acceptance.Ast.LinkImages.LinkTest do
   describe "Escapes in text (was regtest #198)" do
     test "escaped backticks" do 
       markdown = "[hello \\`code\\`](http://some.where)"
-      ast      = [{"p", [], [{"a", [{"href", "http://some.where"}], ["hello `code`"]}]}]
+      ast      = p(tag("a", "hello `code`", href: "http://some.where"))
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "escaped stars" do

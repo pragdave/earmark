@@ -2,6 +2,7 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
   use ExUnit.Case, async: true
 
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "Image reference definitions" do
 
@@ -122,10 +123,10 @@ defmodule Acceptance.Ast.LinkImages.ImgTest do
 
     test "alt goes crazy, with deprecation warnings" do
       markdown = "\n![foo[([])]](/url 'title\")\n"
-      ast      = [{"p", [], [{"img", [{"src", "/url 'title\""}, {"alt", "foo[([])]"}], []}]}]
+      ast        = p(void_tag("img", src: "/url 'title\"", alt: "foo[([])]"))
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "url escapes of course" do
