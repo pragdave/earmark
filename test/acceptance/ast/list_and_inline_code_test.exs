@@ -1,19 +1,20 @@
 defmodule Acceptance.Ast.ListAndInlineCodeTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "List parsing running into EOI inside inline code" do
     test "simple case" do
       markdown = ~s(* And\n`Hello\n* World)
-      ast      = [{"ul", '', [{"li", '', ["And\n`Hello"]}, {"li", '', ["World"]}]}] 
+      ast      = tag("ul", [tag("li", "And\n`Hello"), tag("li", "World")])
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, [ast], messages}
     end
 
     test "link with title" do
       markdown = ~s(* And\n* `Hello\n* World)
-      ast      = {"ul", [], [{"li", [], ["And"]}, {"li", [], ["`Hello\n* World"]}]}
+      ast      = tag("ul", [tag("li", "And"), tag("li","`Hello\n* World")])
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, [ast], messages}
@@ -21,23 +22,23 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
 
     test "error in spaced part" do
       markdown = ~s(* And\n  `Hello\n   * World)
-      ast      = [{"ul", '', [{"li", '', ["And\n`Hello\n * World"]}]}]
+      ast      = tag("ul", tag("li", "And\n`Hello\n * World"))
       messages = [{:warning, 2, "Closing unclosed backquotes ` at end of input"}]
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, [ast], messages}
     end
 
     test "error in doubly spaced part" do
       markdown = ~s(* And\n\n  `Hello\n   * World)
-      ast      = [{"ul", '', [{"li", '', ["And", "`Hello\n * World"]}]}]
+      ast      = tag("ul", tag("li", ["And", "`Hello\n * World"]))
       messages = [{:warning, 3, "Closing unclosed backquotes ` at end of input"}]
 
-      assert as_ast(markdown) == {:error, ast, messages}
+      assert as_ast(markdown) == {:error, [ast], messages}
     end
 
     test "even more complex spaced example (checking for one offs)" do
       markdown = ~s(Prefix1\n* And\n\n  Prefix2\n  `Hello\n   * World)
-      ast      = [{"p", '', ["Prefix1"]}, {"ul", [], [{"li", [], ["And", "Prefix2\n`Hello\n * World"]}]}]
+      ast      = [p("Prefix1"), tag("ul", tag("li", ["And", "Prefix2\n`Hello\n * World"]))]
       messages = [{:warning, 5, "Closing unclosed backquotes ` at end of input"}]
 
       assert as_ast(markdown) == {:error, ast, messages}
@@ -56,10 +57,7 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
 
     test "less aligned fence is not part of the inline code block" do
       markdown = "1. one\n\n    ~~~elixir\n    defmodule\n  ~~~"
-      ast      = [
-                {"ol", '', [{"li", '', [{"p", '', ["one"]}, {"pre", '', [{"code", [{"class", "elixir"}], [" defmodule"]}]}]}]},
-                {"pre", [], [{"code", [], [""]}]}
-              ]
+      ast      = [tag("ol", tag("li", [p("one"), tag("pre", tag("code", " defmodule", class: "elixir"))])), pre_code("")]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -67,10 +65,11 @@ defmodule Acceptance.Ast.ListAndInlineCodeTest do
 
     test "more aligned fence is part of the inlinde code block" do
       markdown = "  1. one\n    ~~~elixir\n    defmodule\n        ~~~"
-      ast      = [{"ol", [], [{"li", [], ["one", {"pre", [], [{"code", [{"class", "elixir"}], ["defmodule"]}]}]}]}]
+      ast      = tag("ol", tag("li", ["one", {"pre", [], [{"code", [{"class", "elixir"}], ["defmodule"]}]}]))
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
+
   end
 end

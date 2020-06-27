@@ -20,16 +20,16 @@ Specs to be rewritten:
  ✓ │   ├── oneline_test.exs
  ✓ │   └── permissive_test.exs
  ✓ ├── ial_test.exs
-   ├── indented_code_blocks_test.exs
-   ├── inline_code_test.exs
-   ├── line_breaks_test.exs
+ ✓ ├── indented_code_blocks_test.exs
+ ✓ ├── inline_code_test.exs
+ ✓ ├── line_breaks_test.exs
    ├── links_images
    │   ├── img_test.exs
    │   ├── link_test.exs
    │   ├── pure_links_test.exs
    │   └── titles_test.exs
-   ├── list_and_block_test.exs
-   ├── list_and_inline_code_test.exs
+ ✓ ├── list_and_block_test.exs
+ ✓ ├── list_and_inline_code_test.exs
    ├── list_indent_test.exs
    ├── list_test.exs
    ├── paragraphs_test.exs
