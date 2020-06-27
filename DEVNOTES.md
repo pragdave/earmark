@@ -30,13 +30,13 @@ Specs to be rewritten:
    │   └── titles_test.exs
  ✓ ├── list_and_block_test.exs
  ✓ ├── list_and_inline_code_test.exs
-   ├── list_indent_test.exs
-   ├── list_test.exs
-   ├── paragraphs_test.exs
-   ├── reflink_test.exs
-   ├── setext_headers_test.exs
-   ├── table_test.exs
-   └── utf8_test.exs
+ ✓ ├── list_indent_test.exs
+ ✓ ├── list_test.exs
+ ✓ ├── paragraphs_test.exs
+ ✓ ├── reflink_test.exs
+ ✓ ├── setext_headers_test.exs
+ ✓ ├── table_test.exs
+ ✓ └── utf8_test.exs
 
 ### Creating docs
 
