@@ -17,9 +17,9 @@ Specs to be rewritten:
  ✓ ├── horizontal_rules_test.exs
    ├── html
  ✓ │   ├── block_test.exs
-   │   ├── oneline_test.exs
-   │   └── permissive_test.exs
-   ├── ial_test.exs
+ ✓ │   ├── oneline_test.exs
+ ✓ │   └── permissive_test.exs
+ ✓ ├── ial_test.exs
    ├── indented_code_blocks_test.exs
    ├── inline_code_test.exs
    ├── line_breaks_test.exs

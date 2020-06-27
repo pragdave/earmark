@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.IalTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "IAL no errors" do
     test "link with simple ial" do
@@ -41,10 +42,10 @@ defmodule Acceptance.Ast.IalTest do
 
     test "missing element for ial (was regtest #99)" do
       markdown = "{.hello}"
-      ast      = [{"p", [], [markdown]}]
+      ast      = p(markdown)
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
 
@@ -73,14 +74,20 @@ defmodule Acceptance.Ast.IalTest do
   describe "just text" do
     test "nothing to ial with" do
       markdown = "{:error, {IncompatibleUnitError, message}}"
+      ast      = p("}")
+      messages =
+      [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]
 
-      assert as_ast(markdown) == {:error, [{"p", [], ["}"]}], [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]}
+      assert as_ast(markdown) == {:error, [ast], messages }
     end
 
     test "nothing to ial with (inside list)" do
       markdown = "* {:error, {IncompatibleUnitError, message}}"
+      ast      = tag("ul", tag("li", "}"))
+      messages =
+        [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]
 
-      assert as_ast(markdown) == {:error, [{"ul", '', [{"li", [], ["}"]}]}], [{:warning, 1, "Illegal attributes [\"message\", \"{IncompatibleUnitError,\", \"error,\"] ignored in IAL"}]}
+      assert as_ast(markdown) == {:error, [ast], messages}
     end
   end
 end
