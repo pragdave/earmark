@@ -2,6 +2,7 @@ defmodule Earmark.Helpers.AstHelpers do
 
   @moduledoc false
 
+  import Earmark.Ast.Emitter
   import Earmark.Helpers
   import Earmark.Helpers.AttrParser
 
@@ -26,12 +27,12 @@ defmodule Earmark.Helpers.AstHelpers do
 
   @doc false
   def codespan(text) do 
-    { "code", [{"class", "inline"}], [text] }
+    emit("code", text, class: "inline")
   end
 
   @doc false
   def render_footnote_link(ref, backref, number) do
-    {"a", [{"href", "##{ref}"}, {"id", backref}, {"class", "footnote"}, {"title", "see footnote"}], [to_string(number)]}
+    emit("a", to_string(number), href: "##{ref}", id: backref, class: "footnote", title: "see footnote")
   end
 
   @doc false
@@ -45,9 +46,9 @@ defmodule Earmark.Helpers.AstHelpers do
     alt = text |> escape() |> String.replace(@remove_escapes, "")
 
     if title do
-      { "img", [{"src", href}, {"alt", alt}, {"title", title}], [] }
+      emit("img", [], src: href, alt: alt, title: title)
     else
-      { "img", [{"src", href}, {"alt", alt}], [] }
+      emit("img", [], src: href, alt: alt)
     end
   end
 
@@ -69,7 +70,7 @@ defmodule Earmark.Helpers.AstHelpers do
         _ -> text
       end
 
-    {"a", [{"href", url}], [text]}
+    emit("a", text, href: url)
   end
 
 
@@ -78,20 +79,11 @@ defmodule Earmark.Helpers.AstHelpers do
   ##############################################
 
   @doc false
-  def merge_attrs(atts, default \\ %{})
-  def merge_attrs(nil, default) do
-    merge_attrs(%{}, default)
-  end
-  def merge_attrs(atts, new) when is_list(atts) do
-    atts
-    |> Enum.into(%{})
-    |> merge_attrs(new)
-  end
+  def merge_attrs(maybe_atts, new_atts)
+  def merge_attrs(nil, new_atts), do: new_atts
   def merge_attrs(atts, new) do
     atts
     |> Map.merge(new, &_value_merger/3)
-    |> Enum.into([])
-    |> Enum.map(&attrs_to_string_keys/1)
   end
 
   @doc false
@@ -106,14 +98,6 @@ defmodule Earmark.Helpers.AstHelpers do
       default
       |> Map.new()
       |> Map.merge(attrs, fn _k, v1, v2 -> v1 ++ v2 end)
-  end
-
-  defp attrs_to_string_keys(key_value_pair)
-  defp attrs_to_string_keys({k, vs}) when is_list(vs) do
-    {to_string(k), Enum.join(vs, " ")}
-  end
-  defp attrs_to_string_keys({k, vs}) do
-    {to_string(k),to_string(vs)}
   end
 
   defp _value_merger(key, val1, val2)

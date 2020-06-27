@@ -4,6 +4,7 @@ defmodule Earmark.AstRenderer do
   alias Earmark.Options
 
   import Context, only: [clear_value: 1, modify_value: 2, prepend: 2, prepend: 3]
+  import Earmark.Ast.Emitter
   import Earmark.Ast.Inline, only: [convert: 3]
   import Earmark.Helpers.AstHelpers
   import Earmark.Ast.Renderer.FootnoteListRenderer
@@ -36,7 +37,7 @@ defmodule Earmark.AstRenderer do
     value    = context1.value |> Enum.reverse
     ast      =
     if loose? do
-      { "p", merge_attrs(attrs), value }
+      emit("p", value, attrs)
     else
       value
     end
@@ -76,15 +77,15 @@ defmodule Earmark.AstRenderer do
          context, _loose?
        ) do
     context1 = convert(content, lnb, clear_value(context))
-    # merge_attrs(children, ast, attrs, [], lnb)
-    modify_value(context1, fn _ -> [{ "h#{level}", merge_attrs(attrs), context1.value |> Enum.reverse }] end)
+    modify_value(context1,
+      fn _ -> [emit("h#{level}", context1.value |> Enum.reverse, attrs)] end)
   end
   ##############
   # Blockquote #
   ##############
   defp render_block(%Block.BlockQuote{blocks: blocks, attrs: attrs}, context, _loose?) do
     context1 = render(blocks, clear_value(context))
-    modify_value(context1, fn ast -> [{"blockquote", merge_attrs(attrs), ast}] end)
+    modify_value(context1, fn ast -> [emit("blockquote", ast, attrs)] end)
   end
   #########
   # Table #
@@ -103,7 +104,7 @@ defmodule Earmark.AstRenderer do
         {rows_ast, context1}
       end
 
-    prepend(clear_value(context2), {"table", merge_attrs(attrs), rows_ast1})
+    prepend(clear_value(context2), emit("table", rows_ast1, attrs))
   end
   ########
   # Code #
@@ -116,8 +117,7 @@ defmodule Earmark.AstRenderer do
       if language && language != "", do: [code_classes(language, options.code_class_prefix)], else: []
 
     lines = render_code(block)
-    ast = { "pre", merge_attrs(attrs), [{"code", classes, [lines]}] }
-    prepend(context, ast)
+    prepend(context, emit("pre", emit("code", lines, classes), attrs))
   end
   #########
   # Lists #
@@ -133,7 +133,8 @@ defmodule Earmark.AstRenderer do
       ["1"]    -> %{}
       [start1] -> %{start: _normalize_start(start1)}
     end
-    prepend(context, {to_string(type), merge_attrs(attrs, start_map), context1.value}, context1.options.messages)
+    prepend(context, emit(to_string(type), context1.value, merge_attrs(attrs, start_map)), context1.options.messages)
+
   end
 
   # format a spaced list item
@@ -141,7 +142,7 @@ defmodule Earmark.AstRenderer do
     # IO.inspect blocks
     context1 = render(blocks, clear_value(context), loose?)
     # IO.inspect(context1.value, label: :list_item_blocks)
-    prepend(context, {"li", merge_attrs(attrs), _fix_text_lines(context1.value, loose?)}, context1.options.messages)
+    prepend(context, emit("li", _fix_text_lines(context1.value, loose?), attrs), context1.options.messages)
   end
 
   ########
