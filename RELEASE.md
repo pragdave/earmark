@@ -1,5 +1,8 @@
 # 1.4.6 ????/??/??
 
+- [366-simplify-transform](https://github.com/pragdave/earmark/issues/366)
+    Kudos to [Eksperimental](https://github.com/eksperimental)
+
 - [353-oneline-html-tags](https://github.com/pragdave/earmark/issues/353)
 
 - [351-html-tags-without-newlines](https://github.com/pragdave/earmark/issues/351)

@@ -4,6 +4,8 @@ defmodule Acceptance.Transform.MetaTest do
   import Support.AstHelpers, only: [ast_from_md: 1]
   import Earmark.Transform
   
+  # Needs to pass with #359
+  @moduletag :wip
   describe "pre and verbatim" do
     @pre """
           some code
@@ -15,10 +17,10 @@ defmodule Acceptance.Transform.MetaTest do
       assert transform(ast) == expected
     end
     test "base case with verbatim" do
-      [{"pre", atts, children}] = ast_from_md(@pre)
+      [{"pre", atts, children, _}] = ast_from_md(@pre)
       expected = "<pre><code>  some code</code></pre>\n"
 
-      assert transform([{"pre", atts, children, %{meta: %{verbatim: true}}}]) == expected
+      assert transform([{"pre", atts, children, %{verbatim: true}}]) == expected
     end
   end
 end

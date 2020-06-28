@@ -26,10 +26,13 @@ defmodule Earmark.Transform do
 
 
   defp to_html(ast, options) do
-    _to_html(ast, options, Map.get(options, :initial_indent, 0)) |> IO.iodata_to_binary
+    _to_html(ast, options, Map.get(options, :initial_indent, 0))|> IO.iodata_to_binary
   end
 
   defp _to_html(ast, options, level, verbatim \\ false)
+  defp _to_html({:comment, _, content, _}, _options, _level, _verbatim) do
+    "<!--#{content}-->"
+  end
   defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
     [ make_indent(options, level), open_tag(tag, atts), "\n" ]
   end
