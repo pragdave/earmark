@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.ListAndBlockTest do
   use ExUnit.Case
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
 
   describe "Block Quotes in Lists" do
     # Incorrect behavior needs to be fixed with #249 or #304
@@ -17,6 +18,74 @@ defmodule Acceptance.Ast.ListAndBlockTest do
       markdown = "- c\n    > d"
       html     = "<ul>\n<li>c<blockquote><p>d</p>\n</blockquote>\n</li>\n</ul>\n"
       ast      = parse_html(html)
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+  end
+
+  describe "Code Blocks in Lists" do
+    test "Regression #349" do
+      markdown = """
+      * List item1
+
+        Text1
+
+          * List item2
+
+        Text2
+
+            https://mydomain.org/user_or_team/repo_name/blob/master/path
+
+      """
+      ast = tag("ul", tag("li", [
+        p("List item1"),
+        p("Text1"),
+        tag("pre", tag("code", ["* List item2"])),
+        p("Text2"),
+        tag("pre", tag("code", " https://mydomain.org/user_or_team/repo_name/blob/master/path"))]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+    test "Regression #349/counter example" do
+      markdown = """
+      * List item1
+
+        Text1
+
+          * List item2
+
+        Text
+
+            https://mydomain.org/user_or_team/repo_name/blob/master/path
+
+      """
+      ast = tag("ul", tag("li", [
+        p("List item1"),
+        tag("pre", tag("code", ["Text1", "", "* List item2", "", "Text2", "",
+                                "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+    test "Regression #349 / more indent" do
+      markdown = """
+      * List item
+
+        Text
+
+          * List item
+
+          Text
+
+              https://mydomain.org/user_or_team/repo_name/blob/master/path
+
+      """
+      ast = tag("ul", tag("li", [
+        p("List item"),
+        tag("pre", tag("code", ["Text", "", "* List item", "", "Text", "",
+                                "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
