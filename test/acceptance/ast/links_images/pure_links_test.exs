@@ -104,6 +104,25 @@ defmodule Acceptance.Ast.LinksImages.PureLinksTest do
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
   end
+
+  describe "more acceptable characters (was: regression #350)" do
+    test "a Github link" do
+      markdown = "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"
+      ast      = p(tag("a", ["https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"], [{"href", "https://mydomain.org/user_or_team/repo_name/blob/master/%{path}#L%{line}"}]))
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+    test "a recursive link" do
+      markdown = "https://babelmark.github.io/?text=*+List+item%0A%0A++Text%0A%0A++++*+List+item%0A%0A++Text%0A%0A++++++https%3A%2F%2Fmydomain.org%2Fuser_or_team%2Frepo_name%2Fblob%2Fmaster%2F%25%7Bpath%7D%23L%25%7Bline%7D%0"
+      ast      = p(tag("a", markdown, [{"href", markdown}]))
+      messages = []
+      
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
+    
+  end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0
