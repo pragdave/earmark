@@ -1,5 +1,7 @@
 # 1.4.6 ????/??/??
 
+- [350-some-complicated-autolinks-cut](https://github.com/pragdave/earmark/issues/350)
+
 - [359-unexpected-ws-in-html](https://github.com/pragdave/earmark/issues/359)
 
 - [337-quadruple-ast-format](https://github.com/pragdave/earmark/issues/337)

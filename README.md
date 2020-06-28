@@ -105,11 +105,11 @@ language as a _class_ attribute of the _code_ tag.
 
 For example:
 
-    iex(8)> [
-    ...(8)>    "```elixir",
-    ...(8)>    " @tag :hello",
-    ...(8)>    "```"
-    ...(8)> ] |> Earmark.as_html!()
+    iex(2)> [
+    ...(2)>    "```elixir",
+    ...(2)>    " @tag :hello",
+    ...(2)>    "```"
+    ...(2)> ] |> Earmark.as_html!()
     "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
 
 will be rendered as shown in the doctest above.
@@ -174,17 +174,53 @@ never is.
 
 #### HTML Blocks
 
-Are only supported if the begin and end tag is in its own line, thusly
+HTML is not parsed recursively or detected in all conditons right now, though GFM compliance
+is a goal.
 
-      <div>
-          Hello
-      </div>
+But for now the following holds:
 
-will parse as HTML while
+A HTML Block defined by a tag starting a line and the same tag starting a different line is parsed
+as one HTML AST node, marked with %{verbatim: true}
 
-      <div>Hello</div>
+E.g.
 
-is not supported and its result is undefined
+      iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
+      ...(3)> Earmark.as_ast(lines)
+      {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
+
+And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
+fashion
+
+      iex(4)> Earmark.as_ast(["<span class=\"superspan\">spaniel</span>"])
+      {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
+
+What is HTML?
+
+We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
+
+      iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
+      ...(5)> ast
+      [
+        {"stupid", [], [], %{verbatim: true}},
+        {"not", [], ["better"], %{verbatim: true}}]
+
+and for multiline blocks
+
+      iex(6)> {:ok, ast, []} = Earmark.as_ast([ "<hello>", "world", "</hello>"])
+      ...(6)> ast
+      [{"hello", [], ["world"], %{verbatim: true}}]
+
+#### HTML Comments
+
+Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
+all text after the next '-->' is ignored
+
+E.g.
+
+    iex(7)> Earmark.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+    {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
+
+
 
 ### Adding HTML attributes with the IAL extension
 
@@ -213,26 +249,26 @@ For example:
 It is possible to add IAL attributes to generated links or images in the following
 format.
 
-    iex(4)> markdown = "[link](url) {: .classy}"
-    ...(4)> Earmark.as_html(markdown)
-    { :ok, "<p>\n  <a class=\"classy\" href=\"url\">\n    link\n  </a>\n</p>\n", []}
+    iex(8)> markdown = "[link](url) {: .classy}"
+    ...(8)> Earmark.as_html(markdown)
+    { :ok, "<p>\n<a class=\"classy\" href=\"url\">link</a></p>\n", []}
 
 For both cases, malformed attributes are ignored and warnings are issued.
 
-    iex(5)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
+    iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
     {:error, "<p>\n  Some text\n</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
-    iex(6)> markdown = "[link](url)\\{: .classy}"
-    ...(6)> Earmark.as_html(markdown)
-    {:ok, "<p>\n  <a href=\"url\">\n    link\n  </a>\n  {: .classy}\n</p>\n", []}
+    iex(10)> markdown = "[link](url)\\{: .classy}"
+    ...(10)> Earmark.as_html(markdown)
+    {:ok, "<p>\n<a href=\"url\">link</a>  {: .classy}\n</p>\n", []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
-    iex(7)> markdown = "hello {:world}"
-    ...(7)> Earmark.as_html!(markdown)
+    iex(11)> markdown = "hello {:world}"
+    ...(11)> Earmark.as_html!(markdown)
     "<p>\n  hello {:world}\n</p>\n"
 
 ## Limitations
@@ -326,18 +362,18 @@ and are to serve the produced HTML on the Web.
 ## `Earmark.as_ast/2`
 
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-      iex(9)> markdown = "My `code` is **best**"
-      ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
-      ...(9)> ast
-      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+      iex(12)> markdown = "My `code` is **best**"
+      ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
+      ...(12)> ast
+      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
 for the AST.
 
-      iex(10)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(10)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-      ...(10)> ast
-      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
+      iex(13)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+      ...(13)> ast
+      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 **Rationale**:
 
@@ -359,7 +395,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 - description of the error
 
 
-`options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options` 
+`options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
 
 * `renderer`: ModuleName
 
@@ -404,7 +440,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 * `pure_links`: boolean
 
   Pure links of the form `~r{\bhttps?://\S+\b}` are rendered as links from now on.
-  However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4 
+  However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
   behavior can be used.
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
@@ -412,27 +448,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 ## `Earmark.Transform.transform/2`
 
 <!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
-**EXPERIMENTAL**
-But well tested, just expect API changes in the 1.4 branch
-Takes an ast, and optional options (I love this pun), which can be
-a map or keyword list of which the following keys will be used:
-
-- `smartypants:` `boolean`
-- `initial_indent:` `number`
-- `indent:` `number`
-
-      iex(1)> transform({"p", [], [{"em", [], "help"}, "me"]})
-      "<p>\n  <em>\n    help\n  </em>\n  me\n</p>\n"
-
-Right now only transformation to HTML is supported.
-
-The transform is also agnostic to any annotation map that is added to the AST.
-
-Only the `:meta` key is reserved and by passing annotation maps with a `:meta` key
-into the AST the result might become altered or an exception might be raised, otherwise...
-
-      iex(2)> transform({"p", [], [{"em", [], ["help"], %{inner: true}}], %{level: 1}})
-      "<p>\n  <em>\n    help\n  </em>\n</p>\n"
+  Needs update for 1.4.6
 
 <!-- END inserted functiondoc Earmark.Transform.transform/2 -->
 
