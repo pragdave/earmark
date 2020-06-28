@@ -2,6 +2,8 @@ defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
+  @compact_tags ~w[a code em strong]
+
   # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
   @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
 
@@ -31,7 +33,13 @@ defmodule Earmark.Transform do
 
   defp _to_html(ast, options, level, verbatim \\ false)
   defp _to_html({:comment, _, content, _}, _options, _level, _verbatim) do
-    "<!--#{content}-->"
+    "<!--#{content |> Enum.intersperse("\n")}-->"
+  end
+  defp _to_html({tag, atts, children, _}, options, level, verbatim) when tag in @compact_tags do
+    [open_tag(tag, atts),
+       children
+       |> Enum.map(&_to_html(&1, Map.put(options, :compact, true), level, verbatim)),
+       "</#{tag}>"]
   end
   defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
     [ make_indent(options, level), open_tag(tag, atts), "\n" ]
@@ -71,11 +79,16 @@ defmodule Earmark.Transform do
     []
   end
   defp escape(element, options, level) do
+    compact = Map.get(options, :compact, false)
     element1 =
         element
         |> smartypants(options)
         |> Earmark.Helpers.escape(true)
-    [make_indent(options, level), element1, "\n"]
+    if compact do
+      element1
+    else
+      [make_indent(options, level), element1, "\n"]
+    end
   end
 
   defp make_att(name_value_pair, tag)

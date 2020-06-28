@@ -17,8 +17,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
   describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
-      html     = gen([{:area, [shape: "rect", coords: "0,0,1,1", href: "xxx", alt: "yyy"], nil},
-        {:p, [{:strong, "emphasized"}, " text"]}])
+      html = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\" />\n<p>\n<strong>emphasized</strong>   text\n</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

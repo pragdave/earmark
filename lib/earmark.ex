@@ -95,7 +95,7 @@ defmodule Earmark do
       ...(2)>    " @tag :hello",
       ...(2)>    "```"
       ...(2)> ] |> Earmark.as_html!()
-      "<pre><code class=\\"elixir\\">\\n   @tag :hello\\n</code>\\n</pre>\\n"
+      "<pre><code class=\\"elixir\\"> @tag :hello</code></pre>\\n"
 
   will be rendered as shown in the doctest above.
 
@@ -236,7 +236,7 @@ defmodule Earmark do
 
       iex(8)> markdown = "[link](url) {: .classy}"
       ...(8)> Earmark.as_html(markdown)
-      { :ok, "<p>\\n  <a class=\\"classy\\" href=\\"url\\">\\n    link\\n  </a>\\n</p>\\n", []}
+      { :ok, "<p>\\n<a class=\\"classy\\" href=\\"url\\">link</a></p>\\n", []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
@@ -247,7 +247,7 @@ defmodule Earmark do
 
       iex(10)> markdown = "[link](url)\\\\{: .classy}"
       ...(10)> Earmark.as_html(markdown)
-      {:ok, "<p>\\n  <a href=\\"url\\">\\n    link\\n  </a>\\n  {: .classy}\\n</p>\\n", []}
+      {:ok, "<p>\\n<a href=\\"url\\">link</a>  {: .classy}\\n</p>\\n", []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example

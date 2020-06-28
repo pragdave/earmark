@@ -22,7 +22,7 @@ defmodule Acceptance.Html.DiverseTest do
 
     test "syntax errors" do
       markdown ="A\nB\n="
-      html     = gen([{:p, "A\nB"}, {:p, []}])
+      html     = "<p>\n  A\nB\n</p>\n<p>\n</p>\n"
       messages = [{:warning, 3, "Unexpected line =" }]
 
       assert as_html(markdown) == {:error, html, messages}

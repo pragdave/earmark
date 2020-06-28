@@ -8,7 +8,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
   describe "Link reference definitions" do
     test "link with title" do
       markdown = "[foo]: /url \"title\"\n\n[foo]\n"
-      html     = link("foo", href: "/url", title: "title")
+      html     = "<p>\n<a href=\"/url\" title=\"title\">foo</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -16,7 +16,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
 
     test "assure url encoding is not done here" do
       markdown = "[foo]: /url?url=https%3A%2F%2Fsomewhere \"title\"\n\n[foo]\n"
-      html    = link("foo", href: "/url?url=https%3A%2F%2Fsomewhere", title: "title")
+      html    = "<p>\n<a href=\"/url?url=https%3A%2F%2Fsomewhere\" title=\"title\">foo</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -34,9 +34,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
 
     test "inner is a link, not outer" do
       markdown = "[[text](inner)]outer"
-      html = para([
-        "[", {:a, [href: "inner"], "text"}, "]outer"
-      ])
+      html = "<p>\n  [\n<a href=\"inner\">text</a>  ]outer\n</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -46,7 +44,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
   describe "Links" do
     test "no title" do
       markdown = "[link](/uri))\n"
-      html     = para([{:a, [href: "/uri"], "link"}, ")"])
+      html     = "<p>\n<a href=\"/uri\">link</a>  )\n</p>\n" 
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -57,7 +55,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
   describe "Autolinks" do
     test "that was easy" do
       markdown = "<http://foo.bar.baz>\n"
-      html     = link("http://foo.bar.baz", href: "http://foo.bar.baz")
+      html     =  "<p>\n<a href=\"http://foo.bar.baz\">http://foo.bar.baz</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -67,7 +65,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
   describe "Escapes in text" do
     test "escaped backticks" do 
       markdown = "[hello \\`code\\`](http://some.where)"
-      html     = para({:a, [href: "http://some.where"], "hello `code`"})
+      html     = "<p>\n<a href=\"http://some.where\">hello `code`</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

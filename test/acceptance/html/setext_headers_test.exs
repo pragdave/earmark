@@ -17,8 +17,7 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
-      html     = gen([{:h1, ["Foo ", {:em, "bar"}]}, 
-        {:h2, ["Foo ", {:em, "bar"}]}])
+      html     = "<h1>\n  Foo \n<em>bar</em></h1>\n<h2>\n  Foo \n<em>bar</em></h2>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

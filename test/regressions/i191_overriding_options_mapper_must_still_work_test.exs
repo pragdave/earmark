@@ -4,7 +4,7 @@ defmodule Regressions.I191OverridingOptionsMapperMustStillWorkTest do
   alias Earmark.Options
 
   @simple "**hello**"
-  @result "<p>\n  <strong>\n    hello\n  </strong>\n</p>\n"
+  @result "<p>\n<strong>hello</strong></p>\n"
 
   describe "no timeout" do
     test "new implementation works" do

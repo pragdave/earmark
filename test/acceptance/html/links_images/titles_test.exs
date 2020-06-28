@@ -5,8 +5,7 @@ defmodule Acceptance.Html.LinksImages.TitlesTest do
     test "two titled links" do
       mark_tmp = "[link](/uri \"title\")"
       markdown = "#{ mark_tmp } #{ mark_tmp }\n"
-      link     = {:a, [href: "/uri", title: "title"], "link"}
-      html     =  para([link, link])
+      html     = "<p>\n<a href=\"/uri\" title=\"title\">link</a><a href=\"/uri\" title=\"title\">link</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
