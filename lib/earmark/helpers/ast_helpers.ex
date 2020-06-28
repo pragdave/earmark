@@ -9,9 +9,18 @@ defmodule Earmark.Helpers.AstHelpers do
   alias Earmark.Block
   
   @doc false
+  def attrs_to_string_keys(key_value_pair)
+  def attrs_to_string_keys({k, vs}) when is_list(vs) do
+    {to_string(k), Enum.join(vs, " ")}
+  end
+  def attrs_to_string_keys({k, vs}) do
+    {to_string(k),to_string(vs)}
+  end
+
+  @doc false
   def augment_tag_with_ial(tags, ial)
-  def augment_tag_with_ial([{t, a, c}|tags], atts) do
-    [{t, merge_attrs(a, atts), c}|tags]
+  def augment_tag_with_ial([{t, a, c, m}|tags], atts) do
+    [{t, merge_attrs(a, atts), c, m}|tags]
   end
   def augment_tag_with_ial([], _atts) do
     [] 
@@ -81,9 +90,18 @@ defmodule Earmark.Helpers.AstHelpers do
   @doc false
   def merge_attrs(maybe_atts, new_atts)
   def merge_attrs(nil, new_atts), do: new_atts
+  def merge_attrs(atts, new) when is_list(atts) do
+    atts
+    |> Enum.into(%{})
+    |> merge_attrs(new)
+  end
+
   def merge_attrs(atts, new) do
     atts
     |> Map.merge(new, &_value_merger/3)
+    |> Enum.into([])
+    |> Enum.map(&attrs_to_string_keys/1)
+
   end
 
   @doc false

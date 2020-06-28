@@ -69,6 +69,16 @@ defmodule Acceptance.Ast.BlockIalTest do
 
       assert as_ast(markdown) == {:error, [ast], messages}
     end
+
+    # https://github.com/pragdave/earmark/issues/367
+    @tag :wip
+    test "In tight lists?" do
+      markdown = "- Before\n{:.alpha .beta}"
+      ast      = tag("ul", tag("li", "Before", class: "beta alpha"))
+      messages = []
+
+      assert as_ast(markdown) == {:ok, [ast], messages}
+    end
   end
 end
 

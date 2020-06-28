@@ -10,7 +10,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
     {th_ast, context1} =
       header
       |> Enum.zip(aligns)
-      |> Enum.map_reduce(context, &_render_col(&1, &2, lnb, :th))
+      |> Enum.map_reduce(context, &_render_col(&1, &2, lnb, "th"))
     {emit("thead", emit("tr", th_ast)), context1}
   end
 
@@ -23,7 +23,7 @@ defmodule Earmark.Ast.Renderer.TableRenderer do
   end
 
 
-  defp _render_cols(row, lnb, aligns, context, coltype \\ :td) do
+  defp _render_cols(row, lnb, aligns, context, coltype \\ "td") do
     row
     |> Enum.zip(aligns)
     |> Enum.map_reduce(context, &_render_col(&1, &2, lnb, coltype))

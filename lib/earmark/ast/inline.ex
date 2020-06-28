@@ -6,6 +6,7 @@ defmodule Earmark.Ast.Inline do
   alias Earmark.Helpers.LinkParser
   alias Earmark.Helpers.PureLinkHelpers
 
+  import Earmark.Ast.Emitter
   import Earmark.Ast.Renderer.AstWalker
   import Earmark.Helpers
   import Earmark.Helpers.AttrParser
@@ -196,7 +197,7 @@ defmodule Earmark.Ast.Inline do
       |> String.trim()
       |> String.replace(@squash_ws, " ")
 
-      out = codespan(content1) # |> IO.inspect)
+      out = codespan(content1)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
@@ -217,7 +218,7 @@ defmodule Earmark.Ast.Inline do
   defp converter_for_br({src, lnb, context, use_linky?}) do
     if match = Regex.run(context.rules.br, src, return: :index) do
       [{0, match_len}] = match
-      {behead(src, match_len), lnb, prepend(context, {"br", [], []}), use_linky?}
+      {behead(src, match_len), lnb, prepend(context, emit("br")), use_linky?}
     end
   end
 
@@ -250,7 +251,7 @@ defmodule Earmark.Ast.Inline do
 
     context1 = _convert(content, lnb, set_value(context, []), use_linky?)
 
-    {behead(src, match1), lnb, prepend(context, {for_tag, [], context1.value|>Enum.reverse}), use_linky?}
+    {behead(src, match1), lnb, prepend(context, emit(for_tag, context1.value|>Enum.reverse)), use_linky?}
   end
 
 
@@ -269,7 +270,7 @@ defmodule Earmark.Ast.Inline do
   defp gruber_line_breaks(text) do
     text
     |> String.split(@gruber_line_break)
-    |> Enum.intersperse({"br", [], []})
+    |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
 
@@ -280,7 +281,7 @@ defmodule Earmark.Ast.Inline do
   defp hard_line_breaks(text, _) do
     text
     |> String.split(@gfm_hard_line_break)
-    |> Enum.intersperse({"br", [], []})
+    |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
 
@@ -298,9 +299,9 @@ defmodule Earmark.Ast.Inline do
 
     context2 = _convert(text, lnb, set_value(context1, []), false)
     if title do
-      { "a", [{"href", href}, {"title", title}], Enum.reverse(context2.value) }
+      emit("a", Enum.reverse(context2.value), href: href, title: title)
     else
-      { "a", [{"href", href}], Enum.reverse(context2.value) }
+      emit("a", Enum.reverse(context2.value), href: href)
     end
   end
 

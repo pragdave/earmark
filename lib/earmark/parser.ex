@@ -329,7 +329,9 @@ defmodule Earmark.Parser do
   # Assign attributes that follow a block to that block #
   #######################################################
 
-  defp assign_attributes_to_blocks([], result), do: Enum.reverse(result)
+  defp assign_attributes_to_blocks([], result) do
+    Enum.reverse(result)
+  end
   defp assign_attributes_to_blocks([ %Block.Ial{attrs: attrs}, block | rest], result) do
     assign_attributes_to_blocks(rest, [ %{block | attrs: attrs} | result ])
   end

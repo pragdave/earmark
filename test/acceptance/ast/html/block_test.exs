@@ -12,7 +12,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
       ast = [
         {"table", [], ["  <tr>", "    <td>", "           hi", "    </td>", "  </tr>"], @verbatim},
-        p("okay")
+        p("okay.")
       ]
 
       messages = []
@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "div (ine?)" do
       markdown = "<div>\n  *hello*\n         <foo><a>\n</div>\n"
-      ast = [vtag("div", "  *hello*")]
+      ast = [vtag("div", ["  *hello*", "         <foo><a>"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -203,7 +203,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
       ast = vtag("div", "line", class: "my-div")
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "parses unquoted attrs" do
@@ -224,7 +224,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "therefore the div continues" do
       markdown = "<div>\nline\n</hello></div>\n</div>"
-      ast = [vtag("div", "line", "</hello></div>")]
+      ast = [vtag("div", ["line", "</hello></div>"])]
       messages = []
 
       assert as_ast(markdown) == {:ok, ast, messages}
@@ -232,7 +232,7 @@ defmodule Acceptance.Ast.Html.BlockTest do
 
     test "...nor is this" do
       markdown = "<div>\nline\n<hello></div>"
-      ast = [vtag("div", "line", "<hello></div>")]
+      ast = [vtag("div", ["line", "<hello></div>"])]
       messages = [
         {:warning, 1, "Failed to find closing <div>"},
         {:warning, 3, "Failed to find closing <hello>"}

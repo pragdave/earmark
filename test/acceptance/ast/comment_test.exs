@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.CommentTest do
 
     test "what about the closing" do
       markdown = "<!-- Hello\n World -->garbish"
-      ast      = {:comment, [], [" Hello", " World"], %{comment: true}}
+      ast      = {:comment, [], [" Hello", " World "], %{comment: true}}
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

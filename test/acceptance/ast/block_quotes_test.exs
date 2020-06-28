@@ -1,6 +1,6 @@
 defmodule Acceptance.Ast.BlockQuotesTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
   import EarmarkAstDsl
 
   @moduletag :ast

@@ -14,7 +14,6 @@ defmodule Earmark.AstRenderer do
   @moduledoc false
 
   def render(blocks, context = %Context{options: %Options{}}, loose? \\ true) do
-    # IO.inspect blocks
     _render(blocks, context, loose?)
   end
 
@@ -37,7 +36,7 @@ defmodule Earmark.AstRenderer do
     value    = context1.value |> Enum.reverse
     ast      =
     if loose? do
-      emit("p", value, attrs)
+      emit("p", value, Enum.map(attrs || %{}, &attrs_to_string_keys/1))
     else
       value
     end
@@ -55,19 +54,19 @@ defmodule Earmark.AstRenderer do
   defp render_block(%Block.HtmlComment{lines: lines}, context, _loose?) do
     lines1 =
       lines |> Enum.map(&render_html_comment_line/1)
-    prepend(context, {:comment, lines1})
+    prepend(context, emit(:comment, lines1, [], %{comment: true}))
   end
   #########
   # Ruler #
   #########
   defp render_block(%Block.Ruler{type: "-", attrs: attrs}, context, _loose?) do
-    prepend(context, {"hr", merge_attrs(attrs, %{"class" => "thin"}), []})
+    prepend(context, emit("hr", [], merge_attrs(attrs, %{"class" => "thin"})))
   end
   defp render_block(%Block.Ruler{type: "_", attrs: attrs}, context, _loose?) do
-    prepend(context, {"hr", merge_attrs( attrs, %{"class" => "medium"}), []})
+    prepend(context, emit("hr", [], merge_attrs( attrs, %{"class" => "medium"})))
   end
   defp render_block(%Block.Ruler{type: "*", attrs: attrs}, context, _loose?) do
-    prepend(context, {"hr", merge_attrs(attrs, %{"class" => "thick"}),[]})
+    prepend(context, emit("hr", [], merge_attrs(attrs, %{"class" => "thick"})))
   end
   ###########
   # Heading #
@@ -153,7 +152,7 @@ defmodule Earmark.AstRenderer do
     context1 = convert(line, lnb, clear_value(context))
     ast =  context1.value |> Enum.reverse
     if loose? do   
-      modify_value(context1, fn _ -> [{"p", [], ast}] end)
+      modify_value(context1, fn _ -> [emit("p", ast)] end)
     else
       modify_value(context1, fn _ -> ast end) 
     end
@@ -178,7 +177,7 @@ defmodule Earmark.AstRenderer do
   #######################################
 
   defp render_block(%Block.Ial{verbatim: verbatim}, context, _loose?) do
-    prepend(context, {"p", [], ["{:#{verbatim}}"]})
+    prepend(context, emit("p", "{:#{verbatim}}"))
   end
 
   ####################
@@ -208,8 +207,7 @@ defmodule Earmark.AstRenderer do
   defp _fix_text_lines(ast, true), do: Enum.map(ast, &_fix_loose_text_line/1)
 
   defp _fix_loose_text_line(node)
-  defp _fix_loose_text_line({:text, _, lines}) when is_list(lines), do: {"p", [], lines}
-  defp _fix_loose_text_line({:text, _, lines}), do: {"p", [], [lines]}
+  defp _fix_loose_text_line({:text, _, lines}), do: emit("p", lines)
   defp _fix_loose_text_line(node), do: node
 
   defp _fix_tight_text_line(node)
