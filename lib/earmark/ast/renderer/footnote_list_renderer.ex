@@ -1,15 +1,14 @@
 defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
 
   alias Earmark.Block
-
-  import Earmark.Helpers.AstHelpers, only: [merge_attrs: 1]
+  import Earmark.Ast.Emitter
 
   @moduledoc false
 
   def render_footnote_list(items) do
-    { "div", [{"class", "footnotes"}], [
-      {"hr", [], []},
-      {"ol", [], _render_footnote_list_items(items)}] }
+    emit("div", [
+      emit("hr"),
+      emit("ol", _render_footnote_list_items(items))], class: "footnotes")
   end
 
 
@@ -20,12 +19,11 @@ defmodule Earmark.Ast.Renderer.FootnoteListRenderer do
 
   defp _render_footnote_list_item(%Block.ListItem{attrs: %{id: [id]}, blocks: [%Block.Para{attrs: atts, lines: lines}]}) do
     id1 = String.trim_leading(id, "#")
-    {"li", [{"id", id1}],
-      [{"p", [], lines ++ _render_footnote_backlink(atts)}]}
+    emit("li", emit("p", lines ++ _render_footnote_backlink(atts)), id: id1)
   end
 
   defp _render_footnote_backlink(%{class: _, href: _, title: _}=atts) do
-    [{"a", merge_attrs(atts), ["&#x21A9;"]}]
+    [emit("a", "&#x21A9;", atts)]
   end
 
 

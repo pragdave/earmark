@@ -1,12 +1,12 @@
 defmodule Acceptance.Ast.FencedCodeBlocksTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, as_ast: 2, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1, as_ast: 2]
+  import EarmarkAstDsl
   
   describe "Fenced code blocks" do
     test "no lang" do
       markdown = "```\n<\n >\n```\n"
-      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = pre_code("<\n >")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -14,8 +14,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "still no lang" do
       markdown = "~~~\n<\n >\n~~~\n"
-      html     = "<pre><code>&lt;\n &gt;</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = pre_code("<\n >")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -23,8 +22,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "longer with shorter inside" do
       markdown = "~~~~\n<\n~~~\nsome code\n ~~~\n >\n~~~~\n"
-      html     = "<pre><code>&lt;\n~~~\nsome code\n ~~~\n &gt;</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = pre_code("<\n~~~\nsome code\n ~~~\n >")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -32,8 +30,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "elixir 's the name" do
       markdown = "```elixir\naaa\n~~~\n```\n"
-      html     = "<pre><code class=\"elixir\">aaa\n~~~</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = tag("pre", tag("code", "aaa\n~~~", class: "elixir"))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -41,8 +38,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "elixir with longer fence" do
       markdown = "`````elixir\n````\n```\n````\n`````"
-      html     = "<pre><code class=\"elixir\">````\n```\n````</code></pre>"
-      ast      = parse_html(html)
+      ast      = tag("pre", tag("code", "````\n```\n````", class: "elixir"))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -50,8 +46,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "with a code_class_prefix" do
       markdown = "```elixir\naaa\n~~~\n```\n"
-      html     = "<pre><code class=\"elixir lang-elixir\">aaa\n~~~</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = tag("pre", tag("code", "aaa\n~~~", class: "elixir lang-elixir"))
       messages = []
 
       assert as_ast(markdown, code_class_prefix: "lang-") == {:ok, [ast], messages}
@@ -59,8 +54,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "with more code_class_preficis" do
       markdown = "```elixir\naaa\n~~~\n```\n"
-      html     = "<pre><code class=\"elixir lang-elixir syntax-elixir\">aaa\n~~~</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = tag("pre", tag("code", "aaa\n~~~", class: "elixir lang-elixir syntax-elixir"))
       messages = []
 
       assert as_ast(markdown, code_class_prefix: "lang- syntax-") == {:ok, [ast], messages}
@@ -68,8 +62,7 @@ defmodule Acceptance.Ast.FencedCodeBlocksTest do
 
     test "look mam, more lines" do
       markdown = "   ```\naaa\nb\n  ```\n"
-      html     = "<pre><code>aaa\nb</code></pre>\n"
-      ast      = parse_html(html)
+      ast      = pre_code("aaa\nb")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

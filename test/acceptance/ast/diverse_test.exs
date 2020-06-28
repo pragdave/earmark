@@ -1,12 +1,12 @@
 defmodule Acceptance.Ast.DiverseTest do
   use ExUnit.Case, async: true
-  import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import Support.Helpers, only: [as_ast: 1]
+  import EarmarkAstDsl
 
   describe "etc" do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
-      html     = "<p><code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
-      ast      = parse_html(html)
+      ast      = p(tag("code", "f&ouml;&ouml;", class: "inline"))
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -14,8 +14,7 @@ defmodule Acceptance.Ast.DiverseTest do
 
     test "spaec preserving" do
       markdown = "Multiple     spaces\n"
-      html     = "<p>Multiple     spaces</p>\n"
-      ast      = parse_html(html)
+      ast      = p("Multiple     spaces")
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -23,8 +22,7 @@ defmodule Acceptance.Ast.DiverseTest do
 
     test "syntax errors" do
       markdown ="A\nB\n="
-      html     = "<p>A\nB</p>\n<p></p>\n"
-      ast      = parse_html(html)
+      ast      = [p("A\nB"), p([])]
       messages = [{:warning, 3, "Unexpected line =" }]
 
       assert as_ast(markdown) == {:error, ast, messages}

@@ -6,7 +6,7 @@ defmodule Acceptance.Ast.CommentTest do
   describe "HTML Comments" do
     test "one line" do
       markdown = "<!-- Hello -->"
-      ast      = {:comment, [" Hello "]}
+      ast      = {:comment, [], [" Hello "], %{comment: true}}
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Ast.CommentTest do
 
     test "more lines" do
       markdown = "<!-- Hello\n World-->"
-      ast      = {:comment, [" Hello", " World"]}
+      ast      = {:comment, [], [" Hello", " World"], %{comment: true}}
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}
@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.CommentTest do
 
     test "what about the closing" do
       markdown = "<!-- Hello\n World -->garbish"
-      ast      = {:comment, [" Hello", " World "]}
+      ast      = {:comment, [], [" Hello", " World "], %{comment: true}}
       messages = []
 
       assert as_ast(markdown) == {:ok, [ast], messages}

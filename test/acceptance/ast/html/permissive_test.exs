@@ -2,7 +2,7 @@ defmodule Acceptance.Ast.Html.PermissiveTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1]
   
-  @verbatim %{meta: %{verbatim: true}}
+  @verbatim %{verbatim: true}
 
   describe "some nesting" do
     test "simple case" do

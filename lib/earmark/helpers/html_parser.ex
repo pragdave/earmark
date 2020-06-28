@@ -60,7 +60,7 @@ defmodule Earmark.Helpers.HtmlParser do
   # Iterate over lines inside a tag
   # -------------------------------
 
-  @verbatim %{meta: %{verbatim: true}}
+  @verbatim %{verbatim: true}
   defp _parse_rest(rest, tag_tpl, lines)
   defp _parse_rest([], tag_tpl, lines) do
     tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)

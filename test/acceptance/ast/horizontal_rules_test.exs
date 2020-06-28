@@ -1,6 +1,7 @@
 defmodule Acceptance.Ast.HorizontalRulesTest do
   use ExUnit.Case, async: true
   import Support.Helpers, only: [as_ast: 1, parse_html: 1]
+  import EarmarkAstDsl
   
   describe "Horizontal rules" do
 
@@ -51,10 +52,10 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
 
     test "emmed, so to speak" do
       markdown = " *-*\n"
-      ast      = [{"p", [], [" ", {"em", [], ["-"]}]}]
+      ast      = p([" ", tag("em", "-")])
       messages = []
 
-      assert as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "in lists" do
@@ -94,7 +95,6 @@ defmodule Acceptance.Ast.HorizontalRulesTest do
       assert as_ast(markdown) == {:ok, ast, messages}
 
     end
-    
   end
 end
 

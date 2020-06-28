@@ -44,8 +44,8 @@ defmodule Earmark.Ast.Renderer.AstWalker do
     end
     _walk_ast(rest, fun, res1)
   end
-  defp _walk_ast([{tag, atts, content}|rest], fun, res) do
-    _walk_ast(rest, fun, [{tag, atts, _walk_ast(content, fun, [])}|res])
+  defp _walk_ast([{tag, atts, content, meta}|rest], fun, res) do
+    _walk_ast(rest, fun, [{tag, atts, _walk_ast(content, fun, []), meta}|res])
   end
   defp _walk_ast([list|rest], fun, res) when is_list(list) do
     _walk_ast(rest, fun, [_walk_ast(list, fun, [])|res])

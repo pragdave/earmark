@@ -46,7 +46,7 @@ defmodule Earmark.Context do
   end
 
   defp _prepend(ctxt, []), do: ctxt
-  defp _prepend(%{value: value}=ctxt, {:comment, _}=ct), do: %{ctxt|value: [ct|value]}
+  defp _prepend(%{value: value}=ctxt, {:comment, _, _, _}=ct), do: %{ctxt|value: [ct|value]}
   defp _prepend(%{value: value}=ctxt, tuple) when is_tuple(tuple) do
     %{ctxt|value: [tuple|value] |> List.flatten}
   end
