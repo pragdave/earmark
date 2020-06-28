@@ -4,7 +4,7 @@ defmodule Acceptance.Html.InlineIalTest do
   describe "IAL no errors" do
     test "link with simple ial" do
       markdown = "[link](url){: .classy}"
-      html = gen({:p, {:a, [class: "classy", href: "url"], "link"}})
+      html ="<p>\n<a class=\"classy\" href=\"url\">link</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -15,7 +15,7 @@ defmodule Acceptance.Html.InlineIalTest do
 
     test "illegal format line two" do
       markdown = "a line\n[link](url) {:incorrect x=y}"
-      html = para(["a line\n", {:a, [href: "url", x: "y"], "link"}])
+      html = "<p>\n  a line\n\n<a href=\"url\" x=\"y\">link</a></p>\n"
       messages = [{:warning, 2, "Illegal attributes [\"incorrect\"] ignored in IAL"}]
 
       assert as_html(markdown) == {:error, html, messages}

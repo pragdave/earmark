@@ -14,7 +14,7 @@ defmodule Acceptance.Html.ReflinkTest do
   describe "defined reflinks" do
     test "simple case" do
       markdown = "[text] [reference]\n[reference]: some_url"
-      html     = para({:a, [href: "some_url", title: ""], "text"})
+      html     = "<p>\n<a href=\"some_url\" title=\"\">text</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
