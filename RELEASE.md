@@ -1,5 +1,7 @@
 # 1.4.6 ????/??/??
 
+- [337-quadruple-ast-format](https://github.com/pragdave/earmark/issues/337)
+
 - [366-simplify-transform](https://github.com/pragdave/earmark/issues/366)
     Kudos to [Eksperimental](https://github.com/eksperimental)
 
