@@ -1,6 +1,5 @@
 defmodule Support.AstHelpers do
   
-  @default %{}
   def ast_from_md(md) do
     with {:ok, ast, []} <- Earmark.as_ast(md), do: ast
   end
@@ -15,9 +14,6 @@ defmodule Support.AstHelpers do
     {to_string(name), _atts(atts), _content(content)}
   end
 
-  def verb_tag(tag, content \\ nil, atts \\ []) do
-    {to_string(tag), _atts(atts), _content(content), _verbatim()}
-  end
   def void_tag(tag, atts \\ []) do
     {to_string(tag), atts, []}
   end
@@ -32,5 +28,4 @@ defmodule Support.AstHelpers do
   defp _content(s) when is_binary(s), do: [s]
   defp _content(c), do: c
 
-  defp _verbatim, do: %{meta: %{verbatim: true}}
 end

@@ -2,33 +2,16 @@ defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
+  # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
+  @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
+
   @moduledoc """
   Public Interface to functions operating on the AST
   exposed by `Earmark.as_ast`
   """
 
   @doc """
-  **EXPERIMENTAL**
-  But well tested, just expect API changes in the 1.4 branch
-  Takes an ast, and optional options (I love this pun), which can be
-  a map or keyword list of which the following keys will be used:
-
-  - `smartypants:` `boolean`
-  - `initial_indent:` `number`
-  - `indent:` `number`
-
-        iex(1)> transform({"p", [], [{"em", [], "help"}, "me"]})
-        "<p>\\n  <em>\\n    help\\n  </em>\\n  me\\n</p>\\n"
-
-  Right now only transformation to HTML is supported.
-
-  The transform is also agnostic to any annotation map that is added to the AST.
-
-  Only the `:meta` key is reserved and by passing annotation maps with a `:meta` key
-  into the AST the result might become altered or an exception might be raised, otherwise...
-
-        iex(2)> transform({"p", [], [{"em", [], ["help"], %{inner: true}}], %{level: 1}})
-        "<p>\\n  <em>\\n    help\\n  </em>\\n</p>\\n"
+    Needs update for 1.4.6
   """
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
   def transform(ast, options) when is_list(options) do
@@ -47,6 +30,9 @@ defmodule Earmark.Transform do
   end
 
   defp _to_html(ast, options, level, verbatim \\ false)
+  defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
+    [ make_indent(options, level), open_tag(tag, atts), "\n" ]
+  end
   defp _to_html(elements, options, level, verbatim) when is_list(elements) do
     elements
     |> Enum.map(&_to_html(&1, options, level, verbatim))
@@ -57,58 +43,15 @@ defmodule Earmark.Transform do
   defp _to_html(element, options, level, true) when is_binary(element) do
     [make_indent(options, level), element]
   end
-  # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
-  # TODO: Remove 3 tuple matches in Release 1.4.6
-  defp _to_html({"area", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"area", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"br", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"br", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"hr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"hr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"img", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"img", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"wbr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"wbr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({:comment, children}, options, level, _verbatim) do
-    indent = make_indent(options, level)
-    [ indent,
-      "<!--", Enum.intersperse(children, ["\n", indent]), "-->"]
-  end
-  defp _to_html({tag, atts, []}, options, level, _verbatim) do
-    [ make_indent(options, level),
-      open_tag(tag, atts),
-      "</",
-      tag,
-      ">\n" ]
-  end
-  defp _to_html({"code", atts, children}, options, _level, _verbatim) do
-    [ make_indent(options, 0),
-      open_tag("code", atts),
-      Enum.join(children, "\n")|>Earmark.Helpers.escape(true),
-      "</code>"]
-  end
-  defp _to_html({"pre", atts, children}, options, level, _verbatim) do
-    [ make_indent(options, level),
-      open_tag("pre", atts),
-      _to_html(children, options, level),
-      "</pre>\n"]
-  end
   defp _to_html({"pre", atts, children, meta}, options, level, _verbatim) do
-    verbatim = Map.get(meta, :meta, %{}) |> Map.get(:verbatim, false)
+    verbatim = meta |> Map.get(:verbatim, false)
     [ make_indent(options, level),
       open_tag("pre", atts),
       _to_html(children, options, level, verbatim),
       "</pre>\n"]
   end
-  defp _to_html({tag, atts, children}, options, level, _verbatim) do
-    [ make_indent(options, level),
-      open_tag(tag, atts),
-      "\n",
-      _to_html(children, options, level+1),
-      close_tag(tag, options, level)]
-  end
   defp _to_html({tag, atts, children, meta}, options, level, _verbatim) do
-    verbatim = Map.get(meta, :meta, %{}) |> Map.get(:verbatim, false)
+    verbatim = meta |> Map.get(:verbatim, false)
     [ make_indent(options, level),
       open_tag(tag, atts),
       "\n",
@@ -142,10 +85,12 @@ defmodule Earmark.Transform do
     |> Enum.take(level*indent) 
   end
 
-  defp open_tag(tag, atts, void? \\ false) do
-    closer =
-      if void?, do: " />", else: ">"
-    ["<", tag, atts |> Enum.map(&make_att(&1, tag)), closer]
+  defp open_tag(tag, atts)
+  defp open_tag(tag, atts) when tag in @void_elements do
+    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), " />"]
+  end
+  defp open_tag(tag, atts) do
+    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), ">"]
   end
 
   @em_dash_rgx ~r{---}
@@ -167,15 +112,4 @@ defmodule Earmark.Transform do
   end
   defp smartypants(text, _options), do: text
 
-  # TODO: Remove 3 tuple matches in Release 1.4.6
-  defp void_tag({tag, atts, []}, options, level) do
-    [ make_indent(options, level),
-      open_tag(tag, atts, true),
-      "\n" ]
-  end
-  defp void_tag({tag, atts, [], _}, options, level) do
-    [ make_indent(options, level),
-      open_tag(tag, atts, true),
-      "\n" ]
-  end
 end

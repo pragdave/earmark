@@ -95,7 +95,7 @@ defmodule Earmark do
       ...(2)>    " @tag :hello",
       ...(2)>    "```"
       ...(2)> ] |> Earmark.as_html!()
-      "<pre><code class=\\"elixir\\"> @tag :hello</code></pre>\\n"
+      "<pre><code class=\\"elixir\\">\\n   @tag :hello\\n</code>\\n</pre>\\n"
 
   will be rendered as shown in the doctest above.
 
@@ -171,13 +171,13 @@ defmodule Earmark do
 
         iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
         ...(3)> Earmark.as_ast(lines)
-        {:ok, [{"div", [], ["<span>", "some</span><text>"], %{meta: %{verbatim: true}}}, "more text"], []}
+        {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
         iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
-        {:ok, [{"span"}, [{"class", "superspan"}], ["spaniel"], %{verbatim: true}], []}
+        {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
 
@@ -186,8 +186,8 @@ defmodule Earmark do
         iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
         ...(5)> ast
         [
-          {"stupid", [], [], %{meta: %{verbatim: true}}},
-          {"not", [], ["better"], %{meta: %{verbatim: true}}}]
+          {"stupid", [], [], %{verbatim: true}},
+          {"not", [], ["better"], %{verbatim: true}}]
 
   and for multiline blocks
 
@@ -203,7 +203,7 @@ defmodule Earmark do
   E.g.
 
       iex(7)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
-      {:ok, [{:comment, [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"]}], []}
+      {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
 
@@ -420,7 +420,7 @@ defmodule Earmark do
         iex(12)> markdown = "My `code` is **best**"
         ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
         ...(12)> ast
-        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}]
+        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
@@ -428,7 +428,7 @@ defmodule Earmark do
         iex(13)> markdown = "```elixir\\nIO.puts 42\\n```"
         ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
         ...(13)> ast
-        [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"]}]}]
+        [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
   **Rationale**:
 
