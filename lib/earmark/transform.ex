@@ -50,7 +50,7 @@ defmodule Earmark.Transform do
     verbatim = meta |> Map.get(:verbatim, false)
     [ make_indent(options, level),
       open_tag("pre", atts),
-      _to_html(children, options, level, verbatim),
+      _to_html(children, Map.put(options, :smartypants, false), level, verbatim),
       "</pre>\n"]
   end
   defp _to_html({tag, atts, children, meta}, options, level, _verbatim) do
@@ -74,7 +74,7 @@ defmodule Earmark.Transform do
     element1 =
         element
         |> smartypants(options)
-        |> Earmark.Helpers.escape()
+        |> Earmark.Helpers.escape(true)
     [make_indent(options, level), element1, "\n"]
   end
 
