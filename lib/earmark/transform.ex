@@ -2,6 +2,9 @@ defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
+  # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
+  @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
+
   @moduledoc """
   Public Interface to functions operating on the AST
   exposed by `Earmark.as_ast`
@@ -57,18 +60,16 @@ defmodule Earmark.Transform do
   defp _to_html(element, options, level, true) when is_binary(element) do
     [make_indent(options, level), element]
   end
+
   # Void tags: `area`, `br`, `hr`, `img`, and `wbr` are rendered slightly differently
   # TODO: Remove 3 tuple matches in Release 1.4.6
-  defp _to_html({"area", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"area", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"br", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"br", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"hr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"hr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"img", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"img", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"wbr", _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
-  defp _to_html({"wbr", _, _, _}=tag, options, level, _verbatim), do: void_tag(tag, options, level)
+  defp _to_html({tag, atts, children}, options, level, verbatim) when tag in @void_elements,
+    do: _to_html({tag, atts, children, %{}}, options, level, verbatim)
+
+  defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
+    [ make_indent(options, level), open_tag(tag, atts), "\n" ]
+  end
+
   defp _to_html({:comment, children}, options, level, _verbatim) do
     indent = make_indent(options, level)
     [ indent,
@@ -142,10 +143,12 @@ defmodule Earmark.Transform do
     |> Enum.take(level*indent) 
   end
 
-  defp open_tag(tag, atts, void? \\ false) do
-    closer =
-      if void?, do: " />", else: ">"
-    ["<", tag, atts |> Enum.map(&make_att(&1, tag)), closer]
+  defp open_tag(tag, atts) when tag in @void_elements do
+    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), " />"]
+  end
+
+  defp open_tag(tag, atts) do
+    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), ">"]
   end
 
   @em_dash_rgx ~r{---}
@@ -166,16 +169,4 @@ defmodule Earmark.Transform do
     |> String.replace("...", "…")
   end
   defp smartypants(text, _options), do: text
-
-  # TODO: Remove 3 tuple matches in Release 1.4.6
-  defp void_tag({tag, atts, []}, options, level) do
-    [ make_indent(options, level),
-      open_tag(tag, atts, true),
-      "\n" ]
-  end
-  defp void_tag({tag, atts, [], _}, options, level) do
-    [ make_indent(options, level),
-      open_tag(tag, atts, true),
-      "\n" ]
-  end
 end
