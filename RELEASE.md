@@ -1,5 +1,7 @@
 # 1.4.6 ????/??/??
 
+- [359-unexpected-ws-in-html](https://github.com/pragdave/earmark/issues/359)
+
 - [337-quadruple-ast-format](https://github.com/pragdave/earmark/issues/337)
 
 - [366-simplify-transform](https://github.com/pragdave/earmark/issues/366)
@@ -11,7 +13,7 @@
 
 - [335-content-inside-table-cells-reversed](https://github.com/pragdave/earmark/issues/335)
 
-- [347-dialyxir-errors](https://github.com/pragdave/earmark/issues/347)  
+- [347-dialyxir-errors](https://github.com/pragdave/earmark/issues/347)
     Fixed some of them, alas not all
 
 # 1.4.5 2020/06/06
