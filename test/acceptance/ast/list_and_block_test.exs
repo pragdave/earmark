@@ -24,7 +24,9 @@ defmodule Acceptance.Ast.ListAndBlockTest do
     end
   end
 
+  # #349
   describe "Code Blocks in Lists" do
+    @tag :wip 
     test "Regression #349" do
       markdown = """
       * List item1
@@ -48,6 +50,7 @@ defmodule Acceptance.Ast.ListAndBlockTest do
 
       assert as_ast(markdown) == {:ok, [ast], messages}
     end
+    @tag :wip 
     test "Regression #349/counter example" do
       markdown = """
       * List item1
@@ -64,27 +67,6 @@ defmodule Acceptance.Ast.ListAndBlockTest do
       ast = tag("ul", tag("li", [
         p("List item1"),
         tag("pre", tag("code", ["Text1", "", "* List item2", "", "Text2", "",
-                                "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
-      messages = []
-
-      assert as_ast(markdown) == {:ok, [ast], messages}
-    end
-    test "Regression #349 / more indent" do
-      markdown = """
-      * List item
-
-        Text
-
-          * List item
-
-          Text
-
-              https://mydomain.org/user_or_team/repo_name/blob/master/path
-
-      """
-      ast = tag("ul", tag("li", [
-        p("List item"),
-        tag("pre", tag("code", ["Text", "", "* List item", "", "Text", "",
                                 "https://mydomain.org/user_or_team/repo_name/blob/master/path"]))]))
       messages = []
 
