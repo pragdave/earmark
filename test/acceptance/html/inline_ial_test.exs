@@ -15,7 +15,7 @@ defmodule Acceptance.Html.InlineIalTest do
 
     test "illegal format line two" do
       markdown = "a line\n[link](url) {:incorrect x=y}"
-      html = "<p>\n  a line\n\n<a href=\"url\" x=\"y\">link</a></p>\n"
+      html     = "<p>\na line\n<a href=\"url\" x=\"y\">link</a></p>\n"
       messages = [{:warning, 2, "Illegal attributes [\"incorrect\"] ignored in IAL"}]
 
       assert as_html(markdown) == {:error, html, messages}

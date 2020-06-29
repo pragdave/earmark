@@ -4,7 +4,7 @@ defmodule Acceptance.Html.ParagraphsTest do
   describe "Paragraphs" do
     test "a para" do
       markdown = "aaa\n\nbbb\n"
-      html     = gen([{:p, "aaa"}, {:p, "bbb"}])
+      html     = "<p>\naaa</p>\n<p>\nbbb</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

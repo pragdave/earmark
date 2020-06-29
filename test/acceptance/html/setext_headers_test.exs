@@ -5,7 +5,7 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "Level one" do 
       markdown = "foo\n==="
-      html     = gen({:h1, "foo"})
+      html     = "<h1>\nfoo</h1>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -17,7 +17,7 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "levels one and two" do
       markdown = "Foo *bar*\n=========\n\nFoo *bar*\n---------\n"
-      html     = "<h1>\n  Foo \n<em>bar</em></h1>\n<h2>\n  Foo \n<em>bar</em></h2>\n"
+      html     = "<h1>\nFoo <em>bar</em></h1>\n<h2>\nFoo <em>bar</em></h2>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -34,7 +34,7 @@ defmodule Acceptance.Html.SetextHeadersTest do
 
     test "h1 after an unordered list" do 
       markdown = "* foo\n\nbar\n==="
-      html     = gen([{:ul, {:li, "foo"}}, {:h1, "bar"}])
+      html     = "<ul>\n  <li>\nfoo  </li>\n</ul>\n<h1>\nbar</h1>\n"
       messages = []
       
       assert as_html(markdown) == {:ok, html, messages}

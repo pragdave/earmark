@@ -4,10 +4,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = [
-        "<table>\n    <tr>      <td>             hi      </td>    </tr></table>",
-        para("okay.")
-      ] |> Enum.join("\n")
+      html     = "<table>\n    <tr>      <td>             hi      </td>    </tr></table>\n<p>\nokay.</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -17,7 +14,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
   describe "HTML void elements" do
     test "area" do
       markdown = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\">\n**emphasized** text"
-      html = "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\" />\n<p>\n<strong>emphasized</strong>   text\n</p>\n"
+      html     =  "<area shape=\"rect\" coords=\"0,0,1,1\" href=\"xxx\" alt=\"yyy\" />\n<p>\n<strong>emphasized</strong> text</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -1,17 +1,10 @@
 defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
   use Support.AcceptanceTestCase
 
-  @en_dash          "\u2013"
-  @em_dash          "\u2014"
-  @open_sgl_smarty  "\u2018"
-  @close_sgl_smarty "\u2019"
-  @open_dbl_smarty  "\u201c"
-  @close_dbl_smarty "\u201d"
-
   describe "smarty pants on" do
     test "paired double" do
       markdown = "a \"double\" quote"
-      html     = para("a #{dbl_quote("double")} quote")
+      html     = "<p>\na “double” quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -19,7 +12,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "unpaired double" do
       markdown = "a \"double\" \"quote"
-      html     = para("a #{dbl_quote("double")} #{@open_dbl_smarty}quote")
+      html     = "<p>\na “double” “quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -27,14 +20,14 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "two doubles" do
       markdown = "a \"double\" \"quote\""
-      html     = para("a #{dbl_quote("double")} #{dbl_quote("quote")}")
+      html     = "<p>\na “double” “quote”</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
     test "paired single" do
       markdown = "a 'single' quote"
-      html     = para("a #{sgl_quote("single")} quote")
+      html     = "<p>\na ‘single’ quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -42,7 +35,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "unpaired single" do
       markdown = "a 'single' 'quote"
-      html     = para("a #{sgl_quote("single")} #{@open_sgl_smarty}quote")
+      html     = "<p>\na ‘single’ ‘quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -50,7 +43,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "two singles" do
       markdown = "a 'single' 'quote'"
-      html     = para("a #{sgl_quote("single")} #{sgl_quote("quote")}")
+      html     = "<p>\na ‘single’ ‘quote’</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -58,9 +51,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "a mess" do
       markdown = ~s{"a" 'messy' "affair"}
-      html     = [dbl_quote("a"), sgl_quote("messy"), dbl_quote("affair")]
-      |> Enum.join(" ")
-      |> para()
+      html     = "<p>\n“a” ‘messy’ “affair”</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -68,7 +59,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "en dash" do
       markdown = "1947 -- 2020"
-      html     = para("1947 #{@en_dash} 2020")
+      html     = "<p>\n1947 – 2020</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -76,13 +67,10 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "em dash" do
       markdown = "Earmark---A Pure Elixir Markdown Processor"
-      html     = para("Earmark#{@em_dash}A Pure Elixir Markdown Processor")
+      html     = "<p>\nEarmark—A Pure Elixir Markdown Processor</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
-
-  defp dbl_quote(str), do: Enum.join([@open_dbl_smarty, str, @close_dbl_smarty])
-  defp sgl_quote(str), do: Enum.join([@open_sgl_smarty, str, @close_sgl_smarty])
 end

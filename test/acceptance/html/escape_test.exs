@@ -4,7 +4,7 @@ defmodule Acceptance.Html.EscapeTest do
   describe "Escapes" do
     test "dizzy?" do
       markdown = "\\\\!\\\\\""
-      html     = "<p>\n  \\!\\”\n</p>\n"
+      html     = "<p>\n\\!\\”</p>\n"
       messages = []
 
       assert as_html(markdown, smartypants: true) == {:ok, html, messages}
@@ -12,7 +12,7 @@ defmodule Acceptance.Html.EscapeTest do
 
     test "dizzy and not smart :O" do
       markdown = "\\\\!\\\\\""
-      html     = "<p>\n  \\!\\&quot;\n</p>\n"
+      html     = "<p>\n\\!\\&quot;</p>\n"
       messages = []
 
       assert as_html(markdown, smartypants: false) == {:ok, html, messages}
@@ -20,7 +20,7 @@ defmodule Acceptance.Html.EscapeTest do
 
     test "less obviously - escpe the escapes" do
       markdown = "\\\\` code`"
-      html     = "<p>\n  \\\n<code class=\"inline\">code</code></p>\n"
+      html     = "<p>\n\\<code class=\"inline\">code</code></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

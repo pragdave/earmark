@@ -4,7 +4,7 @@ defmodule Acceptance.Html.HardLineBreaksTest do
   describe "gfm" do 
     test "hard line breaks are enabled" do 
       markdown = "line 1\nline 2\\\nline 3"
-      html     = para(["line 1\nline 2", :br, "line 3"])
+      html     = "<p>\nline 1\nline 2  <br />\nline 3</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Html.HardLineBreaksTest do
   describe "no gfm" do 
     test "hard line breaks are not enabled" do 
       markdown = "line 1\nline 2\\\nline 3"
-      html     = para("line 1\nline 2\\\nline 3")
+      html     = "<p>\nline 1\nline 2\\\nline 3</p>\n"
       messages = []
 
       assert as_html(markdown, gfm: false) == {:ok, html, messages}

@@ -7,7 +7,8 @@ defmodule Regressions.I119FootnotesInsideLiTest do
   [^1]: bar baz
   """
   test "footnotes in list items do not crash (no footnotes)" do
-    assert without_fn(@li_footnote) == {:ok,~s{<ol>\n  <li>\n    foo[^1]\n  </li>\n</ol>\n<p>\n  [^1]: bar baz\n</p>\n}, []}
+    html     = "<ol>\n  <li>\nfoo[^1]  </li>\n</ol>\n<p>\n[^1]: bar baz</p>\n"
+    assert without_fn(@li_footnote) == {:ok, html, []}
   end
 
   @tag :wip
