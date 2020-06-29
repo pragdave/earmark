@@ -4,7 +4,7 @@ defmodule Acceptance.Html.ReflinkTest do
   describe "undefined reflinks" do
     test "simple case" do
       markdown = "[text] [reference]\n[reference1]: some_url"
-      html     = "<p>\n  [text] [reference]\n</p>\n"
+      html     = "<p>\n[text] [reference]</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

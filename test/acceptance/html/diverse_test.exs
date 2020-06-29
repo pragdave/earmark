@@ -14,15 +14,15 @@ defmodule Acceptance.Html.DiverseTest do
 
     test "spaec preserving" do
       markdown = "Multiple     spaces"
-      html     = para(markdown)
+      html     = "<p>\nMultiple     spaces</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "syntax errors" do
-      markdown ="A\nB\n="
-      html     = "<p>\n  A\nB\n</p>\n<p>\n</p>\n"
+      markdown = "A\nB\n="
+      html     = "<p>\nA\nB</p>\n<p>\n</p>\n"
       messages = [{:warning, 3, "Unexpected line =" }]
 
       assert as_html(markdown) == {:error, html, messages}

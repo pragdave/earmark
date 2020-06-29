@@ -4,7 +4,7 @@ defmodule Acceptance.Html.LineBreaksTest do
   describe "Forced Line Breaks" do
     test "with two spaces" do
       markdown = "The  \nquick"
-      html     = para(["The", :br, "quick"])
+      html     = "<p>\nThe  <br />\nquick</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Html.LineBreaksTest do
   describe "No Forced Line Breaks" do
     test "or inside the line" do
       markdown = "The  quick\nbrown"
-      html     = para("The  quick\nbrown")
+      html     = "<p>\nThe  quick\nbrown</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

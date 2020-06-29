@@ -44,11 +44,9 @@ defmodule Acceptance.Html.LinkImages.ImgTest do
 
     test "parens: images" do
       result = Earmark.as_html! "(![text](src))"
-      html   = para([
-        "(",
-        {:img, [src: "src", alt: "text"], nil},
-        ")" ])
-      assert html == result
+      html     = "<p>\n(  <img src=\"src\" alt=\"text\" />\n)</p>\n"
+
+      assert result == html
     end
 
     test "as does everything else" do

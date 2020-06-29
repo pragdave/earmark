@@ -4,13 +4,7 @@ defmodule Acceptance.Html.TableTest do
   describe "Tables and IAL" do
     test "as mentioned above" do
       markdown = "|a|b|\n|d|e|\n{:#the-table}"
-      html     = gen({:table, [id: "the-table"],
-        {:tbody, [
-          {:tr, [{:td, [style: "text-align: left;"], "a"},
-            {:td, [style: "text-align: left;"], "b"}]},
-          {:tr, [{:td, [style: "text-align: left;"], "d"},
-            {:td, [style: "text-align: left;"], "e"}
-          ]}]}})
+      html     = "<table id=\"the-table\">\n  <tbody>\n    <tr>\n      <td style=\"text-align: left;\">\na      </td>\n      <td style=\"text-align: left;\">\nb      </td>\n    </tr>\n    <tr>\n      <td style=\"text-align: left;\">\nd      </td>\n      <td style=\"text-align: left;\">\ne      </td>\n    </tr>\n  </tbody>\n</table>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -20,31 +14,7 @@ defmodule Acceptance.Html.TableTest do
   describe "GFM Tables" do
     test "do not need spaces around mid `\|`" do
       markdown = "a|b\n-|-\nd|e\n"
-      html     = 
-      """
-      <table>
-        <thead>
-          <tr>
-            <th style=\"text-align: left;\">
-              a
-            </th>
-            <th style=\"text-align: left;\">
-              b
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style=\"text-align: left;\">
-              d
-            </td>
-            <td style=\"text-align: left;\">
-              e
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      """
+      html     = "<table>\n  <thead>\n    <tr>\n      <th style=\"text-align: left;\">\na      </th>\n      <th style=\"text-align: left;\">\nb      </th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style=\"text-align: left;\">\nd      </td>\n      <td style=\"text-align: left;\">\ne      </td>\n    </tr>\n  </tbody>\n</table>\n"
       messages = []
 
       assert as_html(markdown, gfm_tables: true) == {:ok, html, messages}
@@ -52,14 +22,14 @@ defmodule Acceptance.Html.TableTest do
 
     test "do not need spaces around mid `\|` but w/o gfm_tables this is no good" do
       markdown = "a|b\n-|-\nd|e\n"
-      html     = "<p>\n  a|b\n-|-\nd|e\n</p>\n"
+      html     = "<p>\na|b\n-|-\nd|e</p>\n"
       messages = []
 
       assert as_html(markdown, gfm_tables: false) == {:ok, html, messages}
     end
     test "however a header line needs to be used" do
       markdown = "a|b\nd|e\n"
-      html     = "<p>\n  a|b\nd|e\n</p>\n"
+      html     = "<p>\na|b\nd|e</p>\n"
       messages = []
 
       assert as_html(markdown, gfm_tables: true) == {:ok, html, messages}
