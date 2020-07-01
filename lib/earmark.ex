@@ -343,7 +343,7 @@ defmodule Earmark do
 
   alias Earmark.Error
   alias Earmark.Options
-  import Earmark.Message, only: [emit_messages: 2, sort_messages: 1]
+  import Earmark.Message, only: [emit_messages: 2]
 
   @doc """
   Given a markdown document (as either a list of lines or
@@ -417,10 +417,9 @@ defmodule Earmark do
   end
 
   @doc """
-        iex(12)> markdown = "My `code` is **best**"
-        ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
-        ...(12)> ast
-        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
+  `as_ast` is a compatibility function to call `EarmarkParser.as_ast`
+
+  It will become deprecated as soon as `ex_doc` uses `EarmarkParser`
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
@@ -430,27 +429,13 @@ defmodule Earmark do
         ...(13)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
-  **Rationale**:
-
-  The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
   def as_ast(lines, options \\ %Options{})
-  def as_ast(lines, options) when is_list(options) do
-    as_ast(lines, struct(Options, options))
+  def as_ast(lines, %Options{}=options) do
+    EarmarkParser.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
   end
   def as_ast(lines, options) do
-    context = _as_ast(lines, options)
-    messages = sort_messages(context)
-
-    status =
-      case Enum.any?(messages, fn {severity, _, _} ->
-             severity == :error || severity == :warning
-           end) do
-        true -> :error
-        _ -> :ok
-      end
-
-    {status, context.value, messages}
+    EarmarkParser.as_ast(lines, options)
   end
 
   @doc """
@@ -467,11 +452,6 @@ defmodule Earmark do
     {_status, html, messages} = as_html(lines, options)
     emit_messages(messages, options)
     html
-  end
-
-  defp _as_ast(lines, options) do
-    {blocks, context} = Earmark.Parser.parse_markdown(lines, options)
-    Earmark.AstRenderer.render(blocks, context)
   end
 
   @doc """

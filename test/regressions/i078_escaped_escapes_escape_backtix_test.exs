@@ -15,12 +15,6 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
     |> Earmark.as_html!()
   end
 
-  defp blox_from_file(filename) do
-    IO.stream(open_file(filename), :line)
-    |> Enum.to_list()
-    |> Earmark.Parser.parse()
-  end
-
   test "Issue https://github.com/pragdave/earmark/issues/78 fixed markdown" do
     # Fixed code in line 42
     assert capture_io(:stderr, fn ->
@@ -33,13 +27,6 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   @short_html """
   <p>\n  Hello \n<code class="inline">\\\\</code>   \\\n</p>\n<pre><code>World</code></pre>
   """
-  test "Issue https://github.com/pragdave/earmark/issues/78 correct blocks" do
-    assert blox_from_file("test/fixtures/i078_short.md") ==
-             {[
-                %Earmark.Block.Para{lnb: 1, attrs: nil, lines: ["Hello `\\\\` \\\\"]},
-                %Earmark.Block.Code{lnb: 2, attrs: nil, language: nil, lines: ["World"]}
-              ], %{}, %Earmark.Options{}}
-  end
 
   test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do
     assert html_from_file("test/fixtures/i078_short.md") == @short_html

@@ -1,12 +1,12 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.4.7"
+  @version "1.4.8"
   @url "https://github.com/pragdave/earmark"
 
 
   @deps [
-    # {:credo, "~> 0.10", only: [:dev, :test]},
+    {:earmark_parser, ">= 1.4.8"},
     {:dialyxir, "~> 1.0", only: [:dev, :test]},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
@@ -58,8 +58,6 @@ defmodule Earmark.Mixfile do
     [
       files: [
         "lib",
-        "src/*.xrl",
-        "src/*.yrl",
         "mix.exs",
         "README.md"
       ],
