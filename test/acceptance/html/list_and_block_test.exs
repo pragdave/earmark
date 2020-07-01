@@ -4,7 +4,7 @@ defmodule Acceptance.Html.ListAndBlockTest do
   describe "Block Quotes in Lists" do
     test "four spaces" do
       markdown = "- c\n    > d"
-      html     = gen({:ul, {:li, ["c", {:blockquote, {:p, "d"}}]}})
+      html     = "<ul>\n  <li>\nc    <blockquote>\n      <p>\nd      </p>\n    </blockquote>\n  </li>\n</ul>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

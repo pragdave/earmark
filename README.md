@@ -104,7 +104,7 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
 #### Strike Through
 
     iex(1)> Earmark.as_html! ["~~hello~~"]
-    "<p>\n  <del>\n    hello\n  </del>\n</p>\n"
+    "<p>\n  <del>\nhello  </del>\n</p>\n"
 
 #### Syntax Highlighting
 
@@ -264,20 +264,20 @@ format.
 For both cases, malformed attributes are ignored and warnings are issued.
 
     iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
-    {:error, "<p>\n  Some text\n</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
+    {:error, "<p>\nSome text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
 It is possible to escape the IAL in both forms if necessary
 
     iex(10)> markdown = "[link](url)\\{: .classy}"
     ...(10)> Earmark.as_html(markdown)
-    {:ok, "<p>\n<a href=\"url\">link</a>  {: .classy}\n</p>\n", []}
+    {:ok, "<p>\n<a href=\"url\">link</a>{: .classy}</p>\n", []}
 
 This of course is not necessary in code blocks or text lines
 containing an IAL-like string, as in the following example
 
     iex(11)> markdown = "hello {:world}"
     ...(11)> Earmark.as_html!(markdown)
-    "<p>\n  hello {:world}\n</p>\n"
+    "<p>\nhello {:world}</p>\n"
 
 ## Limitations
 
@@ -452,7 +452,7 @@ Where `html_doc` is an HTML representation of the markdown document and
 ## `Earmark.Transform.transform/2`
 
 <!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
-  Needs update for 1.4.6
+  Needs update for 1.4.7
 
 <!-- END inserted functiondoc Earmark.Transform.transform/2 -->
 

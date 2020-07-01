@@ -12,7 +12,7 @@ defmodule Acceptance.Html.HorizontalRulesTest do
 
     test "not in code, second line" do
       markdown = "Foo\n    ***\n"
-      html     = "#{para("Foo")}<pre><code>***</code></pre>\n"
+      html     = "<p>\nFoo</p>\n<pre><code>***</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

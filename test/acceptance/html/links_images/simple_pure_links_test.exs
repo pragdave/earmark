@@ -4,7 +4,7 @@ defmodule Acceptance.Html.LinksImages.SimplePureLinksTest do
   describe "simple pure links not yet enabled" do
     test "old behavior" do
       markdown = "https://github.com/pragdave/earmark"
-      html     = para(markdown)
+      html     = "<p>\nhttps://github.com/pragdave/earmark</p>\n"
       messages = []
 
       assert as_html(markdown, pure_links: false) == {:ok, html, messages}

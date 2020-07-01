@@ -34,7 +34,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
 
     test "inner is a link, not outer" do
       markdown = "[[text](inner)]outer"
-      html = "<p>\n  [\n<a href=\"inner\">text</a>  ]outer\n</p>\n"
+      html     = "<p>\n[<a href=\"inner\">text</a>]outer</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -44,7 +44,7 @@ defmodule Acceptance.Html.LinkImages.LinkTest do
   describe "Links" do
     test "no title" do
       markdown = "[link](/uri))\n"
-      html     = "<p>\n<a href=\"/uri\">link</a>  )\n</p>\n" 
+      html     = "<p>\n<a href=\"/uri\">link</a>)</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -13,7 +13,7 @@ defmodule Earmark.Transform do
   """
 
   @doc """
-    Needs update for 1.4.6
+    Needs update for 1.4.7
   """
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
   def transform(ast, options) when is_list(options) do
@@ -22,7 +22,6 @@ defmodule Earmark.Transform do
   def transform(ast, options) when is_map(options) do
     options1 = options
       |> Map.put_new(:indent, 2)
-
     to_html(ast, options1)
   end
 
@@ -33,12 +32,12 @@ defmodule Earmark.Transform do
 
   defp _to_html(ast, options, level, verbatim \\ false)
   defp _to_html({:comment, _, content, _}, _options, _level, _verbatim) do
-    "<!--#{content |> Enum.intersperse("\n")}-->"
+    "<!--#{content |> Enum.intersperse("\n")}-->\n"
   end
   defp _to_html({tag, atts, children, _}, options, level, verbatim) when tag in @compact_tags do
     [open_tag(tag, atts),
        children
-       |> Enum.map(&_to_html(&1, Map.put(options, :compact, true), level, verbatim)),
+       |> Enum.map(&_to_html(&1, options, level, verbatim)),
        "</#{tag}>"]
   end
   defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
@@ -48,8 +47,8 @@ defmodule Earmark.Transform do
     elements
     |> Enum.map(&_to_html(&1, options, level, verbatim))
   end
-  defp _to_html(element, options, level, false) when is_binary(element) do
-    escape(element, options, level)
+  defp _to_html(element, options, _level, false) when is_binary(element) do
+    escape(element, options)
   end
   defp _to_html(element, options, level, true) when is_binary(element) do
     [make_indent(options, level), element]
@@ -74,21 +73,14 @@ defmodule Earmark.Transform do
     [make_indent(options, level), "</", tag, ">\n"]
   end
 
-  defp escape(element, options, level)
-  defp escape("", _opions, _level) do
+  defp escape(element, options)
+  defp escape("", _opions) do
     []
   end
-  defp escape(element, options, level) do
-    compact = Map.get(options, :compact, false)
-    element1 =
-        element
-        |> smartypants(options)
-        |> Earmark.Helpers.escape(true)
-    if compact do
-      element1
-    else
-      [make_indent(options, level), element1, "\n"]
-    end
+  defp escape(element, options) do
+    element
+      |> smartypants(options)
+      |> Earmark.Helpers.escape(true)
   end
 
   defp make_att(name_value_pair, tag)

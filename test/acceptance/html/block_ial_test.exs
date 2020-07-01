@@ -4,7 +4,7 @@ defmodule Acceptance.Html.BlockIalTest do
    describe "IAL" do
     test "Not associated" do
       markdown = "{:hello=world}"
-      html     = para(markdown)
+      html     = "<p>\n{:hello=world}</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -12,7 +12,7 @@ defmodule Acceptance.Html.BlockIalTest do
 
     test "Not associated means verbatim" do
       markdown = "{: hello=world  }"
-      html     = para(markdown)
+      html     = "<p>\n{: hello=world  }</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -20,7 +20,7 @@ defmodule Acceptance.Html.BlockIalTest do
 
     test "Associated" do
       markdown = "Before\n{:hello=world}"
-      html     = gen({:p, [hello: "world"], "Before"})
+      html     = "<p hello=\"world\">\nBefore</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
