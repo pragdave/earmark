@@ -1,6 +1,12 @@
 # 1.5   ????/??/??
 
-# 1.4.8 ????/??/??
+# 1.4.8 2020/07/01
+
+This is a featureless release.
+
+Its lone purpose is the extraction of all parsing and ast releated code into [EarmarkParser](https://hex.pm/packages/earmark_parser).
+
+As it is feature identical to 1.4.7 downgrading in case of problems will be painless.
 
 # 1.4.7 2020/06/29
 
