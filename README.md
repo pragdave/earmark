@@ -34,6 +34,14 @@ Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
 #### Earmark.as_ast
 
+WARNING: This is just a proxy towards `EarmarkParser.as_ast` and will become deprecated as soon
+as `ex_doc` will use `EarmarkParser`.
+
+Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as possible.
+
+**N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
+
+
 The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
 the structure of the result of `as_ast`.
 
@@ -362,22 +370,18 @@ and are to serve the produced HTML on the Web.
 ## `Earmark.as_ast/2`
 
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
-      iex(12)> markdown = "My `code` is **best**"
-      ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown)
-      ...(12)> ast
-      [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
+`as_ast` is a compatibility function to call `EarmarkParser.as_ast`
+
+It will become deprecated as soon as `ex_doc` uses `EarmarkParser`
 
 Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
 for the AST.
 
-      iex(13)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(13)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
-      ...(13)> ast
+      iex(12)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+      ...(12)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
-**Rationale**:
-
-The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
 
 <!-- END inserted functiondoc Earmark.as_ast/2 -->
 
