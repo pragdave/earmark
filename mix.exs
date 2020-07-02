@@ -51,7 +51,7 @@ defmodule Earmark.Mixfile do
 
   def application do
     [
-      applications: []
+      applications: [ :earmark_parser ]
     ]
   end
 
