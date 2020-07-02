@@ -1,5 +1,9 @@
 # 1.5   ????/??/??
 
+# 1.4.9 2020/07/02
+
+- [375-earmark_parser-missing-in-application](https://github.com/pragdave/earmark/issues/375)
+
 # 1.4.8 2020/07/01
 
 This is a featureless release.
