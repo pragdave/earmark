@@ -49,10 +49,6 @@ defmodule Earmark.Mixfile do
     ]
   end
 
-  def application do
-    []
-  end
-
   defp package do
     [
       files: [
