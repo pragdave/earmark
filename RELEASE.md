@@ -1,5 +1,8 @@
 # 1.5   ????/??/??
 
+- [376-remove-application/0-from-mix.exs](https://github.com/pragdave/earmark/issues/376)
+      Kudos to [Wojtek Mach](https://github.com/wojtekmach)
+
 # 1.4.9 2020/07/02
 
 - [375-earmark_parser-missing-in-application](https://github.com/pragdave/earmark/issues/375)
