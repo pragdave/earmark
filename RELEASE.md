@@ -1,5 +1,7 @@
 # 1.5   ????/??/??
 
+# 1.4.10 2020/07/11
+
 - [376-remove-application/0-from-mix.exs](https://github.com/pragdave/earmark/issues/376)
       Kudos to [Wojtek Mach](https://github.com/wojtekmach)
 
