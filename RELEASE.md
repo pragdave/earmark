@@ -2,6 +2,9 @@
 
 # 1.4.10 2020/07/11
 
+- [378-use-spdx-in-hex](https://github.com/pragdave/earmark/issues/378)
+    Kudos to [Chulki Lee](https://github.com/chulkilee)
+
 - [376-remove-application/0-from-mix.exs](https://github.com/pragdave/earmark/issues/376)
       Kudos to [Wojtek Mach](https://github.com/wojtekmach)
 
