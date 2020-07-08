@@ -5,7 +5,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
   describe "Wiki links" do
     test "basic wiki-style link" do
       markdown = "[[page]]"
-      html = "<p><a href=\"page\">page</a></p>\n"
+      html = "<p><a class=\"wikilink\" href=\"page\">page</a></p>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -23,7 +23,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "alternate text" do
       markdown = "[[page | My Label]]"
-      html = "<p><a href=\"page\">My Label</a></p>\n"
+      html = "<p><a class=\"wikilink\" href=\"page\">My Label</a></p>\n"
       ast      = parse_html(html)
       messages = []
 
@@ -32,7 +32,7 @@ defmodule Acceptance.Ast.LinkImages.WikiLinksTest do
 
     test "illegal urls are not Earmark's responsability" do
       markdown = "[[A long & complex title]]"
-      html = "<p><a href=\"A long & complex title\">A long &amp; complex title</a></p>\n"
+      html = "<p><a class=\"wikilink\" href=\"A long & complex title\">A long &amp; complex title</a></p>\n"
       ast      = parse_html(html)
       messages = []
 
