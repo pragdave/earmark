@@ -98,7 +98,17 @@ defmodule Earmark.Helpers.LinkParser do
     end
   end
 
+  @wikilink_rgx ~r{\A\[\[([^\]\|]+)(?:\|([^\]]+))?\]\]\Z}
+  defp make_result(nil, _, parsed_text, :link) do
+    case Regex.run(@wikilink_rgx, parsed_text) do
+      nil -> nil
+      [_, wikilink] -> make_wikilink(parsed_text, wikilink, wikilink)
+      [_, wikilink, link_text] -> make_wikilink(parsed_text, wikilink, link_text)
+    end
+  end
+
   defp make_result(nil, _, _, _), do: nil
+
   defp make_result({parsed, url, title}, link_text, parsed_text, link_or_img) do
     {"#{parsed_text}(#{list_to_text(parsed)})", link_text, list_to_text(url), title, link_or_img}
   end
@@ -107,6 +117,10 @@ defmodule Earmark.Helpers.LinkParser do
 
   defp add_title({parsed_text, url_text, _}, {parsed, inner}),
     do: {[parsed | parsed_text], url_text, inner}
+
+  defp make_wikilink(parsed_text, target, link_text) do
+    {parsed_text, String.trim(link_text), String.trim(target), nil, :wikilink}
+  end
 
   defp list_to_text(lst), do: lst |> Enum.reverse() |> Enum.join("")
 end
