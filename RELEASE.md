@@ -1,6 +1,15 @@
 # 1.5   ????/??/??
 
-# 1.4.10 2020/07/11
+# 1.4.10 2020/07/18
+
+
+- [381-deprecate-earmark-as-ast-usage](https://github.com/pragdave/earmark/issues/381)
+
+- [373-markdown-in-footnotes](https://github.com/pragdave/earmark/issues/373)
+    fixed in [`EarmarkParser`](https://github.com/robertdober/earmark_parser) v1.4.10
+
+- [334-missing-space-btw-links](https://github.com/pragdave/earmark/issues/334-missing-space-btw-links)
+    fixed in [`EarmarkParser`](https://github.com/robertdober/earmark_parser) v1.4.10
 
 - [378-use-spdx-in-hex](https://github.com/pragdave/earmark/issues/378)
     Kudos to [Chulki Lee](https://github.com/chulkilee)

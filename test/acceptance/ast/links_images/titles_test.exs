@@ -9,6 +9,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "#{ mark_tmp } #{ mark_tmp }\n"
       ast      = p([
         tag("a", "link", href: "/uri", title: "title"),
+        " ",
         tag("a", "link", href: "/uri", title: "title") ])
       messages = []
 
@@ -28,6 +29,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "[a](a 't') [b](b)"
       ast      = p([
         tag("a", "a", href: "a", title: "t"),
+        " ",
         tag("a", "b", href: "b")])
       messages = []
 
@@ -38,7 +40,9 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "[a](a 't') [b](b) [c](c 't')"
       ast      = p([
         tag("a", "a", href: "a", title: "t"),
+        " ", 
         tag("a", "b", href: "b"),
+        " ",
         tag("a", "c", href: "c", title: "t")])
       messages = []
 
@@ -49,7 +53,9 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "[a](a 't') [b](b) [c](c)"
       ast      = p([
         tag("a", "a", href: "a", title: "t"),
+        " ",
         tag("a", "b", href: "b"),
+        " ",
         tag("a", "c", href: "c")])
        messages = []
 
@@ -60,6 +66,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "[a](a 't') [b](b) 'xxx' [c](c)"
       ast      = p([
         tag("a", "a", href: "a", title: "t"),
+        " ",
         tag("a", "b", href: "b"),
         " 'xxx' ",
         tag("a", "c", href: "c")])
@@ -72,6 +79,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = "[a](a 't') [b](b) ('xxx') [c](c)"
        ast      = p([
         tag("a", "a", href: "a", title: "t"),
+        " ",
         tag("a", "b", href: "b"),
         " ('xxx') ",
         tag("a", "c", href: "c")])
@@ -95,6 +103,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = ~s{![a](a 't') ![b](b "u")}
       ast      = p([
         void_tag("img", src: "a", alt: "a", title: "t"),
+        " ",
         void_tag("img", src: "b", alt: "b", title: "u")])
       messages = []
 
@@ -105,6 +114,7 @@ defmodule Acceptance.Ast.LinksImages.TitlesTest do
       markdown = ~s{![a](a "t") ![b](b "u")}
       ast      = p([
         void_tag("img", src: "a", alt: "a", title: "t"),
+        " ",
         void_tag("img", src: "b", alt: "b", title: "u")])
       messages = []
 
