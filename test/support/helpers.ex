@@ -11,7 +11,7 @@ defmodule Support.Helpers do
   end
 
   def as_ast(markdown, options \\ []) do
-    Earmark.as_ast(markdown, struct(Earmark.Options, options))
+    EarmarkParser.as_ast(markdown, struct(Earmark.Options, options))
   end
 
   def as_html(markdown, options \\ []) do

@@ -8,7 +8,7 @@ defmodule Earmark.Mixfile do
 
   @deps [
     {:earmark_parser, ">= 1.4.10"},
-    {:dialyxir, "~> 1.0", only: [:dev, :test]},
+    {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
     {:excoveralls, "~> 0.11.2", only: [:test]},

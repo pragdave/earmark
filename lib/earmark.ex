@@ -1,11 +1,9 @@
 defmodule Earmark do
-
-
   @type ast_meta :: map()
   @type ast_tag :: binary()
   @type ast_attribute_name :: binary()
   @type ast_attribute_value :: binary()
-  @type ast_attribute  :: {ast_attribute_name(), ast_attribute_value()}
+  @type ast_attribute :: {ast_attribute_name(), ast_attribute_value()}
   @type ast_attributes :: list(ast_attribute())
   @type ast_tuple :: {ast_tag(), ast_attributes(), ast(), ast_meta()}
   @type ast_node :: binary() | ast_tuple()
@@ -18,21 +16,21 @@ defmodule Earmark do
   Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
   #### Earmark.as_ast
-  
-  WARNING: This is just a proxy towards `EarmarkParser.as_ast` and will become deprecated as soon
-  as `ex_doc` will use `EarmarkParser`.
+
+
+  WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
 
   Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as possible.
-  
+
   **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
-  
+
 
   The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
   the structure of the result of `as_ast`.
 
-      {:ok, ast, []}                   = Earmark.as_ast(markdown)
-      {:ok, ast, deprecation_messages} = Earmark.as_ast(markdown)
-      {:error, ast, error_messages}    = Earmark.as_ast(markdown)
+      {:ok, ast, []}                   = EarmarkParser.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = EarmarkParser.as_ast(markdown)
+      {:error, ast, error_messages}    = EarmarkParser.as_ast(markdown)
 
   #### Earmark.as_html
 
@@ -53,7 +51,7 @@ defmodule Earmark do
 
       {status, html_doc, errors} = Earmark.as_html(markdown, options)
       html_doc = Earmark.as_html!(markdown, options)
-      {status, ast, errors} = Earmark.as_ast(markdown, options)
+      {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
 
   ### Command line
 
@@ -178,20 +176,20 @@ defmodule Earmark do
   E.g.
 
         iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-        ...(3)> Earmark.as_ast(lines)
+        ...(3)> {:ok, ast, _} = EarmarkParser.as_ast(lines)
         {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-        iex(4)> Earmark.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
+        iex(4)> EarmarkParser.as_ast(["<span class=\\"superspan\\">spaniel</span>"])
         {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
 
   We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
 
-        iex(5)> {:ok, ast, []} = Earmark.as_ast(["<stupid />", "<not>better</not>"])
+        iex(5)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
         ...(5)> ast
         [
           {"stupid", [], [], %{verbatim: true}},
@@ -199,7 +197,7 @@ defmodule Earmark do
 
   and for multiline blocks
 
-        iex(6)> {:ok, ast, []} = Earmark.as_ast([ "<hello>", "world", "</hello>"])
+        iex(6)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
         ...(6)> ast
         [{"hello", [], ["world"], %{verbatim: true}}]
 
@@ -210,7 +208,7 @@ defmodule Earmark do
 
   E.g.
 
-      iex(7)> Earmark.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
+      iex(7)> EarmarkParser.as_ast(" <!-- Comment\\ncomment line\\ncomment --> text -->\\nafter")
       {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -420,30 +418,33 @@ defmodule Earmark do
   end
 
   def as_html(lines, options) do
-    {status, ast, messages} = as_ast(lines, options)
+    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
     {status, Earmark.Transform.transform(ast, options), messages}
   end
 
   @doc """
   `as_ast` is a compatibility function to call `EarmarkParser.as_ast`
 
-  It will become deprecated as soon as `ex_doc` uses `EarmarkParser`
+  It is deprecated and will be removed in 1.5! 
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
 
         iex(12)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(12)> {:ok, ast, []} = Earmark.as_ast(markdown, code_class_prefix: "lang-")
+        ...(12)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
         ...(12)> ast
         [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
   """
-  def as_ast(lines, options \\ %Options{})
-  def as_ast(lines, %Options{}=options) do
-    EarmarkParser.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
-  end
-  def as_ast(lines, options) do
-    EarmarkParser.as_ast(lines, options)
+  def as_ast(lines, options \\ %Options{}) do
+    {status, ast, messages} = _as_ast(lines, options)
+
+    message =
+      {:warning, 0,
+       "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use EarmarkParser.as_ast, which is of the same type"}
+
+    messages1 = [message | messages]
+    {status, ast, messages1}
   end
 
   @doc """
@@ -453,9 +454,11 @@ defmodule Earmark do
   Otherwise it behaves exactly as `as_html`.
   """
   def as_html!(lines, options \\ %Options{})
+
   def as_html!(lines, options) when is_list(options) do
     as_html!(lines, struct(Options, options))
   end
+
   def as_html!(lines, options = %Options{}) do
     {_status, html, messages} = as_html(lines, options)
     emit_messages(messages, options)
@@ -478,6 +481,16 @@ defmodule Earmark do
     |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
     |> Task.yield_many(timeout)
     |> Enum.map(&_join_pmap_results_or_raise(&1, timeout))
+  end
+
+  defp _as_ast(lines, options)
+
+  defp _as_ast(lines, %Options{} = options) do
+    EarmarkParser.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
+  end
+
+  defp _as_ast(lines, options) do
+    EarmarkParser.as_ast(lines, options)
   end
 
   defp _join_pmap_results_or_raise(yield_tuples, timeout)

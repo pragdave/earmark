@@ -3,3 +3,4 @@ defmodule TransformTest do
 
   doctest Earmark.Transform, import: true
 end
+#  SPDX-License-Identifier: Apache-2.0

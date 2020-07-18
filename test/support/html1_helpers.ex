@@ -1,7 +1,7 @@
 defmodule Support.Html1Helpers do
 
   def to_html1(markdown, options \\ []) do
-    {status, ast, messages} = Earmark.as_ast(markdown, options)
+    {status, ast, messages} = EarmarkParser.as_ast(markdown, options)
     if System.get_env("DEBUG") do
       IO.inspect({:ast, ast})
     end
@@ -9,7 +9,7 @@ defmodule Support.Html1Helpers do
   end
 
   def to_html2(markdown, options \\ []) do
-    {:ok, ast, []} = Earmark.as_ast(markdown, options)
+    {:ok, ast, []} = EarmarkParser.as_ast(markdown, options)
     if System.get_env("DEBUG") do
       IO.inspect({:ast, ast})
     end

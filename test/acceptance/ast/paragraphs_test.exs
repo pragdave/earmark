@@ -22,7 +22,7 @@ defmodule Acceptance.Ast.ParagraphsTest do
 
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, ast, messages}
+      assert as_ast(markdown) == {:ok, ast, messages}
     end
 
     test "strong" do
@@ -32,7 +32,7 @@ defmodule Acceptance.Ast.ParagraphsTest do
 
       messages = []
 
-      assert Earmark.as_ast(markdown) == {:ok, [ast], messages}
+      assert as_ast(markdown) == {:ok, [ast], messages}
     end
 
     test "striketrhough" do
