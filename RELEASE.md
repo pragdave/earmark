@@ -1,6 +1,6 @@
-# 1.5   ????/??/??
+# 1.5   2020-08-30
 
-# 1.4.10 2020/07/18
+# 1.4.10 2020-07-18
 
 
 - [381-deprecate-earmark-as-ast-usage](https://github.com/pragdave/earmark/issues/381)
