@@ -18,6 +18,22 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
       assert as_html(markdown) == {:ok, html, messages}
     end
 
+    test "ignores inline code" do
+      markdown = "`IO.puts \"no curly quotes\"`"
+      html     = "<p>\n<code class=\"inline\">IO.puts &quot;no curly quotes&quot;</code></p>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "ignores pre code blocks" do
+      markdown = "```\nIO.puts \"no curly quotes\"\n```"
+      html     = "<pre><code>IO.puts &quot;no curly quotes&quot;</code></pre>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
     test "two doubles" do
       markdown = "a \"double\" \"quote\""
       html     = "<p>\na “double” “quote”</p>\n"

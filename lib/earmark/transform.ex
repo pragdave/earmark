@@ -34,6 +34,12 @@ defmodule Earmark.Transform do
   defp _to_html({:comment, _, content, _}, _options, _level, _verbatim) do
     "<!--#{content |> Enum.intersperse("\n")}-->\n"
   end
+  defp _to_html({"code", atts, children, meta}, options, level, _verbatim) do
+    verbatim = meta |> Map.get(:verbatim, false)
+    [ open_tag("code", atts),
+      _to_html(children, Map.put(options, :smartypants, false), level, verbatim),
+      "</code>"]
+  end
   defp _to_html({tag, atts, children, _}, options, level, verbatim) when tag in @compact_tags do
     [open_tag(tag, atts),
        children
@@ -68,7 +74,7 @@ defmodule Earmark.Transform do
       _to_html(children, options, level+1, verbatim),
       close_tag(tag, options, level)]
   end
-  
+
   defp close_tag(tag, options, level) do
     [make_indent(options, level), "</", tag, ">\n"]
   end
@@ -90,7 +96,7 @@ defmodule Earmark.Transform do
 
   defp make_indent(%{indent: indent}, level) do
     Stream.cycle([" "])
-    |> Enum.take(level*indent) 
+    |> Enum.take(level*indent)
   end
 
   defp open_tag(tag, atts)
