@@ -87,7 +87,7 @@ defmodule Earmark do
   #### Strike Through
 
       iex(1)> Earmark.as_html! ["~~hello~~"]
-      "<p>\\n  <del>\\nhello  </del>\\n</p>\\n"
+      "<p>\\n<del>hello</del></p>\\n"
 
   #### Syntax Highlighting
 
@@ -425,7 +425,7 @@ defmodule Earmark do
   @doc """
   `as_ast` is a compatibility function to call `EarmarkParser.as_ast`
 
-  It is deprecated and will be removed in 1.5! 
+  It is deprecated and will be removed in 1.5!
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.

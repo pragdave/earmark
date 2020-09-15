@@ -2,7 +2,7 @@ defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
-  @compact_tags ~w[a code em strong]
+  @compact_tags ~w[a code em strong del]
 
   # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
   @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
