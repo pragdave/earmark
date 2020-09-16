@@ -1,5 +1,8 @@
 # 1.5   2020-08-30
 
+- [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)
+    Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)  
+
 # 1.4.10 2020-07-18
 
 
