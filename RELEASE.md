@@ -1,7 +1,10 @@
-# 1.5   2020-08-30
+# 1.4.11   202?-??-??
 
 - [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)
     Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)  
+
+- [383-smartyants-inside-code-blocks](https://github.com/robertdober/earmark_parser/issues/-)
+    Kudos to [David Bernheisel](https://github.com/dbernheisel)
 
 # 1.4.10 2020-07-18
 
