@@ -37,7 +37,7 @@ Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
 WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
 
-Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as possible.
+Replace your calls to `Earmark.as_ast` with `EarmarkParser.as_ast` as soon as possible.
 
 **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
 
