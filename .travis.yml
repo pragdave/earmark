@@ -7,6 +7,7 @@ branches:
 
 elixir:
   - 1.10.4
+  - 1.11.1
 otp_release:
   - 21.0
   - 22.2.8
