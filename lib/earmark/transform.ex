@@ -32,7 +32,7 @@ defmodule Earmark.Transform do
 
   defp _to_html(ast, options, level, verbatim \\ false)
   defp _to_html({:comment, _, content, _}, _options, _level, _verbatim) do
-    "<!--#{content |> Enum.intersperse("\n")}-->\n"
+    ["<!--", Enum.intersperse(content, "\n"), "-->"]
   end
   defp _to_html({"code", atts, children, meta}, options, level, _verbatim) do
     verbatim = meta |> Map.get(:verbatim, false)
@@ -47,7 +47,7 @@ defmodule Earmark.Transform do
        "</#{tag}>"]
   end
   defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
-    [ make_indent(options, level), open_tag(tag, atts), "\n" ]
+    [make_indent(options, level), open_tag(tag, atts)]
   end
   defp _to_html(elements, options, level, verbatim) when is_list(elements) do
     elements
@@ -64,19 +64,18 @@ defmodule Earmark.Transform do
     [ make_indent(options, level),
       open_tag("pre", atts),
       _to_html(children, Map.put(options, :smartypants, false), level, verbatim),
-      "</pre>\n"]
+      "</pre>"]
   end
   defp _to_html({tag, atts, children, meta}, options, level, _verbatim) do
     verbatim = meta |> Map.get(:verbatim, false)
     [ make_indent(options, level),
       open_tag(tag, atts),
-      "\n",
       _to_html(children, options, level+1, verbatim),
       close_tag(tag, options, level)]
   end
 
   defp close_tag(tag, options, level) do
-    [make_indent(options, level), "</", tag, ">\n"]
+    [make_indent(options, level), "</", tag, ?>]
   end
 
   defp escape(element, options)
@@ -91,7 +90,7 @@ defmodule Earmark.Transform do
 
   defp make_att(name_value_pair, tag)
   defp make_att({name, value}, _) do
-    [" ", name, "=\"", value, "\""]
+    [?\s, name, "=\"", value, ?\"]
   end
 
   defp make_indent(%{indent: indent}, level) do
@@ -101,10 +100,10 @@ defmodule Earmark.Transform do
 
   defp open_tag(tag, atts)
   defp open_tag(tag, atts) when tag in @void_elements do
-    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), " />"]
+    [?<, "#{tag}", Enum.map(atts, &make_att(&1, tag)), " />"]
   end
   defp open_tag(tag, atts) do
-    ["<", "#{tag}", Enum.map(atts, &make_att(&1, tag)), ">"]
+    [?<, "#{tag}", Enum.map(atts, &make_att(&1, tag)), ?>]
   end
 
   @em_dash_rgx ~r{---}
