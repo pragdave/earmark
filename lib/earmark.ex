@@ -410,6 +410,10 @@ defmodule Earmark do
     Pure links of the form `~r{\\bhttps?://\\S+\\b}` are rendered as links from now on.
     However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
     behavior can be used.
+
+  * `compact_output`: boolean
+
+    If set to true, no cosmetic newlines will be emitted by Earmark. False by default.
   """
   def as_html(lines, options \\ %Options{})
 
