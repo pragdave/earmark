@@ -86,10 +86,25 @@ defmodule Earmark.Transform do
   defp escape("", _opions) do
     []
   end
-  defp escape(element, options) do
-    element
-      |> smartypants(options)
-      |> Earmark.Helpers.escape(true)
+
+  @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
+  @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
+  defp escape(element, %{smartypants: true}) do
+    # Unfortunately these regexes still have to be left.
+    # It doesn't seem possible to make escape_to_iodata
+    # transform, for example, "--'" to "–‘" without
+    # significantly complicating the code to the point
+    # it outweights the performance benefit.
+    element =
+      element
+      |> replace(@dbl1_rgx, "\\1‘")
+      |> replace(@dbl2_rgx, "\\1“")
+
+      escape_to_iodata(element, 0, element, [], true, 0)
+  end
+
+  defp escape(element, _options) do
+      escape_to_iodata(element, 0, element, [], false, 0)
   end
 
   defp make_att(name_value_pair, tag)
@@ -110,23 +125,66 @@ defmodule Earmark.Transform do
     [?<, tag, Enum.map(atts, &make_att(&1, tag)), ?>]
   end
 
-  @em_dash_rgx ~r{---}
-  @en_dash_rgx ~r{--}
-  @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
-  @single_rgx ~r{\'}
-  @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
-  @dbl3_rgx ~r{"}
-  defp smartypants(text, options)
-  defp smartypants(text, %{smartypants: true}) do
-    text
-    |> replace(@em_dash_rgx, "—")
-    |> replace(@en_dash_rgx, "–")
-    |> replace(@dbl1_rgx, "\\1‘")
-    |> replace(@single_rgx, "’")
-    |> replace(@dbl2_rgx, "\\1“")
-    |> replace(@dbl3_rgx, "”")
-    |> String.replace("...", "…")
-  end
-  defp smartypants(text, _options), do: text
+  # Optimized HTML escaping + smartypants, insipred by Plug.HTML
+  # https://github.com/elixir-plug/plug/blob/v1.11.0/lib/plug/html.ex
 
+  # Do not escape HTML entities
+  defp escape_to_iodata("&#x" <> rest, skip, original, acc, smartypants, len) do
+    escape_to_iodata(rest, skip, original, acc, smartypants, len + 3)
+  end
+
+  escapes = [
+    {?<, "&lt;"},
+    {?>, "&gt;"},
+    {?&, "&amp;"},
+    {?", "&quot;"},
+    {?', "&#39;"}
+  ]
+
+  # Can't use character codes for multibyte unicode characters
+  smartypants_escapes = [
+    {"---", "—"},
+    {"--", "–"},
+    {?', "’"},
+    {?", "”"},
+    {"...", "…"}
+  ]
+
+  # These match only if `smartypants` is true
+  for {match, insert} <- smartypants_escapes do
+    # Unlike HTML escape matches, smartypants matches may contain more than one character
+    match_length = if is_binary(match), do: byte_size(match), else: 1
+
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, 0) do
+      escape_to_iodata(rest, skip + unquote(match_length), original, [acc | unquote(insert)], true, 0)
+    end
+
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, len) do
+      part = binary_part(original, skip, len)
+      escape_to_iodata(rest, skip + len + unquote(match_length), original, [acc, part | unquote(insert)], true, 0)
+    end
+  end
+
+  for {match, insert} <- escapes do
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, 0) do
+      escape_to_iodata(rest, skip + 1, original, [acc | unquote(insert)], smartypants, 0)
+    end
+
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, len) do
+      part = binary_part(original, skip, len)
+      escape_to_iodata(rest, skip + len + 1, original, [acc, part | unquote(insert)], smartypants, 0)
+    end
+  end
+
+  defp escape_to_iodata(<<_char, rest::bits>>, skip, original, acc, smartypants, len) do
+    escape_to_iodata(rest, skip, original, acc, smartypants, len + 1)
+  end
+
+  defp escape_to_iodata(<<>>, 0, original, _acc, _smartypants, _len) do
+    original
+  end
+
+  defp escape_to_iodata(<<>>, skip, original, acc, _smartypants, len) do
+    [acc | binary_part(original, skip, len)]
+  end
 end
