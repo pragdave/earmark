@@ -7,13 +7,13 @@ defmodule Earmark.Mixfile do
 
 
   @deps [
-    {:earmark_parser, ">= 1.4.10"},
+    {:earmark_parser, ">= 1.4.11"},
     {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
     {:excoveralls, "~> 0.11.2", only: [:test]},
     {:floki, "~> 0.21", only: [:dev, :test]},
-    {:traverse, "~> 1.0.0", only: [:dev, :test]}
+    {:traverse, "~> 1.0.1", only: [:dev, :test]}
   ]
 
   @description """
@@ -32,7 +32,7 @@ defmodule Earmark.Mixfile do
     [
       app: :earmark,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       escript: escript_config(),
       deps: @deps,
