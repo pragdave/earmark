@@ -1,5 +1,8 @@
 # 1.4.11   202?-??-??
 
+- [395](https://github.com/robertdober/earmark_parser/pull/395)
+    Kudos and Спасибо to [rinpatch](https://github.com/rinpatch)  
+
 - [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)
     Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)  
 

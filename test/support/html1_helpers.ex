@@ -43,7 +43,7 @@ defmodule Support.Html1Helpers do
 
   def parse_trimmed(html) do
     html
-    |> Floki.parse
+    |> Floki.parse_fragment!
     |> Traverse.map!(fn x when is_binary(x) -> String.trim(x) end)
   end
 
