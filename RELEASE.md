@@ -1,6 +1,10 @@
-# 1.4.11   202?-??-??
+# 1.4.12   2020-11-27
 
-- [395](https://github.com/robertdober/earmark_parser/pull/395)
+Adapted the CLI to accept the wikilinks switch for `EarmarkParser`
+
+# 1.4.11   2020-11-26
+
+- [394-compact-html-output](https://github.com/robertdober/earmark_parser/pull/394)
     Kudos and Спасибо to [rinpatch](https://github.com/rinpatch)  
 
 - [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)

@@ -104,7 +104,7 @@ GFM is supported by default, however as GFM is a moving target and all GFM exten
 #### Strike Through
 
     iex(1)> Earmark.as_html! ["~~hello~~"]
-    "<p>\n  <del>\nhello  </del>\n</p>\n"
+    "<p>\n<del>hello</del></p>\n"
 
 #### Syntax Highlighting
 
@@ -193,7 +193,7 @@ as one HTML AST node, marked with %{verbatim: true}
 E.g.
 
       iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(3)> {:ok, ast, _} = EarmarkParser.as_ast(lines)
+      ...(3)> {:ok, _, _} = EarmarkParser.as_ast(lines)
       {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
 And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
@@ -372,7 +372,7 @@ and are to serve the produced HTML on the Web.
 <!-- BEGIN inserted functiondoc Earmark.as_ast/2 -->
 `as_ast` is a compatibility function to call `EarmarkParser.as_ast`
 
-It is deprecated and will be removed in 1.5! 
+It is deprecated and will be removed in 1.5!
 
 Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
 for the AST.
@@ -446,6 +446,10 @@ Where `html_doc` is an HTML representation of the markdown document and
   Pure links of the form `~r{\bhttps?://\S+\b}` are rendered as links from now on.
   However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
   behavior can be used.
+
+* `compact_output`: boolean
+
+  If set to true, no cosmetic newlines will be emitted by Earmark. False by default.
 
 <!-- END inserted functiondoc Earmark.as_html/2 -->
 
