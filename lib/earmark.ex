@@ -176,7 +176,7 @@ defmodule Earmark do
   E.g.
 
         iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-        ...(3)> {:ok, ast, _} = EarmarkParser.as_ast(lines)
+        ...(3)> {:ok, _, _} = EarmarkParser.as_ast(lines)
         {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
