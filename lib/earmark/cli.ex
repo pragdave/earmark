@@ -25,10 +25,11 @@ defmodule Earmark.CLI do
        --pure-links
        --breaks
        --timeout <timeout in ms>
+       --wikilinks
 
   """
 
-  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :pure_links, :breaks, :timeout]
+  @cli_options [:code_class_prefix, :gfm, :smartypants, :pedantic, :pure_links, :breaks, :timeout, :wikilinks]
 
   defp parse_args(argv) do
     switches = [
@@ -49,6 +50,7 @@ defmodule Earmark.CLI do
   end
 
 
+  defp process(flag_or_triple)
   defp process(:help) do
     IO.puts(:stderr, @args)
     IO.puts(:stderr, option_related_help())
