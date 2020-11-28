@@ -32,28 +32,6 @@ defmodule Earmark.Helpers do
   def replace(text, regex, replacement, options \\ []) do
     Regex.replace(regex, text, replacement, options)
   end
-
-  @doc """
-  Replace <, >, and quotes with the corresponding entities. If
-  `encode` is true, convert ampersands, too, otherwise only
-   convert non-entity ampersands.
-  """
-
-  @amp_rgx ~r{&(?!#?\w+;)}
-  @never_amp_rgx ~r{&(?!#x[0-9a-f]+;)}i
-  def escape(html, encode \\ false)
-
-  def escape(html, false), do: _escape(Regex.replace(@amp_rgx, html, "&amp;"))
-
-  def escape(html, _), do: _escape(Regex.replace(@never_amp_rgx, html, "&amp;"))
-
-  defp _escape(html) do
-    html
-    |> String.replace("<", "&lt;")
-    |> String.replace(">", "&gt;")
-    |> String.replace("\"", "&quot;")
-    |> String.replace("'", "&#39;")
-  end
 end
 
 # SPDX-License-Identifier: Apache-2.0
