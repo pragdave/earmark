@@ -499,7 +499,7 @@ defmodule Bench.SimpleDataBench do
   end
   
   bench "01 as_ast|>transform" do
-    {:ok, ast, []} = Earmark.as_ast(@readme_md)
+    {:ok, ast, []} = EarmarkParser.as_ast(@readme_md)
     Earmark.Transform.transform(ast)
   end
 end
