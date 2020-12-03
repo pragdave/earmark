@@ -1,3 +1,7 @@
+# 1.4.13   2020-12-03
+ 
+- A minor fix for the compact output option , Noo Issue, OMG ;)
+
 # 1.4.12   2020-11-27
 
 Adapted the CLI to accept the wikilinks switch for `EarmarkParser`

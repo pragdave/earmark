@@ -21,6 +21,24 @@ defmodule Acceptance.Html.HtmlBlocksTest do
     end
   end
 
+  describe "HTML Oneline tags" do
+    test "without compact output" do
+      markdown = "<div class=\"lead\">**Some** text here.</div>"
+      html     = "<div class=\"lead\">\n  **Some** text here.</div>\n"
+      messages = []
+
+      assert as_html(markdown) == {:ok, html, messages}
+    end
+
+    test "with compact output" do
+      markdown = "<div class=\"lead\">**Some** text here.</div>"
+      html     = "<div class=\"lead\">**Some** text here.</div>"
+      messages = []
+
+      assert as_html(markdown, compact_output: true) == {:ok, html, messages}
+    end
+  end
+
   describe "HTML and paragraphs" do
 
     # Related to [#326](https://github.com/pragdave/earmark/issues/326)

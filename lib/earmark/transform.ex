@@ -2,6 +2,8 @@ defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
+  alias Earmark.Options
+
   @compact_tags ~w[a code em strong del]
 
   # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
@@ -26,7 +28,8 @@ defmodule Earmark.Transform do
   end
 
 
-  defp maybe_add_newline(%{compact_output: true}), do: []
+  defp maybe_add_newline(options)
+  defp maybe_add_newline(%Options{compact_output: true}), do: []
   defp maybe_add_newline(_), do: ?\n
 
   defp to_html(ast, options) do
@@ -112,6 +115,10 @@ defmodule Earmark.Transform do
     [" ", name, "=\"", value, "\""]
   end
 
+  defp make_indent(options, level)
+  defp make_indent(%Options{compact_output: true}, _level) do
+    ""
+  end
   defp make_indent(%{indent: indent}, level) do
     Stream.cycle([" "])
     |> Enum.take(level*indent)
