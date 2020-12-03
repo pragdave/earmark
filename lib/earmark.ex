@@ -453,7 +453,7 @@ defmodule Earmark do
 
   @doc """
   A convenience method that *always* returns an HTML representation of the markdown document passed in.
-  In case of the presence of any error messages they are prinetd to stderr.
+  In case of the presence of any error messages they are printed to stderr.
 
   Otherwise it behaves exactly as `as_html`.
   """
