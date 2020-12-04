@@ -1,3 +1,8 @@
+# ??????   ??????????
+
+[397-typo fix](https://github.com/robertdober/earmark_parser/pull/397)
+    Kudos to [rubysolo](https://github.com/rubysolo)  
+
 # 1.4.13   2020-12-03
  
 - A minor fix for the compact output option , Noo Issue, OMG ;)
