@@ -202,15 +202,29 @@ defmodule Earmark.Transform do
     [acc | binary_part(original, skip, len)]
   end
 
+  @pop {:__end__}
+  defp _pop_to_pop(result, intermediate \\ [])
+  defp _pop_to_pop([@pop, {tag, atts, _, meta}|rest], intermediate) do
+    [{tag, atts, intermediate, meta}|rest]
+  end
+  defp _pop_to_pop([continue|rest], intermediate) do
+    _pop_to_pop(rest, [continue|intermediate])
+  end
+
   defp _walk_ast(ast, fun, ignore_strings, result)
   defp _walk_ast([], _fun, _ignore_strings, result), do: Enum.reverse(result)
+  defp _walk_ast([[]|rest], fun, ignore_strings, result) do
+    _walk_ast(rest, fun, ignore_strings, _pop_to_pop(result))
+  end
   defp _walk_ast([string|rest], fun, ignore_strings, result) when is_binary(string) do
     new = if ignore_strings, do: string, else: fun.(string)
     _walk_ast(rest, fun, ignore_strings, [new|result])
   end
   defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
     {new_tag, new_atts, _, new_meta} = fun.(tuple)
-    new_content = _walk_ast(content, fun, ignore_strings, [])
-    _walk_ast(rest, fun, ignore_strings, [{new_tag, new_atts, new_content, new_meta}|result])
+    _walk_ast([content|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+  end
+  defp _walk_ast([[h|t]|rest], fun, ignore_strings, result) do
+    _walk_ast([h, t|rest], fun, ignore_strings, result)
   end
 end
