@@ -166,7 +166,7 @@ defmodule Earmark do
   end
 
   def as_html(lines, options) do
-    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
+    {status, ast, messages} = postprocessed_ast(lines, options)
     {status, Earmark.Transform.transform(ast, options), messages}
   end
 
@@ -193,6 +193,16 @@ defmodule Earmark do
 
     messages1 = [message | messages]
     {status, ast, messages1}
+  end
+
+  @line_end ~r{\n\r?}
+  def postprocessed_ast(lines, options\\%{})
+  def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
+  def postprocessed_ast(lines, %{postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
+  def postprocessed_ast(lines, %{postprocessor: prep}=options) do
+    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
+    ast1 = Earmark.Transform.walk_ast(ast, prep, Map.get(options, :ignore_strings))
+    {status, ast1, messages}
   end
 
   @doc """

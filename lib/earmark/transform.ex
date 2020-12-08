@@ -25,6 +25,10 @@ defmodule Earmark.Transform do
     to_html(ast, options1)
   end
 
+  def walk_ast(ast, fun, ignore_strings \\ false) do
+    _walk_ast(ast, fun, ignore_strings, [])
+  end
+
 
   defp maybe_add_newline(options)
   defp maybe_add_newline(%Options{compact_output: true}), do: []
@@ -196,5 +200,17 @@ defmodule Earmark.Transform do
 
   defp escape_to_iodata(<<>>, skip, original, acc, _smartypants, _escape, len) do
     [acc | binary_part(original, skip, len)]
+  end
+
+  defp _walk_ast(ast, fun, ignore_strings, result)
+  defp _walk_ast([], _fun, _ignore_strings, result), do: Enum.reverse(result)
+  defp _walk_ast([string|rest], fun, ignore_strings, result) when is_binary(string) do
+    new = if ignore_strings, do: string, else: fun.(string)
+    _walk_ast(rest, fun, ignore_strings, [new|result])
+  end
+  defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
+    {new_tag, new_atts, _, new_meta} = fun.(tuple)
+    new_content = _walk_ast(content, fun, ignore_strings, [])
+    _walk_ast(rest, fun, ignore_strings, [{new_tag, new_atts, new_content, new_meta}|result])
   end
 end
