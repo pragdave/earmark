@@ -414,6 +414,9 @@ defmodule Earmark do
   * `compact_output`: boolean
 
     If set to true, no cosmetic newlines will be emitted by Earmark. False by default.
+
+  * `escape`: boolean
+    If set to false, HTML strings will not be escaped. True by default.
   """
   def as_html(lines, options \\ %Options{})
 
