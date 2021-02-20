@@ -92,7 +92,7 @@ defmodule Earmark.Transform do
 
   @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
   @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
-  defp escape(element, %{smartypants: true, escape: escape}) do
+  defp escape(element, %{smartypants: true} = options) do
     # Unfortunately these regexes still have to be left.
     # It doesn't seem possible to make escape_to_iodata
     # transform, for example, "--'" to "–‘" without
@@ -103,7 +103,8 @@ defmodule Earmark.Transform do
       |> replace(@dbl1_rgx, "\\1‘")
       |> replace(@dbl2_rgx, "\\1“")
 
-      escape_to_iodata(element, 0, element, [], true, escape, 0)
+    escape = Map.get(options, :escape, true)
+    escape_to_iodata(element, 0, element, [], true, escape, 0)
   end
 
   defp escape(element, %{escape: escape}) do
@@ -111,7 +112,7 @@ defmodule Earmark.Transform do
   end
 
   defp escape(element, _options) do
-      escape_to_iodata(element, 0, element, [], false, false, 0)
+      escape_to_iodata(element, 0, element, [], false, true, 0)
   end
 
   defp make_att(name_value_pair, tag)
