@@ -12,6 +12,7 @@ defmodule Earmark.Mixfile do
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
     {:excoveralls, "~> 0.11.2", only: [:test]},
+    {:extractly, "~> 0.2.0", only: [:dev]},
     {:floki, "~> 0.21", only: [:dev, :test]},
     {:traverse, "~> 1.0.1", only: [:dev, :test]}
   ]
@@ -45,7 +46,7 @@ defmodule Earmark.Mixfile do
         "coveralls.html": :test
       ],
       test_coverage: [tool: ExCoveralls],
-      aliases: [docs: &build_docs/1, readme: &readme/1]
+      aliases: [docs: &build_docs/1]
     ]
   end
 
@@ -95,11 +96,6 @@ defmodule Earmark.Mixfile do
     Mix.shell().info("Running: #{ex_doc} #{inspect(args ++ opts)}")
     System.cmd(ex_doc, args ++ opts)
     Mix.shell().info("Docs built successfully")
-  end
-
-  defp readme(args) do
-    Code.require_file("tasks/readme.exs")
-    Mix.Tasks.Readme.run(args)
   end
 end
 

@@ -1,5 +1,7 @@
 # 1.4.14 2021-02-??
 
+- moving from handmade implementation of doc generation to [Extractly](https://hex.pm/packages/extractly)
+
 - fixing picture links in README.template
 
 - [401-option-to-disable-html-escapes](https://github.com/robertdober/earmark_parser/pull/401-to-disable-html-escapes)

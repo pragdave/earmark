@@ -1,4 +1,6 @@
 
+<%= xtra.do_not_edit_warning template: template %>
+
 # Earmark—A Pure Elixir Markdown Processor
 
 [![CI](https://github.com/pragdave/earmark/workflows/CI/badge.svg)](https://github.com/pragdave/earmark/workflows/CI/badge.svg)
@@ -7,9 +9,10 @@
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark.svg)](https://hex.pm/packages/earmark)
 
 
-## Table Of Contents
+**N.B.**
 
-%toc
+This README contains the docstrings and doctests from the code by means of [extractly](https://hex.pm/packages/extractly)
+and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
@@ -17,14 +20,13 @@
 
 ## Usage
 
-%moduledoc Earmark
+<%= xtra.moduledoc "Earmark" %>
 
 ## Details
 
 ## `Earmark.as_ast/2`
 
-%functiondoc Earmark.as_ast/2
-
+<%= xtra.functiondoc "Earmark.as_ast/2" %>
 
 
 ## Contributing
@@ -46,7 +48,7 @@ Thank you all who have already helped with Earmark, your names are duely noted i
 
 ## Author
 
-Copyright © 2014,5,6,7,8 Dave Thomas, The Pragmatic Programmers
+Copyright © 2014,5,6,7,8,9, 2020,1 Dave Thomas, The Pragmatic Programmers & Robert Dober
 @/+pragdave,  dave@pragprog.com
 
 # LICENSE
