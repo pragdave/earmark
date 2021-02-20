@@ -27,6 +27,32 @@ defmodule Acceptance.Html.EscapeTest do
     end
   end
 
+  describe "Escapes Disabled" do
+    test "line break tag (<br>)" do
+      markdown = "hello<br>world"
+      html = "<p>\nhello<br>world</p>\n"
+      messages = []
+
+      assert as_html(markdown, escape: false) == {:ok, html, messages}
+    end
+
+    test "semantic line break tag (<br/>)" do
+      markdown = "hello<br/>world"
+      html = "<p>\nhello<br/>world</p>\n"
+      messages = []
+
+      assert as_html(markdown, escape: false) == {:ok, html, messages}
+    end
+
+    test "doesn't interfere with smartypants" do
+      markdown = "hello<br> 'world'"
+      html = "<p>\nhello<br> ‘world’</p>\n"
+      messages = []
+
+      assert as_html(markdown, escape: false, smartypants: true) == {:ok, html, messages}
+    end
+  end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0

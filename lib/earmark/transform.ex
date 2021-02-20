@@ -92,7 +92,7 @@ defmodule Earmark.Transform do
 
   @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
   @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
-  defp escape(element, %{smartypants: true}) do
+  defp escape(element, %{smartypants: true} = options) do
     # Unfortunately these regexes still have to be left.
     # It doesn't seem possible to make escape_to_iodata
     # transform, for example, "--'" to "–‘" without
@@ -103,11 +103,16 @@ defmodule Earmark.Transform do
       |> replace(@dbl1_rgx, "\\1‘")
       |> replace(@dbl2_rgx, "\\1“")
 
-      escape_to_iodata(element, 0, element, [], true, 0)
+    escape = Map.get(options, :escape, true)
+    escape_to_iodata(element, 0, element, [], true, escape, 0)
+  end
+
+  defp escape(element, %{escape: escape}) do
+      escape_to_iodata(element, 0, element, [], false, escape, 0)
   end
 
   defp escape(element, _options) do
-      escape_to_iodata(element, 0, element, [], false, 0)
+      escape_to_iodata(element, 0, element, [], false, true, 0)
   end
 
   defp make_att(name_value_pair, tag)
@@ -136,8 +141,8 @@ defmodule Earmark.Transform do
   # https://github.com/elixir-plug/plug/blob/v1.11.0/lib/plug/html.ex
 
   # Do not escape HTML entities
-  defp escape_to_iodata("&#x" <> rest, skip, original, acc, smartypants, len) do
-    escape_to_iodata(rest, skip, original, acc, smartypants, len + 3)
+  defp escape_to_iodata("&#x" <> rest, skip, original, acc, smartypants, escape, len) do
+    escape_to_iodata(rest, skip, original, acc, smartypants, escape, len + 3)
   end
 
   escapes = [
@@ -162,36 +167,36 @@ defmodule Earmark.Transform do
     # Unlike HTML escape matches, smartypants matches may contain more than one character
     match_length = if is_binary(match), do: byte_size(match), else: 1
 
-    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, 0) do
-      escape_to_iodata(rest, skip + unquote(match_length), original, [acc | unquote(insert)], true, 0)
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, escape, 0) do
+      escape_to_iodata(rest, skip + unquote(match_length), original, [acc | unquote(insert)], true, escape, 0)
     end
 
-    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, len) do
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, true, escape, len) do
       part = binary_part(original, skip, len)
-      escape_to_iodata(rest, skip + len + unquote(match_length), original, [acc, part | unquote(insert)], true, 0)
+      escape_to_iodata(rest, skip + len + unquote(match_length), original, [acc, part | unquote(insert)], true, escape, 0)
     end
   end
 
   for {match, insert} <- escapes do
-    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, 0) do
-      escape_to_iodata(rest, skip + 1, original, [acc | unquote(insert)], smartypants, 0)
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, true, 0) do
+      escape_to_iodata(rest, skip + 1, original, [acc | unquote(insert)], smartypants, true, 0)
     end
 
-    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, len) do
+    defp escape_to_iodata(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, true, len) do
       part = binary_part(original, skip, len)
-      escape_to_iodata(rest, skip + len + 1, original, [acc, part | unquote(insert)], smartypants, 0)
+      escape_to_iodata(rest, skip + len + 1, original, [acc, part | unquote(insert)], smartypants, true, 0)
     end
   end
 
-  defp escape_to_iodata(<<_char, rest::bits>>, skip, original, acc, smartypants, len) do
-    escape_to_iodata(rest, skip, original, acc, smartypants, len + 1)
+  defp escape_to_iodata(<<_char, rest::bits>>, skip, original, acc, smartypants, escape, len) do
+    escape_to_iodata(rest, skip, original, acc, smartypants, escape, len + 1)
   end
 
-  defp escape_to_iodata(<<>>, 0, original, _acc, _smartypants, _len) do
+  defp escape_to_iodata(<<>>, 0, original, _acc, _smartypants, _escape, _len) do
     original
   end
 
-  defp escape_to_iodata(<<>>, skip, original, acc, _smartypants, len) do
+  defp escape_to_iodata(<<>>, skip, original, acc, _smartypants, _escape, len) do
     [acc | binary_part(original, skip, len)]
   end
 end

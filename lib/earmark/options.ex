@@ -13,6 +13,7 @@ defmodule Earmark.Options do
             footnotes: false,
             footnote_offset: 1,
             wikilinks: false,
+            escape: true,
 
             # additional prefies for class of code blocks
             code_class_prefix: nil,
@@ -49,7 +50,8 @@ defmodule Earmark.Options do
         pure_links: boolean,
         smartypants: boolean,
         wikilinks: boolean,
-        timeout: maybe(number)
+        timeout: maybe(number),
+        escape: boolean
   }
 
   @doc false
