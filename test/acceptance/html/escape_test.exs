@@ -25,6 +25,14 @@ defmodule Acceptance.Html.EscapeTest do
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
+    test "line break tag (<br>)" do
+      markdown = "hello<br>world"
+      html = "<p>\nhello&lt;br&gt;world</p>\n"
+      messages = []
+
+      assert as_html(markdown, escape: true) == {:ok, html, messages}
+    end
   end
 
   describe "Escapes Disabled" do
@@ -33,12 +41,12 @@ defmodule Acceptance.Html.EscapeTest do
       html = "<p>\nhello<br>world</p>\n"
       messages = []
 
-      assert as_html(markdown, escape: false) == {:ok, html, messages}
+      assert as_html(markdown, escape: false, smartypants: false) == {:ok, html, messages}
     end
 
-    test "semantic line break tag (<br/>)" do
-      markdown = "hello<br/>world"
-      html = "<p>\nhello<br/>world</p>\n"
+    test "semantic line break tag (<br />)" do
+      markdown = "hello<br />world"
+      html = "<p>\nhello<br />world</p>\n"
       messages = []
 
       assert as_html(markdown, escape: false) == {:ok, html, messages}

@@ -1,7 +1,14 @@
-# ??????   ??????????
+# 1.4.14 2021-02-??
 
-[397-typo fix](https://github.com/robertdober/earmark_parser/pull/397)
+- fixing picture links in README.template
+
+- [401-option-to-disable-html-escapes](https://github.com/robertdober/earmark_parser/pull/401-to-disable-html-escapes)
+    Kudos to [paradox460](https://github.com/paradox460)
+
+- [397-typo fix](https://github.com/robertdober/earmark_parser/pull/397)
     Kudos to [rubysolo](https://github.com/rubysolo)  
+
+
 
 # 1.4.13   2020-12-03
  

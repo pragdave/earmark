@@ -7,7 +7,7 @@
 
 # Earmark—A Pure Elixir Markdown Processor
 
-![CI](https://github.com/pragdave/earmark/workflows/CI/badge.svg)
+[![CI](https://github.com/pragdave/earmark/workflows/CI/badge.svg)](https://github.com/pragdave/earmark/workflows/CI/badge.svg)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark.svg)](https://hex.pm/packages/earmark)
@@ -20,8 +20,6 @@
 * [Usage](#usage)
 * [Details](#details)
 * [`Earmark.as_ast/2`](#earmarkas_ast2)
-* [`Earmark.as_html/2`](#earmarkas_html2)
-* [`Earmark.Transform.transform/2`](#earmarktransformtransform2)
 * [Contributing](#contributing)
 * [Author](#author)
 <!-- END generated TOC -->
@@ -47,6 +45,8 @@ Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as pos
 
 **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
 
+Also please refer yourself to the documentation of [`EarmarkParser`](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
+
 
 The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
 the structure of the result of `as_ast`.
@@ -70,11 +70,68 @@ Then prints them to stderr and just returns the html_doc
 
 #### Options
 
-Options can be passed into `as_ast/2`as well as `as_html/2` or `as_html!/2` according to the documentation.
+Options can be passed into as `as_html/2` or `as_html!/2` according to the documentation.
+A keyword list with legal options (c.f. `Earmark.Options`) or an `Earmark.Options` struct are accepted.
 
     {status, html_doc, errors} = Earmark.as_html(markdown, options)
     html_doc = Earmark.as_html!(markdown, options)
     {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
+
+### Rendering
+
+All options passed through to `EarmarkParser.as_ast` are defined therein, however some options concern only
+the rendering of the returned AST
+
+These are:
+
+* `compact_output:` defaults to `false`
+
+Normally `Earmark` aims to produce _Human Readable_ output.
+
+This will give results like these:
+
+    iex(0)> markdown = "# Hello\nWorld"
+    ...(0)> Earmark.as_html!(markdown, compact_output: false)
+    "<h1>\nHello</h1>\n<p>\nWorld</p>\n"
+
+
+But sometimes whitespace is not desired:
+
+    iex(1)> markdown = "# Hello\nWorld"
+    ...(1)> Earmark.as_html!(markdown, compact_output: true)
+    "<h1>Hello</h1><p>World</p>"
+
+Be cautions though when using this options, lines will become loooooong.
+
+
+#### `escape:` defaulting to `true`
+
+If set HTML will be properly escaped
+
+      iex(2)> markdown = "Hello<br />World"
+      ...(2)> Earmark.as_html!(markdown)
+      "<p>\nHello&lt;br /&gt;World</p>\n"
+
+However disabling `escape:` gives you maximum control of the created document, which in some
+cases (e.g. inside tables) might even be necessary
+
+      iex(3)> markdown = "Hello<br />World"
+      ...(3)> Earmark.as_html!(markdown, escape: false)
+      "<p>\nHello<br />World</p>\n"
+
+* `renderer:` defaults to `Earmark.HtmlRenderer`
+
+  The module used to render the final document.
+
+#### `smartypants:` defaulting to `true`
+
+If set the following replacements will be made during rendering of inline text
+
+    "---" → "—"
+    "--" → "–"
+    "' → "’"
+    ?" → "”"
+    "..." → "…"
 
 ### Command line
 
@@ -94,258 +151,6 @@ to find out more, but here is a short example
 will call
 
     Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
-
-## Supports
-
-Standard [Gruber markdown][gruber].
-
-[gruber]: <http://daringfireball.net/projects/markdown/syntax>
-
-## Extensions
-
-### Github Flavored Markdown
-
-GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark does not support all of it, here is a list of what is supported:
-
-#### Strike Through
-
-    iex(1)> Earmark.as_html! ["~~hello~~"]
-    "<p>\n<del>hello</del></p>\n"
-
-#### Syntax Highlighting
-
-All backquoted or fenced code blocks with a language string are rendered with the given
-language as a _class_ attribute of the _code_ tag.
-
-For example:
-
-    iex(2)> [
-    ...(2)>    "```elixir",
-    ...(2)>    " @tag :hello",
-    ...(2)>    "```"
-    ...(2)> ] |> Earmark.as_html!()
-    "<pre><code class=\"elixir\"> @tag :hello</code></pre>\n"
-
-will be rendered as shown in the doctest above.
-
-If you want to integrate with a syntax highlighter with different conventions you can add more classes by specifying prefixes that will be
-put before the language string.
-
-Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
-as a `code_class_prefix` to `Earmark.Options`.
-
-In the following example we want more than one additional class, so we add more prefixes.
-
-    Earmark.as_html!(..., %Earmark.Options{code_class_prefix: "lang- language-"})
-
-which is rendering
-
-    <pre><code class="elixir lang-elixir language-elixir">...
-
-As for all other options `code_class_prefix` can be passed into the `earmark` executable as follows:
-
-    earmark --code-class-prefix "language- lang-" ...
-
-#### Tables
-
-Are supported as long as they are preceded by an empty line.
-
-    State | Abbrev | Capital
-    ----: | :----: | -------
-    Texas | TX     | Austin
-    Maine | ME     | Augusta
-
-Tables may have leading and trailing vertical bars on each line
-
-    | State | Abbrev | Capital |
-    | ----: | :----: | ------- |
-    | Texas | TX     | Austin  |
-    | Maine | ME     | Augusta |
-
-Tables need not have headers, in which case all column alignments
-default to left.
-
-    | Texas | TX     | Austin  |
-    | Maine | ME     | Augusta |
-
-Currently we assume there are always spaces around interior vertical unless
-there are exterior bars.
-
-However in order to be more GFM compatible the `gfm_tables: true` option
-can be used to interpret only interior vertical bars as a table if a seperation
-line is given, therefor
-
-     Language|Rating
-     --------|------
-     Elixir  | awesome
-
-is a table (iff `gfm_tables: true`) while
-
-     Language|Rating
-     Elixir  | awesome
-
-never is.
-
-#### HTML Blocks
-
-HTML is not parsed recursively or detected in all conditons right now, though GFM compliance
-is a goal.
-
-But for now the following holds:
-
-A HTML Block defined by a tag starting a line and the same tag starting a different line is parsed
-as one HTML AST node, marked with %{verbatim: true}
-
-E.g.
-
-      iex(3)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(3)> {:ok, _, _} = EarmarkParser.as_ast(lines)
-      {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
-
-And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
-fashion
-
-      iex(4)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
-      {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
-
-What is HTML?
-
-We differ from strict GFM by allowing **all** tags not only HTML5 tagsn this holds for oneliners....
-
-      iex(5)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
-      ...(5)> ast
-      [
-        {"stupid", [], [], %{verbatim: true}},
-        {"not", [], ["better"], %{verbatim: true}}]
-
-and for multiline blocks
-
-      iex(6)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
-      ...(6)> ast
-      [{"hello", [], ["world"], %{verbatim: true}}]
-
-#### HTML Comments
-
-Are recoginized if they start a line (after ws and are parsed until the next `-->` is found
-all text after the next '-->' is ignored
-
-E.g.
-
-    iex(7)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
-    {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
-
-
-
-### Adding HTML attributes with the IAL extension
-
-#### To block elements
-
-HTML attributes can be added to any block-level element. We use
-the Kramdown syntax: add the line `{:` _attrs_ `}` following the block.
-
-_attrs_ can be one or more of:
-
-  * `.className`
-  * `#id`
-  * name=value, name="value", or name='value'
-
-For example:
-
-    # Warning
-    {: .red}
-
-    Do not turn off the engine
-    if you are at altitude.
-    {: .boxed #warning spellcheck="true"}
-
-#### To links or images
-
-It is possible to add IAL attributes to generated links or images in the following
-format.
-
-    iex(8)> markdown = "[link](url) {: .classy}"
-    ...(8)> Earmark.as_html(markdown)
-    { :ok, "<p>\n<a class=\"classy\" href=\"url\">link</a></p>\n", []}
-
-For both cases, malformed attributes are ignored and warnings are issued.
-
-    iex(9)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.as_html()
-    {:error, "<p>\nSome text</p>\n", [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
-
-It is possible to escape the IAL in both forms if necessary
-
-    iex(10)> markdown = "[link](url)\\{: .classy}"
-    ...(10)> Earmark.as_html(markdown)
-    {:ok, "<p>\n<a href=\"url\">link</a>{: .classy}</p>\n", []}
-
-This of course is not necessary in code blocks or text lines
-containing an IAL-like string, as in the following example
-
-    iex(11)> markdown = "hello {:world}"
-    ...(11)> Earmark.as_html!(markdown)
-    "<p>\nhello {:world}</p>\n"
-
-## Limitations
-
-  * Block-level HTML is correctly handled only if each HTML
-    tag appears on its own line. So
-
-        <div>
-        <div>
-        hello
-        </div>
-        </div>
-
-  will work. However. the following won't
-
-        <div>
-        hello</div>
-
-* John Gruber's tests contain an ambiguity when it comes to
-  lines that might be the start of a list inside paragraphs.
-
-  One test says that
-
-        This is the text
-        * of a paragraph
-        that I wrote
-
-  is a single paragraph. The "*" is not significant. However, another
-  test has
-
-        *   A list item
-            * an another
-
-  and expects this to be a nested list. But, in reality, the second could just
-  be the continuation of a paragraph.
-
-  I've chosen always to use the second interpretation—a line that looks like
-  a list item will always be a list item.
-
-* Rendering of block and inline elements.
-
-  Block or void HTML elements that are at the absolute beginning of a line end
-  the preceding paragraph.
-
-  Thusly
-
-        mypara
-        <hr />
-
-  Becomes
-
-        <p>mypara</p>
-        <hr />
-
-  While
-
-        mypara
-         <hr />
-
-  will be transformed into
-
-        <p>mypara
-         <hr /></p>
 
 ## Timeouts
 
@@ -383,88 +188,15 @@ It is deprecated and will be removed in 1.5!
 Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
 for the AST.
 
-      iex(12)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(12)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(12)> ast
+      iex(4)> markdown = "```elixir\nIO.puts 42\n```"
+      ...(4)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(4)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
 
 <!-- END inserted functiondoc Earmark.as_ast/2 -->
 
-## `Earmark.as_html/2`
 
-<!-- BEGIN inserted functiondoc Earmark.as_html/2 -->
-Given a markdown document (as either a list of lines or
-a string containing newlines), returns a tuple containing either
-`{:ok, html_doc, error_messages}`, or `{:error, html_doc, error_messages}`
-Where `html_doc` is an HTML representation of the markdown document and
-`error_messages` is a list of tuples with the following elements
-
-- `severity` e.g. `:error`, `:warning` or `:deprecation`
-- line number in input where the error occurred
-- description of the error
-
-
-`options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
-
-* `renderer`: ModuleName
-
-  The module used to render the final document. Defaults to
-  `Earmark.HtmlRenderer`
-
-* `gfm`: boolean
-
-  True by default. Turns on the supported Github Flavored Markdown extensions
-
-* `breaks`: boolean
-
-  Only applicable if `gfm` is enabled. Makes all line breaks
-  significant (so every line in the input is a new line in the
-  output.
-
-* `code_class_prefix`: binary
-
-  Code blocks will be rendered with prefixed class names, which might be necessary for
-  usage with 3rd party libraries.
-
-
-        Earmark.as_html("```elixir\nCode\n```", code_class_prefix: "my_prefix_")
-
-        {:ok, "<pre><code class=\"elixir my_prefix_elixir\">Code\```</code></pre>\n", []}
-
-
-* `smartypants`: boolean
-
-  Turns on smartypants processing, so quotes become curly, two
-  or three hyphens become en and em dashes, and so on. True by
-  default.
-
-  So, to format the document in `original` and disable smartypants,
-  you'd call
-
-
-        alias Earmark.Options
-        Earmark.as_html(original, %Options{smartypants: false})
-
-
-* `pure_links`: boolean
-
-  Pure links of the form `~r{\bhttps?://\S+\b}` are rendered as links from now on.
-  However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
-  behavior can be used.
-
-* `compact_output`: boolean
-
-  If set to true, no cosmetic newlines will be emitted by Earmark. False by default.
-
-<!-- END inserted functiondoc Earmark.as_html/2 -->
-
-## `Earmark.Transform.transform/2`
-
-<!-- BEGIN inserted functiondoc Earmark.Transform.transform/2 -->
-  Needs update for 1.4.7
-
-<!-- END inserted functiondoc Earmark.Transform.transform/2 -->
 
 ## Contributing
 

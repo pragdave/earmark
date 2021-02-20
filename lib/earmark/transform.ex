@@ -14,9 +14,7 @@ defmodule Earmark.Transform do
   exposed by `Earmark.as_ast`
   """
 
-  @doc """
-    Needs update for 1.4.7
-  """
+  @doc false
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
   def transform(ast, options) when is_list(options) do
     transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
