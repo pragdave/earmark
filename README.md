@@ -7,7 +7,7 @@ and any changes you make in this file will most likely be lost
 
 # Earmark—A Pure Elixir Markdown Processor
 
-[![CI](https://github.com/pragdave/earmark/workflows/CI/badge.svg)](https://github.com/pragdave/earmark/workflows/CI/badge.svg)
+[![CI](https://github.com/pragdave/earmark/workflows/CI/badge.svg)](https://github.com/pragdave/earmark/actions/workflows/ci.yml)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark.svg)](https://hex.pm/packages/earmark)
