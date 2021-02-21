@@ -37,6 +37,10 @@ defmodule Earmark.Message do
     messages
     |> Enum.each(&emit_message(file, &1))
   end
+  def emit_messages(messages, _) do
+    messages
+    |> Enum.each(&emit_message("<args>", &1))
+  end
 
   @doc """
   For final output

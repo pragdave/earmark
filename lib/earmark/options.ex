@@ -66,9 +66,42 @@ defmodule Earmark.Options do
   end
 
   @doc false
+  def make_options(options) do
+    legal_keys =
+      __MODULE__
+      |> struct()
+      |> Map.keys
+      |> MapSet.new
+
+    given_keys =
+      options
+      |> Keyword.keys
+      |> MapSet.new
+
+    violators =
+      MapSet.difference(given_keys, legal_keys)
+
+    if MapSet.size(violators) == 0 do
+      {:ok, struct(__MODULE__, options)}
+    else
+      {:error, _format_errors(violators, options)}
+    end
+  end
+
+  @doc false
   def plugin_for_prefix(options, plugin_name) do
     Map.get(options.plugins, plugin_name, false)
   end
+
+  defp _format_error(violator, options) do
+    {:warning, 0, "Unrecognized option #{violator}: #{Keyword.get(options, violator) |> inspect()} ignored"}
+  end
+
+  defp _format_errors(violators, options) do
+    violators
+    |> Enum.map(&_format_error(&1, options))
+  end
+
 end
 
 # SPDX-License-Identifier: Apache-2.0

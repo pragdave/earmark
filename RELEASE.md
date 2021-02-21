@@ -8,16 +8,18 @@
 
 - fixing picture links in README.eex
 
+- [403-warn-if-illegal-keyword-options-are-provided](https://github.com/robertdober/earmark_parser/issues/403)
+
 - [401-option-to-disable-html-escapes](https://github.com/robertdober/earmark_parser/pull/401-to-disable-html-escapes)
     Kudos to [paradox460](https://github.com/paradox460)
 
+- [398-walk-ast-helper-and-ast-postprocessing-option](https://github.com/robertdober/earmark_parser/issues/398)
+
 - [397-typo fix](https://github.com/robertdober/earmark_parser/pull/397)
-    Kudos to [rubysolo](https://github.com/rubysolo)  
-
-
+    Kudos to [rubysolo](https://github.com/rubysolo)
 
 # 1.4.13   2020-12-03
- 
+
 - A minor fix for the compact output option , Noo Issue, OMG ;)
 
 # 1.4.12   2020-11-27
@@ -27,10 +29,10 @@ Adapted the CLI to accept the wikilinks switch for `EarmarkParser`
 # 1.4.11   2020-11-26
 
 - [394-compact-html-output](https://github.com/robertdober/earmark_parser/pull/394)
-    Kudos and Спасибо to [rinpatch](https://github.com/rinpatch)  
+    Kudos and Спасибо to [rinpatch](https://github.com/rinpatch)
 
 - [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)
-    Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)  
+    Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)
 
 - [383-smartyants-inside-code-blocks](https://github.com/robertdober/earmark_parser/issues/-)
     Kudos to [David Bernheisel](https://github.com/dbernheisel)

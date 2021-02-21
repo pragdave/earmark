@@ -186,7 +186,10 @@ defmodule Earmark do
   def as_html(lines, options \\ %Options{})
 
   def as_html(lines, options) when is_list(options) do
-    as_html(lines, struct(Options, options))
+    case  Options.make_options(options) do
+      {:ok, options1} -> as_html(lines, options1)
+      {:error, messages} -> {:error, "", messages}
+    end
   end
 
   def as_html(lines, options) do
@@ -225,12 +228,7 @@ defmodule Earmark do
   Otherwise it behaves exactly as `as_html`.
   """
   def as_html!(lines, options \\ %Options{})
-
-  def as_html!(lines, options) when is_list(options) do
-    as_html!(lines, struct(Options, options))
-  end
-
-  def as_html!(lines, options = %Options{}) do
+  def as_html!(lines, options) do
     {_status, html, messages} = as_html(lines, options)
     emit_messages(messages, options)
     html
