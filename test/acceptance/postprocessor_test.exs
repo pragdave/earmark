@@ -39,7 +39,7 @@ defmodule Acceptance.PostprocessorTest do
     Earmark.postprocessed_ast(markdown, %{postprocessor: fun, ignore_strings: ignore_strings})
   end
   defp id() do
-    fn x -> x end 
+    fn x -> x end
   end
   defp add_attr(target, name, value) do
     fn {^target, atts, _, meta} -> {target, Keyword.put(atts, name, value), nil, meta}

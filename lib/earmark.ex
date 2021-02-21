@@ -11,12 +11,23 @@ defmodule Earmark do
 
   @moduledoc """
 
-  ### API
+  ## Earmark
 
-  Earmark now exposes a well-defined and stable Abstract Syntax Tree
+  ### Abstract Syntax Tree and Rendering
+
+  The AST generation has now been moved out to [`EarmarkParser`](https://github.com/robertdober/earmark_parser)
+  which is installed as a dependency.
+
+  This brings some changes to this documentation and also deprecates the usage of `Earmark.as_ast`
+
+  Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
+
+  Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
+  [here](https://hexdocs.pm/earmark_parser/EarmarkParser.html) 
+
+
 
   #### Earmark.as_ast
-
 
   WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
 
@@ -98,6 +109,19 @@ defmodule Earmark do
         ...(3)> Earmark.as_html!(markdown, escape: false)
         "<p>\\nHello<br />World</p>\\n"
 
+  * `postprocessor:` defaults to nil
+
+  Before rendering the AST is transformed by a postprocessor.
+  For details see the description of `Earmark.Transform.map_ast·` below which will accept the same postprocessor as
+  a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
+
+            markdown
+            |> EarmarkParser.as_ast
+            |> Earmark.Transform.map_ast(fun)
+            |> Earmark.Transform.transform
+
+  with all the necessary bookkeeping for options and messages
+
   * `renderer:` defaults to `Earmark.HtmlRenderer`
 
     The module used to render the final document.
@@ -171,18 +195,7 @@ defmodule Earmark do
   end
 
   @doc """
-  `as_ast` is a compatibility function to call `EarmarkParser.as_ast`
-
-  It is deprecated and will be removed in 1.5!
-
-  Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
-  for the AST.
-
-        iex(4)> markdown = "```elixir\\nIO.puts 42\\n```"
-        ...(4)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-        ...(4)> ast
-        [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
-
+  DEPRECATED call `EarmarkParser.as_ast` instead
   """
   def as_ast(lines, options \\ %Options{}) do
     {status, ast, messages} = _as_ast(lines, options)
@@ -201,7 +214,7 @@ defmodule Earmark do
   def postprocessed_ast(lines, %{postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
   def postprocessed_ast(lines, %{postprocessor: prep}=options) do
     {status, ast, messages} = EarmarkParser.as_ast(lines, options)
-    ast1 = Earmark.Transform.walk_ast(ast, prep, Map.get(options, :ignore_strings))
+    ast1 = Earmark.Transform.map_ast(ast, prep, Map.get(options, :ignore_strings))
     {status, ast1, messages}
   end
 

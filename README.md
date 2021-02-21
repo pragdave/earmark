@@ -22,15 +22,24 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
     { :earmark, "> x.y.z" }
 
-## Usage
+
+## Earmark
+
+### Abstract Syntax Tree and Rendering
+
+The AST generation has now been moved out to [`EarmarkParser`](https://github.com/robertdober/earmark_parser)
+which is installed as a dependency.
+
+This brings some changes to this documentation and also deprecates the usage of `Earmark.as_ast`
+
+Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
+
+Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
+[here](https://hexdocs.pm/earmark_parser/EarmarkParser.html) 
 
 
-### API
-
-Earmark now exposes a well-defined and stable Abstract Syntax Tree
 
 #### Earmark.as_ast
-
 
 WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
 
@@ -112,6 +121,19 @@ cases (e.g. inside tables) might even be necessary
       ...(3)> Earmark.as_html!(markdown, escape: false)
       "<p>\nHello<br />World</p>\n"
 
+* `postprocessor:` defaults to nil
+
+Before rendering the AST is transformed by a postprocessor.
+For details see the description of `Earmark.Transform.map_ast·` below which will accept the same postprocessor as
+a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
+
+          markdown
+          |> EarmarkParser.as_ast
+          |> Earmark.Transform.map_ast(fun)
+          |> Earmark.Transform.transform
+
+with all the necessary bookkeeping for options and messages
+
 * `renderer:` defaults to `Earmark.HtmlRenderer`
 
   The module used to render the final document.
@@ -168,22 +190,65 @@ filter the output of `Earmark.as_html` if you cannot trust the input
 and are to serve the produced HTML on the Web.
 
 
-## Details
 
-## `Earmark.as_ast/2`
+# Transformations
 
-`as_ast` is a compatibility function to call `EarmarkParser.as_ast`
+## Structure Conserving Transformers
 
-It is deprecated and will be removed in 1.5!
+For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
+mappers.
 
-Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
-for the AST.
+### `map_ast`
 
-      iex(4)> markdown = "```elixir\nIO.puts 42\n```"
-      ...(4)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
-      ...(4)> ast
-      [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
+takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
+like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
 
+The result of the function call must be
+
+- for nodes → a quadruple of which the third element will be ignored -- that might change in future,
+and will therefore classically be `nil`. The other elements replace the node
+
+- for strings → strings
+
+A third parameter `ignore_strings` which defaults to `false` can be used to avoid invocation of the mapper
+function for text nodes
+
+As an example let us transform an ast to have symbol keys
+
+      iex(0)> input = [
+      ...(0)> {"h1", [], ["Hello"], %{title: true}},
+      ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}] 
+      ...(0)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
+      [ {:h1, [], ["Hello"], %{title: true}},
+        {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
+
+**N.B.** If this returning convention is not respected `map_ast` might not complain, but the resulting
+transformation might not be suitable for `Earmark.Transform.transform` anymore. From this follows that
+any function passed in as value of the `postprocessor:` option must obey to these conventions.
+
+### `map_ast_with`
+
+this is like `map_ast` but like a reducer an accumulator can also be passed through.
+
+For that reason the function is called with two arguments, the first element being the same value
+as in `map_ast` and the second the accumulator. The return values need to be equally augmented 
+tuples.
+
+A simple example, annotating traversal order in the meta map's `:count` key, as we are not
+interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
+
+       iex(0)>  input = [
+       ...(0)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
+       ...(0)>  {"p", [], ["hello"], %{}}]
+       ...(0)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
+       ...(0)>  map_ast_with(input, 0, counter, true) 
+       {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
+         {"p", [], ["hello"], %{count: 3}}], 4}
+
+## Structure Modifying Transformers
+
+For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
+tools has emerged yet.
 
 
 
@@ -193,16 +258,10 @@ Pull Requests are happily accepted.
 
 Please be aware of one _caveat_ when correcting/improving `README.md`.
 
-The `README.md` is generated by the mix task `readme` from `README.template` and
-docstrings by means of `%moduledoc` or `%functiondoc` directives.
+The `README.md` is generated by `Extractly` as mentioned above and therefore contributers shall not modify it directly, but
+`README.md.eex` and the imported docs instead.
 
-Please identify the origin of the generated text you want to correct and then
-apply your changes there.
-
-Then issue the mix task `readme`, this is important to have a correctly updated `README.md` after the merge of
-your PR.
-
-Thank you all who have already helped with Earmark, your names are duely noted in [CHANGELOG.md](CHANGELOG.md).
+Thank you all who have already helped with Earmark, your names are duely noted in [RELEASE.md](RELEASE.md).
 
 ## Author
 

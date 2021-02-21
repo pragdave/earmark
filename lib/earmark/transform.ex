@@ -10,8 +10,64 @@ defmodule Earmark.Transform do
   @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
 
   @moduledoc """
-  Public Interface to functions operating on the AST
-  exposed by `Earmark.as_ast`
+  # Transformations
+ 
+  ## Structure Conserving Transformers
+
+  For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
+  mappers.
+
+  ### `map_ast`
+  
+  takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
+  like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
+
+  The result of the function call must be
+
+  - for nodes → a quadruple of which the third element will be ignored -- that might change in future,
+  and will therefore classically be `nil`. The other elements replace the node
+
+  - for strings → strings
+
+  A third parameter `ignore_strings` which defaults to `false` can be used to avoid invocation of the mapper
+  function for text nodes
+
+  As an example let us transform an ast to have symbol keys
+
+        iex(0)> input = [
+        ...(0)> {"h1", [], ["Hello"], %{title: true}},
+        ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}] 
+        ...(0)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
+        [ {:h1, [], ["Hello"], %{title: true}},
+          {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
+
+  **N.B.** If this returning convention is not respected `map_ast` might not complain, but the resulting
+  transformation might not be suitable for `Earmark.Transform.transform` anymore. From this follows that
+  any function passed in as value of the `postprocessor:` option must obey to these conventions.
+
+  ### `map_ast_with`
+
+  this is like `map_ast` but like a reducer an accumulator can also be passed through.
+
+  For that reason the function is called with two arguments, the first element being the same value
+  as in `map_ast` and the second the accumulator. The return values need to be equally augmented 
+  tuples.
+
+  A simple example, annotating traversal order in the meta map's `:count` key, as we are not
+  interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
+
+         iex(0)>  input = [
+         ...(0)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
+         ...(0)>  {"p", [], ["hello"], %{}}]
+         ...(0)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
+         ...(0)>  map_ast_with(input, 0, counter, true) 
+         {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
+           {"p", [], ["hello"], %{count: 3}}], 4}
+
+  ## Structure Modifying Transformers
+
+  For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
+  tools has emerged yet.
   """
 
   @doc false
@@ -25,8 +81,18 @@ defmodule Earmark.Transform do
     to_html(ast, options1)
   end
 
-  def walk_ast(ast, fun, ignore_strings \\ false) do
+  @doc """
+  Coming soon
+  """
+  def map_ast(ast, fun, ignore_strings \\ false) do
     _walk_ast(ast, fun, ignore_strings, [])
+  end
+
+  @doc """
+  Coming soon
+  """
+  def map_ast_with(ast, value, fun, ignore_strings \\ false) do
+    _walk_ast_with(ast, value, fun, ignore_strings, [])
   end
 
 
@@ -226,5 +292,26 @@ defmodule Earmark.Transform do
   end
   defp _walk_ast([[h|t]|rest], fun, ignore_strings, result) do
     _walk_ast([h, t|rest], fun, ignore_strings, result)
+  end
+
+  defp _walk_ast_with(ast, value, fun, ignore_strings, result)
+  defp _walk_ast_with([], value, _fun, _ignore_strings, result), do: {Enum.reverse(result), value}
+  defp _walk_ast_with([[]|rest], value, fun, ignore_strings, result) do
+    _walk_ast_with(rest, value, fun, ignore_strings, _pop_to_pop(result))
+  end
+  defp _walk_ast_with([string|rest], value, fun, ignore_strings, result) when is_binary(string) do
+    if ignore_strings do
+      _walk_ast_with(rest, value, fun, ignore_strings, [string|result])
+    else
+      {news, newv} = fun.(string, value)
+      _walk_ast_with(rest, newv, fun, ignore_strings, [news|result])
+    end
+  end
+  defp _walk_ast_with([{_, _, content, _}=tuple|rest], value, fun, ignore_strings, result) do
+    {{new_tag, new_atts, _, new_meta}, new_value} = fun.(tuple, value)
+    _walk_ast_with([content|rest], new_value, fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+  end
+  defp _walk_ast_with([[h|t]|rest], value, fun, ignore_strings, result) do
+    _walk_ast_with([h, t|rest], value, fun, ignore_strings, result)
   end
 end
