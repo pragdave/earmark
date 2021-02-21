@@ -6,7 +6,7 @@
 
 - moving from handmade implementation of doc generation to [Extractly](https://hex.pm/packages/extractly)
 
-- fixing picture links in README.template
+- fixing picture links in README.eex
 
 - [401-option-to-disable-html-escapes](https://github.com/robertdober/earmark_parser/pull/401-to-disable-html-escapes)
     Kudos to [paradox460](https://github.com/paradox460)
