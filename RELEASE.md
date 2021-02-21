@@ -1,5 +1,9 @@
 # 1.4.14 2021-02-??
 
+- general improvments of the documentation
+
+- removing duplicate documentation (`EarmarkParser`'s sdoc)
+
 - moving from handmade implementation of doc generation to [Extractly](https://hex.pm/packages/extractly)
 
 - fixing picture links in README.template

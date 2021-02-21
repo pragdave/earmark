@@ -38,7 +38,8 @@ defmodule Earmark.Options do
             # [{:error|:warning, lnb, text},...]
             messages: [],
             pure_links: true,
-            compact_output: false
+            compact_output: false,
+            postprocessor: nil
 
   @type t :: %__MODULE__{
         breaks: boolean,
