@@ -1,4 +1,4 @@
-# 1.4.14 2021-02-??
+# 1.4.14 2021-02-21
 
 - general improvments of the documentation
 
@@ -8,14 +8,14 @@
 
 - fixing picture links in README.eex
 
-- [403-warn-if-illegal-keyword-options-are-provided](https://github.com/robertdober/earmark_parser/issues/403)
+- [403-warn-if-illegal-keyword-options-are-provided](https://github.com/pragdave/earmark/issues/403)
 
-- [401-option-to-disable-html-escapes](https://github.com/robertdober/earmark_parser/pull/401-to-disable-html-escapes)
+- [401-option-to-disable-html-escapes](https://github.com/pragdave/earmark/pull/401)
     Kudos to [paradox460](https://github.com/paradox460)
 
-- [398-walk-ast-helper-and-ast-postprocessing-option](https://github.com/robertdober/earmark_parser/issues/398)
+- [398-walk-ast-helper-and-ast-postprocessing-option](https://github.com/pragdave/earmark/issues/398)
 
-- [397-typo fix](https://github.com/robertdober/earmark_parser/pull/397)
+- [397-typo fix](https://github.com/pragdave/earmark/pull/397)
     Kudos to [rubysolo](https://github.com/rubysolo)
 
 # 1.4.13   2020-12-03
@@ -28,13 +28,13 @@ Adapted the CLI to accept the wikilinks switch for `EarmarkParser`
 
 # 1.4.11   2020-11-26
 
-- [394-compact-html-output](https://github.com/robertdober/earmark_parser/pull/394)
+- [394-compact-html-output](https://github.com/pragdave/earmark/pull/394)
     Kudos and Спасибо to [rinpatch](https://github.com/rinpatch)
 
 - [387-treat-del-tag-as-compact-tag](https://github.com/pragdave/earmark/pull/387)
     Kudos to [Médi-Rémi Hashim](https://github.com/mediremi)
 
-- [383-smartyants-inside-code-blocks](https://github.com/robertdober/earmark_parser/issues/-)
+- [383-smartyants-inside-code-blocks](https://github.com/pragdave/earmark/issues/-)
     Kudos to [David Bernheisel](https://github.com/dbernheisel)
 
 # 1.4.10 2020-07-18
