@@ -41,7 +41,7 @@ defmodule Earmark.Message do
     messages
     |> Enum.each(&emit_message(proplist[:file] || "<args>", &1))
   end
-  def emit_messages(messages, options) do
+  def emit_messages(messages, _options) do
     messages
     |> Enum.each(&emit_message("<args>", &1))
   end
