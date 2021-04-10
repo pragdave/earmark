@@ -1,3 +1,8 @@
+# 1.4.15 2021-??-??
+
+- [404-assure-a-proplist-is-in-use-for-retrieval-of-filename](https://github.com/pragdave/earmark/pull/404)
+  Kudos to [Manuel Rubio](https://github.com/manuel-rubio)
+
 # 1.4.14 2021-02-21
 
 - general improvments of the documentation
