@@ -1,4 +1,7 @@
-# 1.4.15 2021-??-??
+# 1.4.15 2021-04-18
+
+- Pushed `EarmarkParser` dependency to version >= 1.4.13 which fixes a bug wich could crash the parser
+    [IAL on ListItem can crash Parser](https://github.com/RobertDober/earmark_parser/issues/36)
 
 - [404-assure-a-proplist-is-in-use-for-retrieval-of-filename](https://github.com/pragdave/earmark/pull/404)
   Kudos to [Manuel Rubio](https://github.com/manuel-rubio)
