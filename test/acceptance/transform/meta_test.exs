@@ -5,7 +5,6 @@ defmodule Acceptance.Transform.MetaTest do
   import Earmark.Transform
   
   # Needs to pass with #359
-  @moduletag :wip
   describe "pre and verbatim" do
     @pre """
           some code

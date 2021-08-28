@@ -112,7 +112,7 @@ defmodule Earmark do
   * `postprocessor:` defaults to nil
 
   Before rendering the AST is transformed by a postprocessor.
-  For details see the description of `Earmark.Transform.map_ast·` below which will accept the same postprocessor as
+  For details see the description of `Earmark.Transform.map_ast` below which will accept the same postprocessor as
   a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
 
             markdown
