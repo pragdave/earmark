@@ -20,7 +20,7 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
-    { :earmark, "> x.y.z" }
+    { :earmark, ">= 1.4.16" }
 
 
 ## Earmark
@@ -92,16 +92,20 @@ Normally `Earmark` aims to produce _Human Readable_ output.
 
 This will give results like these:
 
+```elixir
     iex(0)> markdown = "# Hello\nWorld"
     ...(0)> Earmark.as_html!(markdown, compact_output: false)
     "<h1>\nHello</h1>\n<p>\nWorld</p>\n"
+```
 
 
 But sometimes whitespace is not desired:
 
+```elixir
     iex(1)> markdown = "# Hello\nWorld"
     ...(1)> Earmark.as_html!(markdown, compact_output: true)
     "<h1>Hello</h1><p>World</p>"
+```
 
 Be cautions though when using this options, lines will become loooooong.
 
@@ -110,16 +114,20 @@ Be cautions though when using this options, lines will become loooooong.
 
 If set HTML will be properly escaped
 
+```elixir
       iex(2)> markdown = "Hello<br />World"
       ...(2)> Earmark.as_html!(markdown)
       "<p>\nHello&lt;br /&gt;World</p>\n"
+```
 
 However disabling `escape:` gives you maximum control of the created document, which in some
 cases (e.g. inside tables) might even be necessary
 
+```elixir
       iex(3)> markdown = "Hello<br />World"
       ...(3)> Earmark.as_html!(markdown, escape: false)
       "<p>\nHello<br />World</p>\n"
+```
 
 * `postprocessor:` defaults to nil
 
@@ -215,12 +223,14 @@ function for text nodes
 
 As an example let us transform an ast to have symbol keys
 
+```elixir
       iex(0)> input = [
       ...(0)> {"h1", [], ["Hello"], %{title: true}},
       ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}] 
       ...(0)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
       [ {:h1, [], ["Hello"], %{title: true}},
         {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
+```
 
 **N.B.** If this returning convention is not respected `map_ast` might not complain, but the resulting
 transformation might not be suitable for `Earmark.Transform.transform` anymore. From this follows that
@@ -237,6 +247,7 @@ tuples.
 A simple example, annotating traversal order in the meta map's `:count` key, as we are not
 interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
 
+```elixir
        iex(0)>  input = [
        ...(0)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
        ...(0)>  {"p", [], ["hello"], %{}}]
@@ -244,6 +255,7 @@ interested in text nodes we use the fourth parameter `ignore_strings` which defa
        ...(0)>  map_ast_with(input, 0, counter, true) 
        {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
          {"p", [], ["hello"], %{count: 3}}], 4}
+```
 
 ## Structure Modifying Transformers
 

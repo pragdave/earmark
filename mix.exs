@@ -1,18 +1,18 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.4.16"
+  @version "1.4.14"
 
   @url "https://github.com/pragdave/earmark"
 
 
   @deps [
-    {:earmark_parser, ">= 1.4.13"},
-    {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+    {:earmark_parser, ">= 1.4.12"},
+    {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
-    {:excoveralls, "~> 0.11.2", only: [:test]},
-    {:extractly, "~> 0.2.0", only: [:dev]},
+    {:excoveralls, "~> 0.14.2", only: [:test]},
+    {:extractly, "~> 0.4.0", only: [:dev]},
     {:floki, "~> 0.21", only: [:dev, :test]},
     {:traverse, "~> 1.0.1", only: [:dev, :test]}
   ]

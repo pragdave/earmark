@@ -16,12 +16,12 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
-    { :earmark, "> x.y.z" }
+    { :earmark, ">= <%= Earmark.version %>" }
 
-<%= xtra.moduledoc "Earmark" %>
+<%= xtra.moduledoc "Earmark", wrap_code_blocks: "elixir" %>
 
 
-<%= xtra.moduledoc "Earmark.Transform" %>
+<%= xtra.moduledoc "Earmark.Transform", wrap_code_blocks: "elixir" %>
 
 
 ## Contributing
