@@ -1,6 +1,7 @@
 defmodule Support.Helpers do
 
   alias Earmark.Context
+  alias Earmark.Options
 
   ###############
   # Helpers.... #
@@ -11,15 +12,15 @@ defmodule Support.Helpers do
   end
 
   def as_ast(markdown, options \\ []) do
-    EarmarkParser.as_ast(markdown, struct(Earmark.Options, options))
+    EarmarkParser.as_ast(markdown, Options.make_options!(options))
   end
 
   def as_html(markdown, options \\ []) do
-    Earmark.as_html(markdown, struct(Earmark.Options, options))
+    Earmark.as_html(markdown, Options.make_options!(options))
   end
 
   def as_html!(markdown, options \\ []) do
-    Earmark.as_html!(markdown, struct(Earmark.Options, options))
+    Earmark.as_html!(markdown, Options.make_options!(options))
   end
 
   def gfm_context do

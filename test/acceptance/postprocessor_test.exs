@@ -49,3 +49,4 @@ defmodule Acceptance.PostprocessorTest do
     {"_#{tag}", Keyword.put(atts, :annotated, true), nil, meta}
   end
 end
+#  SPDX-License-Identifier: Apache-2.0

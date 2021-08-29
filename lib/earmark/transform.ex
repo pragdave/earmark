@@ -3,6 +3,7 @@ defmodule Earmark.Transform do
   import Earmark.Helpers, only: [replace: 3]
 
   alias Earmark.Options
+  alias Earmark.TagSpecificProcessors, as: TSP
 
   @compact_tags ~w[a code em strong del]
 
@@ -11,14 +12,14 @@ defmodule Earmark.Transform do
 
   @moduledoc """
   # Transformations
- 
+
   ## Structure Conserving Transformers
 
   For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
   mappers.
 
   ### `map_ast`
-  
+
   takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
   like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
 
@@ -36,7 +37,7 @@ defmodule Earmark.Transform do
 
         iex(0)> input = [
         ...(0)> {"h1", [], ["Hello"], %{title: true}},
-        ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}] 
+        ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}]
         ...(0)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
         [ {:h1, [], ["Hello"], %{title: true}},
           {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
@@ -50,17 +51,17 @@ defmodule Earmark.Transform do
   this is like `map_ast` but like a reducer an accumulator can also be passed through.
 
   For that reason the function is called with two arguments, the first element being the same value
-  as in `map_ast` and the second the accumulator. The return values need to be equally augmented 
+  as in `map_ast` and the second the accumulator. The return values need to be equally augmented
   tuples.
 
   A simple example, annotating traversal order in the meta map's `:count` key, as we are not
   interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
 
-         iex(0)>  input = [
-         ...(0)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
-         ...(0)>  {"p", [], ["hello"], %{}}]
-         ...(0)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
-         ...(0)>  map_ast_with(input, 0, counter, true) 
+         iex(1)>  input = [
+         ...(1)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
+         ...(1)>  {"p", [], ["hello"], %{}}]
+         ...(1)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
+         ...(1)>  map_ast_with(input, 0, counter, true)
          {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
            {"p", [], ["hello"], %{count: 3}}], 4}
 
@@ -68,9 +69,23 @@ defmodule Earmark.Transform do
 
   For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
   tools has emerged yet.
+
+  ## Implicit AST Transformation with Postprocessors
+
+  These can be declared in the fields `postprocessor` and `registered_processors` in the `Options` struct,
+  `postprocessor` is prepened to `registered_processors` and they are all applied to non string nodes (that
+  is the quadtuples of the AST which are of the form `{tag, atts, content, meta}`
+
+  All postprocessors can just be functions on nodes or a `TagSpecificProcessors` struct which will group
+  function applications depending on tags
+
   """
 
-  @doc false
+  def make_postprocessor(options)
+  def make_postprocessor(%{postprocessor: nil, registered_processors: rps}), do: _make_postprocessor(rps)
+  def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
+  def make_postprocessor(options), do: make_postprocessor(%{options|registered_processors: []})
+
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
   def transform(ast, options) when is_list(options) do
     transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
@@ -95,6 +110,15 @@ defmodule Earmark.Transform do
     _walk_ast_with(ast, value, fun, ignore_strings, [])
   end
 
+  defp _make_postprocessor(processors) do
+    processors_ = processors
+    |> Enum.map( fn %TSP{}=tsp -> TSP.make_postprocessor(tsp)
+                    just_a_fun -> just_a_fun end)
+    fn node ->
+      processors_
+      |> Enum.reduce(node, fn processor, node -> processor.(node) end)
+    end
+  end
 
   defp maybe_add_newline(options)
   defp maybe_add_newline(%Options{compact_output: true}), do: []

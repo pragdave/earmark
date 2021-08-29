@@ -1,5 +1,4 @@
 defmodule Earmark.Options do
-
   use Earmark.Types
 
   # What we use to render
@@ -39,7 +38,10 @@ defmodule Earmark.Options do
             messages: [],
             pure_links: true,
             compact_output: false,
-            postprocessor: nil
+            ignore_strings: false,
+            postprocessor: nil,
+            registered_processors: []
+
 
   @type t :: %__MODULE__{
         breaks: boolean,
@@ -65,8 +67,8 @@ defmodule Earmark.Options do
     end
   end
 
-  @doc false
-  def make_options(options) do
+  def make_options(options)
+  def make_options(options) when is_list(options) do
     legal_keys =
       __MODULE__
       |> struct()
@@ -82,24 +84,49 @@ defmodule Earmark.Options do
       MapSet.difference(given_keys, legal_keys)
 
     if MapSet.size(violators) == 0 do
-      {:ok, struct(__MODULE__, options)}
+      {:ok, struct(__MODULE__, options) |> _normalize()}
     else
       {:error, _format_errors(violators, options)}
     end
   end
-
-  @doc false
-  def plugin_for_prefix(options, plugin_name) do
-    Map.get(options.plugins, plugin_name, false)
+  def make_options(options) when is_map(options) do
+    options
+    |> Enum.into([])
+    |> make_options()
   end
+
+  def make_options!(options) do
+    case make_options(options) do
+      {:ok, options_} -> options_
+      {:error, errors} -> raise Earmark.Error, inspect(errors)
+    end
+  end
+
+  @doc """
+  A convenience constructor
+  """
+  def with_postprocessor(pp, rps \\ []), do: %__MODULE__{postprocessor: pp, registered_processors: rps}
 
   defp _format_error(violator, options) do
     {:warning, 0, "Unrecognized option #{violator}: #{Keyword.get(options, violator) |> inspect()} ignored"}
   end
 
+  defp _assure_applicable(fun_or_tuple_or_tsp)
+  defp _assure_applicable({_, _}=tf), do: Earmark.TagSpecificProcessors.new(tf)
+  defp _assure_applicable(f), do: f
+
   defp _format_errors(violators, options) do
     violators
     |> Enum.map(&_format_error(&1, options))
+  end
+
+  defp _normalize(%__MODULE__{registered_processors: {_, _}=t}=options), do:
+    _normalize(%{options|registered_processors: [t]})
+  defp _normalize(%__MODULE__{registered_processors: rps}=options) when is_list(rps) do
+    %{options | registered_processors: Enum.map(rps, &_assure_applicable/1)}
+  end
+  defp _normalize(%__MODULE__{registered_processors: f}=options) when is_function(f) do
+    %{options | registered_processors: [f]}
   end
 
 end

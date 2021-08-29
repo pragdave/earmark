@@ -115,10 +115,12 @@ defmodule Earmark do
   For details see the description of `Earmark.Transform.map_ast` below which will accept the same postprocessor as
   a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
 
+  ```elixir
             markdown
             |> EarmarkParser.as_ast
             |> Earmark.Transform.map_ast(fun)
             |> Earmark.Transform.transform
+  ```
 
   with all the necessary bookkeeping for options and messages
 
@@ -138,22 +140,30 @@ defmodule Earmark do
 
   ### Command line
 
+  ```sh
       $ mix escript.build
       $ ./earmark file.md
+  ```
 
   Some options defined in the `Earmark.Options` struct can be specified as command line switches.
 
   Use
 
+  ```sh
       $ ./earmark --help
+  ```
 
   to find out more, but here is a short example
 
+  ```sh
       $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
+  ```
 
   will call
 
+  ```sh
       Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+  ```
 
   ## Timeouts
 
@@ -212,14 +222,18 @@ defmodule Earmark do
   end
 
   @line_end ~r{\n\r?}
-  def postprocessed_ast(lines, options\\%{})
+  def postprocessed_ast(lines, options \\ %Options{})
   def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
-  def postprocessed_ast(lines, %{postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
-  def postprocessed_ast(lines, %{postprocessor: prep}=options) do
+  # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
+  # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
+  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
+  def postprocessed_ast(lines, %Options{}=options) do
     {status, ast, messages} = EarmarkParser.as_ast(lines, options)
+    prep = Earmark.Transform.make_postprocessor(options)
     ast1 = Earmark.Transform.map_ast(ast, prep, Map.get(options, :ignore_strings))
     {status, ast1, messages}
   end
+  def postprocessed_ast(lines, options), do: postprocessed_ast(lines, Options.make_options!(options))
 
   @doc """
   A convenience method that *always* returns an HTML representation of the markdown document passed in.
@@ -274,6 +288,6 @@ defmodule Earmark do
         Error,
         "#{inspect(task)} has not responded within the set timeout of #{timeout}ms, consider increasing it"
       )
-end
 
+end
 # SPDX-License-Identifier: Apache-2.0
