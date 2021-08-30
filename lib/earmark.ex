@@ -1,4 +1,9 @@
 defmodule Earmark do
+  if Version.compare(System.version, "1.12.0") == :lt do
+    IO.puts(:stderr, "DEPRECATION WARNING: versions < 1.12.0 of Elixir are not tested anymore and will not be supported in Earmark v1.5")
+  end
+
+
   @type ast_meta :: map()
   @type ast_tag :: binary()
   @type ast_attribute_name :: binary()

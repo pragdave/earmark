@@ -1,7 +1,7 @@
 defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.4.14"
+  @version "1.4.15"
 
   @url "https://github.com/pragdave/earmark"
 

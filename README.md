@@ -20,7 +20,7 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
-    { :earmark, ">= 1.4.14" }
+    { :earmark, ">= 1.4.15" }
 
 
 ## Earmark
