@@ -141,6 +141,13 @@ defmodule Earmark.Transform do
       ...(7)> Earmark.as_html!(markdown, options)
       "<p class=\"example\">\n  <a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n  <a href=\"url\">some</a></p>\n"
 
+  #### Use case: Modification of Link Attributes depending on the URL
+
+  This would be done as follows
+
+  ```elixir
+          Earmark.as_html!(markdown, registered_processors: {"a", my_function_that_is_invoked_only_with_a_nodes})
+  ```
   ## Structure Modifying Transformers
 
   For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
