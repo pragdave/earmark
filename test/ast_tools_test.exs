@@ -1,4 +1,4 @@
-defmodule Test.Acceptance.AstToolsTest do
+defmodule Test.AstToolsTest do
   use ExUnit.Case
 
   doctest Earmark.AstTools, import: true

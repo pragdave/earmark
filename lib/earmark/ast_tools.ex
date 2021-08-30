@@ -27,10 +27,34 @@ defmodule Earmark.AstTools do
   end
 
   @doc """
+  Convenience function to access an attribute
+
+      iex(3)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "class")
+      "link"
+
+      iex(4)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target")
+      nil
+
+      iex(5)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target", :default)
+      :default
+
+      iex(6)> find_att_in_node([{"class", "link"}], "class")
+      "link"
+
+      iex(7)> find_att_in_node([{"class", "link"}], "target")
+      nil
+
+      iex(8)> find_att_in_node([{"class", "link"}], "target", :default)
+      :default
+  """
+  def find_att_in_node(node_or_atts, att), do: _find_att(node_or_atts, att)
+  def find_att_in_node(node_or_atts, att, default), do: _find_att_with_default(node_or_atts, att, default)
+
+  @doc """
   A convenience function that extracts the original attributes to be merged with new attributes
   and puts the result into the node again
 
-      iex(3)> merge_atts_in_node({"img", [{"src", "there"}, {"alt", "there"}], [], %{some: "meta"}}, alt: "here")
+      iex(9)> merge_atts_in_node({"img", [{"src", "there"}, {"alt", "there"}], [], %{some: "meta"}}, alt: "here")
       {"img", [{"alt", "here there"}, {"src", "there"}], [], %{some: "meta"}}
 
   """
@@ -39,6 +63,20 @@ defmodule Earmark.AstTools do
   end
 
   defp _combine_atts(_key, original, new), do: "#{new} #{original}"
+
+  defp _find_att(node_or_atts, att)
+  defp _find_att({_, atts, _, _}, att), do: _find_att(atts, att)
+  defp _find_att(atts, att) do
+    atts
+    |> Enum.find_value(fn {key, value} -> if att == key, do: value end)
+  end
+
+  defp _find_att_with_default(node_or_atts, att, default)
+  defp _find_att_with_default({_, atts, _, _}, att, default), do: _find_att_with_default(atts, att, default)
+  defp _find_att_with_default(atts, att, default) do
+    atts
+    |> Enum.find_value(default, fn {key, value} -> if att == key, do: value end)
+  end
 
   defp _stringyfy(mappy)
   defp _stringyfy(map) when is_map(map) do

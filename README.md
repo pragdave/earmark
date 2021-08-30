@@ -20,7 +20,7 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
-    { :earmark, ">= 1.4.16" }
+    { :earmark, ">= 1.4.14" }
 
 
 ## Earmark
@@ -132,13 +132,15 @@ cases (e.g. inside tables) might even be necessary
 * `postprocessor:` defaults to nil
 
 Before rendering the AST is transformed by a postprocessor.
-For details see the description of `Earmark.Transform.map_ast·` below which will accept the same postprocessor as
+For details see the description of `Earmark.Transform.map_ast` below which will accept the same postprocessor as
 a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
 
+```elixir
           markdown
           |> EarmarkParser.as_ast
           |> Earmark.Transform.map_ast(fun)
           |> Earmark.Transform.transform
+```
 
 with all the necessary bookkeeping for options and messages
 
@@ -158,22 +160,30 @@ If set the following replacements will be made during rendering of inline text
 
 ### Command line
 
+```sh
     $ mix escript.build
     $ ./earmark file.md
+```
 
 Some options defined in the `Earmark.Options` struct can be specified as command line switches.
 
 Use
 
+```sh
     $ ./earmark --help
+```
 
 to find out more, but here is a short example
 
+```sh
     $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
+```
 
 will call
 
+```sh
     Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
+```
 
 ## Timeouts
 
@@ -226,7 +236,7 @@ As an example let us transform an ast to have symbol keys
 ```elixir
       iex(0)> input = [
       ...(0)> {"h1", [], ["Hello"], %{title: true}},
-      ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}] 
+      ...(0)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}]
       ...(0)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
       [ {:h1, [], ["Hello"], %{title: true}},
         {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
@@ -241,26 +251,116 @@ any function passed in as value of the `postprocessor:` option must obey to thes
 this is like `map_ast` but like a reducer an accumulator can also be passed through.
 
 For that reason the function is called with two arguments, the first element being the same value
-as in `map_ast` and the second the accumulator. The return values need to be equally augmented 
+as in `map_ast` and the second the accumulator. The return values need to be equally augmented
 tuples.
 
 A simple example, annotating traversal order in the meta map's `:count` key, as we are not
 interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
 
 ```elixir
-       iex(0)>  input = [
-       ...(0)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
-       ...(0)>  {"p", [], ["hello"], %{}}]
-       ...(0)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
-       ...(0)>  map_ast_with(input, 0, counter, true) 
+       iex(1)>  input = [
+       ...(1)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
+       ...(1)>  {"p", [], ["hello"], %{}}]
+       ...(1)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
+       ...(1)>  map_ast_with(input, 0, counter, true)
        {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
          {"p", [], ["hello"], %{count: 3}}], 4}
+```
+
+### Postprocessors and Convenience Functions
+
+These can be declared in the fields `postprocessor` and `registered_processors` in the `Options` struct,
+`postprocessor` is prepened to `registered_processors` and they are all applied to non string nodes (that
+is the quadtuples of the AST which are of the form `{tag, atts, content, meta}`
+
+All postprocessors can just be functions on nodes or a `TagSpecificProcessors` struct which will group
+function applications depending on tags, as a convienience tuples of the form `{tag, function}` will be
+transformed into a `TagSpecificProcessors` struct.
+
+```elixir
+    iex(2)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+    ...(2)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
+    ...(2)> m1.({"a", [], nil, nil})
+    {"a", [{"class", "class1"}], nil, nil}
+```
+
+We can also use the `registered_processors` field:
+
+```elixir
+    iex(3)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+    ...(3)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
+    ...(3)> m2.({"a", [], nil, nil})
+    {"a", [{"class", "class1"}], nil, nil}
+```
+
+Knowing that values on the same attributes are added onto the front the following doctest demonstrates
+the order in which the processors are executed
+
+```elixir
+    iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+    ...(4)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
+    ...(4)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
+    ...(4)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
+    ...(4)> |> make_postprocessor()
+    ...(4)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
+    ...(4)> |> Enum.map(m)
+    [{"a", [{"class", "class3 class2 class1 link"}], nil, nil}, {"b", [{"class", "class2 class1"}], nil, nil}]
+```
+
+We can see that the tuple form has been transformed into a tag specific transformation **only** as a matter of fact, the explicit definition would be:
+
+```elixir
+    iex(5)> m = make_postprocessor(
+    ...(5)>   %Earmark.Options{
+    ...(5)>     registered_processors:
+    ...(5)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
+    ...(5)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
+    ...(5)> |> Enum.map(m)
+    [{"a", [{"href", "url"}, {"target", "_blank"}], nil, nil}, {"b", [], nil, nil}]
+```
+
+We can also define a tag specific transformer in one step, which might (or might not) solve potential performance issues
+when running too many processors
+
+```elixir
+    iex(6)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
+    ...(6)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
+    ...(6)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
+    ...(6)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
+    ...(6)> m = Earmark.Options.make_options!(
+    ...(6)>       postprocessor: add_class4,
+    ...(6)>       registered_processors: [tsp, add_class6])
+    ...(6)> |> make_postprocessor()
+    ...(6)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
+    ...(6)> |> Enum.map(m)
+    [{"a", [{"class", "class6 class5 class4"}], nil, nil}, {"c", [{"class", "class6 class4"}], nil, nil}, {"b", [{"class", "class6 class5 class4"}], nil, nil}]
+```
+
+Of course the mechanics shown above is hidden if all we want is to trigger the postprocessor chain in `Earmark.as_html`, here goes a typical
+example
+
+```elixir
+    iex(7)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
+    ...(7)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
+    ...(7)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
+    ...(7)> options = [
+    ...(7)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
+    ...(7)> markdown =
+    ...(7)> """
+    ...(7)>   http://hello.x.com
+    ...(7)>
+    ...(7)>   [some](url)
+    ...(7)> """
+    ...(7)> Earmark.as_html!(markdown, options)
+    "<p class=\"example\">\n  <a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n  <a href=\"url\">some</a></p>\n"
 ```
 
 ## Structure Modifying Transformers
 
 For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
 tools has emerged yet.
+
+
 
 
 

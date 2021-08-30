@@ -10,7 +10,7 @@ defmodule Earmark.Transform do
   # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
   @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
 
-  @moduledoc """
+  @moduledoc ~S"""
   # Transformations
 
   ## Structure Conserving Transformers
@@ -65,19 +65,87 @@ defmodule Earmark.Transform do
          {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
            {"p", [], ["hello"], %{count: 3}}], 4}
 
-  ## Structure Modifying Transformers
-
-  For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
-  tools has emerged yet.
-
-  ## Implicit AST Transformation with Postprocessors
+  ### Postprocessors and Convenience Functions
 
   These can be declared in the fields `postprocessor` and `registered_processors` in the `Options` struct,
   `postprocessor` is prepened to `registered_processors` and they are all applied to non string nodes (that
   is the quadtuples of the AST which are of the form `{tag, atts, content, meta}`
 
   All postprocessors can just be functions on nodes or a `TagSpecificProcessors` struct which will group
-  function applications depending on tags
+  function applications depending on tags, as a convienience tuples of the form `{tag, function}` will be
+  transformed into a `TagSpecificProcessors` struct.
+
+      iex(2)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(2)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
+      ...(2)> m1.({"a", [], nil, nil})
+      {"a", [{"class", "class1"}], nil, nil}
+
+  We can also use the `registered_processors` field:
+
+      iex(3)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(3)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
+      ...(3)> m2.({"a", [], nil, nil})
+      {"a", [{"class", "class1"}], nil, nil}
+
+  Knowing that values on the same attributes are added onto the front the following doctest demonstrates
+  the order in which the processors are executed
+
+      iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(4)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
+      ...(4)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
+      ...(4)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
+      ...(4)> |> make_postprocessor()
+      ...(4)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
+      ...(4)> |> Enum.map(m)
+      [{"a", [{"class", "class3 class2 class1 link"}], nil, nil}, {"b", [{"class", "class2 class1"}], nil, nil}]
+
+  We can see that the tuple form has been transformed into a tag specific transformation **only** as a matter of fact, the explicit definition would be:
+
+      iex(5)> m = make_postprocessor(
+      ...(5)>   %Earmark.Options{
+      ...(5)>     registered_processors:
+      ...(5)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
+      ...(5)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
+      ...(5)> |> Enum.map(m)
+      [{"a", [{"href", "url"}, {"target", "_blank"}], nil, nil}, {"b", [], nil, nil}]
+
+  We can also define a tag specific transformer in one step, which might (or might not) solve potential performance issues
+  when running too many processors
+
+      iex(6)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
+      ...(6)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
+      ...(6)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
+      ...(6)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
+      ...(6)> m = Earmark.Options.make_options!(
+      ...(6)>       postprocessor: add_class4,
+      ...(6)>       registered_processors: [tsp, add_class6])
+      ...(6)> |> make_postprocessor()
+      ...(6)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
+      ...(6)> |> Enum.map(m)
+      [{"a", [{"class", "class6 class5 class4"}], nil, nil}, {"c", [{"class", "class6 class4"}], nil, nil}, {"b", [{"class", "class6 class5 class4"}], nil, nil}]
+
+  Of course the mechanics shown above is hidden if all we want is to trigger the postprocessor chain in `Earmark.as_html`, here goes a typical
+  example
+
+      iex(7)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
+      ...(7)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
+      ...(7)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
+      ...(7)> options = [
+      ...(7)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
+      ...(7)> markdown =
+      ...(7)> """
+      ...(7)>   http://hello.x.com
+      ...(7)>
+      ...(7)>   [some](url)
+      ...(7)> """
+      ...(7)> Earmark.as_html!(markdown, options)
+      "<p class=\"example\">\n  <a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n  <a href=\"url\">some</a></p>\n"
+
+  ## Structure Modifying Transformers
+
+  For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
+  tools has emerged yet.
+
 
   """
 
