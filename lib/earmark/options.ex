@@ -42,7 +42,7 @@ defmodule Earmark.Options do
             wikilinks: false,
           ]
 
-  @doc """
+  @doc ~S"""
   Make a legal and normalized Option struct from, maps or keyword lists
 
   Without a param or an empty input we just get a new Option struct
@@ -60,33 +60,39 @@ defmodule Earmark.Options do
   Firstly we check for unallowed keys
 
       iex(2)> make_options(no_such_option: true)
-      {:error, ["Unrecognized option no_such_option: true"]}
+      {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}]}
 
   Of course we do not let our users discover one error after another
 
       iex(3)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
-      {:error, ["Unrecognized option no_such_option: true", "Unrecognized option still_not_an_option: 42"]}
+      {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]}
 
   If everything goes well however, we also make sure that our values are correctly cast
 
-      iex(0)> make_options!(%{gfm: "false", timeout: "42_000"})
-  defp numberize_options(keywords, option_names), do: Enum.map(keywords, &numberize_option(&1, option_names))
-  defp numberize_option({k, v}, option_names) do
-    if Enum.member?(option_names, k) do
-      case v |> String.replace("_","") |> Integer.parse do
-        {int_val, ""}   -> {k, int_val}
-        {int_val, rest} -> IO.puts(:stderr, "Warning, non numerical suffix in option #{k} ignored (#{inspect rest})")
-                           {k, int_val}
-        :error          -> IO.puts(:stderr, "ERROR, non numerical value #{v} for option #{k} ignored, value is set to nil")
-                           {k, nil}
-      end
-    else
-      {k, v}
-    end
-  end
+      iex(4)> make_options!(%{gfm: false, timeout: "42_000"})
+      %Earmark.Options{gfm: false, timeout: 42_000}
 
+  Unless we cannot, of course
+
+      iex(5)> make_options(timeout: "xxx")
+      {:error, [{:warning, 0, "Illegal value for option timeout, actual: \"xxx\", needed: an int or nil"}]}
+
+  Here is a complete example
+
+      iex(6)> make_options(timeout: "yyy", no_such_option: true)
+      {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Illegal value for option timeout, actual: \"yyy\", needed: an int or nil"}]}
+
+  If we use the bang version we still get the needed information
+
+      iex(7)> try do
+      ...(7)>   make_options!(timeout: "yyy", no_such_option: true)
+      ...(7)> rescue
+      ...(7)>   ee in Earmark.Error -> ee.message
+      ...(7)> end
+      "[{:warning, 0, \"Unrecognized option no_such_option: true\"}, {:warning, 0, \"Illegal value for option timeout, actual: \\\"yyy\\\", needed: an int or nil\"}]"
 
   """
+
   def make_options(options \\ [])
   def make_options(options) when is_list(options) do
     legal_keys =
@@ -100,13 +106,16 @@ defmodule Earmark.Options do
       |> Keyword.keys
       |> MapSet.new
 
-    violators =
-      MapSet.difference(given_keys, legal_keys)
+    illegal_key_errors =
+      given_keys
+      |> MapSet.difference(legal_keys)
+      |> _format_illegal_key_errors(options)
 
-    if MapSet.size(violators) == 0 do
-      {:ok, struct(__MODULE__, options) |> _normalize()}
-    else
-      {:error, _format_errors(violators, options)}
+    {options_, format_errors} = _numberize_values(MapSet.new(~w[timeout]a), options)
+
+    case (illegal_key_errors ++ format_errors) do
+      [] -> {:ok, struct(__MODULE__, options_)|>_normalize()}
+      errors -> {:error, _format_errors(errors)}
     end
   end
   def make_options(options) when is_map(options) do
@@ -118,6 +127,7 @@ defmodule Earmark.Options do
   def make_options!(options \\ []) do
     case make_options(options) do
       {:ok, options_} -> options_
+
       {:error, errors} -> raise Earmark.Error, inspect(errors)
     end
   end
@@ -127,31 +137,28 @@ defmodule Earmark.Options do
   """
   def with_postprocessor(pp, rps \\ []), do: %__MODULE__{postprocessor: pp, registered_processors: rps}
 
-  defp _format_error(violator, options) do
-    "Unrecognized option #{violator}: #{Keyword.get(options, violator) |> inspect()}"
-  end
-
   defp _assure_applicable(fun_or_tuple_or_tsp)
   defp _assure_applicable({_, _}=tf), do: Earmark.TagSpecificProcessors.new(tf)
   defp _assure_applicable(f), do: f
 
-  defp _format_errors(violators, options) do
-    violators
-    |> Enum.map(&_format_error(&1, options))
+  defp _format_errors(errors) do
+    errors
+    |> Enum.map(&{:warning, 0, &1})
   end
 
-  defp numberize_options(keywords, option_names), do: Enum.map(keywords, &numberize_option(&1, option_names))
-  defp numberize_option({k, v}, option_names) do
-    if Enum.member?(option_names, k) do
-      case v |> String.replace("_","") |> Integer.parse do
-        {int_val, ""}   -> {k, int_val}
-        {int_val, rest} -> IO.puts(:stderr, "Warning, non numerical suffix in option #{k} ignored (#{inspect rest})")
-                           {k, int_val}
-        :error          -> IO.puts(:stderr, "ERROR, non numerical value #{v} for option #{k} ignored, value is set to nil")
-                           {k, nil}
-      end
-    else
-      {k, v}
+  defp _format_illegal_key_errors(violators, options) do
+    violators
+    |> Enum.map(&_format_illegal_key_error(&1, options))
+  end
+
+  defp _format_illegal_key_error(violator, options) do
+    "Unrecognized option #{violator}: #{Keyword.get(options, violator) |> inspect()}"
+  end
+
+  defp _numberize_this_value(value) do
+    case value |> String.replace("_","") |> Integer.parse do
+      {int_val, ""}   -> {:ok, int_val}
+      _               -> :error
     end
   end
 
@@ -162,6 +169,22 @@ defmodule Earmark.Options do
   end
   defp _normalize(%__MODULE__{registered_processors: f}=options) when is_function(f) do
     %{options | registered_processors: [f]}
+  end
+
+  defp _numberize_value({k, v}, {options, errors}, names) do
+    if Enum.member?(names, k) do
+      case _numberize_this_value(v) do
+        {:ok, value} -> {Keyword.put(options, k, value), errors}
+        :error       -> {options, ["Illegal value for option #{k}, actual: #{inspect v}, needed: an int or nil"|errors]}
+      end
+    else
+      {options, errors}
+    end
+  end
+
+  defp _numberize_values(names, options) do
+    options
+    |> Enum.reduce({options, []}, &_numberize_value(&1, &2, names))
   end
 
 end
