@@ -159,7 +159,6 @@ defmodule Earmark.Transform do
   def make_postprocessor(options)
   def make_postprocessor(%{postprocessor: nil, registered_processors: rps}), do: _make_postprocessor(rps)
   def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
-  def make_postprocessor(options), do: make_postprocessor(%{options|registered_processors: []})
 
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
   def transform(ast, options) when is_list(options) do
@@ -171,15 +170,48 @@ defmodule Earmark.Transform do
     to_html(ast, options1)
   end
 
-  @doc """
-  Coming soon
+  @doc ~S"""
+  This is a structure conserving transformation
+
+      iex(8)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(8)> map_ast(ast, &(&1))
+      [{"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}}]
+
+  A more useful transformation
+      iex(9)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(9)> fun = fn {_, _, _, _}=n -> Earmark.AstTools.merge_atts_in_node(n, class: "private")
+      ...(9)>           string      -> string end
+      ...(9)> map_ast(ast, fun)
+      [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
+
+  However the usage of the `ignore_strings` option renders the code much simpler
+
+      iex(10)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(10)> map_ast(ast, &Earmark.AstTools.merge_atts_in_node(&1, class: "private"), true)
+      [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
   """
   def map_ast(ast, fun, ignore_strings \\ false) do
     _walk_ast(ast, fun, ignore_strings, [])
   end
 
-  @doc """
-  Coming soon
+  @doc ~S"""
+  This too is a structure perserving transformation but a value is passed to the mapping function as an accumulator, and the mapping
+  function needs to return the new node and the accumulator as a tuple, here is a simple example
+
+      iex(11)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      ...(11)> summer = fn {"li", _, [v], _}=n, s -> {v_, _} = Integer.parse(v); {n, s + v_}
+      ...(11)>             n, s -> {n, s} end
+      ...(11)> map_ast_with(ast, 0, summer, true)
+      {[{"ul", [], [{"li", [], ["1"], %{}}], %{}}, {"p", [], ["2"], %{}}, {"ul", [], [{"li", [], ["3"], %{}}], %{}}], 4}
+
+  or summing all numbers
+
+      iex(12)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      ...(12)> summer = fn {_, _, _, _}=n, s -> {n, s} 
+      ...(12)>             n, s -> {n_, _} = Integer.parse(n); {"*", s+n_} end
+      ...(12)> map_ast_with(ast, 0, summer)
+      {[{"ul", [], [{"li", [], ["*"], %{}}], %{}}, {"p", [], ["*"], %{}}, {"ul", [], [{"li", [], ["*"], %{}}], %{}}], 6}
+
   """
   def map_ast_with(ast, value, fun, ignore_strings \\ false) do
     _walk_ast_with(ast, value, fun, ignore_strings, [])

@@ -21,7 +21,6 @@ defmodule Earmark.Options do
             code_class_prefix: nil,
             compact_output: false,
             # Internal—only override if you're brave
-            do_smartypants: nil,
             escape: true,
             file: "<no file>",
             footnote_offset: 1,
