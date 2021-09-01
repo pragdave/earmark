@@ -7,7 +7,7 @@ defmodule Earmark.Mixfile do
 
 
   @deps [
-    {:earmark_parser, ">= 1.4.12"},
+    {:earmark_parser, ">= 1.4.15"},
     {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
@@ -50,6 +50,14 @@ defmodule Earmark.Mixfile do
     ]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
+  defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
+  defp elixirc_paths(_), do: ["lib"]
+
+  defp escript_config do
+    [main_module: Earmark.CLI]
+  end
+
   defp package do
     [
       files: [
@@ -70,13 +78,6 @@ defmodule Earmark.Mixfile do
     ]
   end
 
-  defp escript_config do
-    [main_module: Earmark.CLI]
-  end
-
-  defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
-  defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
-  defp elixirc_paths(_), do: ["lib"]
 
   @prerequisites """
   run `mix escript.install hex ex_doc` and adjust `PATH` accordingly

@@ -414,3 +414,4 @@ defmodule Earmark.Transform do
     _walk_ast_with([h, t|rest], value, fun, ignore_strings, result)
   end
 end
+#  SPDX-License-Identifier: Apache-2.0
