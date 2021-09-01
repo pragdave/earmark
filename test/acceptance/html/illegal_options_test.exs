@@ -7,14 +7,14 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
   describe "unrecognized options" do
     test "with empty" do
       messages = [
-        {:warning, 0, "Unrecognized option no_such_option: true ignored"}
+        {:warning, 0, "Unrecognized option no_such_option: true"}
       ]
       assert as_html("", no_such_option: true) == {:error, "", messages}
     end
     test "with non empty" do
       messages = [
-        {:warning, 0, "Unrecognized option hello: 42 ignored"},
-        {:warning, 0, "Unrecognized option no_such_option: true ignored"},
+        {:warning, 0, "Unrecognized option hello: 42"},
+        {:warning, 0, "Unrecognized option no_such_option: true"},
       ]
       assert as_html("hello", no_such_option: true, hello: 42) == {:error, "", messages}
     end
@@ -25,7 +25,7 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
       capture_io(:stderr, fn ->
         as_html!("hello", oops: Earmark) 
       end)
-    assert error_messages == "<args>:0: warning: Unrecognized option oops: Earmark ignored\n"
+    assert error_messages == "<args>:0: warning: Unrecognized option oops: Earmark\n"
   end 
 
   test "with as_html! defining filename" do
@@ -33,6 +33,6 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
       capture_io(:stderr, fn ->
         as_html!("hello", oops: Earmark, file: "test.md")
       end)
-    assert error_messages == "test.md:0: warning: Unrecognized option oops: Earmark ignored\n"
+    assert error_messages == "test.md:0: warning: Unrecognized option oops: Earmark\n"
   end
 end

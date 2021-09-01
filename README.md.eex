@@ -18,6 +18,12 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
     { :earmark, ">= <%= Earmark.version %>" }
 
+## Options
+
+<%= xtra.moduledoc "Earmark.Options" %>
+
+<%= xtra.functiondoc :all, module: "Earmark.Options", wrap_code_blocks: "elixir", headline: 3 %>
+
 <%= xtra.moduledoc "Earmark", wrap_code_blocks: "elixir" %>
 
 

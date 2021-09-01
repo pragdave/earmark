@@ -22,6 +22,94 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
     { :earmark, ">= 1.4.15" }
 
+## Options
+
+This is a superset of the options that need to be passed into `EarmarkParser.as_ast/2`
+
+The following options are proper to `Earmark` only and therefore explained in detail
+
+- `compact_output`: boolean indicating to avoid indentation and minimize whitespace
+- `eex`: Coming soon (EEx preprocessing)
+- `file`: Name of file passed in from the CLI
+- `line`: 1 but might be set to an offset for better error messages in some integration cases
+- `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
+   EarmarkParser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
+   Refer to the moduledoc of Earmark.`Transform` for details
+
+All other options are passed onto EarmarkParser.as_ast/`2`
+
+
+### Earmark.Options.make_options/1
+
+Make a legal and normalized Option struct from, maps or keyword lists
+
+Without a param or an empty input we just get a new Option struct
+
+```elixir
+    iex(0)> { make_options(), make_options(%{}) }
+    { {:ok, %Earmark.Options{}}, {:ok, %Earmark.Options{}} }
+```
+
+The same holds for the bang version of course
+
+```elixir
+    iex(1)> { make_options!(), make_options!(%{}) }
+    { %Earmark.Options{}, %Earmark.Options{} }
+```
+
+When constructed from user input some normalization and error checking needs to be performed
+
+Firstly we check for unallowed keys
+
+```elixir
+    iex(2)> make_options(no_such_option: true)
+    {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}]}
+```
+
+Of course we do not let our users discover one error after another
+
+```elixir
+    iex(3)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
+    {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]}
+```
+
+If everything goes well however, we also make sure that our values are correctly cast
+
+```elixir
+    iex(4)> make_options!(%{gfm: false, timeout: "42_000"})
+    %Earmark.Options{gfm: false, timeout: 42_000}
+```
+
+Unless we cannot, of course
+
+```elixir
+    iex(5)> make_options(timeout: "xxx")
+    {:error, [{:warning, 0, "Illegal value for option timeout, actual: \"xxx\", needed: an int or nil"}]}
+```
+
+Here is a complete example
+
+```elixir
+    iex(6)> make_options(timeout: "yyy", no_such_option: true)
+    {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Illegal value for option timeout, actual: \"yyy\", needed: an int or nil"}]}
+```
+
+If we use the bang version we still get the needed information
+
+```elixir
+    iex(7)> try do
+    ...(7)>   make_options!(timeout: "yyy", no_such_option: true)
+    ...(7)> rescue
+    ...(7)>   ee in Earmark.Error -> ee.message
+    ...(7)> end
+    "[{:warning, 0, \"Unrecognized option no_such_option: true\"}, {:warning, 0, \"Illegal value for option timeout, actual: \\\"yyy\\\", needed: an int or nil\"}]"
+```
+
+### Earmark.Options.with_postprocessor/2
+
+A convenience constructor
+
+
 
 ## Earmark
 
