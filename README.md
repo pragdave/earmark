@@ -8,6 +8,7 @@ and any changes you make in this file will most likely be lost
 # Earmark—A Pure Elixir Markdown Processor
 
 [![CI](https://github.com/pragdave/earmark/actions/workflows/ci.yml/badge.svg)](https://github.com/pragdave/earmark/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/pragdave/earmark/badge.svg?branch=master)](https://coveralls.io/github/pragdave/earmark?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark.svg)](https://hex.pm/packages/earmark)
