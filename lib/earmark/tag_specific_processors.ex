@@ -35,6 +35,10 @@ defmodule Earmark.TagSpecificProcessors do
 
   @doc """
   Convenience construction
+
+      iex(3)> new()
+      %Earmark.TagSpecificProcessors{}
+
   """
   def new, do: %__MODULE__{}
   def new({_, _}=tf), do: %__MODULE__{tag_functions: [tf]}
