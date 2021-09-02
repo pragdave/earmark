@@ -1,6 +1,5 @@
-defmodule Earmark.CLI do
+defmodule Earmark.Cli do
 
-  alias Earmark.CLI.Implementation
 
   @moduledoc """
   The Earmark CLI
@@ -14,14 +13,13 @@ defmodule Earmark.CLI do
   """
   def main(argv) do
     argv
-    |> Implementation.run()
+    |> Earmark.Cli.Implementation.run()
     |> output()
-    |> exit()
   end
 
   defp output({device, string}) do
     IO.puts(device, string)
-    if device == :stderr, do: 1, else: 0
+    if device == :stderr, do: exit(1)
   end
 end
 #  SPDX-License-Identifier: Apache-2.0

@@ -45,10 +45,10 @@ Thank you all who have already helped with Earmark, your names are duely noted i
 ## Author
 
 Copyright © 2014,5,6,7,8,9, 2020,1 Dave Thomas, The Pragmatic Programmers & Robert Dober
-@/+pragdave,  dave@pragprog.com
+@/+pragdave,  dave@pragprog.com & robert.dober@gmail.com
 
 # LICENSE
 
 Same as Elixir, which is Apache License v2.0. Please refer to [LICENSE](LICENSE) for details.
 
-SPDX-License-Identifier: Apache-2.0
+<!-- SPDX-License-Identifier: Apache-2.0 -->

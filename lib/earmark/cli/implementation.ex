@@ -1,4 +1,7 @@
-defmodule Earmark.CLI.Implementation do
+defmodule Earmark.Cli.Implementation do
+
+  alias Earmark.Options
+  alias Earmark.SysInterface
 
   @moduledoc """
   Functional (with the exception of reading input files with `Earmark.File`) interface to the CLI
@@ -6,12 +9,15 @@ defmodule Earmark.CLI.Implementation do
   """
 
   @doc """
-  allows functional access to the CLI API, does everything main does without outputting the result
+  allows functional access to the CLI API, does everything `Earmark.Cli.main` does without outputting the result
 
   Returns a tuple of the device to write to (`:stdio|:stderr`) and the content to be written
 
   Example: Bad file
+
       iex(0)> run(["no-such--file--ayK7k"])
+      {:stderr, "Cannot open no-such--file--ayK7k, reason: enoent"}
+
   """
   def run(argv) do
     argv
@@ -54,71 +60,30 @@ defmodule Earmark.CLI.Implementation do
 
     case OptionParser.parse(argv, switches: switches, aliases: aliases) do
       { [ {switch, true } ],  _, _ } -> switch
-      { options, [ filename ],  _ }  -> {:file, filename, options}
-      { options, [ ],           _ }  -> {:stdio, "<no file>", options}
+      { options, [ filename ],  _ }  -> {open_file(filename), filename, options}
+      { options, [ ],           _ }  -> {{:ok, :stdio}, "<no file>", options}
       _                              -> :help
     end
   end
 
-
   defp process(flag_or_triple)
   defp process(:help) do
-    {:stderr, IO.chardata_to_string([@args, option_related_help())}
+    {:stderr, IO.chardata_to_string([@args, option_related_help()])}
   end
-
   defp process(:version) do
     {:stdio, Earmark.version}
   end
+  defp process({{:error, reason}, filename, _}) do
+    {:stderr, "Cannot open #{filename}, reason: #{reason}"}
+  end
+  defp process({{:ok, io_device}, filename, options}) do
+    options_ = [{:file, filename} | options] |> Options.make_options!
 
-  defp process({io_device, filename, options}) do
-    options = struct(Earmark.Options,
-                 booleanify(options) |> numberize_options([:timeout]) |> add_filename(filename))
-
-
-    content = IO.stream(io_device, :line) |> Enum.to_list
-    {:stdio, Earmark.as_html!(content, options)}
+    content = SysInterface.sys_interface.readlines(io_device) |> Enum.to_list
+    {:stdio, Earmark.as_html!(content, options_)}
   end
 
-  defp add_filename(options, filename),
-    do: [{:file, filename} | options]
-
-
-  defp booleanify( keywords ), do: Enum.map(keywords, &booleanify_option/1)
-  defp booleanify_option({k, v}) do
-    {k,
-     case Map.get %Earmark.Options{}, k, :does_not_exist do
-        true  -> if v == "false", do: false, else: true
-        false -> if v == "false", do: false, else: true
-        :does_not_exist ->
-          IO.puts( :stderr, "ignoring unsupported option #{inspect k}")
-          v
-        _     -> v
-      end
-    }
-  end
-
-  defp numberize_options(keywords, option_names), do: Enum.map(keywords, &numberize_option(&1, option_names))
-  defp numberize_option({k, v}, option_names) do
-    if Enum.member?(option_names, k) do
-      case v |> String.replace("_","") |> Integer.parse do
-        {int_val, ""}   -> {k, int_val}
-        {int_val, rest} -> IO.puts(:stderr, "Warning, non numerical suffix in option #{k} ignored (#{inspect rest})")
-                           {k, int_val}
-        :error          -> IO.puts(:stderr, "ERROR, non numerical value #{v} for option #{k} ignored, value is set to nil")
-                           {k, nil}
-      end
-    else
-      {k, v}
-    end
-  end
-
-  defp open_file(filename), do: io_device(File.open(filename, [:utf8]), filename)
-
-  defp io_device({:ok, io_device}, _), do: io_device
-  defp io_device({:error, reason}, filename) do
-    IO.puts(:stderr, "#{filename}: #{:file.format_error(reason)}")
-    exit(1)
-  end
+  defp open_file(filename), do: File.open(filename, [:utf8])
 
   defp option_related_help do
     @cli_options

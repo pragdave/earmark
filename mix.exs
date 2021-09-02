@@ -55,7 +55,7 @@ defmodule Earmark.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp escript_config do
-    [main_module: Earmark.CLI]
+    [main_module: Earmark.Cli]
   end
 
   defp package do
