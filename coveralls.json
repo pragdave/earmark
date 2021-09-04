@@ -1,9 +1,7 @@
 {
   "skip_files": [
     "earmark/cli.ex",
-    "earmark/scanner.ex",
-    "tools/",
-    "src/",
-    "test/"
+    "lib/earmark/sys_interface/implementation.ex",
+    "test/support"
   ]
 }

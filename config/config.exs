@@ -2,6 +2,10 @@
 # and its dependencies. The Mix.Config module provides functions
 # to aid in doing so.
 use Mix.Config
+case Mix.env do
+  :test ->  config :earmark, sys_interface: Support.Earmark.SysInterface.Mock
+  _     ->  config :earmark, sys_interface: Earmark.SysInterface.Implementation
+end
 
 # Note this file is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -20,3 +24,4 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+#  SPDX-License-Identifier: Apache-2.0
