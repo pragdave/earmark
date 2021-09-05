@@ -21,14 +21,13 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Options
 
-<%= xtra.moduledoc "Earmark.Options" %>
+<%= xtra.moduledoc "Earmark.Options", wrap_code_blocks: "elixir", headline: 3 %>
 
 <%= xtra.functiondoc :all, module: "Earmark.Options", wrap_code_blocks: "elixir", headline: 3 %>
 
-<%= xtra.moduledoc "Earmark", wrap_code_blocks: "elixir" %>
+<%= xtra.moduledoc "Earmark", wrap_code_blocks: "elixir", headline: 3 %>
 
-
-<%= xtra.moduledoc "Earmark.Transform", wrap_code_blocks: "elixir" %>
+<%= xtra.moduledoc "Earmark.Transform", wrap_code_blocks: "elixir", headline: 3 %>
 
 
 ## Contributing

@@ -1,0 +1,3 @@
+# Short2
+<%= EEx.eval_file "test/fixtures/short3.md.eex" %>
+<!-- SPDX-License-Identifier: Apache-2.0 -->

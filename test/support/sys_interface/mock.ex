@@ -3,6 +3,7 @@ defmodule Support.Earmark.SysInterface.Mock do
 
   def readlines(device)
   def readlines(:stdio), do: Agent.get_and_update(__MODULE__, &{Map.get(&1, :stdio), %{stdio: []}})
+  def readlines(device), do: IO.stream(device, :line)
 
   def start_link do
     Agent.start_link(fn -> %{stdio: []} end, name: __MODULE__)
