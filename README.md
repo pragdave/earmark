@@ -25,6 +25,11 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Options
 
+
+Functional (with the exception of reading input files with `Earmark.File`) interface to the CLI
+returning the device and the string to be output.
+
+
 This is a superset of the options that need to be passed into `EarmarkParser.as_ast/2`
 
 The following options are proper to `Earmark` only and therefore explained in detail

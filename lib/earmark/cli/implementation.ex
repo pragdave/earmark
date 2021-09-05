@@ -26,9 +26,14 @@ defmodule Earmark.Cli.Implementation do
 
   Example: Using EEx
 
-      iex(1)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
-      ...(1)> html
+      iex(2)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
+      ...(2)> html
       "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
+
+  Example: Using an EEx template first
+
+      iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
+      {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
   """
 
   def run(argv) do
@@ -47,28 +52,43 @@ defmodule Earmark.Cli.Implementation do
   convert file from Markdown to HTML.
 
      where options can be any of:
+       --breaks
        --code-class-prefix <a prefix>
-       -- eex
+       --eex
+       --escape
        --gfm
        --smartypants
        --pedantic
        --pure-links
        --breaks
+       --template
        --timeout <timeout in ms>
        --wikilinks
 
   """
 
-  @cli_options [:code_class_prefix, :eex, :gfm, :smartypants, :pedantic, :pure_links, :breaks, :timeout, :wikilinks]
+  @cli_options ~W[
+    breaks
+    code_class_prefix
+    eex escape
+    gfm
+    pedantic pure_links
+    smartypants
+    template timeout
+    wikilinks
+  ]
 
   defp _parse_args(argv) do
     switches = [
       breaks: :boolean,
       code_class_prefix: :string,
-      gfm: :boolean,
       eex: :boolean,
+      escape: :boolean,
+      gfm: :boolean,
       help: :boolean,
+      pedantic: :boolean,
       pure_links: :boolean,
+      template: :boolean,
       timeout: :integer,
       version: :boolean,
       wikiklinks: :boolean
@@ -100,6 +120,9 @@ defmodule Earmark.Cli.Implementation do
   defp _process_input({:error, reason}, options) do
     {:stderr, "Cannot open #{options.file}, reason: #{reason}"}
   end
+  defp _process_input({:ok, io_device}, %Options{template: true}) do
+    {:stdio, EEx.eval_string(SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string)}
+  end
   defp _process_input({:ok, io_device}, options) do
     content = _get_content(io_device, options)
     {:stdio, Earmark.as_html!(content, options)}
@@ -107,7 +130,7 @@ defmodule Earmark.Cli.Implementation do
 
   defp _get_content(io_device, options)
   defp _get_content(io_device, %Options{eex: false}), do: SysInterface.sys_interface.readlines(io_device) |> Enum.to_list
-  defp _get_content(io_device, %Options{file: nil}), do: SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> Enum.join("\n") |> EEx.eval_string
+  defp _get_content(io_device, %Options{file: nil}), do: SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string |> EEx.eval_string
   defp _get_content(_io_device, %Options{file: filename}), do: EEx.eval_file(filename)
 
   defp _open_file(filename), do: File.open(filename, [:utf8])

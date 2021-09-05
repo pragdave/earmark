@@ -38,6 +38,7 @@ defmodule Earmark.Options do
             pure_links: true,
             registered_processors: [],
             smartypants: true,
+            template: false,
             timeout: nil,
             wikilinks: false,
           ]
