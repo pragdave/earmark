@@ -6,7 +6,7 @@ defmodule Earmark.Options do
   The following options are proper to `Earmark` only and therefore explained in detail
 
   - `compact_output`: boolean indicating to avoid indentation and minimize whitespace
-  - `eex`: Coming soon (EEx preprocessing)
+  - `eex`: Allows usage of an `EEx` template to be expanded to markdown before conversion
   - `file`: Name of file passed in from the CLI
   - `line`: 1 but might be set to an offset for better error messages in some integration cases
   - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from

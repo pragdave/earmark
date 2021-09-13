@@ -1,5 +1,6 @@
 defmodule Earmark.Cli.Implementation do
 
+
   alias Earmark.Options
   alias Earmark.SysInterface
 
@@ -30,10 +31,12 @@ defmodule Earmark.Cli.Implementation do
       ...(2)> html
       "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
 
+
   Example: Using an EEx template first
 
       iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
       {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
+
   """
 
   def run(argv) do

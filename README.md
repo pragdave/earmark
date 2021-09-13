@@ -26,9 +26,13 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 ## Options
 
 
+### Earmark.Cli.Implementation
+
 Functional (with the exception of reading input files with `Earmark.File`) interface to the CLI
 returning the device and the string to be output.
 
+
+### Earmark.Options
 
 This is a superset of the options that need to be passed into `EarmarkParser.as_ast/2`
 
@@ -83,11 +87,14 @@ And the bang version will raise an `Earmark.Error` as excepted (sic)
 ```elixir
     iex(3)> make_options!(no_such_option: true, gfm: false, still_not_an_option: 42)
     ** (Earmark.Error) [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]
-### Earmark.Options.with_postprocessor/2
 ```
+
+### Earmark.Options.with_postprocessor/2
 
 A convenience constructor
 
+
+### Earmark
 
 
 ## Earmark
@@ -274,6 +281,8 @@ HTML from Markdown and HTML. It is your job to sanitize and or
 filter the output of `Earmark.as_html` if you cannot trust the input
 and are to serve the produced HTML on the Web.
 
+
+### Earmark.Transform
 
 # Transformations
 
