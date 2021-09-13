@@ -14,6 +14,10 @@ defmodule Earmark.Message do
 
   defp emit_message(filename, msg), do: IO.puts(:stderr, format_message(filename, msg))
 
+  defp format_message(filenale, message)
+  defp format_message(nil, {type, line, text}) do
+    "<no file>:#{line}: #{type}: #{text}"
+  end
   defp format_message(filename, {type, line, text}) do
     "#{filename}:#{line}: #{type}: #{text}"
   end

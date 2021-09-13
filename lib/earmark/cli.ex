@@ -17,6 +17,20 @@ defmodule Earmark.Cli do
     |> output()
   end
 
+  @doc ~S"""
+  A convenience wrapper around `Earmark.Cli.Implementation.run/1` it will return `str` in case `{:stdio, str}` is returned
+  or raise an error otherwise
+
+      iex(0)> run!(["test/fixtures/short1.md"])
+      "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
+  """
+  def run!(argv) do
+    case Earmark.Cli.Implementation.run(argv) do
+      {:stdio, output} -> output
+      {_, error}       -> raise Earmark.Error, error
+    end
+  end
+
   defp output({device, string}) do
     IO.puts(device, string)
     if device == :stderr, do: exit(1)

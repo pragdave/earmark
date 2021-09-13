@@ -6,7 +6,7 @@ defmodule Earmark.Options do
   The following options are proper to `Earmark` only and therefore explained in detail
 
   - `compact_output`: boolean indicating to avoid indentation and minimize whitespace
-  - `eex`: Coming soon (EEx preprocessing)
+  - `eex`: Allows usage of an `EEx` template to be expanded to markdown before conversion
   - `file`: Name of file passed in from the CLI
   - `line`: 1 but might be set to an offset for better error messages in some integration cases
   - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
@@ -21,8 +21,9 @@ defmodule Earmark.Options do
             code_class_prefix: nil,
             compact_output: false,
             # Internal—only override if you're brave
+            eex: false,
             escape: true,
-            file: "<no file>",
+            file: nil,
             footnote_offset: 1,
             footnotes: false,
             gfm: true,
@@ -37,6 +38,7 @@ defmodule Earmark.Options do
             pure_links: true,
             registered_processors: [],
             smartypants: true,
+            template: false,
             timeout: nil,
             wikilinks: false,
           ]
@@ -54,9 +56,8 @@ defmodule Earmark.Options do
       iex(1)> { make_options!(), make_options!(%{}) }
       { %Earmark.Options{}, %Earmark.Options{} }
 
-  When constructed from user input some normalization and error checking needs to be performed
 
-  Firstly we check for unallowed keys
+  We check for unallowed keys
 
       iex(2)> make_options(no_such_option: true)
       {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}]}
@@ -66,30 +67,10 @@ defmodule Earmark.Options do
       iex(3)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
       {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]}
 
-  If everything goes well however, we also make sure that our values are correctly cast
+  And the bang version will raise an `Earmark.Error` as excepted (sic)
 
-      iex(4)> make_options!(%{gfm: false, timeout: "42_000"})
-      %Earmark.Options{gfm: false, timeout: 42_000}
-
-  Unless we cannot, of course
-
-      iex(5)> make_options(timeout: "xxx")
-      {:error, [{:warning, 0, "Illegal value for option timeout, actual: \"xxx\", needed: an int or nil"}]}
-
-  Here is a complete example
-
-      iex(6)> make_options(timeout: "yyy", no_such_option: true)
-      {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Illegal value for option timeout, actual: \"yyy\", needed: an int or nil"}]}
-
-  If we use the bang version we still get the needed information
-
-      iex(7)> try do
-      ...(7)>   make_options!(timeout: "yyy", no_such_option: true)
-      ...(7)> rescue
-      ...(7)>   ee in Earmark.Error -> ee.message
-      ...(7)> end
-      "[{:warning, 0, \"Unrecognized option no_such_option: true\"}, {:warning, 0, \"Illegal value for option timeout, actual: \\\"yyy\\\", needed: an int or nil\"}]"
-
+      iex(3)> make_options!(no_such_option: true, gfm: false, still_not_an_option: 42)
+      ** (Earmark.Error) [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]
   """
 
   def make_options(options \\ [])
@@ -110,10 +91,9 @@ defmodule Earmark.Options do
       |> MapSet.difference(legal_keys)
       |> _format_illegal_key_errors(options)
 
-    {options_, format_errors} = _numberize_values(MapSet.new(~w[timeout]a), options)
 
-    case (illegal_key_errors ++ format_errors) do
-      [] -> {:ok, struct(__MODULE__, options_)|>_normalize()}
+    case illegal_key_errors do
+      [] -> {:ok, struct(__MODULE__, options)|> _normalize()}
       errors -> {:error, _format_errors(errors)}
     end
   end
@@ -154,13 +134,6 @@ defmodule Earmark.Options do
     "Unrecognized option #{violator}: #{Keyword.get(options, violator) |> inspect()}"
   end
 
-  defp _numberize_this_value(value) do
-    case value |> String.replace("_","") |> Integer.parse do
-      {int_val, ""}   -> {:ok, int_val}
-      _               -> :error
-    end
-  end
-
   defp _normalize(%__MODULE__{registered_processors: {_, _}=t}=options), do:
     _normalize(%{options|registered_processors: [t]})
   defp _normalize(%__MODULE__{registered_processors: rps}=options) when is_list(rps) do
@@ -168,22 +141,6 @@ defmodule Earmark.Options do
   end
   defp _normalize(%__MODULE__{registered_processors: f}=options) when is_function(f) do
     %{options | registered_processors: [f]}
-  end
-
-  defp _numberize_value({k, v}, {options, errors}, names) do
-    if Enum.member?(names, k) do
-      case _numberize_this_value(v) do
-        {:ok, value} -> {Keyword.put(options, k, value), errors}
-        :error       -> {options, ["Illegal value for option #{k}, actual: #{inspect v}, needed: an int or nil"|errors]}
-      end
-    else
-      {options, errors}
-    end
-  end
-
-  defp _numberize_values(names, options) do
-    options
-    |> Enum.reduce({options, []}, &_numberize_value(&1, &2, names))
   end
 
 end

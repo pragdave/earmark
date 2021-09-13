@@ -6,11 +6,19 @@ defmodule Test.Cli.ImplementationTest do
 
   doctest Earmark.Cli.Implementation, import: true
 
-  test "stdio as input" do
-    mock_stdio(["- one\n- two"])
-    expected = {:stdio, "<ul>\n  <li>\none  </li>\n</ul>\n"}
-    result = run([])
-    assert result == expected
+  describe "stdio" do
+    test "w/o --eex" do
+      mock_stdio(["- one\n- two"])
+      expected = {:stdio, "<ul>\n  <li>\none  </li>\n</ul>\n"}
+      result = run([])
+      assert result == expected
+    end
+    test "with --eex" do
+      mock_stdio(["<%= 1+1 %>"])
+      expected = {:stdio, "<p>\n2</p>\n"}
+      result = run(~W[--eex])
+      assert result == expected
+    end
   end
 
   describe "version" do

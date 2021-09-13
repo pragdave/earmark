@@ -1,0 +1,3 @@
+<html>
+  <%= Earmark.Cli.run!(["--eex", "test/fixtures/short2.md.eex"]) %>
+</html>
