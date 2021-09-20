@@ -21,7 +21,7 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Dependency
 
-    { :earmark, ">= 1.4.15" }
+    { :earmark, ">= 1.4.16-pre" }
 
 ## Options
 
