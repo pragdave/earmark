@@ -8,14 +8,14 @@ defmodule Earmark.AstTools do
   A helper to merge attributes in their cannonical representation
 
 
-      iex(0)> merge_atts([{"href", "url"}], target: "_blank")
+      iex(1)> merge_atts([{"href", "url"}], target: "_blank")
       [{"href", "url"}, {"target", "_blank"}]
 
-      iex(1)> merge_atts([{"href", "url"}, {"target", "nonsense"}], %{"target" => "_blank"})
+      iex(2)> merge_atts([{"href", "url"}, {"target", "nonsense"}], %{"target" => "_blank"})
       [{"href", "url"}, {"target", "_blank nonsense"}]
 
-      iex(2)>  merge_atts([{"href", "url"}, {"target", "nonsense"}, {"alt", "nowhere"}],
-      ...(2)>              [{"target", "_blank"}, title: "where?"])
+      iex(3)>  merge_atts([{"href", "url"}, {"target", "nonsense"}, {"alt", "nowhere"}],
+      ...(3)>              [{"target", "_blank"}, title: "where?"])
       [{"alt", "nowhere"}, {"href", "url"}, {"target", "_blank nonsense"}, {"title", "where?"}]
   """
   def merge_atts(attrs, new)
@@ -29,22 +29,22 @@ defmodule Earmark.AstTools do
   @doc """
   Convenience function to access an attribute
 
-      iex(3)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "class")
+      iex(4)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "class")
       "link"
 
-      iex(4)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target")
+      iex(5)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target")
       nil
 
-      iex(5)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target", :default)
+      iex(6)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target", :default)
       :default
 
-      iex(6)> find_att_in_node([{"class", "link"}], "class")
+      iex(7)> find_att_in_node([{"class", "link"}], "class")
       "link"
 
-      iex(7)> find_att_in_node([{"class", "link"}], "target")
+      iex(8)> find_att_in_node([{"class", "link"}], "target")
       nil
 
-      iex(8)> find_att_in_node([{"class", "link"}], "target", :default)
+      iex(9)> find_att_in_node([{"class", "link"}], "target", :default)
       :default
   """
   def find_att_in_node(node_or_atts, att), do: _find_att(node_or_atts, att)
@@ -54,13 +54,27 @@ defmodule Earmark.AstTools do
   A convenience function that extracts the original attributes to be merged with new attributes
   and puts the result into the node again
 
-      iex(9)> merge_atts_in_node({"img", [{"src", "there"}, {"alt", "there"}], [], %{some: "meta"}}, alt: "here")
+      iex(10)> merge_atts_in_node({"img", [{"src", "there"}, {"alt", "there"}], [], %{some: "meta"}}, alt: "here")
       {"img", [{"alt", "here there"}, {"src", "there"}], [], %{some: "meta"}}
 
   """
   def merge_atts_in_node({tag, atts, content, meta}, new_atts) do
     {tag, merge_atts(atts, new_atts), content, meta}
   end
+
+  @doc """
+  Wrap a function that can only be called on nodes
+
+      iex(11)> f = fn {t, _, _, _} -> t end
+      ...(11)> f_ = node_only_fn(f)
+      ...(11)> {f_.({"p", [], [], %{}}), f_.("text")}
+      {"p", "text"}
+
+  """
+  def node_only_fn(fun), do:
+    fn {_, _, _, _} = quad -> fun.(quad)
+       text                -> text
+    end
 
   defp _combine_atts(_key, original, new), do: "#{new} #{original}"
 

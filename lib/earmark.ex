@@ -28,7 +28,7 @@ defmodule Earmark do
   Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
 
   Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
-  [here](https://hexdocs.pm/earmark_parser/EarmarkParser.html) 
+  [here](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
 
 
 
@@ -73,7 +73,7 @@ defmodule Earmark do
       {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
 
   ### Rendering
-  
+
   All options passed through to `EarmarkParser.as_ast` are defined therein, however some options concern only
   the rendering of the returned AST
 
@@ -158,7 +158,7 @@ defmodule Earmark do
     The module used to render the final document.
 
   #### `smartypants:` defaulting to `true`
-  
+
   If set the following replacements will be made during rendering of inline text
 
       "---" → "—"
@@ -194,7 +194,7 @@ defmodule Earmark do
       Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
   ```
 
-  ## Timeouts
+  ### Timeouts
 
   By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`,
   which uses `Task.await` with its default timeout of 5000ms.
@@ -209,7 +209,8 @@ defmodule Earmark do
 
   For the escript only the `timeout` command line argument can be used.
 
-  ## Security
+  ### Security
+
 
   Please be aware that Markdown is not a secure format. It produces
   HTML from Markdown and HTML. It is your job to sanitize and or
@@ -221,6 +222,24 @@ defmodule Earmark do
   alias Earmark.Options
   import Earmark.Message, only: [emit_messages: 2]
 
+  @doc ~S"""
+  A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
+  raise errors otherwise
+
+      iex(7)> as_ast!(["Hello %% annotated"], annotations: "%%")
+      [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
+
+      iex(8)> as_ast!("===")
+      ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
+
+  """
+  def as_ast!(markdown, options \\ [])
+  def as_ast!(markdown, options) do
+    case EarmarkParser.as_ast(markdown, options) do
+      {:ok, result, _} -> result
+      {:error, _, messages} -> raise Earmark.Error, inspect(messages)
+    end
+  end
   @doc false
   def as_html(lines, options \\ %Options{})
 
@@ -276,6 +295,8 @@ defmodule Earmark do
     emit_messages(messages, options)
     html
   end
+
+  defdelegate transform(ast, options \\ []), to: Earmark.Transform
 
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
