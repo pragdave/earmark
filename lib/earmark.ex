@@ -222,6 +222,24 @@ defmodule Earmark do
   alias Earmark.Options
   import Earmark.Message, only: [emit_messages: 2]
 
+  @doc ~S"""
+  A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
+  raise errors otherwise
+
+      iex(7)> as_ast!(["Hello %% annotated"], annotations: "%%")
+      [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
+
+      iex(8)> as_ast!("===")
+      ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
+
+  """
+  def as_ast!(markdown, options \\ [])
+  def as_ast!(markdown, options) do
+    case EarmarkParser.as_ast(markdown, options) do
+      {:ok, result, _} -> result
+      {:error, _, messages} -> raise Earmark.Error, inspect(messages)
+    end
+  end
   @doc false
   def as_html(lines, options \\ %Options{})
 
@@ -277,6 +295,8 @@ defmodule Earmark do
     emit_messages(messages, options)
     html
   end
+
+  defdelegate transform(ast, options \\ []), to: Earmark.Transform
 
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for

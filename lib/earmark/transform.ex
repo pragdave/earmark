@@ -155,15 +155,17 @@ defmodule Earmark.Transform do
   add some decoration
 
       iex(9)> markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
-      ...(9)> add_smiley = fn {t, a, [c], m} = quad ->
-      ...(9)>                case Map.get(m, :annotation) do
-      ...(9)>                  "%% smile"   -> {t, a, [[c, "\u1F601"] |> Enum.join(" ")], m}
-      ...(9)>                  "%% in_love" -> {t, a, [[c, "\u1F60d"] |> Enum.join(" ")], m}
-      ...(9)>                  _            -> {t, a, [c], m}
+      ...(9)> add_smiley = fn {_, _, _, meta} = quad, _acc ->
+      ...(9)>                case Map.get(meta, :annotation) do
+      ...(9)>                  "%% smile"   -> {quad, "\u1F601"}
+      ...(9)>                  "%% in_love" -> {quad, "\u1F60d"}
+      ...(9)>                  _            -> {quad, nil}
       ...(9)>                end
+      ...(9)>                text, nil -> {text, nil}
+      ...(9)>                text, ann -> {"#{text} #{ann}", nil}
       ...(9)>              end
-      ...(9)> Earmark.as_html!(markdown, annotations: "%%", postprocessor: Earmark.AstTools.node_only_fn(add_smiley))
-      "xxx"
+      ...(9)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
+      "<p>\nA joke  ὠ1</p>\n<p>\nCharming  ὠd</p>\n"
 
   #### Structure Modifying Transformers
 
@@ -177,7 +179,11 @@ defmodule Earmark.Transform do
   def make_postprocessor(%{postprocessor: nil, registered_processors: rps}), do: _make_postprocessor(rps)
   def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
 
+  @doc """
+  Transforms an AST to html, also accepts the result of `map_ast_with` for convenience
+  """
   def transform(ast, options \\ %{initial_indent: 0, indent: 2})
+  def transform({ast, _}, options), do: transform(ast, options)
   def transform(ast, options) when is_list(options) do
     transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2}))
   end

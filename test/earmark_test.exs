@@ -1,7 +1,7 @@
 defmodule EarmarkTest do
   use ExUnit.Case
 
-  doctest Earmark
+  doctest Earmark, import: true
 
   describe "some basic functions" do
     test "version" do
