@@ -29,6 +29,7 @@ defmodule Earmark.Options do
             gfm: true,
             gfm_tables: false,
             ignore_strings: false,
+            inner_html: false,
             line: 1,
             mapper: &Earmark.pmap/2,
             mapper_with_timeout: &Earmark.pmap/3,

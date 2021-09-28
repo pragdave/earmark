@@ -19,9 +19,37 @@ and any changes you make in this file will most likely be lost
 This README contains the docstrings and doctests from the code by means of [extractly](https://hex.pm/packages/extractly)
 and the following code examples are therefore verified with `ExUnit` doctests.
 
-## Dependency
+## Table Of Content
 
-    { :earmark, ">= 1.4.15" }
+- [Table Of Content](#table-of-content)
+- [Options](#options)
+  - [Earmark.Cli.Implementation](#earmarkcliimplementation)
+  - [Earmark.Options](#earmarkoptions)
+  - [Earmark.Options.make_options/1](#earmarkoptionsmake_options1)
+  - [Earmark.Options.with_postprocessor/2](#earmarkoptionswith_postprocessor2)
+  - [Earmark](#earmark)
+- [Earmark](#earmark)
+  - [Abstract Syntax Tree and Rendering](#abstract-syntax-tree-and-rendering)
+    - [Earmark.as_ast](#earmarkas_ast)
+    - [Earmark.as_html](#earmarkas_html)
+    - [Earmark.as_html!](#earmarkas_html)
+    - [Options](#options)
+  - [Rendering](#rendering)
+    - [`escape:` defaulting to `true`](#escape-defaulting-to-true)
+    - [`inner_html:` defaulting to `false`](#inner_html-defaulting-to-false)
+    - [`smartypants:` defaulting to `true`](#smartypants-defaulting-to-true)
+  - [Command line](#command-line)
+- [Timeouts](#timeouts)
+- [Security](#security)
+  - [Earmark.Transform](#earmarktransform)
+- [Structure Conserving Transformers](#structure-conserving-transformers)
+  - [`map_ast`](#map_ast)
+  - [`map_ast_with`](#map_ast_with)
+  - [Postprocessors and Convenience Functions](#postprocessors-and-convenience-functions)
+    - [Use case: Modification of Link Attributes depending on the URL](#use-case-modification-of-link-attributes-depending-on-the-url)
+- [Structure Modifying Transformers](#structure-modifying-transformers)
+- [Contributing](#contributing)
+- [Author](#author)
 
 ## Options
 
@@ -39,7 +67,7 @@ This is a superset of the options that need to be passed into `EarmarkParser.as_
 The following options are proper to `Earmark` only and therefore explained in detail
 
 - `compact_output`: boolean indicating to avoid indentation and minimize whitespace
-- `eex`: Coming soon (EEx preprocessing)
+- `eex`: Allows usage of an `EEx` template to be expanded to markdown before conversion
 - `file`: Name of file passed in from the CLI
 - `line`: 1 but might be set to an offset for better error messages in some integration cases
 - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
@@ -47,7 +75,6 @@ The following options are proper to `Earmark` only and therefore explained in de
    Refer to the moduledoc of Earmark.`Transform` for details
 
 All other options are passed onto EarmarkParser.as_ast/`2`
-
 
 ### Earmark.Options.make_options/1
 
@@ -92,6 +119,7 @@ And the bang version will raise an `Earmark.Error` as excepted (sic)
 ### Earmark.Options.with_postprocessor/2
 
 A convenience constructor
+
 
 
 ### Earmark
@@ -167,8 +195,8 @@ Normally `Earmark` aims to produce _Human Readable_ output.
 This will give results like these:
 
 ```elixir
-    iex(0)> markdown = "# Hello\nWorld"
-    ...(0)> Earmark.as_html!(markdown, compact_output: false)
+    iex(1)> markdown = "# Hello\nWorld"
+    ...(1)> Earmark.as_html!(markdown, compact_output: false)
     "<h1>\nHello</h1>\n<p>\nWorld</p>\n"
 ```
 
@@ -176,8 +204,8 @@ This will give results like these:
 But sometimes whitespace is not desired:
 
 ```elixir
-    iex(1)> markdown = "# Hello\nWorld"
-    ...(1)> Earmark.as_html!(markdown, compact_output: true)
+    iex(2)> markdown = "# Hello\nWorld"
+    ...(2)> Earmark.as_html!(markdown, compact_output: true)
     "<h1>Hello</h1><p>World</p>"
 ```
 
@@ -189,8 +217,8 @@ Be cautions though when using this options, lines will become loooooong.
 If set HTML will be properly escaped
 
 ```elixir
-      iex(2)> markdown = "Hello<br />World"
-      ...(2)> Earmark.as_html!(markdown)
+      iex(3)> markdown = "Hello<br />World"
+      ...(3)> Earmark.as_html!(markdown)
       "<p>\nHello&lt;br /&gt;World</p>\n"
 ```
 
@@ -198,10 +226,38 @@ However disabling `escape:` gives you maximum control of the created document, w
 cases (e.g. inside tables) might even be necessary
 
 ```elixir
-      iex(3)> markdown = "Hello<br />World"
-      ...(3)> Earmark.as_html!(markdown, escape: false)
+      iex(4)> markdown = "Hello<br />World"
+      ...(4)> Earmark.as_html!(markdown, escape: false)
       "<p>\nHello<br />World</p>\n"
 ```
+
+#### `inner_html:` defaulting to `false`
+
+This is especially useful inside templates, when a block element will disturb the layout as
+in this case
+
+```html
+<span><%= Earmark.as_html!(....)%></span>
+<span><%= Earmark.as_html!(....)%></span>
+```
+
+By means of the `inner_html` option the disturbing paragraph can be removed from `as_html!`'s
+output
+
+```elixir
+      iex(5)> markdown = "Hello<br />World"
+      ...(5)> Earmark.as_html!(markdown, escape: false, inner_html: true)
+      "Hello<br />World\n"
+```
+
+**N.B.** that this applies only to top level paragraphs, as can be seen here
+
+```elixir
+      iex(6)> markdown = "- Item\n\nPara"
+      ...(6)> Earmark.as_html!(markdown, inner_html: true)
+      "<ul>\n  <li>\nItem  </li>\n</ul>\nPara\n"
+```
+
 
 * `postprocessor:` defaults to nil
 

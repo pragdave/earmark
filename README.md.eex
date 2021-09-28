@@ -15,18 +15,17 @@
 This README contains the docstrings and doctests from the code by means of [extractly](https://hex.pm/packages/extractly)
 and the following code examples are therefore verified with `ExUnit` doctests.
 
-## Dependency
+## Table Of Content
 
-    { :earmark, ">= <%= Earmark.version %>" }
+<%= xtra.toc :self, gh_links: true, min_level: 2, max_level: 4, remove_gaps: true %>
 
 ## Options
 
 
 <%= xtra.moduledoc "Earmark.Cli.Implementation", wrap_code_blocks: "elixir", headline: 3 %>
 
-<%= xtra.moduledoc "Earmark.Options", wrap_code_blocks: "elixir", headline: 3 %>
+<%= xtra.moduledoc "Earmark.Options", include: :all, wrap_code_blocks: "elixir", headline: 3 %>
 
-<%= xtra.functiondoc :all, module: "Earmark.Options", wrap_code_blocks: "elixir", headline: 3 %>
 
 <%= xtra.moduledoc "Earmark", wrap_code_blocks: "elixir", headline: 3 %>
 

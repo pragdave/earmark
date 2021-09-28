@@ -167,7 +167,10 @@ defmodule Earmark.Transform do
   def transform(ast, options) when is_map(options) do
     options1 = options
       |> Map.put_new(:indent, 2)
-    to_html(ast, options1)
+    ast
+    # |> IO.inspect
+    |> _maybe_remove_paras(options1)
+    |> to_html(options1)
   end
 
   @doc ~S"""
@@ -399,6 +402,16 @@ defmodule Earmark.Transform do
     [acc | binary_part(original, skip, len)]
   end
 
+  defp _add_trailing_nl(node)
+  defp _add_trailing_nl(text) when is_binary(text), do: [text, "\n"]
+  defp _add_trailing_nl(node), do: node
+
+  defp _maybe_remove_paras(ast, options)
+  defp _maybe_remove_paras(ast, %Options{inner_html: true}) do
+    Enum.map(ast, &_remove_para/1)
+  end
+  defp _maybe_remove_paras(ast, _), do: ast
+
   @pop {:__end__}
   defp _pop_to_pop(result, intermediate \\ [])
   defp _pop_to_pop([@pop, {tag, atts, _, meta}|rest], intermediate) do
@@ -407,6 +420,10 @@ defmodule Earmark.Transform do
   defp _pop_to_pop([continue|rest], intermediate) do
     _pop_to_pop(rest, [continue|intermediate])
   end
+
+  defp _remove_para(ele_or_string)
+  defp _remove_para({"p", _, content, _}), do: content |> Enum.map(&_add_trailing_nl/1)
+  defp _remove_para(whatever), do: whatever
 
   defp _walk_ast(ast, fun, ignore_strings, result)
   defp _walk_ast([], _fun, _ignore_strings, result), do: Enum.reverse(result)
