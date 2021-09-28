@@ -17,6 +17,7 @@ defmodule Earmark.Options do
   """
 
   defstruct [
+            annotations: nil,
             breaks: false,
             code_class_prefix: nil,
             compact_output: false,
@@ -49,28 +50,28 @@ defmodule Earmark.Options do
 
   Without a param or an empty input we just get a new Option struct
 
-      iex(0)> { make_options(), make_options(%{}) }
+      iex(1)> { make_options(), make_options(%{}) }
       { {:ok, %Earmark.Options{}}, {:ok, %Earmark.Options{}} }
 
   The same holds for the bang version of course
 
-      iex(1)> { make_options!(), make_options!(%{}) }
+      iex(2)> { make_options!(), make_options!(%{}) }
       { %Earmark.Options{}, %Earmark.Options{} }
 
 
   We check for unallowed keys
 
-      iex(2)> make_options(no_such_option: true)
+      iex(3)> make_options(no_such_option: true)
       {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}]}
 
   Of course we do not let our users discover one error after another
 
-      iex(3)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
+      iex(4)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
       {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]}
 
   And the bang version will raise an `Earmark.Error` as excepted (sic)
 
-      iex(3)> make_options!(no_such_option: true, gfm: false, still_not_an_option: 42)
+      iex(5)> make_options!(no_such_option: true, gfm: false, still_not_an_option: 42)
       ** (Earmark.Error) [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]
   """
 
