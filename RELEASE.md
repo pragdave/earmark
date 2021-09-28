@@ -1,15 +1,16 @@
-# 1.4.16 2021-??-??
+# 1.4.16- 2021-??-??
 
+- [`inner_html: true` allows to get rid of the enclosing `<p>` which is most useful when including `Earmark.as_htm!` into other markdown or HTML](https://github.com/pragdave/earmark/issues/418)
 
-414 Test Coverage
+- [Test Coverage](https://github.com/pragdave/earmark/issues/414)
 
-412 Refactoring of `Options`
+- [Refactoring of `Options`](https://github.com/pragdave/earmark/issues/412)
 
-411 Refactoring of CLI code → Readability and Testability
+- [Refactoring of CLI code → Readability and Testability](https://github.com/pragdave/earmark/issues/411)
 
-410 Allow using `.eex` templates as source
+- [Allow using `.eex` templates as source](https://github.com/pragdave/earmark/issues/410)
 
-407 Configuration of Link Attributes
+- [Configuration of Link Attributes](https://github.com/pragdave/earmark/issues/407)
 
 
 # 1.4.15 2021-04-18
