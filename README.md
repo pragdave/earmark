@@ -19,9 +19,37 @@ and any changes you make in this file will most likely be lost
 This README contains the docstrings and doctests from the code by means of [extractly](https://hex.pm/packages/extractly)
 and the following code examples are therefore verified with `ExUnit` doctests.
 
-## Dependency
+## Table Of Content
 
-    { :earmark, ">= 1.4.16-pre" }
+- [Table Of Content](#table-of-content)
+- [Options](#options)
+  - [Earmark.Cli.Implementation](#earmarkcliimplementation)
+  - [Earmark.Options](#earmarkoptions)
+  - [Earmark.Options.make_options/1](#earmarkoptionsmake_options1)
+  - [Earmark.Options.with_postprocessor/2](#earmarkoptionswith_postprocessor2)
+  - [Earmark](#earmark)
+- [Earmark](#earmark)
+  - [Abstract Syntax Tree and Rendering](#abstract-syntax-tree-and-rendering)
+    - [Earmark.as_ast](#earmarkas_ast)
+    - [Earmark.as_html](#earmarkas_html)
+    - [Earmark.as_html!](#earmarkas_html)
+    - [Options](#options)
+  - [Rendering](#rendering)
+    - [`escape:` defaulting to `true`](#escape-defaulting-to-true)
+    - [`inner_html:` defaulting to `false`](#inner_html-defaulting-to-false)
+    - [`smartypants:` defaulting to `true`](#smartypants-defaulting-to-true)
+  - [Command line](#command-line)
+- [Timeouts](#timeouts)
+- [Security](#security)
+  - [Earmark.Transform](#earmarktransform)
+- [Structure Conserving Transformers](#structure-conserving-transformers)
+  - [`map_ast`](#map_ast)
+  - [`map_ast_with`](#map_ast_with)
+  - [Postprocessors and Convenience Functions](#postprocessors-and-convenience-functions)
+    - [Use case: Modification of Link Attributes depending on the URL](#use-case-modification-of-link-attributes-depending-on-the-url)
+- [Structure Modifying Transformers](#structure-modifying-transformers)
+- [Contributing](#contributing)
+- [Author](#author)
 
 ## Options
 
@@ -47,7 +75,6 @@ The following options are proper to `Earmark` only and therefore explained in de
    Refer to the moduledoc of Earmark.`Transform` for details
 
 All other options are passed onto EarmarkParser.as_ast/`2`
-
 
 ### Earmark.Options.make_options/1
 
@@ -92,6 +119,7 @@ And the bang version will raise an `Earmark.Error` as excepted (sic)
 ### Earmark.Options.with_postprocessor/2
 
 A convenience constructor
+
 
 
 ### Earmark

@@ -1,5 +1,17 @@
 # 1.4.16 2021-??-??
 
+
+414 Test Coverage
+
+412 Refactoring of `Options`
+
+411 Refactoring of CLI code → Readability and Testability
+
+410 Allow using `.eex` templates as source
+
+407 Configuration of Link Attributes
+
+
 # 1.4.15 2021-04-18
 
 - Pushed `EarmarkParser` dependency to version >= 1.4.13 which fixes a bug wich could crash the parser

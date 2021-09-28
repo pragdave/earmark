@@ -13,7 +13,7 @@ defmodule Earmark.Mixfile do
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
     {:excoveralls, "~> 0.14.2", only: [:test]},
     # {:extractly, "~> 0.5.0", git: "https://github.com/RobertDober/extractly.git", tag: "v0.5.0-pre1", only: [:dev]},
-    {:extractly, "~> 0.5.0", only: [:dev]},
+    {:extractly, "~> 0.5.3", only: [:dev]},
     {:floki, "~> 0.21", only: [:dev, :test]},
     {:traverse, "~> 1.0.1", only: [:dev, :test]}
   ]
