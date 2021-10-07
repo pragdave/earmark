@@ -1,4 +1,6 @@
-# 1.4.16-pre2 2021-09-28
+# 1.4.16 2021-10-07
+
+- [updates to EarmarkParser v1.4.16](https://github.com/RobertDober/earmark_parser/blob/v1.4.16/RELEASE.md)
 
 - [`inner_html: true` allows to get rid of the enclosing `<p>` which is most useful when including `Earmark.as_htm!` into other markdown or HTML](https://github.com/pragdave/earmark/issues/418)
 
