@@ -1,4 +1,4 @@
-defmodule Earmark.Mixfile do
+    defmodule Earmark.Mixfile do
   use Mix.Project
 
   @version "1.4.16"
@@ -33,6 +33,7 @@ defmodule Earmark.Mixfile do
   def project do
     [
       app: :earmark,
+      application: application(),
       version: @version,
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -48,6 +49,12 @@ defmodule Earmark.Mixfile do
       ],
       test_coverage: [tool: ExCoveralls],
       aliases: [docs: &build_docs/1]
+    ]
+  end
+
+  def application do
+    [
+      extra_applications: [:eex]
     ]
   end
 
