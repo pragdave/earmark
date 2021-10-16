@@ -33,7 +33,6 @@
   def project do
     [
       app: :earmark,
-      application: application(),
       version: @version,
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -54,7 +53,7 @@
 
   def application do
     [
-      extra_applications: [:eex]
+      extra_applications: [:eex],
     ]
   end
 
