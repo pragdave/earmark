@@ -1,4 +1,4 @@
-defmodule Earmark.Mixfile do
+    defmodule Earmark.Mixfile do
   use Mix.Project
 
   @version "1.4.16"
@@ -48,6 +48,12 @@ defmodule Earmark.Mixfile do
       ],
       test_coverage: [tool: ExCoveralls],
       aliases: [docs: &build_docs/1]
+    ]
+  end
+
+  def application do
+    [
+      extra_applications: [:eex],
     ]
   end
 
