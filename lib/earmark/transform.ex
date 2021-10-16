@@ -1,4 +1,4 @@
-defmodule Earmark.Transform do
+    defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
@@ -130,14 +130,13 @@ defmodule Earmark.Transform do
       ...(8)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
       ...(8)> options = [
       ...(8)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
-      ...(8)> markdown =
-      ...(8)> """
-      ...(8)>   http://hello.x.com
-      ...(8)>
-      ...(8)>   [some](url)
-      ...(8)> """
+      ...(8)> markdown = [
+      ...(8)>   "http://hello.x.com",
+      ...(8)>   "",
+      ...(8)>   "[some](url)",
+      ...(8)>  ]
       ...(8)> Earmark.as_html!(markdown, options)
-      "<p class=\"example\">\n  <a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n  <a href=\"url\">some</a></p>\n"
+      "<p class=\"example\">\n<a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n<a href=\"url\">some</a></p>\n"
 
   ##### Use case: Modification of Link Attributes depending on the URL
 
