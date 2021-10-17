@@ -1,0 +1,2 @@
+# Main
+<%= earmark.from_file "test/fixtures/sub.md" %>

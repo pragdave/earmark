@@ -36,7 +36,7 @@ defmodule Test.Cli.ImplementationTest do
       help_lines = help_text
       |> String.split("\n")
       |> Enum.take(5)
-      assert help_lines == ["usage:", "", "   earmark --help", "   earmark --version", "   earmark [ options... <file> ]"]
+      assert help_lines == ["usage:", "", "  earmark --help", "  earmark --version", "  earmark [ options... <file> ]"]
     end
     test "-h" do
       {:stderr, help_text} = run(~W[-h])
@@ -44,7 +44,7 @@ defmodule Test.Cli.ImplementationTest do
       |> String.split("\n")
       |> Enum.drop(3)
       |> Enum.take(5)
-      assert help_lines == ["   earmark --version", "   earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
+      assert help_lines == ["  earmark --version", "  earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
     end
   end
   

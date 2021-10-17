@@ -1,5 +1,6 @@
 defmodule Earmark.Cli.Implementation do
 
+  import Earmark.Cli.Args, only: [parse_args: 3]
 
   alias Earmark.Options
   alias Earmark.SysInterface
@@ -16,57 +17,79 @@ defmodule Earmark.Cli.Implementation do
 
   Example: Bad file
 
-      iex(0)> run(["no-such--file--ayK7k"])
-      {:stderr, "Cannot open no-such--file--ayK7k, reason: enoent"}
+  iex(0)> run(["no-such--file--ayK7k"])
+  {:stderr, "Cannot open no-such--file--ayK7k, reason: enoent"}
 
   Example: Good file
 
-      iex(1)> {:stdio, html} = run(["test/fixtures/short1.md"])
-      ...(1)> html
-      "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
+  iex(1)> {:stdio, html} = run(["test/fixtures/short1.md"])
+  ...(1)> html
+  "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
 
   Example: Using EEx
 
-      iex(2)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
-      ...(2)> html
-      "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
+  iex(2)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
+  ...(2)> html
+  "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
 
 
   Example: Using an EEx template first
 
-      iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
-      {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
+  iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
+  {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
 
   """
 
+  @switches [
+    breaks: :boolean,
+    code_class_prefix: :string,
+    eex: :boolean,
+    escape: :boolean,
+    gfm: :boolean,
+    help: :boolean,
+    inner_html: :boolean,
+    pedantic: :boolean,
+    pure_links: :boolean,
+    template: :boolean,
+    timeout: :integer,
+    version: :boolean,
+    wikiklinks: :boolean
+  ]
+
+  @aliases  [
+    h: :help,
+    v: :version
+  ]
+
   def run(argv) do
     argv
-    |> _parse_args()
+    |> parse_args(@switches, @aliases)
     |> _process()
   end
 
   @args """
   usage:
 
-     earmark --help
-     earmark --version
-     earmark [ options... <file> ]
+    earmark --help
+    earmark --version
+    earmark [ options... <file> ]
 
   convert file from Markdown to HTML.
 
-     where options can be any of:
-       --breaks
-       --code-class-prefix <a prefix>
-       --eex
-       --escape
-       --gfm
-       --smartypants
-       --pedantic
-       --pure-links
-       --breaks
-       --template
-       --timeout <timeout in ms>
-       --wikilinks
+  where options can be any of:
+
+    --breaks
+    --code-class-prefix <a prefix>
+    --eex
+    --escape
+    --gfm
+    --smartypants
+    --pedantic
+    --pure-links
+    --breaks
+    --template
+    --timeout <timeout in ms>
+    --wikilinks
 
   """
 
@@ -81,43 +104,9 @@ defmodule Earmark.Cli.Implementation do
     wikilinks
   ]
 
-  defp _parse_args(argv) do
-    switches = [
-      breaks: :boolean,
-      code_class_prefix: :string,
-      eex: :boolean,
-      escape: :boolean,
-      gfm: :boolean,
-      help: :boolean,
-      inner_html: :boolean,
-      pedantic: :boolean,
-      pure_links: :boolean,
-      template: :boolean,
-      timeout: :integer,
-      version: :boolean,
-      wikiklinks: :boolean
-      ]
-    aliases = [
-      h: :help,
-      v: :version
-    ]
-
-    case OptionParser.parse(argv, strict: switches, aliases: aliases) do
-      { _, _, [_|_]=errors} -> errors
-      { [ {:help, true} ], _, _ } -> :help
-      { [ {:version, true} ], _, _ } -> :version
-      { options, [ file ],  _ }  -> Map.put(Options.make_options!(options), :file, file)
-      { options, [ ],           _ }  -> Options.make_options!(options)
-    end
-  end
-
-  defp _format_errors(errors) do
-    "Illegal options #{errors |> Enum.map(fn {option, _} -> option end) |> Enum.join(", ")}"
-  end
-
   defp _process(flag_errors_or_options)
-  defp _process(errors) when is_list(errors) do
-    {:stderr, _format_errors(errors)}
+  defp _process({:error, errors}) do
+    {:stderr, errors}
   end
   defp _process(:help) do
     {:stderr, IO.chardata_to_string([@args, _option_related_help()])}
