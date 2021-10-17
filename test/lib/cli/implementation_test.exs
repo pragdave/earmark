@@ -47,5 +47,14 @@ defmodule Test.Cli.ImplementationTest do
       assert help_lines == ["   earmark --version", "   earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
     end
   end
+  
+  describe "illegal options" do
+    test "--unknown" do
+      assert run(~W[--unknown]) == {:stderr, "Illegal options --unknown"}
+    end
+    test "mix of correct and incorrect" do
+      assert run(~W[-h -i --code-class-prefix elixir --unknown]) == {:stderr, "Illegal options -i, --unknown"}
+    end
+  end
 end
 #  SPDX-License-Identifier: Apache-2.0

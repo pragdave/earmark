@@ -89,6 +89,7 @@ defmodule Earmark.Cli.Implementation do
       escape: :boolean,
       gfm: :boolean,
       help: :boolean,
+      inner_html: :boolean,
       pedantic: :boolean,
       pure_links: :boolean,
       template: :boolean,
@@ -101,7 +102,8 @@ defmodule Earmark.Cli.Implementation do
       v: :version
     ]
 
-    case OptionParser.parse(argv, switches: switches, aliases: aliases) do
+    case OptionParser.parse(argv, strict: switches, aliases: aliases) do
+      { _, _, [_|_]=errors} -> errors
       { [ {:help, true} ], _, _ } -> :help
       { [ {:version, true} ], _, _ } -> :version
       { options, [ file ],  _ }  -> Map.put(Options.make_options!(options), :file, file)
@@ -109,7 +111,14 @@ defmodule Earmark.Cli.Implementation do
     end
   end
 
-  defp _process(flag_or_options)
+  defp _format_errors(errors) do
+    "Illegal options #{errors |> Enum.map(fn {option, _} -> option end) |> Enum.join(", ")}"
+  end
+
+  defp _process(flag_errors_or_options)
+  defp _process(errors) when is_list(errors) do
+    {:stderr, _format_errors(errors)}
+  end
   defp _process(:help) do
     {:stderr, IO.chardata_to_string([@args, _option_related_help()])}
   end
