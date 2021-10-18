@@ -3,6 +3,7 @@ defmodule Earmark do
     IO.puts(:stderr, "DEPRECATION WARNING: versions < 1.12.0 of Elixir are not tested anymore and will not be supported in Earmark v1.5")
   end
 
+  alias Earmark.Error
 
   @type ast_meta :: map()
   @type ast_tag :: binary()
@@ -256,6 +257,19 @@ defmodule Earmark do
   end
 
   @doc """
+  A convenience method that *always* returns an HTML representation of the markdown document passed in.
+  In case of the presence of any error messages they are printed to stderr.
+
+  Otherwise it behaves exactly as `as_html`.
+  """
+  def as_html!(lines, options \\ %Options{})
+  def as_html!(lines, options) do
+    {_status, html, messages} = as_html(lines, options)
+    emit_messages(messages, options)
+    html
+  end
+
+  @doc """
   DEPRECATED call `EarmarkParser.as_ast` instead
   """
   def as_ast(lines, options \\ %Options{}) do
@@ -267,6 +281,22 @@ defmodule Earmark do
 
     messages1 = [message | messages]
     {status, ast, messages1}
+  end
+
+  @doc ~S"""
+  A convenience function reading from a file and calling `to_html` with the given options
+  **but** assuring that the options `eex` and `inner_html` are true
+
+  `filename` can also be relative to `options.file`
+  """
+  def from_file(filename, options) do
+    case Sysinterface.sysinterface.readlines(filename) do
+      {:error, reason} -> raise Error, "Cannot open #{filename} for reading: #{reason}"
+      {:ok, stream} -> stream
+                       |> Enum.to_list
+                       |> IO.chardata_to_string
+                       |> _eval_eex(filename, options)
+    end
   end
 
   @line_end ~r{\n\r?}
@@ -282,19 +312,6 @@ defmodule Earmark do
     {status, ast1, messages}
   end
   def postprocessed_ast(lines, options), do: postprocessed_ast(lines, Options.make_options!(options))
-
-  @doc """
-  A convenience method that *always* returns an HTML representation of the markdown document passed in.
-  In case of the presence of any error messages they are printed to stderr.
-
-  Otherwise it behaves exactly as `as_html`.
-  """
-  def as_html!(lines, options \\ %Options{})
-  def as_html!(lines, options) do
-    {_status, html, messages} = as_html(lines, options)
-    emit_messages(messages, options)
-    html
-  end
 
   defdelegate transform(ast, options \\ []), to: Earmark.Transform
 
@@ -324,6 +341,13 @@ defmodule Earmark do
 
   defp _as_ast(lines, options) do
     EarmarkParser.as_ast(lines, options)
+  end
+
+  defp _eval_eex(input, filename, options) do
+    options_ = %{options|eex: true, file: filename, inner_html: true}
+    input
+    |> EEx.eval_string(earmark: earmark, options: options_)
+    |> as_html!(options_)
   end
 
   defp _join_pmap_results_or_raise(yield_tuples, timeout)

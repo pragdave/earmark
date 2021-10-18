@@ -1,3 +1,5 @@
 defmodule Earmark.SysInterface.Behavior do
-  @callback readlines(IO.io_device()) :: list(binary())
+  @type file_t :: IO.device() | binary()
+  @type result_t :: {:error, binary()} | {:ok, Enumerable.t}
+  @callback readlines(file_t()) :: result_t()
 end

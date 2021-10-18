@@ -60,7 +60,7 @@ defmodule Mix.Tasks.Earmark do
     cond do
       Regex.match?(@correct_eex_rgx, filename) ->
         filename
-        |> File.open([:utf8])
+        |> SysInterface.sys_interface.readlines
         |> _process_input(Regex.replace(@correct_eex_rgx, filename, ""), options)
       true ->
         {:stderr, "Input file needs to be an eex template, not #{filename}"}
@@ -71,8 +71,8 @@ defmodule Mix.Tasks.Earmark do
   defp _process_input({:error, reason}, _filename, options) do
     {:stderr, "Cannot open #{options.file}, reason: #{reason}"}
   end
-  defp _process_input({:ok, io_device}, filename, options) do
-    SysInterface.sys_interface.readlines(io_device)
+  defp _process_input(io_stream, filename, options) do
+    io_stream
     |> Enum.to_list
     |> IO.chardata_to_string
     |> EEx.eval_string(earmark: Earmark, options: options)
