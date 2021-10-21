@@ -76,6 +76,9 @@ defmodule Mix.Tasks.Earmark do
     |> Enum.to_list
     |> IO.chardata_to_string
     |> EEx.eval_string(earmark: Earmark, options: options)
-    |> File.write!(filename)
+    |> _write!(filename)
   end
+
+  defp _write!(content, filename), do: File.write!(filename, content)
 end
+#  SPDX-License-Identifier: Apache-2.0

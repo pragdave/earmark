@@ -4,6 +4,8 @@ defmodule Earmark do
   end
 
   alias Earmark.Error
+  alias Earmark.Options
+  alias Earmark.SysInterface
 
   @type ast_meta :: map()
   @type ast_tag :: binary()
@@ -289,13 +291,13 @@ defmodule Earmark do
 
   `filename` can also be relative to `options.file`
   """
-  def from_file(filename, options) do
-    case Sysinterface.sysinterface.readlines(filename) do
+  def from_file(filename, options \\ []) do
+    case SysInterface.sys_interface.readlines(filename)  do
       {:error, reason} -> raise Error, "Cannot open #{filename} for reading: #{reason}"
-      {:ok, stream} -> stream
-                       |> Enum.to_list
-                       |> IO.chardata_to_string
-                       |> _eval_eex(filename, options)
+      stream -> stream
+                |> Enum.to_list
+                |> IO.chardata_to_string
+                |> _eval_eex(filename, options)
     end
   end
 
@@ -343,10 +345,14 @@ defmodule Earmark do
     EarmarkParser.as_ast(lines, options)
   end
 
+  defp _eval_eex(input, filename, options) when is_list(options) do
+    options_ = Options.make_options!(options)
+    _eval_eex(input, filename, options_)
+  end
   defp _eval_eex(input, filename, options) do
     options_ = %{options|eex: true, file: filename, inner_html: true}
     input
-    |> EEx.eval_string(earmark: earmark, options: options_)
+    |> EEx.eval_string(earmark: Earmark, options: options_)
     |> as_html!(options_)
   end
 

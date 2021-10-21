@@ -3,6 +3,12 @@ defmodule Support.Earmark.SysInterface.Mock do
 
   def readlines(device)
   def readlines(:stdio), do: Agent.get_and_update(__MODULE__, &{Map.get(&1, :stdio), %{stdio: []}})
+  def readlines(filename) when is_binary(filename) do
+    case File.open(filename, [:utf8]) do
+      {:ok, device} -> readlines(device)
+      {:error, _} = error    -> error
+    end
+  end
   def readlines(device), do: IO.stream(device, :line)
 
   def start_link do
