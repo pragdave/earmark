@@ -29,6 +29,7 @@ defmodule Mix.Tasks.Earmark do
   ]
 
   @usage """
+  Coming soon
   """
 
   @impl true
@@ -55,7 +56,7 @@ defmodule Mix.Tasks.Earmark do
   defp _process(:version) do
     {:stdio, Earmark.version}
   end
-  defp _process(%Options{file: nil}=options), do: {:stderr, "Missing input file"}
+  defp _process(%Options{file: nil}), do: {:stderr, "Missing input file"}
   defp _process(%Options{file: filename}=options) do
     cond do
       Regex.match?(@correct_eex_rgx, filename) ->

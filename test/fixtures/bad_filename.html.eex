@@ -1,0 +1,5 @@
+<html>
+  <body>
+    <%= earmark.from_file "test/fixtures/does-not-exist.md.eex" %>
+  </body>
+</html>
