@@ -291,13 +291,17 @@ defmodule Earmark do
 
   `filename` can also be relative to `options.file`
   """
-  def from_file(filename, options \\ []) do
-    case SysInterface.sys_interface.readlines(filename)  do
-      {:error, reason} -> raise Error, "Cannot open #{filename} for reading: #{reason}"
+  def from_file(filename, %Options{} = options, additional_options \\ []) do
+    options_ =
+      additional_options
+      |> Enum.into(options)
+      |> Options.relative_filename(filename)
+    case SysInterface.sys_interface.readlines(options_.file)  do
+      {:error, reason} -> raise Error, "Cannot open #{options_.file} for reading: #{reason}"
       stream -> stream
                 |> Enum.to_list
                 |> IO.chardata_to_string
-                |> _eval_eex(filename, options)
+                |> _eval_eex(options_)
     end
   end
 
@@ -345,12 +349,8 @@ defmodule Earmark do
     EarmarkParser.as_ast(lines, options)
   end
 
-  defp _eval_eex(input, filename, options) when is_list(options) do
-    options_ = Options.make_options!(options)
-    _eval_eex(input, filename, options_)
-  end
-  defp _eval_eex(input, filename, options) do
-    options_ = %{options|eex: true, file: filename, inner_html: true}
+  defp _eval_eex(input, options) do
+    options_ = %{options|eex: true, inner_html: true}
     input
     |> EEx.eval_string(earmark: Earmark, options: options_)
     |> as_html!(options_)

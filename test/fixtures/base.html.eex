@@ -1,5 +1,5 @@
 <html>
   <body>
-    <%= earmark.from_file "test/fixtures/main.md.eex" %>
+    <%= earmark.from_file "test/fixtures/main.md.eex", options %>
   </body>
 </html>

@@ -31,7 +31,7 @@ defmodule Test.Lib.Task.Earmark.ImplementationTest do
   end
 
   describe "simple fixture" do
-    test "no switches" do
+    test "no options" do
       run(~W[test/fixtures/base.html.eex])
 
       expected =
@@ -48,6 +48,19 @@ defmodule Test.Lib.Task.Earmark.ImplementationTest do
                    fn ->
                      run(~W[test/fixtures/bad_filename.html.eex])
                    end
+    end
+  end
+
+  describe "complex fixture" do
+    @complex "test/fixtures/complex.html"
+    test "no options" do
+      run([@complex <> ".eex"])
+
+      expected =
+        "<h1>Complex</h1>\n<strong>Text</strong> of level 1\n<h2>\n  Content of Level2</h2>  line1  <br />  line2      ### End</h2>\n\n"
+
+      result = File.read!(@complex)
+      assert result == expected
     end
   end
 end
