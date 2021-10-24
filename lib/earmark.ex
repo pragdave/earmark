@@ -218,8 +218,7 @@ defmodule Earmark do
   and are to serve the produced HTML on the Web.
   """
 
-  alias Earmark.Error
-  alias Earmark.Options
+  alias Earmark.{Error, Internal, Options, Transform}
   import Earmark.Message, only: [emit_messages: 2]
 
   @doc ~S"""
@@ -251,8 +250,8 @@ defmodule Earmark do
   end
 
   def as_html(lines, options) do
-    {status, ast, messages} = postprocessed_ast(lines, options)
-    {status, Earmark.Transform.transform(ast, options), messages}
+    {status, ast, messages} = Transform.postprocessed_ast(lines, options)
+    {status, Transform.transform(ast, options), messages}
   end
 
   @doc """
@@ -269,20 +268,6 @@ defmodule Earmark do
     {status, ast, messages1}
   end
 
-  @line_end ~r{\n\r?}
-  def postprocessed_ast(lines, options \\ %Options{})
-  def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
-  # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
-  # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
-  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
-  def postprocessed_ast(lines, %Options{}=options) do
-    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
-    prep = Earmark.Transform.make_postprocessor(options)
-    ast1 = Earmark.Transform.map_ast(ast, prep, Map.get(options, :ignore_strings))
-    {status, ast1, messages}
-  end
-  def postprocessed_ast(lines, options), do: postprocessed_ast(lines, Options.make_options!(options))
-
   @doc """
   A convenience method that *always* returns an HTML representation of the markdown document passed in.
   In case of the presence of any error messages they are printed to stderr.
@@ -296,7 +281,7 @@ defmodule Earmark do
     html
   end
 
-  defdelegate transform(ast, options \\ []), to: Earmark.Transform
+  defdelegate transform(ast, options \\ []), to: Transform
 
   @doc """
     Accesses current hex version of the `Earmark` application. Convenience for
@@ -308,13 +293,7 @@ defmodule Earmark do
   end
 
   @default_timeout_in_ms 5000
-  @doc false
-  def pmap(collection, func, timeout \\ @default_timeout_in_ms) do
-    collection
-    |> Enum.map(fn item -> Task.async(fn -> func.(item) end) end)
-    |> Task.yield_many(timeout)
-    |> Enum.map(&_join_pmap_results_or_raise(&1, timeout))
-  end
+  defdelegate pmap(collection, func, timeout \\ @default_timeout_in_ms), to: Internal
 
   defp _as_ast(lines, options)
 
@@ -325,19 +304,5 @@ defmodule Earmark do
   defp _as_ast(lines, options) do
     EarmarkParser.as_ast(lines, options)
   end
-
-  defp _join_pmap_results_or_raise(yield_tuples, timeout)
-  defp _join_pmap_results_or_raise({_task, {:ok, result}}, _timeout), do: result
-
-  defp _join_pmap_results_or_raise({task, {:error, reason}}, _timeout),
-    do: raise(Error, "#{inspect(task)} has died with reason #{inspect(reason)}")
-
-  defp _join_pmap_results_or_raise({task, nil}, timeout),
-    do:
-      raise(
-        Error,
-        "#{inspect(task)} has not responded within the set timeout of #{timeout}ms, consider increasing it"
-      )
-
 end
 # SPDX-License-Identifier: Apache-2.0

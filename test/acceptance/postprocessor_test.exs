@@ -1,7 +1,6 @@
 defmodule Acceptance.PostprocessorTest do
   use ExUnit.Case
 
-
   describe "nop" do
     test "empty edge case" do
       assert post("", id())  == {:ok, [], []}
@@ -36,7 +35,7 @@ defmodule Acceptance.PostprocessorTest do
 
 
   defp post(markdown, fun, ignore_strings \\ false) do
-    Earmark.postprocessed_ast(markdown, %{postprocessor: fun, ignore_strings: ignore_strings})
+    Earmark.Transform.postprocessed_ast(markdown, %{postprocessor: fun, ignore_strings: ignore_strings})
   end
   defp id() do
     fn x -> x end
