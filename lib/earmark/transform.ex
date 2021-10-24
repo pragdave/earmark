@@ -178,6 +178,20 @@
   def make_postprocessor(%{postprocessor: nil, registered_processors: rps}), do: _make_postprocessor(rps)
   def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
 
+  @line_end ~r{\n\r?}
+  def postprocessed_ast(lines, options \\ %Options{})
+  def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
+  # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
+  # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
+  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
+  def postprocessed_ast(lines, %Options{}=options) do
+    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
+    prep = make_postprocessor(options)
+    ast1 = map_ast(ast, prep, Map.get(options, :ignore_strings))
+    {status, ast1, messages}
+  end
+  def postprocessed_ast(lines, options), do: postprocessed_ast(lines, Options.make_options!(options))
+
   @doc """
   Transforms an AST to html, also accepts the result of `map_ast_with` for convenience
   """
