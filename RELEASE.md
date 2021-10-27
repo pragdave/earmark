@@ -1,4 +1,4 @@
-# 1.4.17 2021-??-??
+# 1.4.17 2021-10-27
 
 - [436 Better EEx integration into CLI with recursive includes of markdown files](https://github.com/pragdave/earmark/pull/436)
 
