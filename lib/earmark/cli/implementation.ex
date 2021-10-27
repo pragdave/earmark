@@ -16,26 +16,26 @@ defmodule Earmark.Cli.Implementation do
 
   Example: Bad file
 
-      iex(0)> run(["no-such--file--ayK7k"])
-      {:stderr, "Cannot open no-such--file--ayK7k, reason: enoent"}
+  iex(0)> run(["no-such--file--ayK7k"])
+  {:stderr, "Cannot open no-such--file--ayK7k, reason: enoent"}
 
   Example: Good file
 
-      iex(1)> {:stdio, html} = run(["test/fixtures/short1.md"])
-      ...(1)> html
-      "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
+  iex(1)> {:stdio, html} = run(["test/fixtures/short1.md"])
+  ...(1)> html
+  "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
 
   Example: Using EEx
 
-      iex(2)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
-      ...(2)> html
-      "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
+  iex(2)> {:stdio, html} = run(["--eex", "--gfm", "--code-class-prefix", "alpha", "--timeout", "12000", "test/fixtures/short2.md.eex"])
+  ...(2)> html
+  "<h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n"
 
 
   Example: Using an EEx template first
 
-      iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
-      {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
+  iex(3)> run(["--template", "test/fixtures/eex_first.html.eex"])
+  {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
 
   """
 
@@ -48,25 +48,25 @@ defmodule Earmark.Cli.Implementation do
   @args """
   usage:
 
-     earmark --help
-     earmark --version
-     earmark [ options... <file> ]
+  earmark --help
+  earmark --version
+  earmark [ options... <file> ]
 
   convert file from Markdown to HTML.
 
-     where options can be any of:
-       --breaks
-       --code-class-prefix <a prefix>
-       --eex
-       --escape
-       --gfm
-       --smartypants
-       --pedantic
-       --pure-links
-       --breaks
-       --template
-       --timeout <timeout in ms>
-       --wikilinks
+  where options can be any of:
+  --breaks
+  --code-class-prefix <a prefix>
+  --eex
+  --escape
+  --gfm
+  --smartypants
+  --pedantic
+  --pure-links
+  --breaks
+  --template
+  --timeout <timeout in ms>
+  --wikilinks
 
   """
 
@@ -96,7 +96,7 @@ defmodule Earmark.Cli.Implementation do
       timeout: :integer,
       version: :boolean,
       wikiklinks: :boolean
-      ]
+    ]
     aliases = [
       h: :help,
       v: :version
@@ -115,6 +115,15 @@ defmodule Earmark.Cli.Implementation do
     "Illegal options #{errors |> Enum.map(fn {option, _} -> option end) |> Enum.join(", ")}"
   end
 
+  defp _maybe_to_html!(output, %{file: nil}), do: Earmark.Internal.as_html!(output)
+  defp _maybe_to_html!(output, options) do
+    filename = options.file
+    case Path.extname(Path.basename(filename, Path.extname(filename))) do
+      ".html" -> output
+      _  -> Earmark.Internal.as_html!(output, options)
+    end
+  end
+
   defp _process(flag_errors_or_options)
   defp _process(errors) when is_list(errors) do
     {:stderr, _format_errors(errors)}
@@ -126,26 +135,37 @@ defmodule Earmark.Cli.Implementation do
     {:stdio, Earmark.version}
   end
   defp _process(%Options{file: nil}=options), do: _process_input({:ok, :stdio}, options)
-  defp _process(%Options{file: filename}=options), do: _process_input(_open_file(filename), options)
+  defp _process(%Options{file: filename}=options) do
+    {device_tuple, options_} = _open_file(filename, options)
+    _process_input(device_tuple, options_)
+  end
 
   defp _process_input(device_tuple, options)
   defp _process_input({:error, reason}, options) do
     {:stderr, "Cannot open #{options.file}, reason: #{reason}"}
   end
-  defp _process_input({:ok, io_device}, %Options{template: true}) do
-    {:stdio, EEx.eval_string(SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string)}
+  defp _process_input({:ok, io_device}, %Options{eex: true}=options) do
+    input = SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string
+    output = EEx.eval_string(input, include: &Earmark.Internal.include(&1, options))
+    output_ = _maybe_to_html!(output, options)
+    {:stdio, output_}
   end
   defp _process_input({:ok, io_device}, options) do
-    content = _get_content(io_device, options)
+    content =
+    io_device
+    |> SysInterface.sys_interface.readlines
+    |> Enum.to_list
+
     {:stdio, Earmark.as_html!(content, options)}
   end
 
-  defp _get_content(io_device, options)
-  defp _get_content(io_device, %Options{eex: false}), do: SysInterface.sys_interface.readlines(io_device) |> Enum.to_list
-  defp _get_content(io_device, %Options{file: nil}), do: SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string |> EEx.eval_string
-  defp _get_content(_io_device, %Options{file: filename}), do: EEx.eval_file(filename)
-
   defp _open_file(filename), do: File.open(filename, [:utf8])
+  defp _open_file(filename, options) do
+    case Path.extname(filename) do
+      ".eex" -> {File.open(filename, [:utf8]), %{options|eex: true}}
+      _      -> {File.open(filename, [:utf8]), options}
+    end
+  end
 
   defp _option_related_help do
     @cli_options
