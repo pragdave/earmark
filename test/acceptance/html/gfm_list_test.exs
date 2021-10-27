@@ -458,7 +458,6 @@ defmodule Acceptance.Html.GfmListTest do
       assert to_html2(markdown) == expected
     end
 
-
   end
-
 end
+#  SPDX-License-Identifier: Apache-2.0
