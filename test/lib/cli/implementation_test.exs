@@ -36,7 +36,7 @@ defmodule Test.Cli.ImplementationTest do
       help_lines = help_text
       |> String.split("\n")
       |> Enum.take(5)
-      assert help_lines == ["usage:", "", "   earmark --help", "   earmark --version", "   earmark [ options... <file> ]"]
+      assert help_lines == ["usage:", "", "earmark --help", "earmark --version", "earmark [ options... <file> ]"]
     end
     test "-h" do
       {:stderr, help_text} = run(~W[-h])
@@ -44,7 +44,7 @@ defmodule Test.Cli.ImplementationTest do
       |> String.split("\n")
       |> Enum.drop(3)
       |> Enum.take(5)
-      assert help_lines == ["   earmark --version", "   earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
+      assert help_lines == ["earmark --version", "earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
     end
   end
   
@@ -54,6 +54,13 @@ defmodule Test.Cli.ImplementationTest do
     end
     test "mix of correct and incorrect" do
       assert run(~W[-h -i --code-class-prefix elixir --unknown]) == {:stderr, "Illegal options -i, --unknown"}
+    end
+  end
+
+  describe "eex" do
+    test "without explicit --exx" do
+      expected = "<h1>\nMain</h1>\n<h2>\nLevel2</h2>\n"
+      assert run(~W[test/fixtures/include/recursive.md.eex]) == {:stdio, expected}
     end
   end
 end
