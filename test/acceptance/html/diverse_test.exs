@@ -27,6 +27,7 @@ defmodule Acceptance.Html.DiverseTest do
 
       assert as_html(markdown) == {:error, html, messages}
     end
+
     test "syntax errors and standard error" do
       markdown = "A\nB\n="
       html     = "<p>\nA\nB</p>\n<p>\n</p>\n"

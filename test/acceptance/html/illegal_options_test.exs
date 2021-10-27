@@ -25,7 +25,7 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
       capture_io(:stderr, fn ->
         as_html!("hello", oops: Earmark) 
       end)
-    assert error_messages == "<args>:0: warning: Unrecognized option oops: Earmark\n"
+    assert error_messages == "<no file>:0: warning: Unrecognized option oops: Earmark\n"
   end 
 
   test "with as_html! defining filename" do

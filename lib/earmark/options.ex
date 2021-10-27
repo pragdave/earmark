@@ -113,6 +113,49 @@ defmodule Earmark.Options do
     end
   end
 
+  @doc ~S"""
+  Allows to compute the path of a relative file name (starting with `"./"`) from the file in options
+  and return an updated options struct
+
+      iex(6)> options = %Earmark.Options{file: "some/path/xxx.md"}
+      ...(6)> options_ = relative_filename(options, "./local.md")
+      ...(6)> options_.file
+      "some/path/local.md"
+
+  For your convenience you can just use a keyword list
+
+      iex(7)> options = relative_filename([file: "some/path/_.md", breaks: true], "./local.md")
+      ...(7)> {options.file, options.breaks}
+      {"some/path/local.md", true}
+
+  If the filename is not absolute it just replaces the file in options
+
+      iex(8)> options = %Earmark.Options{file: "some/path/xxx.md"}
+      ...(8)> options_ = relative_filename(options, "local.md")
+      ...(8)> options_.file
+      "local.md"
+
+  And there is a special case when processing stdin, meaning that `file: nil` we replace file
+  verbatim in that case
+
+      iex(9)> options = %Earmark.Options{}
+      ...(9)> options_ = relative_filename(options, "./local.md")
+      ...(9)> options_.file
+      "./local.md"
+
+  """
+  def relative_filename(options, filename)
+  def relative_filename(options, filename) when is_list(options) do
+    options
+    |> make_options!()
+    |> relative_filename(filename)
+  end
+  def relative_filename(%__MODULE__{file: nil}=options, filename), do: %{options|file: filename}
+  def relative_filename(%__MODULE__{file: calling_filename}=options, "./" <> filename) do
+    dirname = Path.dirname(calling_filename)
+    %{options|file: Path.join(dirname, filename)}
+  end
+  def relative_filename(%__MODULE__{}=options, filename), do: %{options|file: filename}
   @doc """
   A convenience constructor
   """
@@ -146,5 +189,4 @@ defmodule Earmark.Options do
   end
 
 end
-
 # SPDX-License-Identifier: Apache-2.0

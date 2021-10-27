@@ -218,41 +218,11 @@ defmodule Earmark do
   and are to serve the produced HTML on the Web.
   """
 
-  alias Earmark.{Error, Internal, Options, Transform}
-  import Earmark.Message, only: [emit_messages: 2]
+  alias Earmark.{Internal, Options, Transform}
 
-  @doc ~S"""
-  A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
-  raise errors otherwise
-
-      iex(7)> as_ast!(["Hello %% annotated"], annotations: "%%")
-      [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
-
-      iex(8)> as_ast!("===")
-      ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
-
-  """
-  def as_ast!(markdown, options \\ [])
-  def as_ast!(markdown, options) do
-    case EarmarkParser.as_ast(markdown, options) do
-      {:ok, result, _} -> result
-      {:error, _, messages} -> raise Earmark.Error, inspect(messages)
-    end
-  end
-  @doc false
-  def as_html(lines, options \\ %Options{})
-
-  def as_html(lines, options) when is_list(options) do
-    case  Options.make_options(options) do
-      {:ok, options1} -> as_html(lines, options1)
-      {:error, messages} -> {:error, "", messages}
-    end
-  end
-
-  def as_html(lines, options) do
-    {status, ast, messages} = Transform.postprocessed_ast(lines, options)
-    {status, Transform.transform(ast, options), messages}
-  end
+  defdelegate as_ast!(markdown, options \\ []), to: Internal
+  defdelegate as_html(lines, options \\ []), to: Internal
+  defdelegate as_html!(lines, options \\ []), to: Internal
 
   @doc """
   DEPRECATED call `EarmarkParser.as_ast` instead
@@ -274,12 +244,11 @@ defmodule Earmark do
 
   Otherwise it behaves exactly as `as_html`.
   """
-  def as_html!(lines, options \\ %Options{})
-  def as_html!(lines, options) do
-    {_status, html, messages} = as_html(lines, options)
-    emit_messages(messages, options)
-    html
-  end
+
+  defdelegate from_file!(filename, options \\ []), to: Internal
+
+  @default_timeout_in_ms 5000
+  defdelegate pmap(collection, func, timeout \\ @default_timeout_in_ms), to: Internal
 
   defdelegate transform(ast, options \\ []), to: Transform
 
@@ -292,8 +261,6 @@ defmodule Earmark do
       do: to_string(version)
   end
 
-  @default_timeout_in_ms 5000
-  defdelegate pmap(collection, func, timeout \\ @default_timeout_in_ms), to: Internal
 
   defp _as_ast(lines, options)
 

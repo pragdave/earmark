@@ -1,3 +1,15 @@
+# 1.4.17 2021-??-??
+
+- [436 Better EEx integration into CLI with recursive includes of markdown files](https://github.com/pragdave/earmark/pull/436)
+
+- [429 Illegal CLI option loops escript](https://github.com/pragdave/earmark/issues/429)
+
+- [427 Bad docstring for Elixir < 1.12](https://github.com/pragdave/earmark/issues/427)
+
+- [424-compiler-warning-about-eex](https://github.com/pragdave/earmark/issues/424)
+
+- [406-Unexpected Newline in compact output](https://github.com/pragdave/earmark/issues/406)
+
 # 1.4.16 2021-10-07
 
 - [updates to EarmarkParser v1.4.16](https://github.com/RobertDober/earmark_parser/blob/v1.4.16/RELEASE.md)

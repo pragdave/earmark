@@ -9,7 +9,7 @@ defmodule Earmark.Message do
   end
   def emit_messages(messages, proplist) when is_list(proplist) do
     messages
-    |> Enum.each(&emit_message(proplist[:file] || "<args>", &1))
+    |> Enum.each(&emit_message(proplist[:file], &1))
   end
 
   defp emit_message(filename, msg), do: IO.puts(:stderr, format_message(filename, msg))

@@ -26,21 +26,12 @@ and the following code examples are therefore verified with `ExUnit` doctests.
   - [Earmark.Cli.Implementation](#earmarkcliimplementation)
   - [Earmark.Options](#earmarkoptions)
   - [Earmark.Options.make_options/1](#earmarkoptionsmake_options1)
+  - [Earmark.Options.relative_filename/2](#earmarkoptionsrelative_filename2)
   - [Earmark.Options.with_postprocessor/2](#earmarkoptionswith_postprocessor2)
-  - [Earmark](#earmark)
-- [Earmark](#earmark)
-  - [Abstract Syntax Tree and Rendering](#abstract-syntax-tree-and-rendering)
-    - [Earmark.as_ast](#earmarkas_ast)
-    - [Earmark.as_html](#earmarkas_html)
-    - [Earmark.as_html!](#earmarkas_html)
-    - [Options](#options)
-  - [Rendering](#rendering)
-    - [`escape:` defaulting to `true`](#escape-defaulting-to-true)
-    - [`inner_html:` defaulting to `false`](#inner_html-defaulting-to-false)
-    - [`smartypants:` defaulting to `true`](#smartypants-defaulting-to-true)
-  - [Command line](#command-line)
-  - [Timeouts](#timeouts)
-  - [Security](#security)
+  - [Earmark.Internal](#earmarkinternal)
+  - [Earmark.Internal.as_ast!/2](#earmarkinternalas_ast2)
+  - [Earmark.Internal.from_file!/2](#earmarkinternalfrom_file2)
+  - [Earmark.Internal.include/2](#earmarkinternalinclude2)
   - [Earmark.Transform](#earmarktransform)
     - [Structure Conserving Transformers](#structure-conserving-transformers)
     - [Postprocessors and Convenience Functions](#postprocessors-and-convenience-functions)
@@ -113,227 +104,113 @@ And the bang version will raise an `Earmark.Error` as excepted (sic)
     ** (Earmark.Error) [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]
 ```
 
+### Earmark.Options.relative_filename/2
+
+Allows to compute the path of a relative file name (starting with `"./"`) from the file in options
+and return an updated options struct
+
+```elixir
+    iex(6)> options = %Earmark.Options{file: "some/path/xxx.md"}
+    ...(6)> options_ = relative_filename(options, "./local.md")
+    ...(6)> options_.file
+    "some/path/local.md"
+```
+
+For your convenience you can just use a keyword list
+
+```elixir
+    iex(7)> options = relative_filename([file: "some/path/_.md", breaks: true], "./local.md")
+    ...(7)> {options.file, options.breaks}
+    {"some/path/local.md", true}
+```
+
+If the filename is not absolute it just replaces the file in options
+
+```elixir
+    iex(8)> options = %Earmark.Options{file: "some/path/xxx.md"}
+    ...(8)> options_ = relative_filename(options, "local.md")
+    ...(8)> options_.file
+    "local.md"
+```
+
+And there is a special case when processing stdin, meaning that `file: nil` we replace file
+verbatim in that case
+
+```elixir
+    iex(9)> options = %Earmark.Options{}
+    ...(9)> options_ = relative_filename(options, "./local.md")
+    ...(9)> options_.file
+    "./local.md"
+```
+
+
 ### Earmark.Options.with_postprocessor/2
 
 A convenience constructor
 
 
 
-### Earmark
+### Earmark.Internal
 
+All public functions that are internal to Earmark, so that **only** external API
+functions are public in `Earmark`
 
-## Earmark
+### Earmark.Internal.as_ast!/2
 
-### Abstract Syntax Tree and Rendering
-
-The AST generation has now been moved out to [`EarmarkParser`](https://github.com/robertdober/earmark_parser)
-which is installed as a dependency.
-
-This brings some changes to this documentation and also deprecates the usage of `Earmark.as_ast`
-
-Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
-
-Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
-[here](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
-
-
-
-#### Earmark.as_ast
-
-WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
-
-Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as possible.
-
-**N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
-
-Also please refer yourself to the documentation of [`EarmarkParser`](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
-
-
-The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
-the structure of the result of `as_ast`.
-
-    {:ok, ast, []}                   = EarmarkParser.as_ast(markdown)
-    {:ok, ast, deprecation_messages} = EarmarkParser.as_ast(markdown)
-    {:error, ast, error_messages}    = EarmarkParser.as_ast(markdown)
-
-#### Earmark.as_html
-
-    {:ok, html_doc, []}                   = Earmark.as_html(markdown)
-    {:ok, html_doc, deprecation_messages} = Earmark.as_html(markdown)
-    {:error, html_doc, error_messages}    = Earmark.as_html(markdown)
-
-#### Earmark.as_html!
-
-    html_doc = Earmark.as_html!(markdown, options)
-
-Formats the error_messages returned by `as_html` and adds the filename to each.
-Then prints them to stderr and just returns the html_doc
-
-#### Options
-
-Options can be passed into as `as_html/2` or `as_html!/2` according to the documentation.
-A keyword list with legal options (c.f. `Earmark.Options`) or an `Earmark.Options` struct are accepted.
-
-    {status, html_doc, errors} = Earmark.as_html(markdown, options)
-    html_doc = Earmark.as_html!(markdown, options)
-    {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
-
-### Rendering
-
-All options passed through to `EarmarkParser.as_ast` are defined therein, however some options concern only
-the rendering of the returned AST
-
-These are:
-
-* `compact_output:` defaults to `false`
-
-Normally `Earmark` aims to produce _Human Readable_ output.
-
-This will give results like these:
+A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
+raise errors otherwise
 
 ```elixir
-    iex(1)> markdown = "# Hello\nWorld"
-    ...(1)> Earmark.as_html!(markdown, compact_output: false)
-    "<h1>\nHello</h1>\n<p>\nWorld</p>\n"
+    iex(1)> as_ast!(["Hello %% annotated"], annotations: "%%")
+    [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
 ```
-
-
-But sometimes whitespace is not desired:
 
 ```elixir
-    iex(2)> markdown = "# Hello\nWorld"
-    ...(2)> Earmark.as_html!(markdown, compact_output: true)
-    "<h1>Hello</h1><p>World</p>"
+    iex(2)> as_ast!("===")
+    ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
 ```
 
-Be cautions though when using this options, lines will become loooooong.
+
+### Earmark.Internal.from_file!/2
+
+This is a convenience method to read a file or pass it to `EEx.eval_file` if its name
+ends in  `.eex`
+
+The returned string is then passed to `as_html` this is used in the escript now and allows
+for a simple inclusion mechanism, as a matter of fact an `include` function is passed 
 
 
-#### `escape:` defaulting to `true`
+### Earmark.Internal.include/2
 
-If set HTML will be properly escaped
+A utility function that will be passed as a partial capture to `EEx.eval_file` by
+providing a value for the `options` parameter
 
 ```elixir
-      iex(3)> markdown = "Hello<br />World"
-      ...(3)> Earmark.as_html!(markdown)
-      "<p>\nHello&lt;br /&gt;World</p>\n"
+    EEx.eval(..., include: &include(&1, options))
 ```
 
-However disabling `escape:` gives you maximum control of the created document, which in some
-cases (e.g. inside tables) might even be necessary
+thusly allowing
+
+```eex
+  <%= include.(some file) %>
+```
+
+where `some file`  can be a relative path starting with `"./"`
+
+Here is an example using [these fixtures](https://github.com/pragdave/earmark/tree/master/test/fixtures)
 
 ```elixir
-      iex(4)> markdown = "Hello<br />World"
-      ...(4)> Earmark.as_html!(markdown, escape: false)
-      "<p>\nHello<br />World</p>\n"
+    iex(3)> include("./include/basic.md.eex", file: "test/fixtures/does_not_matter")
+    "# Headline Level 1\n"
 ```
 
-#### `inner_html:` defaulting to `false`
-
-This is especially useful inside templates, when a block element will disturb the layout as
-in this case
-
-```html
-<span><%= Earmark.as_html!(....)%></span>
-<span><%= Earmark.as_html!(....)%></span>
-```
-
-By means of the `inner_html` option the disturbing paragraph can be removed from `as_html!`'s
-output
+And here is how it is used inside a template
 
 ```elixir
-      iex(5)> markdown = "Hello<br />World"
-      ...(5)> Earmark.as_html!(markdown, escape: false, inner_html: true)
-      "Hello<br />World\n"
+    iex(4)> options = [file: "test/fixtures/does_not_matter"]
+    ...(4)> EEx.eval_string(~s{<%= include.("./include/basic.md.eex") %>}, include: &include(&1, options))
+    "# Headline Level 1\n"
 ```
-
-**N.B.** that this applies only to top level paragraphs, as can be seen here
-
-```elixir
-      iex(6)> markdown = "- Item\n\nPara"
-      ...(6)> Earmark.as_html!(markdown, inner_html: true)
-      "<ul>\n  <li>\nItem  </li>\n</ul>\nPara\n"
-```
-
-
-* `postprocessor:` defaults to nil
-
-Before rendering the AST is transformed by a postprocessor.
-For details see the description of `Earmark.Transform.map_ast` below which will accept the same postprocessor as
-a matter of fact specifying `postprocessor: fun` is conecptionnaly the same as
-
-```elixir
-          markdown
-          |> EarmarkParser.as_ast
-          |> Earmark.Transform.map_ast(fun)
-          |> Earmark.Transform.transform
-```
-
-with all the necessary bookkeeping for options and messages
-
-* `renderer:` defaults to `Earmark.HtmlRenderer`
-
-  The module used to render the final document.
-
-#### `smartypants:` defaulting to `true`
-
-If set the following replacements will be made during rendering of inline text
-
-    "---" → "—"
-    "--" → "–"
-    "' → "’"
-    ?" → "”"
-    "..." → "…"
-
-### Command line
-
-```sh
-    $ mix escript.build
-    $ ./earmark file.md
-```
-
-Some options defined in the `Earmark.Options` struct can be specified as command line switches.
-
-Use
-
-```sh
-    $ ./earmark --help
-```
-
-to find out more, but here is a short example
-
-```sh
-    $ ./earmark --smartypants false --code-class-prefix "a- b-" file.md
-```
-
-will call
-
-```sh
-    Earmark.as_html!( ..., %Earmark.Options{smartypants: false, code_class_prefix: "a- b-"})
-```
-
-### Timeouts
-
-By default, that is if the `timeout` option is not set Earmark uses parallel mapping as implemented in `Earmark.pmap/2`,
-which uses `Task.await` with its default timeout of 5000ms.
-
-In rare cases that might not be enough.
-
-By indicating a longer `timeout` option in milliseconds Earmark will use parallel mapping as implemented in `Earmark.pmap/3`,
-which will pass `timeout` to `Task.await`.
-
-In both cases one can override the mapper function with either the `mapper` option (used if and only if `timeout` is nil) or the
-`mapper_with_timeout` function (used otherwise).
-
-For the escript only the `timeout` command line argument can be used.
-
-### Security
-
-
-Please be aware that Markdown is not a secure format. It produces
-HTML from Markdown and HTML. It is your job to sanitize and or
-filter the output of `Earmark.as_html` if you cannot trust the input
-and are to serve the produced HTML on the Web.
 
 
 ### Earmark.Transform
@@ -472,14 +349,13 @@ example
     ...(8)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
     ...(8)> options = [
     ...(8)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
-    ...(8)> markdown =
-    ...(8)> """
-    ...(8)>   http://hello.x.com
-    ...(8)>
-    ...(8)>   [some](url)
-    ...(8)> """
+    ...(8)> markdown = [
+    ...(8)>   "http://hello.x.com",
+    ...(8)>   "",
+    ...(8)>   "[some](url)",
+    ...(8)>  ]
     ...(8)> Earmark.as_html!(markdown, options)
-    "<p class=\"example\">\n  <a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n  <a href=\"url\">some</a></p>\n"
+    "<p class=\"example\">\n<a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n<a href=\"url\">some</a></p>\n"
 ```
 
 ##### Use case: Modification of Link Attributes depending on the URL
@@ -527,10 +403,10 @@ Pull Requests are happily accepted.
 
 Please be aware of one _caveat_ when correcting/improving `README.md`.
 
-The `README.md` is generated by `Extractly` as mentioned above and therefore contributers shall not modify it directly, but
+The `README.md` is generated by `Extractly` as mentioned above and therefore contributors shall not modify it directly, but
 `README.md.eex` and the imported docs instead.
 
-Thank you all who have already helped with Earmark, your names are duely noted in [RELEASE.md](RELEASE.md).
+Thank you all who have already helped with Earmark, your names are duly noted in [RELEASE.md](RELEASE.md).
 
 ## Author
 
