@@ -4,6 +4,7 @@
 
   alias Earmark.Options
   alias Earmark.TagSpecificProcessors, as: TSP
+  alias Earmark.EarmarkParserProxy, as: Proxy
 
   @compact_tags ~w[a code em strong del]
 
@@ -183,9 +184,9 @@
   def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
   # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
   # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
-  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: EarmarkParser.as_ast(lines, options)
+  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: Proxy.as_ast(lines, options)
   def postprocessed_ast(lines, %Options{}=options) do
-    {status, ast, messages} = EarmarkParser.as_ast(lines, options)
+    {status, ast, messages} = Proxy.as_ast(lines, options)
     prep = make_postprocessor(options)
     ast1 = map_ast(ast, prep, Map.get(options, :ignore_strings))
     {status, ast1, messages}

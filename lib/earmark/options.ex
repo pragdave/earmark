@@ -9,7 +9,9 @@ defmodule Earmark.Options do
   - `eex`: Allows usage of an `EEx` template to be expanded to markdown before conversion
   - `file`: Name of file passed in from the CLI
   - `line`: 1 but might be set to an offset for better error messages in some integration cases
+  - `smartypants`: boolean use [Smarty Pants](https://daringfireball.net/projects/smartypants/) in the output
   - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
+
      EarmarkParser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
      Refer to the moduledoc of Earmark.`Transform` for details
 

@@ -1,4 +1,10 @@
-# 1.4.17 2021-10-27
+## 1.4.18 2021-10-30
+
+- [Remove SmartyPants option for Parser](https://github.com/robertdober/earmark_parser/issues/438)
+
+- Updated dependency to [EarmarkParser v1.4.17](https://github.com/RobertDober/earmark_parser/blob/v1.4.17/RELEASE.md)
+
+## 1.4.17 2021-10-27
 
 - [436 Better EEx integration into CLI with recursive includes of markdown files](https://github.com/pragdave/earmark/pull/436)
 
