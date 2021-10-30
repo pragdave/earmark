@@ -219,6 +219,7 @@ defmodule Earmark do
   """
 
   alias Earmark.{Internal, Options, Transform}
+  alias Earmark.EarmarkParserProxy, as: Proxy
 
   defdelegate as_ast!(markdown, options \\ []), to: Internal
   defdelegate as_html(lines, options \\ []), to: Internal
@@ -265,11 +266,11 @@ defmodule Earmark do
   defp _as_ast(lines, options)
 
   defp _as_ast(lines, %Options{} = options) do
-    EarmarkParser.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
+    Proxy.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
   end
 
   defp _as_ast(lines, options) do
-    EarmarkParser.as_ast(lines, options)
+    Proxy.as_ast(lines, options)
   end
 end
 # SPDX-License-Identifier: Apache-2.0

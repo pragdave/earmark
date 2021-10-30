@@ -6,6 +6,7 @@ defmodule Earmark.Internal do
   """
 
   alias Earmark.{Error, Message, Options, SysInterface, Transform}
+  alias Earmark.EarmarkParserProxy, as: Proxy
   import Message, only: [emit_messages: 2]
 
   @doc ~S"""
@@ -21,7 +22,7 @@ defmodule Earmark.Internal do
   """
   def as_ast!(markdown, options \\ [])
   def as_ast!(markdown, options) do
-    case EarmarkParser.as_ast(markdown, options) do
+    case Proxy.as_ast(markdown, options) do
       {:ok, result, _} -> result
       {:error, _, messages} -> raise Earmark.Error, inspect(messages)
     end
