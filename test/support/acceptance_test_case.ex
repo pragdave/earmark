@@ -8,8 +8,6 @@ defmodule Support.AcceptanceTestCase do
       import Support.GenHtml
     end
   end
-  
+
 end
-
-
 # SPDX-License-Identifier: Apache-2.0

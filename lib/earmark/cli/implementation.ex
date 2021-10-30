@@ -159,7 +159,6 @@ defmodule Earmark.Cli.Implementation do
     {:stdio, Earmark.as_html!(content, options)}
   end
 
-  defp _open_file(filename), do: File.open(filename, [:utf8])
   defp _open_file(filename, options) do
     case Path.extname(filename) do
       ".eex" -> {File.open(filename, [:utf8]), %{options|eex: true}}

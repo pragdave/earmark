@@ -3,7 +3,7 @@ defmodule Acceptance.Transform.MetaTest do
 
   import Support.AstHelpers, only: [ast_from_md: 1]
   import Earmark.Transform
-  
+
   # Needs to pass with #359
   describe "pre and verbatim" do
     @pre """

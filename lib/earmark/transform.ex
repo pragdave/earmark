@@ -180,7 +180,9 @@
   def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
 
   @line_end ~r{\n\r?}
-  def postprocessed_ast(lines, options \\ %Options{})
+
+  @doc false
+  def postprocessed_ast(lines, options)
   def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
   # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
   # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
@@ -214,21 +216,21 @@
   @doc ~S"""
   This is a structure conserving transformation
 
-      iex(10)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
-      ...(10)> map_ast(ast, &(&1))
+      iex(11)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(11)> map_ast(ast, &(&1))
       [{"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}}]
 
   A more useful transformation
-      iex(11)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
-      ...(11)> fun = fn {_, _, _, _}=n -> Earmark.AstTools.merge_atts_in_node(n, class: "private")
-      ...(11)>           string      -> string end
-      ...(11)> map_ast(ast, fun)
+      iex(12)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(12)> fun = fn {_, _, _, _}=n -> Earmark.AstTools.merge_atts_in_node(n, class: "private")
+      ...(12)>           string      -> string end
+      ...(12)> map_ast(ast, fun)
       [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
 
   However the usage of the `ignore_strings` option renders the code much simpler
 
-      iex(12)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
-      ...(12)> map_ast(ast, &Earmark.AstTools.merge_atts_in_node(&1, class: "private"), true)
+      iex(13)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      ...(13)> map_ast(ast, &Earmark.AstTools.merge_atts_in_node(&1, class: "private"), true)
       [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
   """
   def map_ast(ast, fun, ignore_strings \\ false) do
@@ -239,18 +241,18 @@
   This too is a structure perserving transformation but a value is passed to the mapping function as an accumulator, and the mapping
   function needs to return the new node and the accumulator as a tuple, here is a simple example
 
-      iex(13)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
-      ...(13)> summer = fn {"li", _, [v], _}=n, s -> {v_, _} = Integer.parse(v); {n, s + v_}
-      ...(13)>             n, s -> {n, s} end
-      ...(13)> map_ast_with(ast, 0, summer, true)
+      iex(14)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      ...(14)> summer = fn {"li", _, [v], _}=n, s -> {v_, _} = Integer.parse(v); {n, s + v_}
+      ...(14)>             n, s -> {n, s} end
+      ...(14)> map_ast_with(ast, 0, summer, true)
       {[{"ul", [], [{"li", [], ["1"], %{}}], %{}}, {"p", [], ["2"], %{}}, {"ul", [], [{"li", [], ["3"], %{}}], %{}}], 4}
 
   or summing all numbers
 
-      iex(14)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
-      ...(14)> summer = fn {_, _, _, _}=n, s -> {n, s}
-      ...(14)>             n, s -> {n_, _} = Integer.parse(n); {"*", s+n_} end
-      ...(14)> map_ast_with(ast, 0, summer)
+      iex(15)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      ...(15)> summer = fn {_, _, _, _}=n, s -> {n, s}
+      ...(15)>             n, s -> {n_, _} = Integer.parse(n); {"*", s+n_} end
+      ...(15)> map_ast_with(ast, 0, summer)
       {[{"ul", [], [{"li", [], ["*"], %{}}], %{}}, {"p", [], ["*"], %{}}, {"ul", [], [{"li", [], ["*"], %{}}], %{}}], 6}
 
   """
