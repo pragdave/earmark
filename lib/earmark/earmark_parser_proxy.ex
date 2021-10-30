@@ -14,7 +14,7 @@ defmodule Earmark.EarmarkParserProxy do
   @doc ~S"""
   An adapter to `EarmarkParser.as_ast/*`
   """
-  def as_ast(input, options \\ %Earmark.Options{})
+  def as_ast(input, options)
   def as_ast(input, options) when is_list(options)  do
     EarmarkParser.as_ast(input, Keyword.delete(options, :smartypants))
   end
