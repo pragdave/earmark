@@ -389,7 +389,7 @@ defmodule Acceptance.Html.GfmListTest do
       assert to_html2(markdown) == expected
     end
     test "Lists #298" do
-      markdown = "- a\n- ```\n  b\n\n\n  ```\n- c\n"
+      markdown = "- a\n- ```\n  b\n\n\n ```\n- c\n"
       expected = parse_trimmed("<ul>\n<li>a</li>\n<li>\n<pre><code>b\n\n\n</code></pre>\n</li>\n<li>c</li>\n</ul>\n")
 
       assert to_html2(markdown) == expected

@@ -1,3 +1,7 @@
+## 1.4.19 2021-12-04
+
+This release is updating to `EarmarkParser` v1.4.18 with these [RELEASE NOTES](https://github.com/RobertDober/earmark_parser/blob/v1.14.8/RELEASE.md)
+
 ## 1.4.18 2021-10-30
 
 - [Remove SmartyPants option for Parser](https://github.com/robertdober/earmark_parser/issues/438)
