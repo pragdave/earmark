@@ -11,7 +11,7 @@
     {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},
-    {:excoveralls, "~> 0.14.2", only: [:test]},
+    {:excoveralls, "~> 0.14.4", only: [:test]},
     # {:extractly, "~> 0.5.0", git: "https://github.com/RobertDober/extractly.git", tag: "v0.5.0-pre1", only: [:dev]},
     {:extractly, "~> 0.5.3", only: [:dev]},
     {:floki, "~> 0.21", only: [:dev, :test]},
