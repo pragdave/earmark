@@ -1,3 +1,7 @@
+## 1.4.20 2022-01-08
+
+- Fix EarmarkParser version to 1.4.18 as the 1.4.x branch is not supporting Earmark anymore (1.5 should hopefully)
+
 ## 1.4.19 2021-12-04
 
 This release is updating to `EarmarkParser` v1.4.18 with these [RELEASE NOTES](https://github.com/RobertDober/earmark_parser/blob/v1.14.8/RELEASE.md)
