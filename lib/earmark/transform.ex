@@ -482,9 +482,11 @@
     new = if ignore_strings, do: string, else: fun.(string)
     _walk_ast(rest, fun, ignore_strings, [new|result])
   end
-  defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
-    {new_tag, new_atts, _, new_meta} = fun.(tuple)
-    _walk_ast([content|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+  defp _walk_ast([{_tag, _atts, children, _meta}=tuple|rest], fun, ignore_strings, result) do
+    {new_tag, new_atts, new_children, new_meta} = fun.(tuple)
+    children = if is_nil(new_children), do: children, else: new_children
+
+    _walk_ast([children|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, children, new_meta}|result])
   end
   defp _walk_ast([[h|t]|rest], fun, ignore_strings, result) do
     _walk_ast([h, t|rest], fun, ignore_strings, result)
@@ -503,9 +505,10 @@
       _walk_ast_with(rest, newv, fun, ignore_strings, [news|result])
     end
   end
-  defp _walk_ast_with([{_, _, content, _}=tuple|rest], value, fun, ignore_strings, result) do
-    {{new_tag, new_atts, _, new_meta}, new_value} = fun.(tuple, value)
-    _walk_ast_with([content|rest], new_value, fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+  defp _walk_ast_with([{_tag, _atts, children, _meta}=tuple|rest], value, fun, ignore_strings, result) do
+    {{new_tag, new_atts, new_children, new_meta}, new_value} = fun.(tuple, value)
+    children = if is_nil(new_children), do: children, else: new_children
+    _walk_ast_with([children|rest], new_value, fun, ignore_strings, [@pop, {new_tag, new_atts, children, new_meta}|result])
   end
   defp _walk_ast_with([[h|t]|rest], value, fun, ignore_strings, result) do
     _walk_ast_with([h, t|rest], value, fun, ignore_strings, result)
