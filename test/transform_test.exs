@@ -25,5 +25,23 @@ defmodule TransformTest do
     defp add_smiley(text, nil), do: {text, nil}
     defp add_smiley(text, ann), do: {text <> ann, nil}
   end
+
+  describe "structural modifications" do
+    test "transformations can modify their children" do
+      markdown = "## a caption"
+      {:ok, ast, []} = markdown |> EarmarkParser.as_ast()
+      rendered = ast
+                 |> map_ast(&add_children/1)
+                 |> Earmark.Transform.transform()
+
+      expected = "<h2>\n<a href=\"#a-caption\">¶</a>a caption</h2>\n"
+      assert rendered == expected
+    end
+
+    defp add_children({"h2", attrs, children, meta}) do
+      {"h2", attrs, [{"a", [{"href", "#a-caption"}], ["¶"], %{}}|children], meta}
+    end
+    defp add_children(tuple_or_string), do: tuple_or_string
+  end
 end
 #  SPDX-License-Identifier: Apache-2.0
