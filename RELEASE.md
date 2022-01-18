@@ -26,6 +26,10 @@ for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v
 Takes advantage of the fixed regressions in EarmarkParser release 1.4.22 and therefore makes all
 features of the latest EarmarkParser release available
 
+- [Nice addition to `Earmark.Transform.transform` to allow modification of the content of an AST node](https://github.com/pragdave/earmark/pr/443)
+
+  Kudos to [Phillipp Tessenow](https://github.com/tessi)
+
 ## 1.4.20 2022-01-08
 
 - Fix EarmarkParser version to 1.4.18 ~as the 1.4.x branch is not supporting Earmark anymore (1.5 should hopefully)~
