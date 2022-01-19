@@ -1,5 +1,5 @@
 
-- [Nice addition to `Earmark.Transform.transform` to allow modification of the content of an AST node](https://github.com/pragdave/earmark/pr/443)
+- [Nice addition to `Earmark.Transform.transform` to allow modification of the content of an AST node](https://github.com/pragdave/earmark/pull/443)
 
   Kudos to [Phillipp Tessenow](https://github.com/tessi)
 
