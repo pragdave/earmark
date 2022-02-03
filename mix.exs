@@ -1,7 +1,7 @@
     defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.4.25"
+  @version "1.5.0-pre"
 
   @url "https://github.com/pragdave/earmark"
 
@@ -30,6 +30,10 @@
   """
 
   ############################################################
+
+  @deps [
+    { :yaml_elixir, "~> 2.8.0" }
+  ]
 
   def project do
     [

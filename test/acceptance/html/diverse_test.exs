@@ -7,6 +7,7 @@ defmodule Acceptance.Html.DiverseTest do
     test "entiy" do
       markdown = "`f&ouml;&ouml;`\n"
       html     = "<p>\n<code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
+
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -35,7 +36,7 @@ defmodule Acceptance.Html.DiverseTest do
       error_message =
         capture_io(:stderr, fn ->
           assert Earmark.as_html!(markdown) == html
-        end)
+        end) |> Support.Helpers.remove_deprecation_messages
 
       assert error_message == "<no file>:3: warning: Unexpected line =\n"
     end

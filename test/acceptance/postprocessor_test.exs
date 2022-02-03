@@ -1,5 +1,6 @@
 defmodule Acceptance.PostprocessorTest do
   use ExUnit.Case
+  import Support.Helpers, only: [remove_deprecations: 1]
 
   describe "nop" do
     test "empty edge case" do
@@ -35,7 +36,9 @@ defmodule Acceptance.PostprocessorTest do
 
 
   defp post(markdown, fun, ignore_strings \\ false) do
-    Earmark.Transform.postprocessed_ast(markdown, %{postprocessor: fun, ignore_strings: ignore_strings})
+    markdown
+    |> Earmark.Transform.postprocessed_ast(%{postprocessor: fun, ignore_strings: ignore_strings})
+    |> remove_deprecations()
   end
   defp id() do
     fn x -> x end

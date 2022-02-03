@@ -33,8 +33,9 @@ and the following code examples are therefore verified with `ExUnit` doctests.
   - [Earmark.Internal.from_file!/2](#earmarkinternalfrom_file2)
   - [Earmark.Internal.include/2](#earmarkinternalinclude2)
   - [Earmark.Transform](#earmarktransform)
-    - [Transformers](#transformers)
+    - [Structure Conserving Transformers](#structure-conserving-transformers)
     - [Postprocessors and Convenience Functions](#postprocessors-and-convenience-functions)
+    - [Structure Modifying Transformers](#structure-modifying-transformers)
 - [Contributing](#contributing)
 - [Author](#author)
 
@@ -216,9 +217,10 @@ And here is how it is used inside a template
 
 ### Earmark.Transform
 
-#### Transformers
+#### Structure Conserving Transformers
 
-For the convenience of processing the output of `EarmarkParser.as_ast` we expose two mappers.
+For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
+mappers.
 
 ##### `map_ast`
 
@@ -253,7 +255,7 @@ Depending on the return value of the mapper function the traversal will either
 takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
 like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
 
-The result of the function call must be:
+The result of the function call must be
 
 - for nodes → as described above
 
@@ -438,6 +440,15 @@ add some decoration
     ...(10)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
     "<p>\nA joke  ὠ1</p>\n<p>\nCharming  ὠd</p>\n"
 ```
+
+#### Structure Modifying Transformers
+
+For structure modifications a tree traversal is needed and no clear pattern of how to assist this task with
+tools has emerged yet.
+
+
+
+
 
 ## Contributing
 

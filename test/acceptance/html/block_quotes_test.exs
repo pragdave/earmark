@@ -1,5 +1,5 @@
 defmodule Acceptance.Html.BlockQuotesTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
 
   describe "with breaks: true" do
     test "acceptance test 490 with breaks" do
@@ -21,7 +21,7 @@ defmodule Acceptance.Html.BlockQuotesTest do
       html     = "<blockquote>\n  <p>\nFoo  </p>\n</blockquote>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "lists in blockquotes? Coming up Sir" do
@@ -29,7 +29,7 @@ defmodule Acceptance.Html.BlockQuotesTest do
       html     = "<blockquote>\n  <ul>\n    <li>\nfoo    </li>\n  </ul>\n</blockquote>\n<ul>\n  <li>\nbar  </li>\n</ul>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
     test "indented case" do
@@ -37,7 +37,7 @@ defmodule Acceptance.Html.BlockQuotesTest do
       html     = "<blockquote>\n  <ul>\n    <li>\nfoo    </li>\n  </ul>\n</blockquote>\n<ul>\n  <li>\nbar  </li>\n</ul>\n"
       messages = []
 
-      assert Earmark.as_html(markdown) == {:ok, html, messages}
+      assert as_html(markdown) == {:ok, html, messages}
     end
 
   end

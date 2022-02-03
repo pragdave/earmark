@@ -26,6 +26,14 @@ for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v
 Takes advantage of the fixed regressions in EarmarkParser release 1.4.22 and therefore makes all
 features of the latest EarmarkParser release available
 
+## 1.4.21 2022-03-13
+
+- [Paragraph Context lost after indented code block (EarmarkParser Issue)](https://github.com/robertdober/earmark_parser/issues/98)
+
+- [Bad link corrected](https://github.com/pragdave/earmark/pull/445)
+
+  Kudos to [Udo Kramer](https://github.com/optikfluffel)
+
 - [Nice addition to `Earmark.Transform.transform` to allow modification of the content of an AST node](https://github.com/pragdave/earmark/pull/443)
 
   Kudos to [Phillipp Tessenow](https://github.com/tessi)
@@ -40,7 +48,7 @@ This release is updating to `EarmarkParser` v1.4.18 with these [RELEASE NOTES](h
 
 ## 1.4.18 2021-10-30
 
-- [Remove SmartyPants option for Parser](https://github.com/robertdober/earmark_parser/issues/438)
+- [Remove SmartyPants option for Parser](https://github.com/pragdave/earmark/issues/438)
 
 - Updated dependency to [EarmarkParser v1.4.17](https://github.com/RobertDober/earmark_parser/blob/v1.4.17/RELEASE.md)
 
