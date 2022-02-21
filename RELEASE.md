@@ -1,3 +1,11 @@
+## 1.5.0-pre 2022-02-21
+
+This introduces regressions concerning nested lists and sophisticated edge cases, but introduces the following feature
+as all features of `EarmarkParser` 1.4.19 & 1.4.20
+
+The will be regressions fixed in 1.5.0
+
+- Removing support for Elixir < 1.12
 
 - [Bad link corrected](https://github.com/pragdave/earmark/pull/445)
 

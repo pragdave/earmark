@@ -37,6 +37,9 @@ jobs:
           - pair:
             otp: "24.1.2"
             elixir: "1.13.0"
+          - pair:
+            otp: "24.2.1"
+            elixir: "1.13.3"
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir

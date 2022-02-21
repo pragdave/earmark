@@ -12,7 +12,7 @@ defmodule Acceptance.Html.ListTest do
 
     test "Numbered" do
       markdown = "1.  A paragraph\n    with two lines.\n\n        indented code\n\n    > A block quote.\n"
-      html     = "<ol>\n  <li>\n    <p>\n A paragraph\nwith two lines.    </p>\n    <pre><code>indented code</code></pre>\n    <blockquote>\n      <p>\nA block quote.      </p>\n    </blockquote>\n  </li>\n</ol>\n"
+      html     = "<ol>\n  <li>\n    <p>\nA paragraph\nwith two lines.    </p>\n    <pre><code>indented code</code></pre>\n    <blockquote>\n      <p>\nA block quote.      </p>\n    </blockquote>\n  </li>\n</ol>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -1,12 +1,12 @@
 defmodule Acceptance.Html.EmptyTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
 
   test "empty" do
     markdown = ""
     html     = ""
     messages = []
 
-    assert Earmark.as_html(markdown) == {:ok, html, messages}
+    assert as_html(markdown) == {:ok, html, messages}
   end
 
   test "almost empty" do
@@ -14,7 +14,7 @@ defmodule Acceptance.Html.EmptyTest do
     html     = ""
     messages = []
 
-    assert Earmark.as_html(markdown) == {:ok, html, messages}
+    assert as_html(markdown) == {:ok, html, messages}
   end
-  
+
 end

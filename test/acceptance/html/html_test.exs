@@ -4,7 +4,7 @@ defmodule Acceptance.Html.HtmlBlocksTest do
   describe "HTML blocks" do
     test "tables are just tables again (or was that mountains?)" do
       markdown = "<table>\n  <tr>\n    <td>\n           hi\n    </td>\n  </tr>\n</table>\n\nokay.\n"
-      html     = "<table>\n    <tr>      <td>             hi      </td>    </tr></table>\n<p>\nokay.</p>\n"
+      html     = "<table>\n    <tr>\n    <td>\n           hi\n    </td>\n  </tr></table>\n<p>\nokay.</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
