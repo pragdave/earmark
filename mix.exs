@@ -1,13 +1,19 @@
     defmodule Earmark.Mixfile do
   use Mix.Project
 
-  @version "1.4.20"
+  @version "1.4.21"
 
   @url "https://github.com/pragdave/earmark"
 
 
   @deps [
-    {:earmark_parser, "== 1.4.18" },
+    {:earmark_parser, "~> 1.4.20-pre" },
+    # {
+    #   :earmark_parser,
+    #   "~> 1.4.20",
+    #   path: "../earmark_parser"
+    #   # git: "https://github.com/RobertDober/earmark_parser.git", tag: "1.4.20-pre"
+    # },
     {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},

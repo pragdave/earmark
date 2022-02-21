@@ -16,10 +16,17 @@ defmodule Earmark.EarmarkParserProxy do
   """
   def as_ast(input, options)
   def as_ast(input, options) when is_list(options)  do
-    EarmarkParser.as_ast(input, Keyword.delete(options, :smartypants))
+    options1 =
+      options
+      |> Keyword.delete(:messages)
+      |> Keyword.delete(:smartypants)
+      |> Keyword.put(:messages, MapSet.new)
+    EarmarkParser.as_ast(input, options1)
   end
   def as_ast(input, options) when is_map(options)  do
-    EarmarkParser.as_ast(input, Map.delete(options, :smartypants))
+    options1 = options |> Map.from_struct |> Map.put(:messages, MapSet.new)#EarmarkParser.Options.normalize
+    # IO.inspect({input, options1})
+    EarmarkParser.as_ast(input, options1)
   end
 
 end

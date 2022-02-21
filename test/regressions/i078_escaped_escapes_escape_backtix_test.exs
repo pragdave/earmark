@@ -1,6 +1,7 @@
 defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+  import Support.Helpers, only: [remove_deprecation_messages: 1]
 
   defp open_file(filename) do
     case File.open(filename, [:utf8]) do
@@ -19,7 +20,7 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
     # Fixed code in line 42
     assert capture_io(:stderr, fn ->
              html_from_file("test/fixtures/i078_fixed.md")
-           end) == ""
+    end) |> remove_deprecation_messages() == ""
 
     # IO.puts html_from_file("test/fixtures/i078_fixed.md")
   end

@@ -1,5 +1,5 @@
 defmodule Regressions.I119FootnotesInsideLiTest do
-  use ExUnit.Case, async: true
+  use Support.AcceptanceTestCase
   
   @li_footnote """
   1. foo[^1]
@@ -18,8 +18,8 @@ defmodule Regressions.I119FootnotesInsideLiTest do
       []}
   end
 
-  defp with_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: true})
-  defp without_fn(md), do: Earmark.as_html(md, %Earmark.Options{footnotes: false})
+  defp with_fn(md), do: as_html(md, footnotes: true)
+  defp without_fn(md), do: as_html(md, footnotes: false)
 end
 
 # SPDX-License-Identifier: Apache-2.0
