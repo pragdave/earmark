@@ -1,3 +1,7 @@
+## 1.5.0-pre1 2022-03-13
+
+- [Paragraph Context lost after indented code block (EarmarkParser Issue)](https://github.com/robertdober/earmark_parser/issues/98)
+
 ## 1.5.0-pre 2022-02-21
 
 This introduces regressions concerning nested lists and sophisticated edge cases, but introduces the following feature
