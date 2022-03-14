@@ -1,6 +1,11 @@
+## 1.4.21 2022-03-14
+
+Takes advantage of the fixed regressions in EarmarkParser release 1.4.22 and therefore makes all
+features of the latest EarmarkParser release available
+
 ## 1.4.20 2022-01-08
 
-- Fix EarmarkParser version to 1.4.18 as the 1.4.x branch is not supporting Earmark anymore (1.5 should hopefully)
+- Fix EarmarkParser version to 1.4.18 ~as the 1.4.x branch is not supporting Earmark anymore (1.5 should hopefully)~
 
 ## 1.4.19 2021-12-04
 
