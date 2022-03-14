@@ -7,7 +7,7 @@
 
 
   @deps [
-    {:earmark_parser, "== 1.4.18" },
+    {:earmark_parser, "== 1.4.21" },
     {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
     {:benchfella, "~> 0.3.0", only: [:dev]},
     {:earmark_ast_dsl, "~> 0.2.5", only: [:test]},

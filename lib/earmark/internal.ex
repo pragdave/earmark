@@ -39,7 +39,7 @@ defmodule Earmark.Internal do
   end
 
   def as_html(lines, options) do
-    {status, ast, messages} = Transform.postprocessed_ast(lines, options)
+    {status, ast, messages} = Transform.postprocessed_ast(lines, %{options| messages: MapSet.new([])})
     {status, Transform.transform(ast, options), messages}
   end
 
