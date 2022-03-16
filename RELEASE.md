@@ -1,3 +1,7 @@
+## 1.4.22 2022-03-16
+
+for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v1.4.23/RELEASE.md)
+
 ## 1.4.21 2022-03-14
 
 Takes advantage of the fixed regressions in EarmarkParser release 1.4.22 and therefore makes all
