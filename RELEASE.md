@@ -9,9 +9,13 @@ Examples for this can be found
 and
 [here(change mapper function)](https://github.com/pragdave/earmark/test/acceptance/earmark/postprocessor/change_mapper_test.exs)
 
-## 1.4.23 & 1.4.24
+## 1.4.24 2022-03-24
 
-just upgrading to new EarmarkParser versions
+for [EarmarkParser v1.4.25](https://github.com/RobertDober/earmark_parser/blob/v1.4.25/RELEASE.md)
+
+## 1.4.23 2022-03-20
+
+for [EarmarkParser v1.4.24](https://github.com/RobertDober/earmark_parser/blob/v1.4.24/RELEASE.md)
 
 ## 1.4.22 2022-03-16
 
