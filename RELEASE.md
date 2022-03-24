@@ -1,3 +1,11 @@
+## 1.4.24 2022-03-24
+
+for [EarmarkParser v1.4.25](https://github.com/RobertDober/earmark_parser/blob/v1.4.25/RELEASE.md)
+
+## 1.4.23 2022-03-20
+
+for [EarmarkParser v1.4.24](https://github.com/RobertDober/earmark_parser/blob/v1.4.24/RELEASE.md)
+
 ## 1.4.22 2022-03-16
 
 for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v1.4.23/RELEASE.md)
