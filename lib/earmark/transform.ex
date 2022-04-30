@@ -1,10 +1,11 @@
-    defmodule Earmark.Transform do
+defmodule Earmark.Transform do
 
   import Earmark.Helpers, only: [replace: 3]
 
   alias Earmark.Options
   alias Earmark.TagSpecificProcessors, as: TSP
   alias Earmark.EarmarkParserProxy, as: Proxy
+  alias __MODULE__.Pop
 
   @compact_tags ~w[a code em strong del]
 
@@ -460,10 +461,12 @@
     [?<, tag, Enum.map(atts, &_make_att1(&1, tag)), ?>]
   end
 
-  @pop {:__end__}
   defp _pop_to_pop(result, intermediate \\ [])
-  defp _pop_to_pop([@pop, {tag, atts, _, meta}|rest], intermediate) do
-    [{tag, atts, intermediate, meta}|rest]
+  defp _pop_to_pop([fun, {tag, atts, _, meta}|rest], intermediate) when is_function(fun) do
+    {[{tag, atts, intermediate, meta}|rest]}
+  end
+  defp _pop_to_pop([%Pop{fun: fun}, {tag, atts, _, meta}|rest], intermediate) do
+    {[{tag, atts, intermediate, meta}|rest], fun}
   end
   defp _pop_to_pop([continue|rest], intermediate) do
     _pop_to_pop(rest, [continue|intermediate])
@@ -475,8 +478,9 @@
 
   defp _walk_ast(ast, fun, ignore_strings, result)
   defp _walk_ast([], _fun, _ignore_strings, result), do: Enum.reverse(result)
-  defp _walk_ast([[]|rest], fun, ignore_strings, result) do
-    _walk_ast(rest, fun, ignore_strings, _pop_to_pop(result))
+  defp _walk_ast([[]|rest], _fun, ignore_strings, result) do
+    {popped_result, fun} = _pop_to_pop(result)
+    _walk_ast(rest, fun, ignore_strings, popped_result)
   end
   defp _walk_ast([string|rest], fun, ignore_strings, result) when is_binary(string) do
     new = if ignore_strings, do: string, else: fun.(string)
@@ -484,7 +488,7 @@
   end
   defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
     case fun.(tuple) do
-      {new_tag, new_atts, _, new_meta} -> _walk_ast([content|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+      {new_tag, new_atts, _, new_meta} -> _walk_ast([content|rest], fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
       {:replace, content} -> _walk_ast(rest, fun, ignore_strings, [content|result])
     end
   end
@@ -494,8 +498,9 @@
 
   defp _walk_ast_with(ast, value, fun, ignore_strings, result)
   defp _walk_ast_with([], value, _fun, _ignore_strings, result), do: {Enum.reverse(result), value}
-  defp _walk_ast_with([[]|rest], value, fun, ignore_strings, result) do
-    _walk_ast_with(rest, value, fun, ignore_strings, _pop_to_pop(result))
+  defp _walk_ast_with([[]|rest], value, _fun, ignore_strings, result) do
+    {popped_result, fun} = _pop_to_pop(result)
+    _walk_ast_with(rest, value, fun, ignore_strings, popped_result)
   end
   defp _walk_ast_with([string|rest], value, fun, ignore_strings, result) when is_binary(string) do
     if ignore_strings do
@@ -507,7 +512,7 @@
   end
   defp _walk_ast_with([{_, _, content, _}=tuple|rest], value, fun, ignore_strings, result) do
     {{new_tag, new_atts, _, new_meta}, new_value} = fun.(tuple, value)
-    _walk_ast_with([content|rest], new_value, fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+    _walk_ast_with([content|rest], new_value, fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
   end
   defp _walk_ast_with([[h|t]|rest], value, fun, ignore_strings, result) do
     _walk_ast_with([h, t|rest], value, fun, ignore_strings, result)
