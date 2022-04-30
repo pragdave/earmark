@@ -30,27 +30,23 @@ defmodule Earmark.Transform do
   - `{new_tag, new_atts, ignored, new_meta}`
 
     just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
-    quadruple (ignoring `ignored` for backwards compatibility)
+    quadruple (ignoring `ignored` for facilitating nodes w/o transformation)
     and then descend into the **original** content of the node.
 
-    In v1.5 a triple `{new_tag, new_atts, new_meta}` will needed to be returned to achieve this behavior.
 
   - `{:replace, node}`
 
     replaces the corrent node with `node` and does not descend anymore, but continues traversal on sibblings.
 
-    In v1.5 the return value will just need to be a quadruple node.
 
   - {new_function, {new_tag, new_atts, ignored, new_meta}}
 
     just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
-    quadruple (ignoring `ignored` for backwards compatibility)
+    quadruple (ignoring `ignored` for facilitating nodes w/o transformation)
     and then descend into the **original** content of the node but with the mapper function `new_function`
     used for transformation of the AST. 
 
     **N.B.** The original mapper function will be used for transforming the sibbling nodes though.
-
-    In v1.5 a tuple of the format `{new_function, {new_tag, new_atts, new_meta}}` will needed to be returned to achieve this behavior.
 
   takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
   like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
@@ -59,7 +55,7 @@ defmodule Earmark.Transform do
 
   - for nodes → as described above
 
-  - for strings → strings
+  - for strings → strings or nodes
 
   As an example let us transform an ast to have symbol keys
 
@@ -100,17 +96,23 @@ defmodule Earmark.Transform do
 
   We can achieve this as follows
 
-        iex(3)> elixir_home = {a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
+        iex(3)> elixir_home = {"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
         ...(3)> transformer = fn {"p", atts, _, meta}, _ -> {{"p", atts, nil, meta}, true}
-        ...(3)>                  text, true when is_binary(text) -> {:replace, elixir_home}
-        ...(3)>                  text, false when is_binary(text) -> text
+        ...(3)>                  "#elixir", true -> {elixir_home, false}
+        ...(3)>                  text, _ when is_binary(text) -> {text, false}
         ...(3)>                  node, _ ->  {node, false} end
-        ...(3)>
-        ...(3)>
-        ...(3)>
-        ...(3)>
-        ...(3)>
-        ...(3)>
+        ...(3)> ast = [
+        ...(3)>  {"p", [],[ "#elixir"], %{}}, {"bold", [],[ "#elixir"], %{}},
+        ...(3)>  {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], ["#elixir"], %{}}], %{}}
+        ...(3)> ]
+        ...(3)> map_ast_with(ast, false, transformer)
+        {[
+         {"p", [],[{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}, {"bold", [],[ "#elixir"], %{}},
+         {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}], %{}}
+        ], false}
+
+  An alternate, maybe more elegant solution would be to change the mapper function during AST traversal
+  as demonstrated [here](https://github.com/pragdave/earmark/test/acceptance/transform/map_ast_with_fnchange_test.exs)
 
   #### Postprocessors and Convenience Functions
 
@@ -509,9 +511,6 @@ defmodule Earmark.Transform do
   end
 
   defp _pop_to_pop(result, intermediate \\ [])
-  defp _pop_to_pop([fun, {tag, atts, _, meta}|rest], intermediate) when is_function(fun) do
-    {[{tag, atts, intermediate, meta}|rest]}
-  end
   defp _pop_to_pop([%Pop{fun: fun}, {tag, atts, _, meta}|rest], intermediate) do
     {[{tag, atts, intermediate, meta}|rest], fun}
   end
@@ -535,10 +534,10 @@ defmodule Earmark.Transform do
   end
   defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
     case fun.(tuple) do
-      {new_tag, new_atts, _, new_meta} ->
-        _walk_ast([content|rest], fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
       {new_fun, {new_tag, new_atts, _, new_meta}} when is_function(new_fun) ->
         _walk_ast([content|rest], new_fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
+      {new_tag, new_atts, _, new_meta} ->
+        _walk_ast([content|rest], fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
       {:replace, content} -> _walk_ast(rest, fun, ignore_strings, [content|result])
     end
   end
