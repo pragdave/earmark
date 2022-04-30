@@ -1,4 +1,4 @@
-defmodule Test.Acceptance.Earmark.PostprocessorTest do
+defmodule Test.Acceptance.Earmark.Postprocessor.ReplaceSubtreeTest do
   use ExUnit.Case
 
   describe "use case from Issue 446" do
@@ -15,7 +15,9 @@ defmodule Test.Acceptance.Earmark.PostprocessorTest do
     ` ``
     """
     test "inline code" do
-      expected = "<p>\n<code class=\"inline\">alpha</code>\n<code class=\"inline\">beta `</code></p>\n"
+      expected =
+        "<p>\n<code class=\"inline\">alpha</code>\n<code class=\"inline\">beta `</code></p>\n"
+
       assert parse(@inline_code) == expected
     end
 
@@ -38,12 +40,14 @@ defmodule Test.Acceptance.Earmark.PostprocessorTest do
         {"code", &render_code_node/1}
       ]
     ]
+
     {:ok, post_html, _} = Earmark.as_html(markdown, options)
     post_html
   end
 
   defp render_code_node({"code", attrs, _content, meta} = node) do
     classes = Earmark.AstTools.find_att_in_node(node, "class") || ""
+
     cond do
       classes =~ "inline" -> node
       true -> {:replace, {"code", attrs, "xxx", meta}}
