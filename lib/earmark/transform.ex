@@ -483,8 +483,10 @@
     _walk_ast(rest, fun, ignore_strings, [new|result])
   end
   defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
-    {new_tag, new_atts, _, new_meta} = fun.(tuple)
-    _walk_ast([content|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+    case fun.(tuple) do
+      {new_tag, new_atts, _, new_meta} -> _walk_ast([content|rest], fun, ignore_strings, [@pop, {new_tag, new_atts, [], new_meta}|result])
+      {:replace, content} -> _walk_ast(rest, fun, ignore_strings, [content|result])
+    end
   end
   defp _walk_ast([[h|t]|rest], fun, ignore_strings, result) do
     _walk_ast([h, t|rest], fun, ignore_strings, result)

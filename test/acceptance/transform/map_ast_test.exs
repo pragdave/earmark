@@ -2,6 +2,7 @@ defmodule Test.Acceptance.Transform.MapAstTest do
   use ExUnit.Case
 
   import Earmark.Transform
+  import EarmarkAstDsl
 
   describe "adding a count" do
     @ast [
@@ -103,6 +104,16 @@ defmodule Test.Acceptance.Transform.MapAstTest do
     defp push_annotation(text, nil), do: {text, nil}
     defp push_annotation(text, anno), do: {text <> anno, nil}
 
+  end
+
+  describe "change content" do
+    test "replace content of a node" do
+      original = [div([p("x"), p("y")])]
+      new = [div([div(p("x")), p("y")])]
+      transformer = fn {"p", _, ["x"], _} = node -> {:replace, {"div", [], [node], %{}}}
+                        other -> other end
+      assert map_ast(original, transformer) == new
+    end
   end
 end
 #  SPDX-License-Identifier: Apache-2.0
