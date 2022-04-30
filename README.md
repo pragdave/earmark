@@ -224,18 +224,46 @@ mappers.
 
 ##### `map_ast`
 
+Traverses an AST using a mapper function.
+
+The mapper function will be called for each node including text elements unless `map_ast` is called with
+the third positional parameter `ignore_strings`, which is optional and defaults to `false`, set to `true`.
+
+Depending on the return value of the mapper function the traversal will either
+
+- `{new_tag, new_atts, ignored, new_meta}`
+
+  just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
+  quadruple (ignoring `content` for backwards compatibility)
+  and then descend into the **original** content of the node.
+
+  In v1.5 a triple `{new_tag, new_atts, new_meta}` will needed to be returned to achieve this behavior.
+
+- `{:replace, node}`
+
+  replaces the corrent node with `node` and does not descend anymore, but continues traversal on sibblings.
+
+  In v1.5 the return value will just need to be
+
+- {new_function, {new_tag, new_atts, ignored, new_meta}}
+
+  just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
+  quadruple (ignoring `content` for backwards compatibility)
+  and then descend into the **original** content of the node but with the mapper function `new_function`
+  used for transformation of the AST. 
+
+  **N.B.** The original mapper function will be used for transforming the sibbling nodes though.
+
+  In v1.5 a tuple of the format `{new_function, {new_tag, new_atts, new_meta}}` will needed to be returned to achieve this behavior.
+
 takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
 like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
 
 The result of the function call must be
 
-- for nodes → a quadruple of which the third element will be ignored -- that might change in future,
-and will therefore classically be `nil`. The other elements replace the node
+- for nodes → as described above
 
 - for strings → strings
-
-A third parameter `ignore_strings` which defaults to `false` can be used to avoid invocation of the mapper
-function for text nodes
 
 As an example let us transform an ast to have symbol keys
 

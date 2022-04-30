@@ -39,7 +39,6 @@ defmodule Test.Acceptance.Earmark.Postprocessor.ChangeMapperTest do
       true -> node
     end
   end
-  defp main_mapper(text), do: text
 
   defp lower_mapper(node) when is_tuple(node), do: node
   defp lower_mapper(text), do: String.downcase(text)

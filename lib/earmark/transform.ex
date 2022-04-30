@@ -20,18 +20,46 @@ defmodule Earmark.Transform do
 
   ##### `map_ast`
 
+  Traverses an AST using a mapper function.
+
+  The mapper function will be called for each node including text elements unless `map_ast` is called with
+  the third positional parameter `ignore_strings`, which is optional and defaults to `false`, set to `true`.
+
+  Depending on the return value of the mapper function the traversal will either
+
+  - `{new_tag, new_atts, ignored, new_meta}`
+
+    just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
+    quadruple (ignoring `ignored` for backwards compatibility)
+    and then descend into the **original** content of the node.
+
+    In v1.5 a triple `{new_tag, new_atts, new_meta}` will needed to be returned to achieve this behavior.
+
+  - `{:replace, node}`
+
+    replaces the corrent node with `node` and does not descend anymore, but continues traversal on sibblings.
+
+    In v1.5 the return value will just need to be a quadruple node.
+
+  - {new_function, {new_tag, new_atts, ignored, new_meta}}
+
+    just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
+    quadruple (ignoring `ignored` for backwards compatibility)
+    and then descend into the **original** content of the node but with the mapper function `new_function`
+    used for transformation of the AST. 
+
+    **N.B.** The original mapper function will be used for transforming the sibbling nodes though.
+
+    In v1.5 a tuple of the format `{new_function, {new_tag, new_atts, new_meta}}` will needed to be returned to achieve this behavior.
+
   takes a function that will be called for each node of the AST, where a leaf node is either a quadruple
   like `{"code", [{"class", "inline"}], ["some code"], %{}}` or a text leaf like `"some code"`
 
   The result of the function call must be
 
-  - for nodes → a quadruple of which the third element will be ignored -- that might change in future,
-  and will therefore classically be `nil`. The other elements replace the node
+  - for nodes → as described above
 
   - for strings → strings
-
-  A third parameter `ignore_strings` which defaults to `false` can be used to avoid invocation of the mapper
-  function for text nodes
 
   As an example let us transform an ast to have symbol keys
 
@@ -65,6 +93,25 @@ defmodule Earmark.Transform do
          {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
            {"p", [], ["hello"], %{count: 3}}], 4}
 
+  Let us describe an implementation of a real world use case taken from [Elixir Forum](https://elixirforum.com/t/how-to-extend-earmark/47406)
+
+  Simplifying the exact parsing of the text node in this example we only want to replace a text node of the form `#elixir` with
+  a link to the Elixir home page _but_ only when inside a `{"p",....}` node
+
+  We can achieve this as follows
+
+        iex(3)> elixir_home = {a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
+        ...(3)> transformer = fn {"p", atts, _, meta}, _ -> {{"p", atts, nil, meta}, true}
+        ...(3)>                  text, true when is_binary(text) -> {:replace, elixir_home}
+        ...(3)>                  text, false when is_binary(text) -> text
+        ...(3)>                  node, _ ->  {node, false} end
+        ...(3)>
+        ...(3)>
+        ...(3)>
+        ...(3)>
+        ...(3)>
+        ...(3)>
+
   #### Postprocessors and Convenience Functions
 
   These can be declared in the fields `postprocessor` and `registered_processors` in the `Options` struct,
@@ -75,69 +122,69 @@ defmodule Earmark.Transform do
   function applications depending on tags, as a convienience tuples of the form `{tag, function}` will be
   transformed into a `TagSpecificProcessors` struct.
 
-      iex(3)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-      ...(3)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
-      ...(3)> m1.({"a", [], nil, nil})
+      iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(4)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
+      ...(4)> m1.({"a", [], nil, nil})
       {"a", [{"class", "class1"}], nil, nil}
 
   We can also use the `registered_processors` field:
 
-      iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-      ...(4)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
-      ...(4)> m2.({"a", [], nil, nil})
+      iex(5)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(5)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
+      ...(5)> m2.({"a", [], nil, nil})
       {"a", [{"class", "class1"}], nil, nil}
 
   Knowing that values on the same attributes are added onto the front the following doctest demonstrates
   the order in which the processors are executed
 
-      iex(5)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-      ...(5)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
-      ...(5)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
-      ...(5)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
-      ...(5)> |> make_postprocessor()
-      ...(5)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
-      ...(5)> |> Enum.map(m)
+      iex(6)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+      ...(6)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
+      ...(6)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
+      ...(6)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
+      ...(6)> |> make_postprocessor()
+      ...(6)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
+      ...(6)> |> Enum.map(m)
       [{"a", [{"class", "class3 class2 class1 link"}], nil, nil}, {"b", [{"class", "class2 class1"}], nil, nil}]
 
   We can see that the tuple form has been transformed into a tag specific transformation **only** as a matter of fact, the explicit definition would be:
 
-      iex(6)> m = make_postprocessor(
-      ...(6)>   %Earmark.Options{
-      ...(6)>     registered_processors:
-      ...(6)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
-      ...(6)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
-      ...(6)> |> Enum.map(m)
+      iex(7)> m = make_postprocessor(
+      ...(7)>   %Earmark.Options{
+      ...(7)>     registered_processors:
+      ...(7)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
+      ...(7)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
+      ...(7)> |> Enum.map(m)
       [{"a", [{"href", "url"}, {"target", "_blank"}], nil, nil}, {"b", [], nil, nil}]
 
   We can also define a tag specific transformer in one step, which might (or might not) solve potential performance issues
   when running too many processors
 
-      iex(7)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
-      ...(7)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
-      ...(7)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
-      ...(7)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
-      ...(7)> m = Earmark.Options.make_options!(
-      ...(7)>       postprocessor: add_class4,
-      ...(7)>       registered_processors: [tsp, add_class6])
-      ...(7)> |> make_postprocessor()
-      ...(7)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
-      ...(7)> |> Enum.map(m)
+      iex(8)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
+      ...(8)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
+      ...(8)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
+      ...(8)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
+      ...(8)> m = Earmark.Options.make_options!(
+      ...(8)>       postprocessor: add_class4,
+      ...(8)>       registered_processors: [tsp, add_class6])
+      ...(8)> |> make_postprocessor()
+      ...(8)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
+      ...(8)> |> Enum.map(m)
       [{"a", [{"class", "class6 class5 class4"}], nil, nil}, {"c", [{"class", "class6 class4"}], nil, nil}, {"b", [{"class", "class6 class5 class4"}], nil, nil}]
 
   Of course the mechanics shown above is hidden if all we want is to trigger the postprocessor chain in `Earmark.as_html`, here goes a typical
   example
 
-      iex(8)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
-      ...(8)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
-      ...(8)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
-      ...(8)> options = [
-      ...(8)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
-      ...(8)> markdown = [
-      ...(8)>   "http://hello.x.com",
-      ...(8)>   "",
-      ...(8)>   "[some](url)",
-      ...(8)>  ]
-      ...(8)> Earmark.as_html!(markdown, options)
+      iex(9)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
+      ...(9)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
+      ...(9)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
+      ...(9)> options = [
+      ...(9)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
+      ...(9)> markdown = [
+      ...(9)>   "http://hello.x.com",
+      ...(9)>   "",
+      ...(9)>   "[some](url)",
+      ...(9)>  ]
+      ...(9)> Earmark.as_html!(markdown, options)
       "<p class=\"example\">\n<a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n<a href=\"url\">some</a></p>\n"
 
   ##### Use case: Modification of Link Attributes depending on the URL
@@ -155,17 +202,17 @@ defmodule Earmark.Transform do
   By annotating our markdown source we can then influence the rendering. In this example we will just
   add some decoration
 
-      iex(9)> markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
-      ...(9)> add_smiley = fn {_, _, _, meta} = quad, _acc ->
-      ...(9)>                case Map.get(meta, :annotation) do
-      ...(9)>                  "%% smile"   -> {quad, "\u1F601"}
-      ...(9)>                  "%% in_love" -> {quad, "\u1F60d"}
-      ...(9)>                  _            -> {quad, nil}
-      ...(9)>                end
-      ...(9)>                text, nil -> {text, nil}
-      ...(9)>                text, ann -> {"#{text} #{ann}", nil}
-      ...(9)>              end
-      ...(9)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
+      iex(10)> markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
+      ...(10)> add_smiley = fn {_, _, _, meta} = quad, _acc ->
+      ...(10)>                case Map.get(meta, :annotation) do
+      ...(10)>                  "%% smile"   -> {quad, "\u1F601"}
+      ...(10)>                  "%% in_love" -> {quad, "\u1F60d"}
+      ...(10)>                  _            -> {quad, nil}
+      ...(10)>                end
+      ...(10)>                text, nil -> {text, nil}
+      ...(10)>                text, ann -> {"#{text} #{ann}", nil}
+      ...(10)>              end
+      ...(10)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
       "<p>\nA joke  ὠ1</p>\n<p>\nCharming  ὠd</p>\n"
 
   #### Structure Modifying Transformers
