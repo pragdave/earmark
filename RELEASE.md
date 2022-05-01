@@ -1,3 +1,18 @@
+## 1.4.25 2022-05-01
+
+- [446 allow replacement of subtree in `map_ast`](https://github.com/pragdave/earmark/pull/446)
+
+- Also allow change of mapper function for mapping a subtree in `map_ast`
+
+Examples for this can be found
+[here(:replace)](https://github.com/pragdave/earmark/test/acceptance/earmark/postprocessor/replace_subtree_test.exs)
+and
+[here(change mapper function)](https://github.com/pragdave/earmark/test/acceptance/earmark/postprocessor/change_mapper_test.exs)
+
+## 1.4.23 & 1.4.24
+
+just upgrading to new EarmarkParser versions
+
 ## 1.4.22 2022-03-16
 
 for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v1.4.23/RELEASE.md)
