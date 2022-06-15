@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.26 2033-06-15
+
+Accompanying release of [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.26
+
 ## 1.4.22 2022-03-16
 
 for [EarmarkParser v1.4.23](https://github.com/RobertDober/earmark_parser/blob/v1.4.23/RELEASE.md)
