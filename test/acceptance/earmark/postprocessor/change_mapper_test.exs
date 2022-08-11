@@ -30,7 +30,7 @@ defmodule Test.Acceptance.Earmark.Postprocessor.ChangeMapperTest do
     html
   end
 
-  defp main_mapper({_, atts, _, _} = node) do
+  defp main_mapper({_, _atts, _, _} = node) do
     classes = Earmark.AstTools.find_att_in_node(node, "class") || ""
 
     cond do

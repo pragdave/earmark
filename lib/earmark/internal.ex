@@ -83,7 +83,7 @@ defmodule Earmark.Internal do
       |> Options.relative_filename(filename)
     case Path.extname(filename) do
       ".eex" -> EEx.eval_file(options_.file, include: &include(&1, options_))
-      _      -> SysInterface.sys_interface.readlines(options_.file) |> Enum.to_list
+      _      -> SysInterface.readlines(options_.file) |> Enum.to_list
     end
   end
 

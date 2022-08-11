@@ -59,8 +59,8 @@
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
-  defp elixirc_paths(:dev), do: ["lib", "bench", "dev"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp elixirc_paths(:dev), do: ["lib", "lib1", "bench", "dev"]
+  defp elixirc_paths(_), do: ["lib", "lib1"]
 
   defp escript_config do
     [main_module: Earmark.Cli]
@@ -70,6 +70,7 @@
     [
       files: [
         "lib",
+        "lib1",
         "mix.exs",
         "README.md"
       ],

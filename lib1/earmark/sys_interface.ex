@@ -1,11 +1,8 @@
-defmodule Earmark.SysInterface.Implementation do
-
-  @behaviour Earmark.SysInterface.Behavior
+defmodule Earmark.SysInterface do
 
   @doc """
   A proxy to IO.stream(..., :line) or usage with a filename
   """
-  @impl true
   def readlines(device_or_filename)
   def readlines(filename) when is_binary(filename) do
     IO.inspect(filename, label: :inside)

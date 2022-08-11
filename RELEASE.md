@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.27 2022-08-11
+
+- Fix [Leaky Configuration](https://github.com/pragdave/earmark/issues/450)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.26 2033-06-15
 
 Accompanying release of [EarmarkParser](https://hex.pm/packages/earmark_parser) 1.4.26

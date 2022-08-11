@@ -1,5 +1,4 @@
-defmodule Support.Earmark.SysInterface.Mock do
-  @behaviour Earmark.SysInterface.Behavior
+defmodule Earmark.SysInterface do
 
   def readlines(device)
   def readlines(:stdio), do: Agent.get_and_update(__MODULE__, &{Map.get(&1, :stdio), %{stdio: []}})

@@ -1,11 +1,7 @@
 # This file is responsible for configuring your application
 # and its dependencies. The Mix.Config module provides functions
 # to aid in doing so.
-import Config
-case Mix.env do
-  :test ->  config :earmark, sys_interface: Support.Earmark.SysInterface.Mock
-  _     ->  config :earmark, sys_interface: Earmark.SysInterface.Implementation
-end
+# import Config
 
 # Note this file is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

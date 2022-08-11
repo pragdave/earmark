@@ -2,7 +2,7 @@ defmodule Test.Cli.ImplementationTest do
   use ExUnit.Case
 
   import Earmark.Cli.Implementation
-  import Support.Earmark.SysInterface.Mock, only: [mock_stdio: 1]
+  import Earmark.SysInterface, only: [mock_stdio: 1]
 
   doctest Earmark.Cli.Implementation, import: true
 

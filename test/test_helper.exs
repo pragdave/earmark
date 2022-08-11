@@ -2,6 +2,6 @@
 
 ExUnit.configure(exclude: [:wip, :later, :dev, :performance], timeout: 10_000_000)
 ExUnit.start(timeout: 10_000 * 60)
-Support.Earmark.SysInterface.Mock.start_link
+Earmark.SysInterface.start_link
 
 # SPDX-License-Identifier: Apache-2.0

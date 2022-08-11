@@ -145,7 +145,7 @@ defmodule Earmark.Cli.Implementation do
     {:stderr, "Cannot open #{options.file}, reason: #{reason}"}
   end
   defp _process_input({:ok, io_device}, %Options{eex: true}=options) do
-    input = SysInterface.sys_interface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string
+    input = SysInterface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string
     output = EEx.eval_string(input, include: &Earmark.Internal.include(&1, options))
     output_ = _maybe_to_html!(output, options)
     {:stdio, output_}
@@ -153,7 +153,7 @@ defmodule Earmark.Cli.Implementation do
   defp _process_input({:ok, io_device}, options) do
     content =
     io_device
-    |> SysInterface.sys_interface.readlines
+    |> SysInterface.readlines
     |> Enum.to_list
 
     {:stdio, Earmark.as_html!(content, options)}
