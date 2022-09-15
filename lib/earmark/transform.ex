@@ -112,7 +112,7 @@ defmodule Earmark.Transform do
         ], false}
 
   An alternate, maybe more elegant solution would be to change the mapper function during AST traversal
-  as demonstrated [here](https://github.com/pragdave/earmark/test/acceptance/transform/map_ast_with_fnchange_test.exs)
+  as demonstrated [here](https://github.com/pragdave/earmark/blob/master/test/acceptance/transform/map_ast_with_fnchange_test.exs)
 
   #### Postprocessors and Convenience Functions
 
