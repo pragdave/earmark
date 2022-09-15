@@ -36,7 +36,7 @@ defmodule Earmark.Transform do
 
   - `{:replace, node}`
 
-    replaces the corrent node with `node` and does not descend anymore, but continues traversal on sibblings.
+    replaces the current node with `node` and does not descend anymore, but continues traversal on sibblings.
 
 
   - {new_function, {new_tag, new_atts, ignored, new_meta}}
