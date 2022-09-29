@@ -40,6 +40,7 @@ defmodule Earmark.Options do
             pedantic: false,
             postprocessor: nil,
             pure_links: true,
+            sub_sup: false,
             registered_processors: [],
             smartypants: true,
             template: false,
