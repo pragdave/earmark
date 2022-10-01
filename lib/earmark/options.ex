@@ -20,6 +20,7 @@ defmodule Earmark.Options do
 
   defstruct [
             annotations: nil,
+            all: false,
             breaks: false,
             code_class_prefix: nil,
             compact_output: false,
