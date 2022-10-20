@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.31 2022-10-20
+
+- Just using `EarmarkParser` 1.4.29
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.30 2022-10-01
 
 - Just using `EarmarkParser` 1.4.28
