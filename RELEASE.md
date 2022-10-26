@@ -1,3 +1,6 @@
+- [Some typos](https://github.com/pragdave/earmark/pull/452)
+  Kudos to [Thiago Araujo](https://github.com/thdaraujo)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.31 2022-10-20
 
 - Just using `EarmarkParser` 1.4.29
