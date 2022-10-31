@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.32 2022-10-31
+
+- catching some bad options values earlier (`line` and `footnote_offset`)
+
 - [Some typos](https://github.com/pragdave/earmark/pull/452)
   Kudos to [Thiago Araujo](https://github.com/thdaraujo)
 
