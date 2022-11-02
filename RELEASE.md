@@ -1,8 +1,13 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.33 2022-11-02
+
+- [Getting rid of some compiler warnings](https://github.com/pragdave/earmark/pull/453)
+  Kudos [Julien](https://github.com/jcrevits)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.32 2022-10-31
 
 - catching some bad options values earlier (`line` and `footnote_offset`)
 
-- [Some typos](https://github.com/pragdave/earmark/pull/452)
+- [Some typos](https://github.com/pragdave/earmark/pull/452)kkkk
   Kudos to [Thiago Araujo](https://github.com/thdaraujo)
 
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.31 2022-10-20
