@@ -198,15 +198,15 @@ defmodule Earmark.Options do
     options
   end
 
-  defp _check_options!(%__MODULE__{line: line, footnote_offset: fno}) when is_number(line) do
+  defp _check_options!(%__MODULE__{line: line}) when is_number(line) do
     {:error, [{:error, 0, "footnote_offset option must be numeric"}]}
   end
 
-  defp _check_options!(%__MODULE__{line: line, footnote_offset: fno}) when is_number(fno) do
+  defp _check_options!(%__MODULE__{footnote_offset: fno}) when is_number(fno) do
     {:error, [{:error, 0, "line option must be numeric"}]}
   end
 
-  defp _check_options!(%__MODULE__{line: line, footnote_offset: fno}) do
+  defp _check_options!(%__MODULE__{}) do
     {:error,
      [
        {:error, 0, "footnote_offset option must be numeric"},
