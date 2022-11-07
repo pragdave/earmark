@@ -1,3 +1,8 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.34 2022-??-??
+
+- [PR-455 restructuring api traversal](https://github.com/pragdave/earmark/pull/455)
+  Kudos to  [Jói Sigurðsson](https://github.com/joisig)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.33 2022-11-02
 
 - [Getting rid of some compiler warnings](https://github.com/pragdave/earmark/pull/453)
