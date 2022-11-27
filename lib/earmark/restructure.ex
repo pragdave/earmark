@@ -1,6 +1,7 @@
 defmodule Earmark.Restructure do
 
-  @doc """
+  @doc ~S"""
+
   Walks an AST and allows you to process it (storing details in acc) and/or
   modify it as it is walked.
 
@@ -23,6 +24,49 @@ defmodule Earmark.Restructure do
   {processed_items_list, updated_acc}.
 
   This function ends up returning {ast, acc}.
+
+  Here is an example using a custom format to make `<em>` nodes and allowing
+  commented text to be left out
+
+      iex(1)> is_comment? = fn item -> is_binary(item) && Regex.match?(~r/\A\s*--/, item) end
+      ...(1)> comment_remover =
+      ...(1)>   fn items, acc -> {Enum.reject(items, is_comment?), acc} end
+      ...(1)> italics_maker = fn
+      ...(1)>   item, acc when is_binary(item) ->
+      ...(1)>     new_item = Restructure.split_by_regex(
+      ...(1)>       item,
+      ...(1)>       ~r/\/([[:graph:]].*?[[:graph:]]|[[:graph:]])\//,
+      ...(1)>       fn [_, content] ->
+      ...(1)>         {"em", [], [content], %{}}
+      ...(1)>       end
+      ...(1)>     )
+      ...(1)>     {new_item, acc}
+      ...(1)>   item, "a" -> {item, nil}
+      ...(1)>   {name, _, _, _}=item, _ -> {item, name}
+      ...(1)> end
+      ...(1)> markdown = """
+      ...(1)> [no italics in links](http://example.io/some/path)
+      ...(1)> but /here/
+      ...(1)>
+      ...(1)> -- ignore me
+      ...(1)>
+      ...(1)> text
+      ...(1)> """
+      ...(1)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
+      {[
+        {"p", [],
+          [
+            {"a", [{"href", "http://example.io/some/path"}], ["no italics in links"],
+            %{}},
+            "\nbut ",
+            {"em", [], ["here"], %{}},
+            ""
+          ], %{}},
+          {"p", [], [], %{}},
+          {"p", [], ["text"], %{}}
+        ], "p"}
+
   """
   def walk_and_modify_ast(items, acc, process_item_fn, process_list_fn \\ &({&1, &2}))
   when is_list(items) and is_function(process_item_fn) and is_function(process_list_fn)
@@ -51,8 +95,12 @@ defmodule Earmark.Restructure do
   Returns a list of parts where the parts matching regex have been processed
   by invoking map_captures_fn on each part, and a list of remaining parts,
   preserving the order of parts from what it was in the plain text item.
+
+        iex(2)> input = "This is ::all caps::, right?"
+        ...(2)> split_by_regex(input, ~r/::(.*?)::/, fn [_, inner|_] -> String.upcase(inner) end)
+        ["This is ", "ALL CAPS", ", right?"]
   """
-  def text_to_ast_list_splitting_regex(item, regex, map_captures_fn)
+  def split_by_regex(item, regex, map_captures_fn)
   when is_binary(item) and is_function(map_captures_fn) do
     interest_parts = Regex.scan(regex, item)
     |> Enum.map(map_captures_fn)
@@ -61,23 +109,24 @@ defmodule Earmark.Restructure do
     # return an empty string "before" the split. Therefore
     # the interest_parts always has either the same number of
     # elements as the other_parts list, or one fewer.
-    zigzag_lists(other_parts, interest_parts)
+    merge_lists(other_parts, interest_parts)
   end
 
   @doc """
   Given two lists that are either of equal length, or with the first list
   exactly one element longer than the second, returns a list that begins with
-  the first element from the first list, then the first element from the first
+  the first element from the first list, then the first element from the second
   list, and so forth until both lists are empty.
   """
-  def zigzag_lists(first, second, acc \\ [])
-  def zigzag_lists([], [], acc) do
+  def merge_lists(first, second, acc \\ [])
+  def merge_lists([], [], acc) do
     Enum.reverse(acc)
   end
-  def zigzag_lists([first|first_rest], second, acc) do
-    # Note that there will be no match for an empty 'first' list if 'second' is not empty,
-    # and this for our use case is on purpose - the lists should either be equal in
-    # length, or the first list as initially passed into the function should be one longer.
-    zigzag_lists(second, first_rest, [first|acc])
+  def merge_lists([first|first_rest], second, acc) do
+    merge_lists(second, first_rest, [first|acc])
+  end
+  def merge_lists([], _, _) do
+    raise ArgumentError, "merge_lists takes two lists where the first list is not shorter and at most 1 longer than the second list"
   end
 end
+# SPDX-License-Identifier: Apache-2.0
