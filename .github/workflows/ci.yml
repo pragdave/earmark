@@ -8,11 +8,10 @@ on:
   push:
     branches:
       - master
-      - rel-1.4.25
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
@@ -39,21 +38,14 @@ jobs:
             otp: "24.1.2"
             elixir: "1.13.0"
           - pair:
-            otp: "24.1.2"
-            elixir: "1.14.0"
+            otp: 25.0.4
+            elixir: 1.14.0
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: erlef/setup-elixir@885971a72ed1f9240973bd92ab57af8c1aa68f24
+      - uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{matrix.elixir}} # Define the elixir version [required]
-          otp-version: ${{matrix.otp}} # Define the OTP version [required]
-      - name: Restore dependencies cache
-        uses: actions/cache@v2
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
       - name: Install dependencies
         run: mix deps.get
       - name: Run tests
