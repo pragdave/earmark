@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.35 2023-01-27
+
+Just updating to use [EarmarkParser v1.4.30](https://hex.pm/packages/earmark_parser/1.4.30)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.34 2022-11-27
 
 - [PR-455 restructuring api traversal](https://github.com/pragdave/earmark/pull/455)
