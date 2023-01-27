@@ -38,8 +38,11 @@ jobs:
             otp: "24.1.2"
             elixir: "1.13.0"
           - pair:
-            otp: 25.0.4
-            elixir: 1.14.0
+            otp: "25.0.4"
+            elixir: "1.14.0"
+          - pair:
+            otp: "25.2.1"
+            elixir: "1.14.3"
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
