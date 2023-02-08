@@ -123,5 +123,16 @@ defmodule Test.Restructure.WalkeAndModifyAstTest do
     {:ok, ast, []} = EarmarkParser.as_ast(markdown)
     Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
   end
+
+  test "comments are ok" do
+    markdown = """
+    <!--Comment-->
+
+    Hello world
+    """
+
+    {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    Restructure.walk_and_modify_ast(ast, nil, fn node, acc -> {node, acc} end)
+  end
 end
 #  SPDX-License-Identifier: Apache-2.0

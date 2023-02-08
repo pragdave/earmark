@@ -81,7 +81,7 @@ defmodule Earmark.Restructure do
   defp walk_and_modify_ast_item(item, acc, process_item_fn, process_list_fn) do
     case process_item_fn.(item, acc) do
       {{type, attribs, items, annotations}, acc}
-      when is_binary(type) and is_list(attribs) and is_list(items) and is_map(annotations) ->
+      when (is_binary(type) or is_atom(type)) and is_list(attribs) and is_list(items) and is_map(annotations) ->
         {items, acc} = walk_and_modify_ast(items, acc, process_item_fn, process_list_fn)
         {{type, attribs, List.flatten(items), annotations}, acc}
       {item_or_items, acc} when is_binary(item_or_items) or is_list(item_or_items) ->
