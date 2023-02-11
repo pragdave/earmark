@@ -1,3 +1,8 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.36 2023-02-11
+
+- [PR-459 Fix api traversal for comment nodes](https://github.com/pragdave/earmark/pull/459)
+  Kudos to [Alex Martsinovich](https://github.com/martosaur)
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.35 2023-01-27
 
 Just updating to use [EarmarkParser v1.4.30](https://hex.pm/packages/earmark_parser/1.4.30)
