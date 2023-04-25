@@ -160,7 +160,7 @@ defmodule Bench.SimpleDataBench do
            Elixir  | awesome
 
   never is.
-   
+
 
 
   ### Adding HTML attributes with the IAL extension
@@ -260,22 +260,22 @@ defmodule Bench.SimpleDataBench do
     Thusly
 
           mypara
-          <hr />
+          <hr>
 
     Becomes
 
           <p>mypara</p>
-          <hr />
+          <hr>
 
     While
 
           mypara
-           <hr />
+           <hr>
 
     will be transformed into
 
           <p>mypara
-           <hr /></p>
+           <hr></p>
 
   ## Integration
 
@@ -355,7 +355,7 @@ defmodule Bench.SimpleDataBench do
   - description of the error
 
 
-  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options` 
+  `options` can be an `%Earmark.Options{}` structure, or can be passed in as a `Keyword` argument (with legal keys for `%Earmark.Options`
 
   * `renderer`: ModuleName
 
@@ -400,7 +400,7 @@ defmodule Bench.SimpleDataBench do
   * `pure_links`: boolean
 
     Pure links of the form `~r{\bhttps?://\S+\b}` are rendered as links from now on.
-    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4 
+    However, by setting the `pure_links` option to `false` this can be disabled and pre 1.4
     behavior can be used.
 
   <!-- END inserted functiondoc Earmark.as_html/2 -->
@@ -413,7 +413,7 @@ defmodule Bench.SimpleDataBench do
         iex(9)> markdown = "My `code` is **best**"
         ...(9)> {:ok, ast, []} = Earmark.as_ast(markdown)
         ...(9)> ast
-        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}] 
+        [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"]}, " is ", {"strong", [], ["best"]}]}]
 
   Options are passes like to `as_html`, some do not have an effect though (e.g. `smartypants`) as formatting and escaping is not done
   for the AST.
@@ -430,7 +430,7 @@ defmodule Bench.SimpleDataBench do
   We also do return a list for a single node
 
 
-        Floki.parse("<!-- comment -->")           
+        Floki.parse("<!-- comment -->")
         {:comment, " comment "}
 
         Earmark.as_ast("<!-- comment -->")
@@ -497,7 +497,7 @@ defmodule Bench.SimpleDataBench do
   bench "00 as_html" do
     Earmark.as_html(@readme_md)
   end
-  
+
   bench "01 as_ast|>transform" do
     {:ok, ast, []} = EarmarkParser.as_ast(@readme_md)
     Earmark.Transform.transform(ast)

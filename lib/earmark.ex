@@ -1,8 +1,10 @@
 defmodule Earmark do
-  if Version.compare(System.version, "1.12.0") == :lt do
-    IO.puts(:stderr, "DEPRECATION WARNING: versions < 1.12.0 of Elixir are not tested anymore and will not be supported in Earmark v1.5")
+  if Version.compare(System.version(), "1.12.0") == :lt do
+    IO.puts(
+      :stderr,
+      "DEPRECATION WARNING: versions < 1.12.0 of Elixir are not tested anymore and will not be supported in Earmark v1.5"
+    )
   end
-
 
   @type ast_meta :: map()
   @type ast_tag :: binary()
@@ -103,16 +105,16 @@ defmodule Earmark do
 
   If set HTML will be properly escaped
 
-        iex(3)> markdown = "Hello<br />World"
+        iex(3)> markdown = "Hello<br>World"
         ...(3)> Earmark.as_html!(markdown)
-        "<p>\\nHello&lt;br /&gt;World</p>\\n"
+        "<p>\\nHello&lt;br&gt;World</p>\\n"
 
   However disabling `escape:` gives you maximum control of the created document, which in some
   cases (e.g. inside tables) might even be necessary
 
-        iex(4)> markdown = "Hello<br />World"
+        iex(4)> markdown = "Hello<br>World"
         ...(4)> Earmark.as_html!(markdown, escape: false)
-        "<p>\\nHello<br />World</p>\\n"
+        "<p>\\nHello<br>World</p>\\n"
 
   #### `inner_html:` defaulting to `false`
 
@@ -127,9 +129,9 @@ defmodule Earmark do
   By means of the `inner_html` option the disturbing paragraph can be removed from `as_html!`'s
   output
 
-        iex(5)> markdown = "Hello<br />World"
+        iex(5)> markdown = "Hello<br>World"
         ...(5)> Earmark.as_html!(markdown, escape: false, inner_html: true)
-        "Hello<br />World\\n"
+        "Hello<br>World\\n"
 
   **N.B.** that this applies only to top level paragraphs, as can be seen here
 
@@ -262,7 +264,6 @@ defmodule Earmark do
       do: to_string(version)
   end
 
-
   defp _as_ast(lines, options)
 
   defp _as_ast(lines, %Options{} = options) do
@@ -273,4 +274,5 @@ defmodule Earmark do
     Proxy.as_ast(lines, options)
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

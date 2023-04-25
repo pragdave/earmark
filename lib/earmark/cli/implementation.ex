@@ -1,6 +1,4 @@
 defmodule Earmark.Cli.Implementation do
-
-
   alias Earmark.Options
   alias Earmark.SysInterface
 
@@ -23,7 +21,7 @@ defmodule Earmark.Cli.Implementation do
 
   iex(1)> {:stdio, html} = run(["test/fixtures/short1.md"])
   ...(1)> html
-  "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
+  "<h1>\nHeadline1</h1>\n<hr class=\"thin\">\n<h2>\nHeadline2</h2>\n"
 
   Example: Using EEx
 
@@ -97,17 +95,18 @@ defmodule Earmark.Cli.Implementation do
       version: :boolean,
       wikiklinks: :boolean
     ]
+
     aliases = [
       h: :help,
       v: :version
     ]
 
     case OptionParser.parse(argv, strict: switches, aliases: aliases) do
-      { _, _, [_|_]=errors} -> errors
-      { [ {:help, true} ], _, _ } -> :help
-      { [ {:version, true} ], _, _ } -> :version
-      { options, [ file ],  _ }  -> Map.put(Options.make_options!(options), :file, file)
-      { options, [ ],           _ }  -> Options.make_options!(options)
+      {_, _, [_ | _] = errors} -> errors
+      {[{:help, true}], _, _} -> :help
+      {[{:version, true}], _, _} -> :version
+      {options, [file], _} -> Map.put(Options.make_options!(options), :file, file)
+      {options, [], _} -> Options.make_options!(options)
     end
   end
 
@@ -116,53 +115,63 @@ defmodule Earmark.Cli.Implementation do
   end
 
   defp _maybe_to_html!(output, %{file: nil}), do: Earmark.Internal.as_html!(output)
+
   defp _maybe_to_html!(output, options) do
     filename = options.file
+
     case Path.extname(Path.basename(filename, Path.extname(filename))) do
       ".html" -> output
-      _  -> Earmark.Internal.as_html!(output, options)
+      _ -> Earmark.Internal.as_html!(output, options)
     end
   end
 
   defp _process(flag_errors_or_options)
+
   defp _process(errors) when is_list(errors) do
     {:stderr, _format_errors(errors)}
   end
+
   defp _process(:help) do
     {:stderr, IO.chardata_to_string([@args, _option_related_help()])}
   end
+
   defp _process(:version) do
-    {:stdio, Earmark.version}
+    {:stdio, Earmark.version()}
   end
-  defp _process(%Options{file: nil}=options), do: _process_input({:ok, :stdio}, options)
-  defp _process(%Options{file: filename}=options) do
+
+  defp _process(%Options{file: nil} = options), do: _process_input({:ok, :stdio}, options)
+
+  defp _process(%Options{file: filename} = options) do
     {device_tuple, options_} = _open_file(filename, options)
     _process_input(device_tuple, options_)
   end
 
   defp _process_input(device_tuple, options)
+
   defp _process_input({:error, reason}, options) do
     {:stderr, "Cannot open #{options.file}, reason: #{reason}"}
   end
-  defp _process_input({:ok, io_device}, %Options{eex: true}=options) do
-    input = SysInterface.readlines(io_device) |> Enum.to_list |> IO.chardata_to_string
+
+  defp _process_input({:ok, io_device}, %Options{eex: true} = options) do
+    input = SysInterface.readlines(io_device) |> Enum.to_list() |> IO.chardata_to_string()
     output = EEx.eval_string(input, include: &Earmark.Internal.include(&1, options))
     output_ = _maybe_to_html!(output, options)
     {:stdio, output_}
   end
+
   defp _process_input({:ok, io_device}, options) do
     content =
-    io_device
-    |> SysInterface.readlines
-    |> Enum.to_list
+      io_device
+      |> SysInterface.readlines()
+      |> Enum.to_list()
 
     {:stdio, Earmark.as_html!(content, options)}
   end
 
   defp _open_file(filename, options) do
     case Path.extname(filename) do
-      ".eex" -> {File.open(filename, [:utf8]), %{options|eex: true}}
-      _      -> {File.open(filename, [:utf8]), options}
+      ".eex" -> {File.open(filename, [:utf8]), %{options | eex: true}}
+      _ -> {File.open(filename, [:utf8]), options}
     end
   end
 
@@ -180,6 +189,6 @@ defmodule Earmark.Cli.Implementation do
     "#{option}"
     |> String.replace("_", "-")
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

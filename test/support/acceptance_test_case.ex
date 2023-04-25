@@ -1,5 +1,4 @@
 defmodule Support.AcceptanceTestCase do
-
   defmacro __using__(_options) do
     quote do
       use ExUnit.Case, async: true
@@ -8,6 +7,6 @@ defmodule Support.AcceptanceTestCase do
       import Support.GenHtml
     end
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

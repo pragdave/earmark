@@ -4,7 +4,7 @@ defmodule Acceptance.Html.ReflinkTest do
   describe "undefined reflinks" do
     test "simple case" do
       markdown = "[text] [reference]\n[reference1]: some_url"
-      html     = "<p>\n[text] [reference]</p>\n"
+      html = "<p>\n[text] [reference]</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Html.ReflinkTest do
   describe "defined reflinks" do
     test "simple case" do
       markdown = "[text] [reference]\n[reference]: some_url"
-      html     = "<p>\n<a href=\"some_url\" title=\"\">text</a></p>\n"
+      html = "<p>\n<a href=\"some_url\" title=\"\">text</a></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -22,7 +22,7 @@ defmodule Acceptance.Html.ReflinkTest do
 
     test "image with title" do
       markdown = "![text] [reference]\n[reference]: some_url 'a title'"
-      html     = para({:img, [src: "some_url", alt: "text", title: "a title"], nil})
+      html = "<p>\n  <img src=\"some_url\" alt=\"text\" title=\"a title\">\n</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

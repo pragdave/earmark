@@ -53,9 +53,9 @@ The implication of the "one or more consecutive lines of text" rule is
 that Markdown supports "hard-wrapped" text paragraphs. This differs
 significantly from most other text-to-HTML formatters (including Movable
 Type's "Convert Line Breaks" option) which translate every line break
-character in a paragraph into a `<br />` tag.
+character in a paragraph into a `<br>` tag.
 
-When you *do* want to insert a `<br />` break tag using Markdown, you
+When you *do* want to insert a `<br>` break tag using Markdown, you
 end a line with two or more spaces, then type return.
 
 ### Headers
