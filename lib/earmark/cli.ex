@@ -1,6 +1,4 @@
 defmodule Earmark.Cli do
-
-
   @moduledoc """
   The Earmark CLI
 
@@ -22,12 +20,12 @@ defmodule Earmark.Cli do
   or raise an error otherwise
 
       iex(0)> run!(["test/fixtures/short1.md"])
-      "<h1>\nHeadline1</h1>\n<hr class=\"thin\" />\n<h2>\nHeadline2</h2>\n"
+      "<h1>\nHeadline1</h1>\n<hr class=\"thin\">\n<h2>\nHeadline2</h2>\n"
   """
   def run!(argv) do
     case Earmark.Cli.Implementation.run(argv) do
       {:stdio, output} -> output
-      {_, error}       -> raise Earmark.Error, error
+      {_, error} -> raise Earmark.Error, error
     end
   end
 
@@ -36,4 +34,5 @@ defmodule Earmark.Cli do
     if device == :stderr, do: exit(1)
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0

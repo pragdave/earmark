@@ -1,5 +1,4 @@
 defmodule Earmark.Transform do
-
   import Earmark.Helpers, only: [replace: 3]
 
   alias Earmark.Options
@@ -44,7 +43,7 @@ defmodule Earmark.Transform do
     just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
     quadruple (ignoring `ignored` for facilitating nodes w/o transformation)
     and then descend into the **original** content of the node but with the mapper function `new_function`
-    used for transformation of the AST. 
+    used for transformation of the AST.
 
     **N.B.** The original mapper function will be used for transforming the sibbling nodes though.
 
@@ -226,37 +225,52 @@ defmodule Earmark.Transform do
   """
 
   def make_postprocessor(options)
-  def make_postprocessor(%{postprocessor: nil, registered_processors: rps}), do: _make_postprocessor(rps)
-  def make_postprocessor(%{postprocessor: pp, registered_processors: rps}), do: _make_postprocessor([pp|rps])
+
+  def make_postprocessor(%{postprocessor: nil, registered_processors: rps}),
+    do: _make_postprocessor(rps)
+
+  def make_postprocessor(%{postprocessor: pp, registered_processors: rps}),
+    do: _make_postprocessor([pp | rps])
 
   @line_end ~r{\n\r?}
 
   @doc false
   def postprocessed_ast(lines, options)
-  def postprocessed_ast(lines, options) when is_binary(lines), do: lines |> String.split(@line_end) |> postprocessed_ast(options)
+
+  def postprocessed_ast(lines, options) when is_binary(lines),
+    do: lines |> String.split(@line_end) |> postprocessed_ast(options)
+
   # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
   # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
-  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil}=options), do: Proxy.as_ast(lines, options)
-  def postprocessed_ast(lines, %Options{}=options) do
+  def postprocessed_ast(lines, %Options{registered_processors: [], postprocessor: nil} = options),
+    do: Proxy.as_ast(lines, options)
+
+  def postprocessed_ast(lines, %Options{} = options) do
     {status, ast, messages} = Proxy.as_ast(lines, options)
     prep = make_postprocessor(options)
     ast1 = map_ast(ast, prep, Map.get(options, :ignore_strings))
     {status, ast1, messages}
   end
-  def postprocessed_ast(lines, options), do: postprocessed_ast(lines, Options.make_options!(options))
+
+  def postprocessed_ast(lines, options),
+    do: postprocessed_ast(lines, Options.make_options!(options))
 
   @doc """
   Transforms an AST to html, also accepts the result of `map_ast_with` for convenience
   """
   def transform(ast, options \\ %{initial_indent: 0, indent: 2, compact_output: false})
   def transform({ast, _}, options), do: transform(ast, options)
+
   def transform(ast, options) when is_list(options) do
-    transform(ast, options|>Enum.into(%{initial_indent: 0, indent: 2, compact_output: false}))
+    transform(ast, options |> Enum.into(%{initial_indent: 0, indent: 2, compact_output: false}))
   end
+
   def transform(ast, options) when is_map(options) do
-    options1 = options
+    options1 =
+      options
       |> Map.put_new(:indent, 2)
       |> Map.put_new(:compact_output, false)
+
     ast
     # |> IO.inspect
     |> _maybe_remove_paras(options1)
@@ -311,9 +325,13 @@ defmodule Earmark.Transform do
   end
 
   defp _make_postprocessor(processors) do
-    processors_ = processors
-    |> Enum.map( fn %TSP{}=tsp -> TSP.make_postprocessor(tsp)
-                    just_a_fun -> just_a_fun end)
+    processors_ =
+      processors
+      |> Enum.map(fn
+        %TSP{} = tsp -> TSP.make_postprocessor(tsp)
+        just_a_fun -> just_a_fun
+      end)
+
     fn node ->
       processors_
       |> Enum.reduce(node, fn processor, node -> processor.(node) end)
@@ -327,59 +345,88 @@ defmodule Earmark.Transform do
   @crlf_rgx ~r{(?:\n\r?)+}
   defp _maybe_compact(element, options)
   defp _maybe_compact(element, %{compact_output: false}), do: element
+
   defp _maybe_compact(element, _options) do
     String.replace(element, @crlf_rgx, " ")
   end
 
   defp to_html(ast, options) do
-    _to_html(ast, options, Map.get(options, :initial_indent, 0)) |> IO.iodata_to_binary
+    _to_html(ast, options, Map.get(options, :initial_indent, 0)) |> IO.iodata_to_binary()
   end
 
   defp _to_html(ast, options, level, verbatim \\ false)
+
   defp _to_html({:comment, _, content, _}, options, _level, _verbatim) do
     ["<!--", Enum.intersperse(content, ?\n), "-->", _maybe_add_newline1(options)]
   end
+
   defp _to_html({"code", atts, children, meta}, options, level, _verbatim) do
     verbatim = meta |> Map.get(:verbatim, false)
-    [ _open_tag1("code", atts),
+
+    [
+      _open_tag1("code", atts),
       _to_html(children, Map.put(options, :smartypants, false), level, verbatim),
-      "</code>"]
+      "</code>"
+    ]
   end
+
   defp _to_html({tag, atts, children, _}, options, level, verbatim) when tag in @compact_tags do
-    [_open_tag1(tag, atts),
-       children
-       |> Enum.map(&_to_html(&1, options, level, verbatim)),
-       "</", tag, ?>]
+    [
+      _open_tag1(tag, atts),
+      children
+      |> Enum.map(&_to_html(&1, options, level, verbatim)),
+      "</",
+      tag,
+      ?>
+    ]
   end
+
   defp _to_html({tag, atts, _, _}, options, level, _verbatim) when tag in @void_elements do
-    [ make_indent(options, level), _open_tag1(tag, atts), _maybe_add_newline1(options) ]
+    [make_indent(options, level), _open_tag1(tag, atts), _maybe_add_newline1(options)]
   end
+
   defp _to_html(elements, options, level, verbatim) when is_list(elements) do
     elements
     |> Enum.map(&_to_html(&1, options, level, verbatim))
   end
+
   defp _to_html(element, options, _level, false) when is_binary(element) do
     element
     |> _maybe_compact(options)
     |> escape(options)
   end
+
   defp _to_html(element, options, level, true) when is_binary(element) do
     [make_indent(options, level), element]
   end
+
   defp _to_html({"pre", atts, children, meta}, options, level, _verbatim) do
     verbatim = meta |> Map.get(:verbatim, false)
-    [ make_indent(options, level),
+
+    [
+      make_indent(options, level),
       _open_tag1("pre", atts),
-      _to_html(children, Map.merge(options, %{smartypants: false, compact_output: false}), level, verbatim),
-      "</pre>", _maybe_add_newline1(options)]
+      _to_html(
+        children,
+        Map.merge(options, %{smartypants: false, compact_output: false}),
+        level,
+        verbatim
+      ),
+      "</pre>",
+      _maybe_add_newline1(options)
+    ]
   end
+
   defp _to_html({tag, atts, children, meta}, options, level, _verbatim) do
     verbatim = meta |> Map.get(:verbatim, false)
-    [ make_indent(options, level),
+
+    [
+      make_indent(options, level),
       _open_tag1(tag, atts),
       _maybe_add_newline1(options),
-      _to_html(children, options, level+1, verbatim),
-      _close_tag1(tag, options, level)]
+      _to_html(children, options, level + 1, verbatim),
+      _close_tag1(tag, options, level)
+    ]
   end
 
   defp _add_trailing_nl(node)
@@ -391,6 +438,7 @@ defmodule Earmark.Transform do
   end
 
   defp escape(element, options)
+
   defp escape("", _opions) do
     []
   end
@@ -413,25 +461,28 @@ defmodule Earmark.Transform do
   end
 
   defp escape(element, %{escape: escape}) do
-      _escape_to_iodata1(element, 0, element, [], false, escape, 0)
+    _escape_to_iodata1(element, 0, element, [], false, escape, 0)
   end
 
   defp escape(element, _options) do
-      _escape_to_iodata1(element, 0, element, [], false, true, 0)
+    _escape_to_iodata1(element, 0, element, [], false, true, 0)
   end
 
   defp _make_att1(name_value_pair, tag)
+
   defp _make_att1({name, value}, _) do
     [" ", name, "=\"", value, "\""]
   end
 
   defp make_indent(options, level)
+
   defp make_indent(%Options{compact_output: true}, _level) do
     ""
   end
+
   defp make_indent(%{indent: indent}, level) do
     Stream.cycle([" "])
-    |> Enum.take(level*indent)
+    |> Enum.take(level * indent)
   end
 
   # Optimized HTML escaping + smartypants, insipred by Plug.HTML
@@ -465,23 +516,73 @@ defmodule Earmark.Transform do
     match_length = if is_binary(match), do: byte_size(match), else: 1
 
     defp _escape_to_iodata1(<<unquote(match), rest::bits>>, skip, original, acc, true, escape, 0) do
-      _escape_to_iodata1(rest, skip + unquote(match_length), original, [acc | unquote(insert)], true, escape, 0)
+      _escape_to_iodata1(
+        rest,
+        skip + unquote(match_length),
+        original,
+        [acc | unquote(insert)],
+        true,
+        escape,
+        0
+      )
     end
 
-    defp _escape_to_iodata1(<<unquote(match), rest::bits>>, skip, original, acc, true, escape, len) do
+    defp _escape_to_iodata1(
+           <<unquote(match), rest::bits>>,
+           skip,
+           original,
+           acc,
+           true,
+           escape,
+           len
+         ) do
       part = binary_part(original, skip, len)
-      _escape_to_iodata1(rest, skip + len + unquote(match_length), original, [acc, part | unquote(insert)], true, escape, 0)
+
+      _escape_to_iodata1(
+        rest,
+        skip + len + unquote(match_length),
+        original,
+        [acc, part | unquote(insert)],
+        true,
+        escape,
+        0
+      )
     end
   end
 
   for {match, insert} <- escapes do
-    defp _escape_to_iodata1(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, true, 0) do
+    defp _escape_to_iodata1(
+           <<unquote(match), rest::bits>>,
+           skip,
+           original,
+           acc,
+           smartypants,
+           true,
+           0
+         ) do
       _escape_to_iodata1(rest, skip + 1, original, [acc | unquote(insert)], smartypants, true, 0)
     end
 
-    defp _escape_to_iodata1(<<unquote(match), rest::bits>>, skip, original, acc, smartypants, true, len) do
+    defp _escape_to_iodata1(
+           <<unquote(match), rest::bits>>,
+           skip,
+           original,
+           acc,
+           smartypants,
+           true,
+           len
+         ) do
       part = binary_part(original, skip, len)
-      _escape_to_iodata1(rest, skip + len + 1, original, [acc, part | unquote(insert)], smartypants, true, 0)
+
+      _escape_to_iodata1(
+        rest,
+        skip + len + 1,
+        original,
+        [acc, part | unquote(insert)],
+        smartypants,
+        true,
+        0
+      )
     end
   end
 
@@ -496,26 +597,33 @@ defmodule Earmark.Transform do
   defp _escape_to_iodata1(<<>>, skip, original, acc, _smartypants, _escape, len) do
     [acc | binary_part(original, skip, len)]
   end
+
   defp _maybe_remove_paras(ast, options)
+
   defp _maybe_remove_paras(ast, %Options{inner_html: true}) do
     Enum.map(ast, &_remove_para/1)
   end
+
   defp _maybe_remove_paras(ast, _), do: ast
 
   defp _open_tag1(tag, atts)
+
   defp _open_tag1(tag, atts) when tag in @void_elements do
-    [?<, tag, Enum.map(atts, &_make_att1(&1, tag)), " />"]
+    [?<, tag, Enum.map(atts, &_make_att1(&1, tag)), ">"]
   end
+
   defp _open_tag1(tag, atts) do
     [?<, tag, Enum.map(atts, &_make_att1(&1, tag)), ?>]
   end
 
   defp _pop_to_pop(result, intermediate \\ [])
-  defp _pop_to_pop([%Pop{fun: fun}, {tag, atts, _, meta}|rest], intermediate) do
-    {[{tag, atts, intermediate, meta}|rest], fun}
+
+  defp _pop_to_pop([%Pop{fun: fun}, {tag, atts, _, meta} | rest], intermediate) do
+    {[{tag, atts, intermediate, meta} | rest], fun}
   end
-  defp _pop_to_pop([continue|rest], intermediate) do
-    _pop_to_pop(rest, [continue|intermediate])
+
+  defp _pop_to_pop([continue | rest], intermediate) do
+    _pop_to_pop(rest, [continue | intermediate])
   end
 
   defp _remove_para(ele_or_string)
@@ -524,47 +632,70 @@ defmodule Earmark.Transform do
 
   defp _walk_ast(ast, fun, ignore_strings, result)
   defp _walk_ast([], _fun, _ignore_strings, result), do: Enum.reverse(result)
-  defp _walk_ast([[]|rest], _fun, ignore_strings, result) do
+
+  defp _walk_ast([[] | rest], _fun, ignore_strings, result) do
     {popped_result, fun} = _pop_to_pop(result)
     _walk_ast(rest, fun, ignore_strings, popped_result)
   end
-  defp _walk_ast([string|rest], fun, ignore_strings, result) when is_binary(string) do
+
+  defp _walk_ast([string | rest], fun, ignore_strings, result) when is_binary(string) do
     new = if ignore_strings, do: string, else: fun.(string)
-    _walk_ast(rest, fun, ignore_strings, [new|result])
+    _walk_ast(rest, fun, ignore_strings, [new | result])
   end
-  defp _walk_ast([{_, _, content, _}=tuple|rest], fun, ignore_strings, result) do
+
+  defp _walk_ast([{_, _, content, _} = tuple | rest], fun, ignore_strings, result) do
     case fun.(tuple) do
       {new_fun, {new_tag, new_atts, _, new_meta}} when is_function(new_fun) ->
-        _walk_ast([content|rest], new_fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
+        _walk_ast([content | rest], new_fun, ignore_strings, [
+          %Pop{fun: fun},
+          {new_tag, new_atts, [], new_meta} | result
+        ])
+
       {new_tag, new_atts, _, new_meta} ->
-        _walk_ast([content|rest], fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
-      {:replace, content} -> _walk_ast(rest, fun, ignore_strings, [content|result])
+        _walk_ast([content | rest], fun, ignore_strings, [
+          %Pop{fun: fun},
+          {new_tag, new_atts, [], new_meta} | result
+        ])
+
+      {:replace, content} ->
+        _walk_ast(rest, fun, ignore_strings, [content | result])
     end
   end
-  defp _walk_ast([[h|t]|rest], fun, ignore_strings, result) do
-    _walk_ast([h, t|rest], fun, ignore_strings, result)
+
+  defp _walk_ast([[h | t] | rest], fun, ignore_strings, result) do
+    _walk_ast([h, t | rest], fun, ignore_strings, result)
   end
 
   defp _walk_ast_with(ast, value, fun, ignore_strings, result)
   defp _walk_ast_with([], value, _fun, _ignore_strings, result), do: {Enum.reverse(result), value}
-  defp _walk_ast_with([[]|rest], value, _fun, ignore_strings, result) do
+
+  defp _walk_ast_with([[] | rest], value, _fun, ignore_strings, result) do
     {popped_result, fun} = _pop_to_pop(result)
     _walk_ast_with(rest, value, fun, ignore_strings, popped_result)
   end
-  defp _walk_ast_with([string|rest], value, fun, ignore_strings, result) when is_binary(string) do
+
+  defp _walk_ast_with([string | rest], value, fun, ignore_strings, result)
+       when is_binary(string) do
     if ignore_strings do
-      _walk_ast_with(rest, value, fun, ignore_strings, [string|result])
+      _walk_ast_with(rest, value, fun, ignore_strings, [string | result])
     else
       {news, newv} = fun.(string, value)
-      _walk_ast_with(rest, newv, fun, ignore_strings, [news|result])
+      _walk_ast_with(rest, newv, fun, ignore_strings, [news | result])
     end
   end
-  defp _walk_ast_with([{_, _, content, _}=tuple|rest], value, fun, ignore_strings, result) do
+
+  defp _walk_ast_with([{_, _, content, _} = tuple | rest], value, fun, ignore_strings, result) do
     {{new_tag, new_atts, _, new_meta}, new_value} = fun.(tuple, value)
-    _walk_ast_with([content|rest], new_value, fun, ignore_strings, [%Pop{fun: fun}, {new_tag, new_atts, [], new_meta}|result])
+
+    _walk_ast_with([content | rest], new_value, fun, ignore_strings, [
+      %Pop{fun: fun},
+      {new_tag, new_atts, [], new_meta} | result
+    ])
   end
-  defp _walk_ast_with([[h|t]|rest], value, fun, ignore_strings, result) do
-    _walk_ast_with([h, t|rest], value, fun, ignore_strings, result)
+
+  defp _walk_ast_with([[h | t] | rest], value, fun, ignore_strings, result) do
+    _walk_ast_with([h, t | rest], value, fun, ignore_strings, result)
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0
