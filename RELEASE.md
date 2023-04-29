@@ -1,3 +1,10 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.38 2023-04-29
+
+- [PR-460 Avoid trailing slash on void elements](https://github.com/pragdave/earmark/pull/460)
+  Kudos to [Jaime Iniesta](https://github.com/jaimeiniesta)
+
+- updating [EarmarkParser](https://github.com/robertdober/earmark_parser) to v1.4.32
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.37 2023-03-03
 
 updating [EarmarkParser](https://github.com/robertdober/earmark_parser) to v1.4.31
