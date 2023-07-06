@@ -1,39 +1,71 @@
+name: Elixir CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  mix_test_old:
+    name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: 1.10.x
+            otp: 21
+            os: ubuntu-20.04
+          - elixir: 1.11.x
+            otp: 22
+            os: ubuntu-20.04
+          - elixir: 1.11.x
+            otp: 23
+            os: ubuntu-20.04
+          - elixir: 1.12.x
+            otp: 23
+            os: ubuntu-20.04
+          - elixir: 1.13.x
+            otp: 24
+            os: ubuntu-20.04
+          - elixir: 1.14.x
+            otp: 25
+            os: ubuntu-latest
+            warnings_as_errors: true
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: Install Dependencies
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get --only test
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.hex
+            ~/.mix
+            _build
+          key: ${{ matrix.otp }}-${{ matrix.elixir }}-build
+      - run: mix compile --warnings-as-errors
+        if: matrix.warnings_as_errors
+        env:
+          CC: gcc-10
+          CXX: g++-10
+      - run: mix test
+        env:
+          CC: gcc-10
+          CXX: g++-10
+
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Elixir CI
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-permissions:
-  contents: read
-
-jobs:
-  build:
-
-    name: Build and test
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Elixir
-      uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
-      with:
-        elixir-version: '1.14.3' # Define the elixir version [required]
-        otp-version: '26.0.1' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v3
-      with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
-    - name: Install dependencies
-      run: mix deps.get
-    - name: Run tests
-      run: mix test
