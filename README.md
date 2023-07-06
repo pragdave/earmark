@@ -7,7 +7,7 @@ and any changes you make in this file will most likely be lost
 
 # Earmark—A Pure Elixir Markdown Processor
 
-[![CI](https://github.com/pragdave/earmark/actions/workflows/ci.yml/badge.svg)](https://github.com/pragdave/earmark/actions/workflows/ci.yml)
+[![CI](https://github.com/pragdave/earmark/actions/workflows/elixir.yml/badge.svg)](https://github.com/pragdave/earmark/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pragdave/earmark/badge.svg?branch=master)](https://coveralls.io/github/pragdave/earmark?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/earmark.svg)](https://hex.pm/packages/earmark)
 [![Hex.pm](https://img.shields.io/hexpm/dw/earmark.svg)](https://hex.pm/packages/earmark)
@@ -244,7 +244,7 @@ Depending on the return value of the mapper function the traversal will either
   just replace the `tag`, `attribute` and `meta` values of the current node with the values of the returned
   quadruple (ignoring `ignored` for facilitating nodes w/o transformation)
   and then descend into the **original** content of the node but with the mapper function `new_function`
-  used for transformation of the AST. 
+  used for transformation of the AST.
 
   **N.B.** The original mapper function will be used for transforming the sibbling nodes though.
 
