@@ -39,7 +39,7 @@ defmodule Earmark.Cli.Implementation do
 
   def run(argv) do
     argv
-    |> _parse_args()
+    |> parse_args()
     |> _process()
   end
 
@@ -79,21 +79,30 @@ defmodule Earmark.Cli.Implementation do
     wikilinks
   ]
 
-  defp _parse_args(argv) do
+  @doc false
+  def parse_args(argv) do
     switches = [
       breaks: :boolean,
       code_class_prefix: :string,
+      compact_output: :boolean,
       eex: :boolean,
       escape: :boolean,
+      footnotes: :boolean,
+      footnote_offset: :integer,
       gfm: :boolean,
+      gfm_tables: :boolean,
       help: :boolean,
       inner_html: :boolean,
+      ignore_strings: :boolean,
+      line: :integer,
       pedantic: :boolean,
       pure_links: :boolean,
+      smartypants: :boolean,
+      sub_sup: :boolean,
       template: :boolean,
       timeout: :integer,
       version: :boolean,
-      wikiklinks: :boolean
+      wikilinks: :boolean
     ]
 
     aliases = [
