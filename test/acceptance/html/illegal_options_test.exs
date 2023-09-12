@@ -12,11 +12,12 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
       assert as_html("", no_such_option: true) == {:error, "", messages}
     end
     test "with non empty" do
-      messages = [
+      expected_messages = [
         {:warning, 0, "Unrecognized option hello: 42"},
         {:warning, 0, "Unrecognized option no_such_option: true"},
       ]
-      assert as_html("hello", no_such_option: true, hello: 42) == {:error, "", messages}
+      {:error, "", messages} = as_html("hello", no_such_option: true, hello: 42)
+      assert Enum.sort(messages) == Enum.sort(expected_messages)
     end
   end
 

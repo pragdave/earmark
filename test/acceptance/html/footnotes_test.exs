@@ -5,23 +5,39 @@ defmodule Acceptance.Html.FootnotesTest do
     test "without errors" do
       markdown = "foo[^1] again\n\n[^1]: bar baz"
 
-      html = """
-      <p>
-      foo<a href=\"#fn:1\" id=\"fnref:1\" class=\"footnote\" title=\"see footnote\">1</a> again</p>
-      <div class=\"footnotes\">
-        <hr>
-        <ol>
-          <li id=\"fn:1\">
-      <a class=\"reversefootnote\" href=\"#fnref:1\" title=\"return to article\">&#x21A9;</a>      <p>
-      bar baz      </p>
-          </li>
-        </ol>
-      </div>
-      """
+      {:ok, html, []} = as_html(markdown, footnotes: true)
+      {:ok, [
+        {"p", [], 
+          ["\nfoo", 
+            {"a", link_atts, ["1"]},
+          " again"]},
+        {"div", [{"class", "footnotes"}], footnote}
+      ]} = Floki.parse_document(html)
 
-      messages = []
+      assert Enum.sort(link_atts) == [
+        {"class", "footnote"},
+        {"href", "#fn:1"},
+        {"id", "fnref:1"},
+        {"title", "see footnote"}
+      ]
 
-      assert as_html(markdown, footnotes: true) == {:ok, html, messages}
+      [
+        {"hr", [], []},
+        {"ol", [],
+          [
+            {"li", [{"id", "fn:1"}],
+              [
+                {"a", backlink_atts, ["↩"]},
+                {"p", [], ["\nbar baz      "]}
+              ]}
+          ]}
+      ] = footnote
+
+      assert Enum.sort(backlink_atts) == [
+        {"class", "reversefootnote"},
+        {"href", "#fnref:1"},
+        {"title", "return to article"},
+      ]
     end
   end
 end
