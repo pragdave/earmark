@@ -6,27 +6,7 @@ defmodule Earmark.Internal do
   """
 
   alias Earmark.{Error, Message, Options, SysInterface, Transform}
-  alias Earmark.EarmarkParserProxy, as: Proxy
   import Message, only: [emit_messages: 2]
-
-  @doc ~S"""
-  A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
-  raise errors otherwise
-
-      iex(1)> as_ast!(["Hello %% annotated"], annotations: "%%")
-      [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
-
-      iex(2)> as_ast!("===")
-      ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
-
-  """
-  def as_ast!(markdown, options \\ [])
-  def as_ast!(markdown, options) do
-    case Proxy.as_ast(markdown, options) do
-      {:ok, result, _} -> result
-      {:error, _, messages} -> raise Earmark.Error, inspect(messages)
-    end
-  end
 
   @doc false
   def as_html(lines, options)

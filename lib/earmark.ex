@@ -1,10 +1,4 @@
 defmodule Earmark do
-  if Version.compare(System.version(), "1.12.0") == :lt do
-    IO.puts(
-      :stderr,
-      "DEPRECATION WARNING: versions < 1.12.0 of Elixir are not tested anymore and will not be supported in Earmark v1.5"
-    )
-  end
 
   @type ast_meta :: map()
   @type ast_tag :: binary()
@@ -220,33 +214,12 @@ defmodule Earmark do
   and are to serve the produced HTML on the Web.
   """
 
-  alias Earmark.{Internal, Options, Transform}
-  alias Earmark.EarmarkParserProxy, as: Proxy
+  alias Earmark.{Internal, Options, Parser, Transform}
 
-  defdelegate as_ast!(markdown, options \\ []), to: Internal
+  defdelegate as_ast(markdown, options \\ []), to: Parser
+  defdelegate as_ast!(markdown, options \\ []), to: Parser
   defdelegate as_html(lines, options \\ []), to: Internal
   defdelegate as_html!(lines, options \\ []), to: Internal
-
-  @doc """
-  DEPRECATED call `EarmarkParser.as_ast` instead
-  """
-  def as_ast(lines, options \\ %Options{}) do
-    {status, ast, messages} = _as_ast(lines, options)
-
-    message =
-      {:warning, 0,
-       "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use EarmarkParser.as_ast, which is of the same type"}
-
-    messages1 = [message | messages]
-    {status, ast, messages1}
-  end
-
-  @doc """
-  A convenience method that *always* returns an HTML representation of the markdown document passed in.
-  In case of the presence of any error messages they are printed to stderr.
-
-  Otherwise it behaves exactly as `as_html`.
-  """
 
   defdelegate from_file!(filename, options \\ []), to: Internal
 
@@ -263,16 +236,5 @@ defmodule Earmark do
     with {:ok, version} = :application.get_key(:earmark, :vsn),
       do: to_string(version)
   end
-
-  defp _as_ast(lines, options)
-
-  defp _as_ast(lines, %Options{} = options) do
-    Proxy.as_ast(lines, options |> Map.delete(:__struct__) |> Enum.into([]))
-  end
-
-  defp _as_ast(lines, options) do
-    Proxy.as_ast(lines, options)
-  end
 end
-
 # SPDX-License-Identifier: Apache-2.0
