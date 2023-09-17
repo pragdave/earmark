@@ -8,7 +8,7 @@ defmodule Deprecations.I381DeprecatedTest do
 
       messages = [
         {:warning, 0,
-         "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use EarmarkParser.as_ast, which is of the same type"}
+         "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use Earmark.Parser.as_ast, which is of the same type"}
       ]
 
       assert Earmark.as_ast(markdown, []) == {:ok, ast, messages}
@@ -20,7 +20,7 @@ defmodule Deprecations.I381DeprecatedTest do
 
       messages = [
         {:warning, 0,
-         "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use EarmarkParser.as_ast, which is of the same type"},
+         "DEPRECATION: Earmark.as_ast will be removed in version 1.5, please use Earmark.Parser.as_ast, which is of the same type"},
         {:warning, 1, "Closing unclosed backquotes ` at end of input"}
       ]
 

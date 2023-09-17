@@ -7,7 +7,7 @@ defmodule TransformTest do
   describe "annotations" do
     test "annotations" do
       markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
-      {:ok, result_, []} = markdown |> EarmarkParser.as_ast(annotations: "%%")
+      {:ok, result_, []} = markdown |> Earmark.Parser.as_ast(annotations: "%%")
       {result__, _} = result_ |> map_ast_with(nil, &add_smiley/2)
       final = result__ |> Earmark.Transform.transform
       expected = "<p>\nA joke %% smile</p>\n<p>\nCharming %% in_love</p>\n"

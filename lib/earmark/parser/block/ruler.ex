@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Block.Ruler do
+defmodule Earmark.Parser.Block.Ruler do
   @moduledoc false
   defstruct lnb: 0, annotation: nil, attrs: nil, type: nil
 end

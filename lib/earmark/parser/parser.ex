@@ -1,23 +1,24 @@
 defmodule Earmark.Parser.Parser do
 
   @moduledoc false
-  alias EarmarkParser.{Block, Line, LineScanner, Options}
+  alias Earmark.Options
+  alias Earmark.Parser.{Block, Line, LineScanner}
 
-  import EarmarkParser.Helpers.{AttrParser, LineHelpers, ReparseHelpers}
+  import Earmark.Parser.Helpers.{AttrParser, LineHelpers, ReparseHelpers}
 
-  import EarmarkParser.Helpers.LookaheadHelpers,
+  import Earmark.Parser.Helpers.LookaheadHelpers,
     only: [opens_inline_code: 1, still_inline_code: 2]
 
-  import EarmarkParser.Message, only: [add_message: 2, add_messages: 2]
-  import EarmarkParser.Parser.FootnoteParser, only: [parse_fn_defs: 3]
-  import EarmarkParser.Parser.ListParser, only: [parse_list: 3]
+  import Earmark.Parser.Message, only: [add_message: 2, add_messages: 2]
+  import Earmark.Parser.Parser.FootnoteParser, only: [parse_fn_defs: 3]
+  import Earmark.Parser.Parser.ListParser, only: [parse_list: 3]
 
   @doc """
   Given a markdown document (as either a list of lines or
   a string containing newlines), return a parse tree and
   the context necessary to render the tree.
 
-  The options are a `%EarmarkParser.Options{}` structure. See `as_html!`
+  The options are a `%Earmark.Parser.Options{}` structure. See `as_html!`
   for more details.
   """
   def parse_markdown(lines, options)
@@ -26,8 +27,8 @@ defmodule Earmark.Parser.Parser do
     {blocks, links, footnotes, options1} = parse(lines, options, false)
 
     context =
-      %EarmarkParser.Context{options: options1, links: links}
-      |> EarmarkParser.Context.update_context()
+      %Earmark.Parser.Context{options: options1, links: links}
+      |> Earmark.Parser.Context.update_context()
 
     context = put_in(context.footnotes, footnotes)
     context = put_in(context.options, options1)

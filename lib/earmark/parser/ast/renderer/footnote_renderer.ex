@@ -1,6 +1,6 @@
-defmodule EarmarkParser.Ast.Renderer.FootnoteRenderer do
-  import EarmarkParser.Ast.Emitter
-  alias EarmarkParser.{AstRenderer, Block, Context, Message}
+defmodule Earmark.Parser.Ast.Renderer.FootnoteRenderer do
+  import Earmark.Parser.Ast.Emitter
+  alias Earmark.Parser.{AstRenderer, Block, Context, Message}
   import Context, only: [clear_value: 1, prepend: 2]
 
   @moduledoc false

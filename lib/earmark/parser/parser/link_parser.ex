@@ -1,9 +1,9 @@
-defmodule EarmarkParser.Parser.LinkParser do
+defmodule Earmark.Parser.Parser.LinkParser do
 
   @moduledoc false
-  import EarmarkParser.Helpers.LeexHelpers, only: [tokenize: 2]
-  import EarmarkParser.Helpers.YeccHelpers, only: [parse!: 2]
-  import EarmarkParser.Helpers.StringHelpers, only: [behead: 2]
+  import Earmark.Parser.Helpers.LeexHelpers, only: [tokenize: 2]
+  import Earmark.Parser.Helpers.YeccHelpers, only: [parse!: 2]
+  import Earmark.Parser.Helpers.StringHelpers, only: [behead: 2]
 
   # Hopefully this will go away in v1.3
   # **********************************

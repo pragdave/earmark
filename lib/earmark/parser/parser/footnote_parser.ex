@@ -1,5 +1,5 @@
-defmodule EarmarkParser.Parser.FootnoteParser do
-  alias EarmarkParser.{Block, Enum.Ext, Line}
+defmodule Earmark.Parser.Parser.FootnoteParser do
+  alias Earmark.Parser.{Block, Enum.Ext, Line}
 
   @moduledoc false
   def parse_fn_defs([fn_def | rest], result, options) do
@@ -40,7 +40,7 @@ defmodule EarmarkParser.Parser.FootnoteParser do
        ) do
     # `_footnotes1` should be empty but let us not change the shape of parse depending
     # on options or the value of recursive?
-    {inner_blocks, _links, _footnotes1, options1} = EarmarkParser.Parser.parse(Enum.reverse(input), options, true)
+    {inner_blocks, _links, _footnotes1, options1} = Earmark.Parser.Parser.parse(Enum.reverse(input), options, true)
     closed_fn = %{open_fn | blocks: inner_blocks}
     footnotes1 = Map.put(footnotes, closed_fn.id, closed_fn)
 

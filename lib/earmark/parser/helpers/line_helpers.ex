@@ -1,8 +1,8 @@
-defmodule EarmarkParser.Helpers.LineHelpers do
+defmodule Earmark.Parser.Helpers.LineHelpers do
 
   @moduledoc false
 
-  alias EarmarkParser.Line
+  alias Earmark.Parser.Line
 
   def blank?(%Line.Blank{}),   do: true
   def blank?(_),               do: false

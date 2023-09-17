@@ -8,7 +8,7 @@ defmodule Support.Helpers do
 
 
   def as_ast(markdown, options \\ []) do
-    EarmarkParser.as_ast(markdown, Options.make_options!(options))
+    Earmark.Parser.as_ast(markdown, Options.make_options!(options))
   end
 
   def as_html(markdown, options \\ []) do

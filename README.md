@@ -52,7 +52,7 @@ returning the device and the string to be output.
 
 ### Earmark.Options
 
-This is a superset of the options that need to be passed into `EarmarkParser.as_ast/2`
+This is a superset of the options that need to be passed into `Earmark.Parser.as_ast/2`
 
 The following options are proper to `Earmark` only and therefore explained in detail
 
@@ -63,10 +63,10 @@ The following options are proper to `Earmark` only and therefore explained in de
 - `smartypants`: boolean use [Smarty Pants](https://daringfireball.net/projects/smartypants/) in the output
 - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
 
-   EarmarkParser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
+   Earmark.Parser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
    Refer to the moduledoc of Earmark.`Transform` for details
 
-All other options are passed onto EarmarkParser.as_ast/`2`
+All other options are passed onto Earmark.Parser.as_ast/`2`
 
 ### Earmark.Options.make_options/1
 
@@ -155,7 +155,7 @@ functions are public in `Earmark`
 
 ### Earmark.Internal.as_ast!/2
 
-A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
+A wrapper to extract the AST from a call to `Earmark.Parser.as_ast` if a tuple `{:ok, result, []}` is returned,
 raise errors otherwise
 
 ```elixir
@@ -215,7 +215,7 @@ And here is how it is used inside a template
 
 #### Structure Conserving Transformers
 
-For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
+For the convenience of processing the output of `Earmark.Parser.as_ast` we expose two structure conserving
 mappers.
 
 ##### `map_ast`
@@ -451,7 +451,7 @@ tools has emerged yet.
 Walks an AST and allows you to process it (storing details in acc) and/or
 modify it as it is walked.
 
-items is the AST you got from EarmarkParser.as_ast()
+items is the AST you got from Earmark.Parser.as_ast()
 
 acc is the initial value of an accumulator that is passed to both
 process_item_fn and process_list_fn and accumulated. If your functions
@@ -499,7 +499,7 @@ commented text to be left out
     ...(1)>
     ...(1)> text
     ...(1)> """
-    ...(1)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    ...(1)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
     ...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
     {[
       {"p", [],

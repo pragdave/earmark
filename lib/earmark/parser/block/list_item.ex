@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Block.ListItem do
+defmodule Earmark.Parser.Block.ListItem do
   @moduledoc false
   defstruct attrs: nil,
             blocks: [],

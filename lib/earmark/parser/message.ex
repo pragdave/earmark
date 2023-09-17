@@ -1,8 +1,8 @@
-defmodule EarmarkParser.Message do
+defmodule Earmark.Parser.Message do
   @moduledoc false
 
-  alias EarmarkParser.Context
-  alias EarmarkParser.Options
+  alias Earmark.Parser.Context
+  alias Earmark.Parser.Options
 
   @type message_type :: :error | :warning
   @type t :: {message_type, number, binary}

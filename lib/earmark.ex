@@ -16,7 +16,7 @@ defmodule Earmark do
 
   ### Abstract Syntax Tree and Rendering
 
-  The AST generation has now been moved out to [`EarmarkParser`](https://github.com/robertdober/earmark_parser)
+  The AST generation has now been moved out to [`Earmark.Parser`](https://github.com/robertdober/earmark_parser)
   which is installed as a dependency.
 
   This brings some changes to this documentation and also deprecates the usage of `Earmark.as_ast`
@@ -24,27 +24,27 @@ defmodule Earmark do
   Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
 
   Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
-  [here](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
+  [here](https://hexdocs.pm/earmark_parser/Earmark.Parser.html)
 
 
 
   #### Earmark.as_ast
 
-  WARNING: This is just a proxy towards `EarmarkParser.as_ast` and is deprecated, it will be removed in version 1.5!
+  WARNING: This is just a proxy towards `Earmark.Parser.as_ast` and is deprecated, it will be removed in version 1.5!
 
   Replace your calls to `Earmark.as_ast` with `EarmarkParse.as_ast` as soon as possible.
 
-  **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `EarmarkParser`.
+  **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `Earmark.Parser`.
 
-  Also please refer yourself to the documentation of [`EarmarkParser`](https://hexdocs.pm/earmark_parser/EarmarkParser.html)
+  Also please refer yourself to the documentation of [`Earmark.Parser`](https://hexdocs.pm/earmark_parser/Earmark.Parser.html)
 
 
   The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
   the structure of the result of `as_ast`.
 
-      {:ok, ast, []}                   = EarmarkParser.as_ast(markdown)
-      {:ok, ast, deprecation_messages} = EarmarkParser.as_ast(markdown)
-      {:error, ast, error_messages}    = EarmarkParser.as_ast(markdown)
+      {:ok, ast, []}                   = Earmark.Parser.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = Earmark.Parser.as_ast(markdown)
+      {:error, ast, error_messages}    = Earmark.Parser.as_ast(markdown)
 
   #### Earmark.as_html
 
@@ -66,11 +66,11 @@ defmodule Earmark do
 
       {status, html_doc, errors} = Earmark.as_html(markdown, options)
       html_doc = Earmark.as_html!(markdown, options)
-      {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
+      {status, ast, errors} = Earmark.Parser.as_ast(markdown, options)
 
   ### Rendering
 
-  All options passed through to `EarmarkParser.as_ast` are defined therein, however some options concern only
+  All options passed through to `Earmark.Parser.as_ast` are defined therein, however some options concern only
   the rendering of the returned AST
 
   These are:
@@ -142,7 +142,7 @@ defmodule Earmark do
 
   ```elixir
             markdown
-            |> EarmarkParser.as_ast
+            |> Earmark.Parser.as_ast
             |> Earmark.Transform.map_ast(fun)
             |> Earmark.Transform.transform
   ```
