@@ -1,3 +1,16 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-??-??
+
+Isolate from `EarmarkParser` in order to prevent conflicts with indirect dependencies
+on `EarmarkParser` via `ExDoc`.
+This shall mark the end of my role as maintainer of Earmark.
+
+## [Earmark](https://hex.pm/packages/earmark) 1.4.40 2023-09-12
+
+- Exposing all relevant `Earmark.Options` to the command line
+
+- Updated `EarmarkParser` version to 1.4.35
+
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.38 2023-04-29
 
 - [PR-460 Avoid trailing slash on void elements](https://github.com/pragdave/earmark/pull/460)
