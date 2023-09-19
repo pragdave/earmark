@@ -1,4 +1,4 @@
-## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-??-??
+## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-09-19
 
 Isolate from `EarmarkParser` in order to prevent conflicts with indirect dependencies
 on `EarmarkParser` via `ExDoc`.
@@ -214,6 +214,7 @@ This is a featureless release.
 Its lone purpose is the extraction of all parsing and ast releated code into [EarmarkParser](https://hex.pm/packages/earmark_parser).
 
 As it is feature identical to 1.4.7 downgrading in case of problems will be painless.
+    # {:earmark_parser, "~> 1.4.35", path: "../earmark_parser"},
 
 # 1.4.7 2020/06/29
 
