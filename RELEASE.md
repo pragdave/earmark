@@ -1,6 +1,10 @@
-## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-09-20
+## [Earmark](https://hex.pm/packages/earmark) 1.4.43 2023-09-20
 
-Added missing erlang sources
+Added missing erlang sources into to mix package
+
+## [Earmark](https://hex.pm/packages/earmark) 1.4.42 2023-09-20
+
+Added missing erlang sources (but only to Github)
 
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-09-19
 
