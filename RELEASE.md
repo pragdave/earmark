@@ -1,3 +1,7 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-09-20
+
+Added missing erlang sources
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.41 2023-09-19
 
 Isolate from `EarmarkParser` in order to prevent conflicts with indirect dependencies
