@@ -67,7 +67,7 @@ defmodule Test.Restructure.WalkeAndModifyAstTest do
 
   test "handle_bold_and_italic_from_nonstandard_markdown" do
     markdown = "Hello *boldness* my /italic/ friend!"
-    {:ok, ast, []} = markdown |> EarmarkParser.as_ast()
+    {:ok, ast, []} = markdown |> Earmark.Parser.as_ast()
     processed_ast = ast
                     |> handle_bold()
                     |> handle_italics()
@@ -88,7 +88,7 @@ defmodule Test.Restructure.WalkeAndModifyAstTest do
 
   test "delete_italicized_text" do
     markdown = "Hello *there* my *good* friend!"
-    {:ok, ast, []} = markdown |> EarmarkParser.as_ast()
+    {:ok, ast, []} = markdown |> Earmark.Parser.as_ast()
     {processed_ast, :acc_unused} = Restructure.walk_and_modify_ast(
       ast, :acc_unused, &({&1, &2}), &delete_italicized_text/2)
     assert processed_ast == [{"p", [], ["Hello ", " my ", " friend!"], %{}}]
@@ -120,7 +120,7 @@ defmodule Test.Restructure.WalkeAndModifyAstTest do
 
     text
     """
-    {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
     Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
   end
 
@@ -131,7 +131,7 @@ defmodule Test.Restructure.WalkeAndModifyAstTest do
     Hello world
     """
 
-    {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+    {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
     Restructure.walk_and_modify_ast(ast, nil, fn node, acc -> {node, acc} end)
   end
 end

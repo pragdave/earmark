@@ -1,8 +1,8 @@
-defmodule EarmarkParser.Helpers.LookaheadHelpers do
+defmodule Earmark.Parser.Helpers.LookaheadHelpers do
 
   @moduledoc false
 
-  import EarmarkParser.Helpers.LeexHelpers
+  import Earmark.Parser.Helpers.LeexHelpers
 
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.

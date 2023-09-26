@@ -1,6 +1,6 @@
-defmodule EarmarkParser.Options do
+defmodule Earmark.Parser.Options do
   # What we use to render
-  defstruct renderer: EarmarkParser.HtmlRenderer,
+  defstruct renderer: Earmark.Parser.HtmlRenderer,
             # Inline style options
             all: false,
             gfm: true,
@@ -38,7 +38,7 @@ defmodule EarmarkParser.Options do
       %{options | smartypants: false},
       [
         {:deprecated, 0,
-         "The smartypants option has no effect anymore and will be removed in EarmarkParser 1.5"}
+         "The smartypants option has no effect anymore and will be removed in Earmark.Parser 1.5"}
         | messages
       ]
     )
@@ -49,7 +49,7 @@ defmodule EarmarkParser.Options do
       %{options | timeout: nil},
       [
         {:deprecated, 0,
-         "The timeout option has no effect anymore and will be removed in EarmarkParser 1.5"}
+         "The timeout option has no effect anymore and will be removed in Earmark.Parser 1.5"}
         | messages
       ]
     )
@@ -60,7 +60,7 @@ defmodule EarmarkParser.Options do
       %{options | pedantic: false},
       [
         {:deprecated, 0,
-         "The pedantic option has no effect anymore and will be removed in EarmarkParser 1.5"}
+         "The pedantic option has no effect anymore and will be removed in Earmark.Parser 1.5"}
         | messages
       ]
     )

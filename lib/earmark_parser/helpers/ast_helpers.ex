@@ -1,11 +1,11 @@
-defmodule EarmarkParser.Helpers.AstHelpers do
+defmodule Earmark.Parser.Helpers.AstHelpers do
 
   @moduledoc false
 
-  import EarmarkParser.Ast.Emitter
-  import EarmarkParser.Helpers
+  import Earmark.Parser.Ast.Emitter
+  import Earmark.Parser.Helpers
 
-  alias EarmarkParser.Block
+  alias Earmark.Parser.Block
 
   @doc false
   def annotate(node, from_block)

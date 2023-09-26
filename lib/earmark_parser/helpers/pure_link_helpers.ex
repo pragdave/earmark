@@ -1,7 +1,7 @@
-defmodule EarmarkParser.Helpers.PureLinkHelpers do
+defmodule Earmark.Parser.Helpers.PureLinkHelpers do
   @moduledoc false
 
-  import EarmarkParser.Helpers.AstHelpers, only: [render_link: 2]
+  import Earmark.Parser.Helpers.AstHelpers, only: [render_link: 2]
 
   @pure_link_rgx ~r{
     \A

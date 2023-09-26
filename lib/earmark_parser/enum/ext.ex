@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Enum.Ext do
+defmodule Earmark.Parser.Enum.Ext do
   @moduledoc ~S"""
     Some extensions of Enum functions
   """

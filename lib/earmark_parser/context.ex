@@ -1,16 +1,16 @@
-defmodule EarmarkParser.Context do
+defmodule Earmark.Parser.Context do
   @moduledoc false
-  alias EarmarkParser.Options
+  alias Earmark.Parser.Options
 
   @type t :: %__MODULE__{
-          options: EarmarkParser.Options.t(),
+          options: Earmark.Parser.Options.t(),
           links: map(),
           footnotes: map(),
           referenced_footnote_ids: MapSet.t(String.t()),
           value: String.t() | [String.t()]
         }
 
-  defstruct options: %EarmarkParser.Options{},
+  defstruct options: %Earmark.Parser.Options{},
             links: Map.new(),
             rules: nil,
             footnotes: Map.new(),
@@ -87,7 +87,7 @@ defmodule EarmarkParser.Context do
 
   # this is called by the command line processor to update
   # the inline-specific rules in light of any options
-  def update_context(context = %EarmarkParser.Context{options: options}) do
+  def update_context(context = %Earmark.Parser.Context{options: options}) do
     %{context | rules: rules_for(options)}
   end
 

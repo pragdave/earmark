@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Block.Ial do
+defmodule Earmark.Parser.Block.Ial do
   @moduledoc false
   defstruct lnb: 0, annotation: nil, attrs: nil, content: nil, verbatim: ""
 end
