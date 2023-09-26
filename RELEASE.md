@@ -1,3 +1,8 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.44 2023-09-26
+
+Kudos to José Valim for an important renaming task I forgot, this is only
+important for users of both, `Earmark` **and** `EarmarkParser`
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.43 2023-09-20
 
 Added missing erlang sources into to mix package
