@@ -1,7 +1,7 @@
-defmodule EarmarkParser.Helpers.YeccHelpers do
+defmodule Earmark.Parser.Helpers.YeccHelpers do
 
   @moduledoc false
-  import EarmarkParser.Helpers.LeexHelpers, only: [lex: 2]
+  import Earmark.Parser.Helpers.LeexHelpers, only: [lex: 2]
 
   def parse!( text, lexer: lexer, parser: parser ) do
     case parse(text, lexer: lexer, parser: parser) do

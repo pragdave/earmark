@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Helpers.StringHelpers do
+defmodule Earmark.Parser.Helpers.StringHelpers do
 
   @moduledoc false
 

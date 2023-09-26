@@ -1,4 +1,4 @@
-defmodule EarmarkParser do
+defmodule Earmark.Parser do
   @type ast_meta :: map()
   @type ast_tag :: binary()
   @type ast_attribute_name :: binary()
@@ -13,21 +13,21 @@ defmodule EarmarkParser do
 
   ### API
 
-  #### EarmarkParser.as_ast
+  #### Earmark.Parser.as_ast
 
   This is the structure of the result of `as_ast`.
 
-      {:ok, ast, []}                   = EarmarkParser.as_ast(markdown)
-      {:ok, ast, deprecation_messages} = EarmarkParser.as_ast(markdown)
-      {:error, ast, error_messages}    = EarmarkParser.as_ast(markdown)
+      {:ok, ast, []}                   = Earmark.Parser.as_ast(markdown)
+      {:ok, ast, deprecation_messages} = Earmark.Parser.as_ast(markdown)
+      {:error, ast, error_messages}    = Earmark.Parser.as_ast(markdown)
 
   For examples see the functiondoc below.
 
   #### Options
 
-  Options can be passed into `as_ast/2` according to the documentation of `EarmarkParser.Options`.
+  Options can be passed into `as_ast/2` according to the documentation of `Earmark.Parser.Options`.
 
-      {status, ast, errors} = EarmarkParser.as_ast(markdown, options)
+      {status, ast, errors} = Earmark.Parser.as_ast(markdown, options)
 
   ## Supports
 
@@ -43,24 +43,24 @@ defmodule EarmarkParser do
 
   ##### Oneline HTML Link tags
 
-      iex(1)> EarmarkParser.as_ast(~s{<a href="href">link</a>})
+      iex(1)> Earmark.Parser.as_ast(~s{<a href="href">link</a>})
       {:ok, [{"a", [{"href", "href"}], ["link"], %{verbatim: true}}], []}
 
   ##### Markdown links
 
   New style ...
 
-      iex(2)> EarmarkParser.as_ast(~s{[title](destination)})
+      iex(2)> Earmark.Parser.as_ast(~s{[title](destination)})
       {:ok,  [{"p", [], [{"a", [{"href", "destination"}], ["title"], %{}}], %{}}], []}
 
   and old style
 
-      iex(3)> EarmarkParser.as_ast("[foo]: /url \"title\"\n\n[foo]\n")
+      iex(3)> Earmark.Parser.as_ast("[foo]: /url \"title\"\n\n[foo]\n")
       {:ok, [{"p", [], [{"a", [{"href", "/url"}, {"title", "title"}], ["foo"], %{}}], %{}}], []}
 
   #### Autolinks
 
-      iex(4)> EarmarkParser.as_ast("<https://elixir-lang.com>")
+      iex(4)> Earmark.Parser.as_ast("<https://elixir-lang.com>")
       {:ok, [{"p", [], [{"a", [{"href", "https://elixir-lang.com"}], ["https://elixir-lang.com"], %{}}], %{}}], []}
 
   #### Additional link parsing via options
@@ -70,12 +70,12 @@ defmodule EarmarkParser do
 
   **N.B.** that the `pure_links` option is `true` by default
 
-      iex(5)> EarmarkParser.as_ast("https://github.com")
+      iex(5)> Earmark.Parser.as_ast("https://github.com")
       {:ok, [{"p", [], [{"a", [{"href", "https://github.com"}], ["https://github.com"], %{}}], %{}}], []}
 
   But can be deactivated
 
-      iex(6)> EarmarkParser.as_ast("https://github.com", pure_links: false)
+      iex(6)> Earmark.Parser.as_ast("https://github.com", pure_links: false)
       {:ok, [{"p", [], ["https://github.com"], %{}}], []}
 
 
@@ -83,12 +83,12 @@ defmodule EarmarkParser do
 
     are disabled by default
 
-      iex(7)> EarmarkParser.as_ast("[[page]]")
+      iex(7)> Earmark.Parser.as_ast("[[page]]")
       {:ok, [{"p", [], ["[[page]]"], %{}}], []}
 
     and can be enabled
 
-      iex(8)> EarmarkParser.as_ast("[[page]]", wikilinks: true)
+      iex(8)> Earmark.Parser.as_ast("[[page]]", wikilinks: true)
       {:ok, [{"p", [], [{"a", [{"href", "page"}], ["page"], %{wikilink: true}}], %{}}], []}
 
 
@@ -98,21 +98,21 @@ defmodule EarmarkParser do
 
   Therefore we will get
 
-      iex(9)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
+      iex(9)> Earmark.Parser.as_ast("H~2~O or a^n^ + b^n^ = c^n^")
       {:ok, [{"p", [], ["H~2~O or a^n^ + b^n^ = c^n^"], %{}}], []}
 
   But by specifying `sub_sup: true`
 
-      iex(10)> EarmarkParser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
+      iex(10)> Earmark.Parser.as_ast("H~2~O or a^n^ + b^n^ = c^n^", sub_sup: true)
       {:ok, [{"p", [], ["H", {"sub", [], ["2"], %{}}, "O or a", {"sup", [], ["n"], %{}}, " + b", {"sup", [], ["n"], %{}}, " = c", {"sup", [], ["n"], %{}}], %{}}], []}
 
   ### Github Flavored Markdown
 
-  GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, EarmarkParser does not support all of it, here is a list of what is supported:
+  GFM is supported by default, however as GFM is a moving target and all GFM extension do not make sense in a general context, Earmark.Parser does not support all of it, here is a list of what is supported:
 
   #### Strike Through
 
-      iex(11)> EarmarkParser.as_ast("~~hello~~")
+      iex(11)> Earmark.Parser.as_ast("~~hello~~")
       {:ok, [{"p", [], [{"del", [], ["hello"], %{}}], %{}}], []}
 
   #### GFM Tables
@@ -159,7 +159,7 @@ defmodule EarmarkParser do
   put before the language string.
 
   Prism.js for example needs a class `language-elixir`. In order to achieve that goal you can add `language-`
-  as a `code_class_prefix` to `EarmarkParser.Options`.
+  as a `code_class_prefix` to `Earmark.Parser.Options`.
 
   In the following example we want more than one additional class, so we add more prefixes.
 
@@ -167,7 +167,7 @@ defmodule EarmarkParser do
       ...(15)>    "```elixir",
       ...(15)>    " @tag :hello",
       ...(15)>    "```"
-      ...(15)> ] |> as_ast(%EarmarkParser.Options{code_class_prefix: "lang- language-"})
+      ...(15)> ] |> as_ast(%Earmark.Parser.Options{code_class_prefix: "lang- language-"})
       {:ok, [{"pre", [], [{"code", [{"class", "elixir lang-elixir language-elixir"}], [" @tag :hello"], %{}}], %{}}], []}
 
 
@@ -290,20 +290,20 @@ defmodule EarmarkParser do
   E.g.
 
       iex(20)> lines = [ "<div><span>", "some</span><text>", "</div>more text" ]
-      ...(20)> EarmarkParser.as_ast(lines)
+      ...(20)> Earmark.Parser.as_ast(lines)
       {:ok, [{"div", [], ["<span>", "some</span><text>"], %{verbatim: true}}, "more text"], []}
 
   And a line starting with an opening tag and ending with the corresponding closing tag is parsed in similar
   fashion
 
-      iex(21)> EarmarkParser.as_ast(["<span class=\"superspan\">spaniel</span>"])
+      iex(21)> Earmark.Parser.as_ast(["<span class=\"superspan\">spaniel</span>"])
       {:ok, [{"span", [{"class", "superspan"}], ["spaniel"], %{verbatim: true}}], []}
 
   What is HTML?
 
   We differ from strict GFM by allowing **all** tags not only HTML5 tags this holds for one liners....
 
-      iex(22)> {:ok, ast, []} = EarmarkParser.as_ast(["<stupid />", "<not>better</not>"])
+      iex(22)> {:ok, ast, []} = Earmark.Parser.as_ast(["<stupid />", "<not>better</not>"])
       ...(22)> ast
       [
         {"stupid", [], [], %{verbatim: true}},
@@ -311,7 +311,7 @@ defmodule EarmarkParser do
 
   and for multi line blocks
 
-      iex(23)> {:ok, ast, []} = EarmarkParser.as_ast([ "<hello>", "world", "</hello>"])
+      iex(23)> {:ok, ast, []} = Earmark.Parser.as_ast([ "<hello>", "world", "</hello>"])
       ...(23)> ast
       [{"hello", [], ["world"], %{verbatim: true}}]
 
@@ -322,7 +322,7 @@ defmodule EarmarkParser do
 
   E.g.
 
-      iex(24)> EarmarkParser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
+      iex(24)> Earmark.Parser.as_ast(" <!-- Comment\ncomment line\ncomment --> text -->\nafter")
       {:ok, [{:comment, [], [" Comment", "comment line", "comment "], %{comment: true}}, {"p", [], ["after"], %{}}], []}
 
 
@@ -333,7 +333,7 @@ defmodule EarmarkParser do
   which we can only have in a [loose one](https://babelmark.github.io/?text=*+aa%0A++%0A++%3E+Second)
 
   Or a headline in a [tight list item](https://babelmark.github.io/?text=*+bb%0A++%23+Headline) which, again is only available in the
-  [loose version](https://babelmark.github.io/?text=*+bb%0A%0A++%23+Headline) in EarmarkParser.
+  [loose version](https://babelmark.github.io/?text=*+bb%0A%0A++%23+Headline) in Earmark.Parser.
 
   furthermore [this example](https://babelmark.github.io/?text=*+aa%0A++%60%60%60%0ASecond%0A++%60%60%60) demonstrates how weird
   and definitely not useful GFM's own interpretation can get.
@@ -418,25 +418,25 @@ defmodule EarmarkParser do
   format.
 
       iex(33)> markdown = "[link](url) {: .classy}"
-      ...(33)> EarmarkParser.as_ast(markdown)
+      ...(33)> Earmark.Parser.as_ast(markdown)
       { :ok, [{"p", [], [{"a", [{"class", "classy"}, {"href", "url"}], ["link"], %{}}], %{}}], []}
 
   For both cases, malformed attributes are ignored and warnings are issued.
 
-      iex(34)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> EarmarkParser.as_ast()
+      iex(34)> [ "Some text", "{:hello}" ] |> Enum.join("\n") |> Earmark.Parser.as_ast()
       {:error, [{"p", [], ["Some text"], %{}}], [{:warning, 2,"Illegal attributes [\"hello\"] ignored in IAL"}]}
 
   It is possible to escape the IAL in both forms if necessary
 
       iex(35)> markdown = "[link](url)\\{: .classy}"
-      ...(35)> EarmarkParser.as_ast(markdown)
+      ...(35)> Earmark.Parser.as_ast(markdown)
       {:ok, [{"p", [], [{"a", [{"href", "url"}], ["link"], %{}}, "{: .classy}"], %{}}], []}
 
   This of course is not necessary in code blocks or text lines
   containing an IAL-like string, as in the following example
 
       iex(36)> markdown = "hello {:world}"
-      ...(36)> EarmarkParser.as_ast(markdown)
+      ...(36)> Earmark.Parser.as_ast(markdown)
       {:ok, [{"p", [], ["hello {:world}"], %{}}], []}
 
   ## Limitations
@@ -566,19 +566,19 @@ defmodule EarmarkParser do
 
   """
 
-  alias EarmarkParser.Options
-  import EarmarkParser.Message, only: [sort_messages: 1]
+  alias Earmark.Parser.Options
+  import Earmark.Parser.Message, only: [sort_messages: 1]
 
   @doc """
       iex(42)> markdown = "My `code` is **best**"
-      ...(42)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(42)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
       ...(42)> ast
       [{"p", [], ["My ", {"code", [{"class", "inline"}], ["code"], %{}}, " is ", {"strong", [], ["best"], %{}}], %{}}]
 
 
 
       iex(43)> markdown = "```elixir\\nIO.puts 42\\n```"
-      ...(43)> {:ok, ast, []} = EarmarkParser.as_ast(markdown, code_class_prefix: "lang-")
+      ...(43)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown, code_class_prefix: "lang-")
       ...(43)> ast
       [{"pre", [], [{"code", [{"class", "elixir lang-elixir"}], ["IO.puts 42"], %{}}], %{}}]
 
@@ -618,12 +618,12 @@ defmodule EarmarkParser do
   end
 
   defp _as_ast(lines, options) do
-    {blocks, context} = EarmarkParser.Parser.parse_markdown(lines, Options.normalize(options))
-    EarmarkParser.AstRenderer.render(blocks, context)
+    {blocks, context} = Earmark.Parser.Parser.parse_markdown(lines, Options.normalize(options))
+    Earmark.Parser.AstRenderer.render(blocks, context)
   end
 
   @doc """
-    Accesses current hex version of the `EarmarkParser` application. Convenience for
+    Accesses current hex version of the `Earmark.Parser` application. Convenience for
     `iex` usage.
   """
   def version() do

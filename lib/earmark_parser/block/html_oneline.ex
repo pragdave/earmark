@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Block.HtmlOneline do
+defmodule Earmark.Parser.Block.HtmlOneline do
   @moduledoc false
   defstruct lnb: 0, annotation: nil, attrs: nil, html: ""
 end

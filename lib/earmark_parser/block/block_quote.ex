@@ -1,4 +1,4 @@
-defmodule EarmarkParser.Block.BlockQuote do
+defmodule Earmark.Parser.Block.BlockQuote do
   @moduledoc false
   defstruct lnb: 0, annotation: nil, attrs: nil, blocks: []
 end

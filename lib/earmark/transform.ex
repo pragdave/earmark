@@ -3,7 +3,7 @@ defmodule Earmark.Transform do
 
   alias Earmark.Options
   alias Earmark.TagSpecificProcessors, as: TSP
-  alias Earmark.EarmarkParserProxy, as: Proxy
+  alias Earmark.Earmark.ParserProxy, as: Proxy
   alias __MODULE__.Pop
 
   @compact_tags ~w[a code em strong del]
@@ -14,7 +14,7 @@ defmodule Earmark.Transform do
   @moduledoc ~S"""
   #### Structure Conserving Transformers
 
-  For the convenience of processing the output of `EarmarkParser.as_ast` we expose two structure conserving
+  For the convenience of processing the output of `Earmark.Parser.as_ast` we expose two structure conserving
   mappers.
 
   ##### `map_ast`
@@ -280,12 +280,12 @@ defmodule Earmark.Transform do
   @doc ~S"""
   This is a structure conserving transformation
 
-      iex(11)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      iex(11)> {:ok, ast, _} = Earmark.Parser.as_ast("- one\n- two\n")
       ...(11)> map_ast(ast, &(&1))
       [{"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}}]
 
   A more useful transformation
-      iex(12)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      iex(12)> {:ok, ast, _} = Earmark.Parser.as_ast("- one\n- two\n")
       ...(12)> fun = fn {_, _, _, _}=n -> Earmark.AstTools.merge_atts_in_node(n, class: "private")
       ...(12)>           string      -> string end
       ...(12)> map_ast(ast, fun)
@@ -293,7 +293,7 @@ defmodule Earmark.Transform do
 
   However the usage of the `ignore_strings` option renders the code much simpler
 
-      iex(13)> {:ok, ast, _} = EarmarkParser.as_ast("- one\n- two\n")
+      iex(13)> {:ok, ast, _} = Earmark.Parser.as_ast("- one\n- two\n")
       ...(13)> map_ast(ast, &Earmark.AstTools.merge_atts_in_node(&1, class: "private"), true)
       [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
   """
@@ -305,7 +305,7 @@ defmodule Earmark.Transform do
   This too is a structure perserving transformation but a value is passed to the mapping function as an accumulator, and the mapping
   function needs to return the new node and the accumulator as a tuple, here is a simple example
 
-      iex(14)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      iex(14)> {:ok, ast, _} = Earmark.Parser.as_ast("- 1\n\n2\n- 3\n")
       ...(14)> summer = fn {"li", _, [v], _}=n, s -> {v_, _} = Integer.parse(v); {n, s + v_}
       ...(14)>             n, s -> {n, s} end
       ...(14)> map_ast_with(ast, 0, summer, true)
@@ -313,7 +313,7 @@ defmodule Earmark.Transform do
 
   or summing all numbers
 
-      iex(15)> {:ok, ast, _} = EarmarkParser.as_ast("- 1\n\n2\n- 3\n")
+      iex(15)> {:ok, ast, _} = Earmark.Parser.as_ast("- 1\n\n2\n- 3\n")
       ...(15)> summer = fn {_, _, _, _}=n, s -> {n, s}
       ...(15)>             n, s -> {n_, _} = Integer.parse(n); {"*", s+n_} end
       ...(15)> map_ast_with(ast, 0, summer)

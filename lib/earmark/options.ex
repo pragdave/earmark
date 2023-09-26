@@ -1,6 +1,6 @@
 defmodule Earmark.Options do
   @moduledoc """
-  This is a superset of the options that need to be passed into `EarmarkParser.as_ast/2`
+  This is a superset of the options that need to be passed into `Earmark.Parser.as_ast/2`
 
   The following options are proper to `Earmark` only and therefore explained in detail
 
@@ -11,10 +11,10 @@ defmodule Earmark.Options do
   - `smartypants`: boolean use [Smarty Pants](https://daringfireball.net/projects/smartypants/) in the output
   - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
 
-     EarmarkParser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
+     Earmark.Parser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
      Refer to the moduledoc of Earmark.`Transform` for details
 
-  All other options are passed onto EarmarkParser.as_ast/`2`
+  All other options are passed onto Earmark.Parser.as_ast/`2`
   """
 
   defstruct annotations: nil,

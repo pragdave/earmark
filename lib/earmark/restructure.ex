@@ -5,7 +5,7 @@ defmodule Earmark.Restructure do
   Walks an AST and allows you to process it (storing details in acc) and/or
   modify it as it is walked.
 
-  items is the AST you got from EarmarkParser.as_ast()
+  items is the AST you got from Earmark.Parser.as_ast()
 
   acc is the initial value of an accumulator that is passed to both
   process_item_fn and process_list_fn and accumulated. If your functions
@@ -52,7 +52,7 @@ defmodule Earmark.Restructure do
       ...(1)>
       ...(1)> text
       ...(1)> """
-      ...(1)> {:ok, ast, []} = EarmarkParser.as_ast(markdown)
+      ...(1)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
       ...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
       {[
         {"p", [],

@@ -6,11 +6,11 @@ defmodule Earmark.Internal do
   """
 
   alias Earmark.{Error, Message, Options, SysInterface, Transform}
-  alias Earmark.EarmarkParserProxy, as: Proxy
+  alias Earmark.Earmark.ParserProxy, as: Proxy
   import Message, only: [emit_messages: 2]
 
   @doc ~S"""
-  A wrapper to extract the AST from a call to `EarmarkParser.as_ast` if a tuple `{:ok, result, []}` is returned,
+  A wrapper to extract the AST from a call to `Earmark.Parser.as_ast` if a tuple `{:ok, result, []}` is returned,
   raise errors otherwise
 
       iex(1)> as_ast!(["Hello %% annotated"], annotations: "%%")
