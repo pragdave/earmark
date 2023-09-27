@@ -3,7 +3,7 @@ defmodule Earmark.Transform do
 
   alias Earmark.Options
   alias Earmark.TagSpecificProcessors, as: TSP
-  alias Earmark.Earmark.ParserProxy, as: Proxy
+  alias Earmark.EarmarkParserProxy, as: Proxy
   alias __MODULE__.Pop
 
   @compact_tags ~w[a code em strong del]

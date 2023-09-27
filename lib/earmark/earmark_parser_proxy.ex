@@ -1,4 +1,4 @@
-defmodule Earmark.Earmark.ParserProxy do
+defmodule Earmark.EarmarkParserProxy do
   @moduledoc ~S"""
   This acts as a proxy to adapt to changes in `Earmark.Parser`'s API
 
