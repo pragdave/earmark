@@ -1,3 +1,13 @@
+More work from José to cleanup my sloppy last releases. So greatful.
+This one might be interesting for everyone
+
+## [Earmark](https://hex.pm/packages/earmark) 1.4.45 2023-09-27
+
+- [Avoid compiler warnings](https://github.com/pragdave/earmark/pull/472)
+
+- [Reversed renaming of Parser Proxy](https://github.com/pragdave/earmark/pull/471)
+
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.44 2023-09-26
 
 Kudos to José Valim for an important renaming task I forgot, this is only

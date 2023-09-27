@@ -1,7 +1,6 @@
 defmodule Test.Cli.OptionsTest do
   use ExUnit.Case
 
-  alias Earmark.Options
   import Earmark.Cli.Implementation, only: [parse_args: 1]
 
   describe "boolean args" do
