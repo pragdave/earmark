@@ -1,10 +1,9 @@
-    defmodule Earmark.Mixfile do
+defmodule Earmark.Mixfile do
   use Mix.Project
 
   @version "1.4.44"
 
   @url "https://github.com/pragdave/earmark"
-
 
   @deps [
     {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
@@ -33,6 +32,7 @@
     [
       app: :earmark,
       version: @version,
+      compilers: [:leex, :yecc] ++ Mix.compilers(),
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       escript: escript_config(),
@@ -52,7 +52,7 @@
 
   def application do
     [
-      extra_applications: [:eex],
+      extra_applications: [:eex]
     ]
   end
 
@@ -86,7 +86,6 @@
       }
     ]
   end
-
 
   @prerequisites """
   run `mix escript.install hex ex_doc` and adjust `PATH` accordingly
