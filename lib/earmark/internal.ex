@@ -6,7 +6,7 @@ defmodule Earmark.Internal do
   """
 
   alias Earmark.{Error, Message, Options, SysInterface, Transform}
-  alias Earmark.Earmark.ParserProxy, as: Proxy
+  alias Earmark.EarmarkParserProxy, as: Proxy
   import Message, only: [emit_messages: 2]
 
   @doc ~S"""

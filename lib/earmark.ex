@@ -221,7 +221,7 @@ defmodule Earmark do
   """
 
   alias Earmark.{Internal, Options, Transform}
-  alias Earmark.Earmark.ParserProxy, as: Proxy
+  alias Earmark.EarmarkParserProxy, as: Proxy
 
   defdelegate as_ast!(markdown, options \\ []), to: Internal
   defdelegate as_html(lines, options \\ []), to: Internal
