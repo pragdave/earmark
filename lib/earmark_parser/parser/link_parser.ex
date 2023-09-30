@@ -1,5 +1,4 @@
 defmodule Earmark.Parser.Parser.LinkParser do
-
   @moduledoc false
   import Earmark.Parser.Helpers.LeexHelpers, only: [tokenize: 2]
   import Earmark.Parser.Helpers.YeccHelpers, only: [parse!: 2]
@@ -28,12 +27,16 @@ defmodule Earmark.Parser.Parser.LinkParser do
 
   @doc false
   def parse_link(src, lnb) do
-    case parse!(src, lexer: :link_text_lexer, parser: :link_text_parser) do
-        {link_or_img, link_text, parsed_text} ->
-         beheaded  = behead(src, to_string(parsed_text))
-         tokens    = tokenize(beheaded, with: :link_text_lexer)
-         p_url(tokens, lnb) |> make_result(to_string(link_text), to_string(parsed_text), link_or_img)
-        _ -> nil
+    case parse!(src, lexer: :earmark_link_text_lexer, parser: :earmark_link_text_parser) do
+      {link_or_img, link_text, parsed_text} ->
+        beheaded = behead(src, to_string(parsed_text))
+        tokens = tokenize(beheaded, with: :earmark_link_text_lexer)
+
+        p_url(tokens, lnb)
+        |> make_result(to_string(link_text), to_string(parsed_text), link_or_img)
+
+      _ ->
+        nil
     end
   end
 
@@ -61,14 +64,19 @@ defmodule Earmark.Parser.Parser.LinkParser do
   # All these are just added to the url
   defp url([{:open_bracket, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
+
   defp url([{:close_bracket, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
+
   defp url([{:any_quote, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
+
   defp url([{:verbatim, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
+
   defp url([{:ws, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
+
   defp url([{:escaped, text} | ts], result, needed, lnb),
     do: url(ts, add(result, text), needed, lnb)
 
@@ -78,7 +86,9 @@ defmodule Earmark.Parser.Parser.LinkParser do
   defp bail_out_to_title(ts, result) do
     with remaining_text <- ts |> Enum.map(&text_of_token/1) |> Enum.join("") do
       case title(remaining_text) do
-        nil                       -> nil
+        nil ->
+          nil
+
         {title_text, inner_title} ->
           add_title(result, {title_text, inner_title})
       end
@@ -87,6 +97,7 @@ defmodule Earmark.Parser.Parser.LinkParser do
 
   defp text_of_token(token)
   defp text_of_token({:escaped, text}), do: "\\#{text}"
+
   defp text_of_token({_, text}) do
     text
   end
