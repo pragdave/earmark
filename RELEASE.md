@@ -1,7 +1,14 @@
-More work from José to cleanup my sloppy last releases. So greatful.
-This one might be interesting for everyone
+
+## [Earmark](https://hex.pm/packages/earmark) 1.4.46 2023-10-01
+
+Again much appreciated help from José
+
+- [José _namespaced_ all .xrl and .yrl files for me <3](https://github.com/pragdave/earmark/pull/474)
 
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.45 2023-09-27
+
+More work from José to cleanup my sloppy last releases. So greatful.
+This one might be interesting for everyone
 
 - [Avoid compiler warnings](https://github.com/pragdave/earmark/pull/472)
 
