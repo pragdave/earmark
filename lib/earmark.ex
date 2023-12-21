@@ -22,7 +22,7 @@ defmodule Earmark do
 
   ### Abstract Syntax Tree and Rendering
 
-  The AST generation has now been moved out to [`Earmark.Parser`](https://github.com/robertdober/earmark_parser)
+  The AST generation has now been moved out to [`EarmarkParser`](https://github.com/robertdober/earmark_parser)
   which is installed as a dependency.
 
   This brings some changes to this documentation and also deprecates the usage of `Earmark.as_ast`
@@ -30,7 +30,7 @@ defmodule Earmark do
   Earmark takes care of rendering the AST to HTML, exposing some AST Transformation Tools and providing a CLI as escript.
 
   Therefore you will not find a detailed description of the supported Markdown here anymore as this is done in
-  [here](https://hexdocs.pm/earmark_parser/Earmark.Parser.html)
+  [here](https://hexdocs.pm/earmark_parser/EarmarkParser.html).
 
 
 
@@ -42,7 +42,7 @@ defmodule Earmark do
 
   **N.B.** If all you use is `Earmark.as_ast` consider _only_ using `Earmark.Parser`.
 
-  Also please refer yourself to the documentation of [`Earmark.Parser`](https://hexdocs.pm/earmark_parser/Earmark.Parser.html)
+  Also please refer yourself to the documentation of [`EarmarkParser`](https://hexdocs.pm/earmark_parser/EarmarkParser.html).
 
 
   The function is described below and the other two API functions `as_html` and `as_html!` are now based upon
