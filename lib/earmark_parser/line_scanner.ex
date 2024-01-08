@@ -84,7 +84,7 @@ defmodule Earmark.Parser.LineScanner do
       lt_four? && Regex.run(~r/\A (?:_\s?){3,} \z/x, content) ->
         %Line.Ruler{type: "_", indent: indent, line: line}
 
-      match = Regex.run(~R/^(#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u, stripped_line) ->
+      match = Regex.run(~r/^(#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u, stripped_line) ->
         [_, level, heading] = match
 
         %Line.Heading{
