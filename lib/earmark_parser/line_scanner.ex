@@ -51,13 +51,14 @@ defmodule Earmark.Parser.LineScanner do
       when is_boolean(recursive),
       do: type_of(line, %Options{}, recursive)
 
-  def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive) when is_binary(line) do
+  def type_of({line, lnb}, options = %Options{annotations: annotations}, recursive)
+      when is_binary(line) do
     {line1, annotation} = line |> Helpers.expand_tabs() |> Helpers.remove_line_ending(annotations)
     %{_type_of(line1, options, recursive) | annotation: annotation, lnb: lnb}
   end
 
   def type_of({line, lnb}, _, _) do
-    raise ArgumentError, "line number #{lnb} #{inspect line} is not a binary"
+    raise ArgumentError, "line number #{lnb} #{inspect(line)} is not a binary"
   end
 
   defp _type_of(line, options = %Options{}, recursive) do
@@ -84,7 +85,7 @@ defmodule Earmark.Parser.LineScanner do
       lt_four? && Regex.run(~r/\A (?:_\s?){3,} \z/x, content) ->
         %Line.Ruler{type: "_", indent: indent, line: line}
 
-      match = Regex.run(~r/^(#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u, stripped_line) ->
+      match = Regex.run(~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u, stripped_line) ->
         [_, level, heading] = match
 
         %Line.Heading{
@@ -184,7 +185,9 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      line |> String.replace(~r/\[\[ .*? \]\]/x, "") |> String.match?(~r/\A (\s*) .* \s \| \s /x) ->
+      line
+      |> String.replace(~r/\[\[ .*? \]\]/x, "")
+      |> String.match?(~r/\A (\s*) .* \s \| \s /x) ->
         columns = _split_table_columns(line)
 
         %Line.TableLine{
@@ -195,7 +198,8 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      options.gfm_tables && line |> String.replace(~r/\[\[ .*? \]\]/x, "") |> String.match?(~r/\A (\s*) .* \| /x) ->
+      options.gfm_tables &&
+          line |> String.replace(~r/\[\[ .*? \]\]/x, "") |> String.match?(~r/\A (\s*) .* \| /x) ->
         columns = _split_table_columns(line)
 
         %Line.TableLine{
