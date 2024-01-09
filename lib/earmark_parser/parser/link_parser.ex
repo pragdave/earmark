@@ -84,7 +84,7 @@ defmodule Earmark.Parser.Parser.LinkParser do
   defp url(_, _, _, _), do: nil
 
   defp bail_out_to_title(ts, result) do
-    with remaining_text <- ts |> Enum.map(&text_of_token/1) |> Enum.join("") do
+    with remaining_text <- ts |> Enum.map_join("", &text_of_token/1) do
       case title(remaining_text) do
         nil ->
           nil

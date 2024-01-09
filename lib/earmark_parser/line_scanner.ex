@@ -145,7 +145,7 @@ defmodule Earmark.Parser.LineScanner do
 
       match = lt_four? && Regex.run(@id_re, content) ->
         [_, id, url | title] = match
-        title = if(length(title) == 0, do: "", else: hd(title))
+        title = if(Enum.empty?(title), do: "", else: hd(title))
         %Line.IdDef{id: id, url: url, title: title, indent: indent, line: line}
 
       match = options.footnotes && Regex.run(~r/\A\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
