@@ -260,8 +260,8 @@ defmodule Earmark do
     `iex` usage.
   """
   def version() do
-    with {:ok, version} = :application.get_key(:earmark, :vsn),
-      do: to_string(version)
+    with {:ok, version} <- :application.get_key(:earmark, :vsn),
+         do: to_string(version)
   end
 
   defp _as_ast(lines, options)

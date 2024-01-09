@@ -48,10 +48,12 @@ defmodule Test.Acceptance.Earmark.Postprocessor.ReplaceSubtreeTest do
   defp render_code_node({"code", attrs, _content, meta} = node) do
     classes = Earmark.AstTools.find_att_in_node(node, "class") || ""
 
-    cond do
-      classes =~ "inline" -> node
-      true -> {:replace, {"code", attrs, "xxx", meta}}
+    if classes =~ "inline" do
+      node
+    else
+      {:replace, {"code", attrs, "xxx", meta}}
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0
