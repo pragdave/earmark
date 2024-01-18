@@ -74,7 +74,7 @@ defmodule Earmark.Parser.Helpers.PureLinkHelpers do
     end
   end
 
-  defp balance_parens(<<_::utf8,rest::binary>>, trailing_paren_count, non_trailing_count) do
+  defp balance_parens(<<_::utf8, rest::binary>>, trailing_paren_count, non_trailing_count) do
     balance_parens(rest, trailing_paren_count, non_trailing_count)
   end
 end

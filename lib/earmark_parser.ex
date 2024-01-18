@@ -614,7 +614,7 @@ defmodule Earmark.Parser do
   end
 
   def as_ast(_, options) do
-    raise ArgumentError, "#{inspect options} not a legal options map or keyword list"
+    raise ArgumentError, "#{inspect(options)} not a legal options map or keyword list"
   end
 
   defp _as_ast(lines, options) do
@@ -627,8 +627,8 @@ defmodule Earmark.Parser do
     `iex` usage.
   """
   def version() do
-    with {:ok, version} = :application.get_key(:earmark_parser, :vsn),
-      do: to_string(version)
+    with {:ok, version} <- :application.get_key(:earmark_parser, :vsn),
+         do: to_string(version)
   end
 end
 

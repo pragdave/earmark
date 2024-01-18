@@ -7,12 +7,21 @@ defmodule Test.Acceptance.Transform.MapAstWithFnchangeTest do
   describe "change #elixir" do
     @elixir_home {"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
     @original [
-      {"p", [],[ "#elixir"], %{}}, {"bold", [],[ "#elixir"], %{}},
-      {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], ["#elixir"], %{}}], %{}}
+      {"p", [], ["#elixir"], %{}},
+      {"bold", [], ["#elixir"], %{}},
+      {"ol", [],
+       [{"li", [], ["#elixir"], %{}}, {"p", [], ["elixir"], %{}}, {"p", [], ["#elixir"], %{}}],
+       %{}}
     ]
     @expected [
-         {"p", [],[{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}, {"bold", [],[ "#elixir"], %{}},
-      {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}], %{}}
+      {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}},
+      {"bold", [], ["#elixir"], %{}},
+      {"ol", [],
+       [
+         {"li", [], ["#elixir"], %{}},
+         {"p", [], ["elixir"], %{}},
+         {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}
+       ], %{}}
     ]
 
     test "transform with function change" do
@@ -25,10 +34,13 @@ defmodule Test.Acceptance.Transform.MapAstWithFnchangeTest do
       expected = [p(@elixir_home), p("hello")]
       assert map_ast(ast, &main_traverser/1) == expected
     end
+
     defp main_traverser(element)
-    defp main_traverser({"p", _, _, _}=para) do
+
+    defp main_traverser({"p", _, _, _} = para) do
       {&replacer/1, para}
     end
+
     defp main_traverser(element), do: element
 
     defp replacer(element)
@@ -37,4 +49,5 @@ defmodule Test.Acceptance.Transform.MapAstWithFnchangeTest do
     defp replacer(element), do: {&main_traverser/1, element}
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

@@ -120,7 +120,7 @@ defmodule Earmark.Cli.Implementation do
   end
 
   defp _format_errors(errors) do
-    "Illegal options #{errors |> Enum.map(fn {option, _} -> option end) |> Enum.join(", ")}"
+    "Illegal options #{errors |> Enum.map_join(", ", fn {option, _} -> option end)}"
   end
 
   defp _maybe_to_html!(output, %{file: nil}), do: Earmark.Internal.as_html!(output)
@@ -186,8 +186,7 @@ defmodule Earmark.Cli.Implementation do
 
   defp _option_related_help do
     @cli_options
-    |> Enum.map(&_specific_option_help/1)
-    |> Enum.join("\n")
+    |> Enum.map_join("\n", &_specific_option_help/1)
   end
 
   defp _specific_option_help(option) do
