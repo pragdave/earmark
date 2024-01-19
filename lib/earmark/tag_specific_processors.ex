@@ -1,5 +1,4 @@
 defmodule Earmark.TagSpecificProcessors do
-
   @moduledoc """
   This struct represents a list of tuples `{tag, function}` from which a postprocessing function
   can be constructed
@@ -21,7 +20,7 @@ defmodule Earmark.TagSpecificProcessors do
       ...(2)> make_postprocessor(tsp).({"x", [], nil, nil})
       {"x", [], nil, nil}
   """
-
+  @type t :: %__MODULE__{tag_functions: list()}
   defstruct tag_functions: []
 
   @doc """
@@ -29,8 +28,10 @@ defmodule Earmark.TagSpecificProcessors do
   to the tag of the node, and apply the node to it if such a function was found.
   """
   def make_postprocessor(%__MODULE__{tag_functions: tfs}) do
-    fn {_, _, _, _}=node -> _postprocess(node, tfs)
-       other             -> other end
+    fn
+      {_, _, _, _} = node -> _postprocess(node, tfs)
+      other -> other
+    end
   end
 
   @doc """
@@ -41,22 +42,25 @@ defmodule Earmark.TagSpecificProcessors do
 
   """
   def new, do: %__MODULE__{}
-  def new({_, _}=tf), do: %__MODULE__{tag_functions: [tf]}
+  def new({_, _} = tf), do: %__MODULE__{tag_functions: [tf]}
   def new(tfs), do: %__MODULE__{tag_functions: tfs}
-
 
   @doc """
   Prepends a tuple {tag, function} to the list of such tuples.
   """
   def prepend_tag_function(tsp, tag, function), do: prepend_tag_function(tsp, {tag, function})
-  def prepend_tag_function(%__MODULE__{tag_functions: tfs}=tsp, tf) do
-    %{tsp | tag_functions: [tf|tfs]}
+
+  def prepend_tag_function(%__MODULE__{tag_functions: tfs} = tsp, tf) do
+    %{tsp | tag_functions: [tf | tfs]}
   end
 
-  defp _postprocess({t, _, _, _}=node, tfs) do
-    fun = tfs
-    |> Enum.find_value(fn {t_, f} -> if t == t_, do: f end)
+  defp _postprocess({t, _, _, _} = node, tfs) do
+    fun =
+      tfs
+      |> Enum.find_value(fn {t_, f} -> if t == t_, do: f end)
+
     if fun, do: fun.(node), else: node
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0
