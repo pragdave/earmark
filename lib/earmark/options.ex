@@ -17,6 +17,35 @@ defmodule Earmark.Options do
   All other options are passed onto Earmark.Parser.as_ast/`2`
   """
 
+  @type t :: %__MODULE__{
+          annotations: String.t() | nil,
+          breaks: boolean(),
+          code_class_prefix: String.t() | nil,
+          compact_output: boolean(),
+          eex: boolean(),
+          escape: boolean(),
+          file: String.t() | nil,
+          footnote_offset: non_neg_integer(),
+          footnotes: boolean(),
+          gfm: boolean(),
+          gfm_tables: boolean(),
+          ignore_strings: boolean(),
+          inner_html: boolean(),
+          line: non_neg_integer(),
+          mapper: (list(any()), function() -> {:ok, list(any())} | {:error, any()}),
+          mapper_with_timeout:
+            (list(any()), function(), integer() -> {:ok, list(any())} | {:error, any()}),
+          messages: list(Earmark.Error.t()) | [],
+          pedantic: boolean(),
+          postprocessor: function() | nil,
+          pure_links: boolean(),
+          sub_sup: boolean(),
+          registered_processors: list(any()),
+          smartypants: boolean(),
+          template: boolean(),
+          timeout: integer() | nil,
+          wikilinks: boolean()
+        }
   defstruct annotations: nil,
             breaks: false,
             code_class_prefix: nil,
