@@ -586,6 +586,8 @@ defmodule Earmark.Parser do
 
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki).
   """
+  @spec as_ast([String.t()] | String.t(), Earmark.Options.options()) ::
+          {:error, binary(), [any()]} | {:ok, binary(), [map()]}
   def as_ast(lines, options \\ %Options{})
 
   def as_ast(lines, %Options{} = options) do
