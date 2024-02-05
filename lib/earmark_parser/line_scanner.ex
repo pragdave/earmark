@@ -1,6 +1,6 @@
 defmodule Earmark.Parser.LineScanner do
   @moduledoc false
-
+  require Logger
   alias Earmark.Parser.{Helpers, Line, Options}
 
   # This is the re that matches the ridiculous "[id]: url title" syntax
@@ -39,6 +39,35 @@ defmodule Earmark.Parser.LineScanner do
         .*?
         >
   '''x
+
+  @rgx_map %{
+    block_quote: ~r/\A>\s?(.*)/,
+    column_rgx: ~r{\A[\s|:-]+\z},
+    comment_rest: ~r/(<!--.*?-->)(.*)/,
+    fence: ~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u,
+    footnote_definition: ~r/\A\[\^([^\s\]]+)\]:\s+(.*)/,
+    heading: ~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u,
+    html_close_tag: ~r/\A<\/([-\w]+?)>/,
+    html_comment_complete: ~r/\A <! (?: -- .*? -- \s* )+ > \z/x,
+    html_comment_start: ~r/\A <!-- .*? \z/x,
+    html_one_line: ~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>},
+    html_open_tag: ~r/\A < ([-\w]+?) (?:\s.*)? >/x,
+    html_self_closing_tag: ~r{\A<([-\w]+?)(?:\s.*)?/>.*},
+    ial_definition: ~r<^{:(\s*[^}]+)}\s*$>,
+    id_re: @id_re,
+    indent_re: @indent_re,
+    list_item_ordered: ~r/^(\d{1,9}[.)])\s(\s*)(.*)/,
+    list_item_unordered: ~r/^([-*+])\s(\s*)(.*)/,
+    ruler_dash: ~r/^ (?:-\s?){3,} $/x,
+    ruler_star: ~r/^ (?:\*\s?){3,} $/x,
+    ruler_underscore: ~r/\A (?:_\s?){3,} \z/x,
+    setext_heading: ~r/^(=|-)+\s*$/,
+    table_line: ~r/^ \| (?: [^|]+ \|)+ \s* $ /x,
+    table_line_gfm: ~r/\A (\s*) .* \| /x,
+    table_line_prefix_space: ~r/\A (\s*) .* \s \| \s /x,
+    void_tag: @void_tag_rgx,
+    wiki_link: ~r/\[\[ .*? \]\]/x
+  }
   @doc false
   def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
@@ -70,22 +99,22 @@ defmodule Earmark.Parser.LineScanner do
       content == "" ->
         _create_text(line, content, indent)
 
-      lt_four? && !recursive && Regex.run(~r/\A <! (?: -- .*? -- \s* )+ > \z/x, content) ->
+      lt_four? && !recursive && regex_run(:html_comment_complete, content) ->
         %Line.HtmlComment{complete: true, indent: indent, line: line}
 
-      lt_four? && !recursive && Regex.run(~r/\A <!-- .*? \z/x, content) ->
+      lt_four? && !recursive && regex_run(:html_comment_start, content) ->
         %Line.HtmlComment{complete: false, indent: indent, line: line}
 
-      lt_four? && Regex.run(~r/^ (?:-\s?){3,} $/x, content) ->
+      lt_four? && regex_run(:ruler_dash, content) ->
         %Line.Ruler{type: "-", indent: indent, line: line}
 
-      lt_four? && Regex.run(~r/^ (?:\*\s?){3,} $/x, content) ->
+      lt_four? && regex_run(:ruler_star, content) ->
         %Line.Ruler{type: "*", indent: indent, line: line}
 
-      lt_four? && Regex.run(~r/\A (?:_\s?){3,} \z/x, content) ->
+      lt_four? && regex_run(:ruler_underscore, content) ->
         %Line.Ruler{type: "_", indent: indent, line: line}
 
-      match = Regex.run(~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u, stripped_line) ->
+      match = regex_run(:heading, stripped_line) ->
         [_, level, heading] = match
 
         %Line.Heading{
@@ -96,11 +125,11 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      match = lt_four? && Regex.run(~r/\A>\s?(.*)/, content) ->
+      match = lt_four? && regex_run(:block_quote, content) ->
         [_, quote] = match
         %Line.BlockQuote{content: quote, indent: indent, ial: ial, line: line}
 
-      match = Regex.run(@indent_re, line) ->
+      match = regex_run(:indent_re, line) ->
         [_, spaces, more_spaces, rest] = match
         sl = byte_size(spaces)
 
@@ -111,7 +140,7 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      match = Regex.run(~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u, line) ->
+      match = regex_run(:fence, line) ->
         [_, leading, fence, language] = match
 
         %Line.Fence{
@@ -123,36 +152,36 @@ defmodule Earmark.Parser.LineScanner do
 
       # Although no block tags I still think they should close a preceding para as do many other
       # implementations.
-      match = !recursive && Regex.run(@void_tag_rgx, line) ->
+      match = !recursive && regex_run(:void_tag, line) ->
         [_, tag] = match
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
-      match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>}, line) ->
+      match = !recursive && regex_run(:html_one_line, line) ->
         [_, tag] = match
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
-      match = !recursive && Regex.run(~r{\A<([-\w]+?)(?:\s.*)?/>.*}, line) ->
+      match = !recursive && regex_run(:html_self_closing_tag, line) ->
         [_, tag] = match
         %Line.HtmlOneLine{tag: tag, content: line, indent: 0, line: line}
 
-      match = !recursive && Regex.run(~r/\A < ([-\w]+?) (?:\s.*)? >/x, line) ->
+      match = !recursive && regex_run(:html_open_tag, line) ->
         [_, tag] = match
         %Line.HtmlOpenTag{tag: tag, content: line, indent: 0, line: line}
 
-      match = lt_four? && !recursive && Regex.run(~r/\A<\/([-\w]+?)>/, content) ->
+      match = lt_four? && !recursive && regex_run(:html_close_tag, content) ->
         [_, tag] = match
         %Line.HtmlCloseTag{tag: tag, indent: indent, line: line}
 
-      match = lt_four? && Regex.run(@id_re, content) ->
+      match = lt_four? && regex_run(:id_re, content) ->
         [_, id, url | title] = match
         title = if(Enum.empty?(title), do: "", else: hd(title))
         %Line.IdDef{id: id, url: url, title: title, indent: indent, line: line}
 
-      match = options.footnotes && Regex.run(~r/\A\[\^([^\s\]]+)\]:\s+(.*)/, line) ->
+      match = options.footnotes && regex_run(:footnote_definition, line) ->
         [_, id, first_line] = match
         %Line.FnDef{id: id, content: first_line, indent: 0, line: line}
 
-      match = lt_four? && Regex.run(~r/^([-*+])\s(\s*)(.*)/, content) ->
+      match = lt_four? && regex_run(:list_item_unordered, content) ->
         [_, bullet, spaces, text] = match
 
         %Line.ListItem{
@@ -164,10 +193,10 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      match = lt_four? && Regex.run(~r/^(\d{1,9}[.)])\s(\s*)(.*)/, content) ->
+      match = lt_four? && regex_run(:list_item_ordered, content) ->
         _create_list_item(match, indent, line)
 
-      match = Regex.run(~r/^ \| (?: [^|]+ \|)+ \s* $ /x, content) ->
+      match = regex_run(:table_line, content) ->
         [body] = match
 
         body =
@@ -185,9 +214,7 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      line
-      |> String.replace(~r/\[\[ .*? \]\]/x, "")
-      |> String.match?(~r/\A (\s*) .* \s \| \s /x) ->
+      table_line?(line) ->
         columns = _split_table_columns(line)
 
         %Line.TableLine{
@@ -198,8 +225,7 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      options.gfm_tables &&
-          line |> String.replace(~r/\[\[ .*? \]\]/x, "") |> String.match?(~r/\A (\s*) .* \| /x) ->
+      options.gfm_tables && table_line?(line, :gfm) ->
         columns = _split_table_columns(line)
 
         %Line.TableLine{
@@ -211,12 +237,12 @@ defmodule Earmark.Parser.LineScanner do
           line: line
         }
 
-      match = Regex.run(~r/^(=|-)+\s*$/, line) ->
+      match = regex_run(:setext_heading, line) ->
         [_, type] = match
         level = if(String.starts_with?(type, "="), do: 1, else: 2)
         %Line.SetextUnderlineHeading{level: level, indent: 0, line: line}
 
-      match = lt_four? && Regex.run(~r<^{:(\s*[^}]+)}\s*$>, content) ->
+      match = lt_four? && regex_run(:ial_definition, content) ->
         [_, ial] = match
         %Line.Ial{attrs: String.trim(ial), verbatim: ial, indent: indent, line: line}
 
@@ -233,7 +259,11 @@ defmodule Earmark.Parser.LineScanner do
 
   defp _create_list_item(match, indent, line)
 
-  defp _create_list_item([_, bullet, spaces, text], indent, line) do
+  defp _create_list_item([_, bullet, spaces, text] = match, indent, line) do
+    Logger.debug(
+      "Creating list item: #{inspect(match)}, indent: #{inspect(indent)}, line: #{inspect(line)}"
+    )
+
     sl = byte_size(spaces)
     sl1 = if sl > 3, do: 1, else: sl + 1
     sl2 = sl1 + byte_size(bullet)
@@ -248,22 +278,19 @@ defmodule Earmark.Parser.LineScanner do
     }
   end
 
-  defp _create_text(line) do
-    {content, indent} = _count_indent(line, 0)
-    _create_text(line, content, indent)
-  end
-
   defp _create_text(line, "", indent),
     do: %Line.Blank{indent: indent, line: line}
 
   defp _create_text(line, content, indent),
     do: %Line.Text{content: content, indent: indent, line: line}
 
-  defp _count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t],
-    do: _count_indent(rest, indent + 1)
+  defp _count_indent(<<space, rest::binary>>, indent) when space in [?\s, ?\t] do
+    _count_indent(rest, indent + 1)
+  end
 
-  defp _count_indent(rest, indent),
-    do: {rest, indent}
+  defp _count_indent(rest, indent) do
+    {rest, indent}
+  end
 
   defp _lines_with_count(lines, offset) do
     Enum.zip(lines, offset..(offset + Enum.count(lines)))
