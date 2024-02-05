@@ -270,45 +270,54 @@ defmodule Earmark.Parser.LineScanner do
   end
 
   defp _with_lookahead([line_lnb | lines], options, recursive) do
-    case type_of(line_lnb, options, recursive) do
-      %Line.Fence{delimiter: delimiter, indent: 0} = fence ->
-        stop = ~r/\A (\s*) (?: #{delimiter} ) \s* ([^`\s]*) \s* \z/xu
-        [fence | _lookahead_until_match(lines, stop, options, recursive)]
-
-      %Line.HtmlComment{complete: false} = html_comment ->
-        [html_comment | _lookahead_until_match(lines, ~r/-->/u, options, recursive)]
-
-      other ->
-        [other | _with_lookahead(lines, options, recursive)]
-    end
+    process_line(line_lnb, options, recursive) ++
+      _with_lookahead(lines, options, recursive)
   end
 
   defp _with_lookahead([], _options, _recursive), do: []
 
-  defp _lookahead_until_match([], _, _, _), do: []
+  defp process_line({line, lnb}, options, recursive) do
+    case regex_run(:comment_rest, line, capture: :all_but_first) do
+      [comment, rest] ->
+        [type_of({comment, lnb}, options, recursive)] ++
+          [type_of({rest, lnb}, options, recursive)]
 
-  defp _lookahead_until_match([{line, lnb} | lines], regex, options, recursive) do
-    if line =~ regex do
-      [type_of({line, lnb}, options, recursive) | _with_lookahead(lines, options, recursive)]
-    else
-      [
-        %{_create_text(line) | lnb: lnb}
-        | _lookahead_until_match(lines, regex, options, recursive)
-      ]
+      nil ->
+        [type_of({line, lnb}, options, recursive)]
     end
   end
 
-  @column_rgx ~r{\A[\s|:-]+\z}
   defp _determine_if_header(columns) do
     columns
-    |> Enum.all?(fn col -> Regex.run(@column_rgx, col) end)
+    |> Enum.all?(fn col -> regex_run(:column_rgx, col) end)
   end
 
   defp _split_table_columns(line) do
     line
     |> String.split(~r{(?<!\\)\|})
-    |> Enum.map(&String.trim/1)
-    |> Enum.map(fn col -> Regex.replace(~r{\\\|}, col, "|") end)
+    |> Enum.map(fn col ->
+      Regex.replace(~r{\\\|}, col, "|")
+      |> String.trim()
+    end)
+  end
+
+  defp regex_run(key, target), do: regex_run(key, target, [])
+
+  defp regex_run(key, target, opts) do
+    @rgx_map
+    |> Map.get(key)
+    |> Regex.run(target, opts)
+  end
+
+  defp table_line?(line), do: table_line?(line, :none)
+
+  defp table_line?(line, opt) do
+    line
+    |> String.replace(@rgx_map.wiki_link, "")
+    |> case do
+      line when opt in [:gfm] -> String.match?(line, @rgx_map.table_line_gfm)
+      _ -> String.match?(line, @rgx_map.table_line)
+    end
   end
 end
 
