@@ -1,4 +1,30 @@
 defmodule Earmark.Parser.Options do
+
+  @moduledoc """
+    Determines how markdown is parsed into an abstract syntax tree (AST) and subsequently rendered to HTML.
+  """
+
+  @type t :: %__MODULE__{
+          renderer: module(),
+          all: boolean(),
+          gfm: boolean(),
+          gfm_tables: boolean(),
+          breaks: boolean(),
+          footnotes: boolean(),
+          footnote_offset: non_neg_integer(),
+          wikilinks: boolean(),
+          parse_inline: boolean(),
+          annotations: String.t() | nil,
+          code_class_prefix: String.t() | nil,
+          file: String.t() | nil,
+          line: non_neg_integer(),
+          messages: MapSet.t(),
+          pure_links: boolean(),
+          sub_sup: boolean(),
+          pedantic: boolean(),
+          smartypants: boolean(),
+          timeout: integer() | nil
+        }
   # What we use to render
   defstruct renderer: Earmark.Parser.HtmlRenderer,
             # Inline style options
