@@ -74,6 +74,13 @@ defmodule Earmark.Options do
             timeout: nil,
             wikilinks: false
 
+  @type options ::
+          t()
+          | Earmark.Parser.Options.t()
+          | map()
+          | maybe_improper_list()
+          | Keyword.t()
+
   @doc ~S"""
   Make a legal and normalized Option struct from, maps or keyword lists
 
@@ -115,6 +122,9 @@ defmodule Earmark.Options do
   {:error, [{:error, 0, "footnote_offset option must be numeric"}, {:error, 0, "line option must be numeric"}]}
 
   """
+  @spec make_options(options()) ::
+          {:ok, options()}
+          | {:error, [{atom(), integer(), String.t()}]}
 
   def make_options(options \\ [])
 
@@ -191,6 +201,7 @@ defmodule Earmark.Options do
   "./local.md"
 
   """
+  @spec relative_filename(options(), String.t()) :: options()
   def relative_filename(options, filename)
 
   def relative_filename(options, filename) when is_list(options) do

@@ -75,6 +75,7 @@ defmodule Earmark.Parser.Options do
         ...(1)> options.annotations
         ~r{\A(.*)(%%.*)}
   """
+  @spec normalize(Earmark.Options.options()) :: Earmark.Options.options()
   def normalize(options)
 
   def normalize(%__MODULE__{} = options) do
