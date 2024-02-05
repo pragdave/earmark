@@ -1,5 +1,4 @@
 defmodule Earmark.Internal do
-
   @moduledoc ~S"""
   All public functions that are internal to Earmark, so that **only** external API
   functions are public in `Earmark`
@@ -21,6 +20,7 @@ defmodule Earmark.Internal do
 
   """
   def as_ast!(markdown, options \\ [])
+
   def as_ast!(markdown, options) do
     case Proxy.as_ast(markdown, options) do
       {:ok, result, _} -> result
@@ -32,18 +32,22 @@ defmodule Earmark.Internal do
   def as_html(lines, options)
 
   def as_html(lines, options) when is_list(options) do
-    case  Options.make_options(options) do
+    case Options.make_options(options) do
       {:ok, options1} -> as_html(lines, options1)
       {:error, messages} -> {:error, "", messages}
     end
   end
 
   def as_html(lines, options) do
-    {status, ast, messages} = Transform.postprocessed_ast(lines, %{options| messages: MapSet.new([])})
+    {status, ast, messages} =
+      Transform.postprocessed_ast(lines, %{options | messages: MapSet.new([])})
+
     {status, Transform.transform(ast, options), messages}
   end
 
+  @spec as_html!([String.t()] | String.t(), Options.options()) :: String.t()
   def as_html!(lines, options \\ [])
+
   def as_html!(lines, options) do
     {_status, html, messages} = as_html(lines, options)
     emit_messages(messages, options)
@@ -81,9 +85,10 @@ defmodule Earmark.Internal do
     options_ =
       options
       |> Options.relative_filename(filename)
+
     case Path.extname(filename) do
       ".eex" -> EEx.eval_file(options_.file, include: &include(&1, options_))
-      _      -> SysInterface.readlines(options_.file) |> Enum.to_list
+      _ -> SysInterface.readlines(options_.file) |> Enum.to_list()
     end
   end
 
@@ -92,10 +97,11 @@ defmodule Earmark.Internal do
   ends in  `.eex`
 
   The returned string is then passed to `as_html` this is used in the escript now and allows
-  for a simple inclusion mechanism, as a matter of fact an `include` function is passed 
+  for a simple inclusion mechanism, as a matter of fact an `include` function is passed
 
   """
   def from_file!(filename, options \\ [])
+
   def from_file!(filename, options) do
     filename
     |> include(options)
@@ -123,6 +129,6 @@ defmodule Earmark.Internal do
         Error,
         "#{inspect(task)} has not responded within the set timeout of #{timeout}ms, consider increasing it"
       )
-
 end
+
 #  SPDX-License-Identifier: Apache-2.0
