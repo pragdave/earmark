@@ -36,7 +36,7 @@ defmodule Earmark.Cli.Implementation do
   {:stdio, "<html>\n  <h1>\nShort2</h1>\n<p>\n<em>Short3</em></p>\n<!-- SPDX-License-Identifier: Apache-2.0 -->\n\n</html>\n"}
 
   """
-
+  @spec run(String.t() | [String.t()]) :: {:stdio, String.t()} | {:stderr, String.t()}
   def run(argv) do
     argv
     |> parse_args()

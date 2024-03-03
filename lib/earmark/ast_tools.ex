@@ -18,7 +18,9 @@ defmodule Earmark.AstTools do
       ...(3)>              [{"target", "_blank"}, title: "where?"])
       [{"alt", "nowhere"}, {"href", "url"}, {"target", "_blank nonsense"}, {"title", "where?"}]
   """
+  @spec merge_atts(Earmark.ast_attributes(), map() | Keyword.t()) :: Earmark.ast_attributes()
   def merge_atts(attrs, new)
+
   def merge_atts(attrs, new) do
     attrs
     |> Enum.into(%{})
@@ -27,7 +29,7 @@ defmodule Earmark.AstTools do
   end
 
   @doc """
-  Convenience function to access an attribute
+  Convenience function to access an attribute from an AST node or a list of attributes
 
       iex(4)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "class")
       "link"
@@ -35,20 +37,32 @@ defmodule Earmark.AstTools do
       iex(5)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target")
       nil
 
-      iex(6)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target", :default)
-      :default
-
-      iex(7)> find_att_in_node([{"class", "link"}], "class")
+      iex(6)> find_att_in_node([{"class", "link"}], "class")
       "link"
 
-      iex(8)> find_att_in_node([{"class", "link"}], "target")
+      iex(7)> find_att_in_node([{"class", "link"}], "target")
       nil
+
+
+  """
+  @spec find_att_in_node(Earmark.ast_node() | Earmark.ast_attributes(), binary()) :: any()
+  def find_att_in_node(node_or_atts, att), do: _find_att(node_or_atts, att)
+
+  @doc """
+  Convenience function to access an attribute from an AST node or a list of attributes with a default value.
+
+      iex(8)> find_att_in_node({"a", [{"class", "link"}], [], %{}}, "target", :default)
+      :default
+
 
       iex(9)> find_att_in_node([{"class", "link"}], "target", :default)
       :default
+
   """
-  def find_att_in_node(node_or_atts, att), do: _find_att(node_or_atts, att)
-  def find_att_in_node(node_or_atts, att, default), do: _find_att_with_default(node_or_atts, att, default)
+
+  @spec find_att_in_node(Earmark.ast_node() | Earmark.ast_attributes(), binary(), any()) :: any()
+  def find_att_in_node(node_or_atts, att, default),
+    do: _find_att_with_default(node_or_atts, att, default)
 
   @doc """
   A convenience function that extracts the original attributes to be merged with new attributes
@@ -58,6 +72,7 @@ defmodule Earmark.AstTools do
       {"img", [{"alt", "here there"}, {"src", "there"}], [], %{some: "meta"}}
 
   """
+  @spec merge_atts_in_node(Earmark.ast_node(), map() | Keyword.t()) :: Earmark.ast_node()
   def merge_atts_in_node({tag, atts, content, meta}, new_atts) do
     {tag, merge_atts(atts, new_atts), content, meta}
   end
@@ -71,34 +86,42 @@ defmodule Earmark.AstTools do
       {"p", "text"}
 
   """
-  def node_only_fn(fun), do:
-    fn {_, _, _, _} = quad -> fun.(quad)
-       text                -> text
+  @spec node_only_fn((Earmark.ast_node() -> any())) :: (Earmark.ast_node() | binary() -> any())
+  def node_only_fn(fun),
+    do: fn
+      {_, _, _, _} = quad -> fun.(quad)
+      text -> text
     end
 
   defp _combine_atts(_key, original, new), do: "#{new} #{original}"
 
   defp _find_att(node_or_atts, att)
   defp _find_att({_, atts, _, _}, att), do: _find_att(atts, att)
+
   defp _find_att(atts, att) do
     atts
     |> Enum.find_value(fn {key, value} -> if att == key, do: value end)
   end
 
   defp _find_att_with_default(node_or_atts, att, default)
-  defp _find_att_with_default({_, atts, _, _}, att, default), do: _find_att_with_default(atts, att, default)
+
+  defp _find_att_with_default({_, atts, _, _}, att, default),
+    do: _find_att_with_default(atts, att, default)
+
   defp _find_att_with_default(atts, att, default) do
     atts
     |> Enum.find_value(default, fn {key, value} -> if att == key, do: value end)
   end
 
   defp _stringyfy(mappy)
+
   defp _stringyfy(map) when is_map(map) do
     map |> Enum.into([]) |> _stringyfy()
   end
+
   defp _stringyfy(list) when is_list(list) do
     list |> Enum.map(fn {k, v} -> {to_string(k), v} end) |> Enum.into(%{})
   end
-
 end
+
 #  SPDX-License-Identifier: Apache-2.0

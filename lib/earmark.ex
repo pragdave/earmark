@@ -259,6 +259,7 @@ defmodule Earmark do
     Accesses current hex version of the `Earmark` application. Convenience for
     `iex` usage.
   """
+  @spec version :: String.t()
   def version() do
     with {:ok, version} <- :application.get_key(:earmark, :vsn),
          do: to_string(version)
