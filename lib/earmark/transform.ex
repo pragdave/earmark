@@ -6,8 +6,9 @@ defmodule Earmark.Transform do
   alias Earmark.EarmarkParserProxy, as: Proxy
   alias __MODULE__.Pop
 
-  @compact_tags ~w[a code em strong del]
+  @type node_or_string() :: Earmark.ast_node() | String.t()
 
+  @compact_tags ~w[a code em strong del]
   # https://www.w3.org/TR/2011/WD-html-markup-20110113/syntax.html#void-element
   @void_elements ~W(area base br col command embed hr img input keygen link meta param source track wbr)
 
@@ -223,7 +224,7 @@ defmodule Earmark.Transform do
 
 
   """
-
+  @spec make_postprocessor(Options.options()) :: (node_or_string() -> node_or_string())
   def make_postprocessor(options)
 
   def make_postprocessor(%{postprocessor: nil, registered_processors: rps}),
@@ -235,6 +236,9 @@ defmodule Earmark.Transform do
   @line_end ~r{\n\r?}
 
   @doc false
+  @spec postprocessed_ast([String.t()] | String.t(), Options.options()) ::
+          {:ok, Earmark.ast_node(), [Earmark.Error.t()]}
+          | {:error, Earmark.ast_node(), [Earmark.Error.t()]}
   def postprocessed_ast(lines, options)
 
   def postprocessed_ast(lines, options) when is_binary(lines),
@@ -258,6 +262,7 @@ defmodule Earmark.Transform do
   @doc """
   Transforms an AST to html, also accepts the result of `map_ast_with` for convenience
   """
+  @spec transform(Earmark.ast_node(), Options.options()) :: String.t()
   def transform(ast, options \\ %{initial_indent: 0, indent: 2, compact_output: false})
   def transform({ast, _}, options), do: transform(ast, options)
 
@@ -297,6 +302,8 @@ defmodule Earmark.Transform do
       ...(13)> map_ast(ast, &Earmark.AstTools.merge_atts_in_node(&1, class: "private"), true)
       [{"ul", [{"class", "private"}], [{"li", [{"class", "private"}], ["one"], %{}}, {"li", [{"class", "private"}], ["two"], %{}}], %{}}]
   """
+  @spec map_ast(Earmark.ast_node(), (Earmark.ast_node() -> Earmark.ast_node()), boolean()) ::
+          Earmark.ast_node()
   def map_ast(ast, fun, ignore_strings \\ false) do
     _walk_ast(ast, fun, ignore_strings, [])
   end
@@ -320,6 +327,13 @@ defmodule Earmark.Transform do
       {[{"ul", [], [{"li", [], ["*"], %{}}], %{}}, {"p", [], ["*"], %{}}, {"ul", [], [{"li", [], ["*"], %{}}], %{}}], 6}
 
   """
+  @spec map_ast_with(
+          Earmark.ast(),
+          any(),
+          (Earmark.ast_node(), any() -> {Earmark.ast_node(), any()}),
+          boolean()
+        ) ::
+          {Earmark.ast(), any()}
   def map_ast_with(ast, value, fun, ignore_strings \\ false) do
     _walk_ast_with(ast, value, fun, ignore_strings, [])
   end
