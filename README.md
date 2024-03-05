@@ -62,8 +62,7 @@ The following options are proper to `Earmark` only and therefore explained in de
 - `line`: 1 but might be set to an offset for better error messages in some integration cases
 - `smartypants`: boolean use [Smarty Pants](https://daringfireball.net/projects/smartypants/) in the output
 - `ignore_strings`, `postprocessor` and `registered_processors`: processors that modify the AST returned from
-
-   Earmark.Parser.as_ast/`2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
+   `Earmark.Parser.as_ast/2` before rendering (`post` because preprocessing is done on the markdown, e.g. `eex`)
    Refer to the moduledoc of Earmark.`Transform` for details
 
 All other options are passed onto Earmark.Parser.as_ast/`2`
