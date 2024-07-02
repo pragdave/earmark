@@ -29,10 +29,9 @@ defmodule Earmark.Cli do
     end
   end
 
-  defp output({device, string}) do
-    IO.puts(device, string)
+  defp output({device, _string}) do
     if device == :stderr, do: exit(1)
   end
 end
 
-#  SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: Apache-2.0
