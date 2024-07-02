@@ -29,7 +29,7 @@ defmodule Earmark.Cli do
     end
   end
 
-  defp output({device, _string}) do
+  defp output({device, _}) do
     if device == :stderr, do: exit(1)
   end
 end
