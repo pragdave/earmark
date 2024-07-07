@@ -55,10 +55,8 @@ defmodule Regressions.I004CowboyReadmeTest do
   """
 
   test "rendering the Cowboy webserver README" do
-    Earmark.as_html! @cowboy_readme
+    Earmark.as_html!(@cowboy_readme)
   end
-
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

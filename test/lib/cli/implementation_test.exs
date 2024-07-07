@@ -13,6 +13,7 @@ defmodule Test.Cli.ImplementationTest do
       result = run([])
       assert result == expected
     end
+
     test "with --eex" do
       mock_stdio(["<%= 1+1 %>"])
       expected = {:stdio, "<p>\n2</p>\n"}
@@ -23,37 +24,59 @@ defmodule Test.Cli.ImplementationTest do
 
   describe "version" do
     test "--version" do
-      assert run(~W[--version]) == {:stdio, Earmark.version}
+      assert run(~W[--version]) == {:stdio, Earmark.version()}
     end
+
     test "-v" do
-      assert run(~W[-v]) == {:stdio, Earmark.version}
+      assert run(~W[-v]) == {:stdio, Earmark.version()}
     end
   end
 
   describe "help" do
     test "--help" do
       {:stderr, help_text} = run(~W[--help])
-      help_lines = help_text
-      |> String.split("\n")
-      |> Enum.take(5)
-      assert help_lines == ["usage:", "", "earmark --help", "earmark --version", "earmark [ options... <file> ]"]
+
+      help_lines =
+        help_text
+        |> String.split("\n")
+        |> Enum.take(5)
+
+      assert help_lines == [
+               "usage:",
+               "",
+               "earmark --help",
+               "earmark --version",
+               "earmark [ options... <file> ]"
+             ]
     end
+
     test "-h" do
       {:stderr, help_text} = run(~W[-h])
-      help_lines = help_text
-      |> String.split("\n")
-      |> Enum.drop(3)
-      |> Enum.take(5)
-      assert help_lines == ["earmark --version", "earmark [ options... <file> ]", "", "convert file from Markdown to HTML.", ""]
+
+      help_lines =
+        help_text
+        |> String.split("\n")
+        |> Enum.drop(3)
+        |> Enum.take(5)
+
+      assert help_lines == [
+               "earmark --version",
+               "earmark [ options... <file> ]",
+               "",
+               "convert file from Markdown to HTML.",
+               ""
+             ]
     end
   end
-  
+
   describe "illegal options" do
     test "--unknown" do
       assert run(~W[--unknown]) == {:stderr, "Illegal options --unknown"}
     end
+
     test "mix of correct and incorrect" do
-      assert run(~W[-h -i --code-class-prefix elixir --unknown]) == {:stderr, "Illegal options -i, --unknown"}
+      assert run(~W[-h -i --code-class-prefix elixir --unknown]) ==
+               {:stderr, "Illegal options -i, --unknown"}
     end
   end
 
@@ -64,4 +87,5 @@ defmodule Test.Cli.ImplementationTest do
     end
   end
 end
+
 #  SPDX-License-Identifier: Apache-2.0

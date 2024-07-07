@@ -1,5 +1,4 @@
 defmodule Earmark.Parser.Helpers.ReparseHelpers do
-
   @moduledoc false
 
   alias Earmark.Parser.Line
@@ -10,13 +9,15 @@ defmodule Earmark.Parser.Helpers.ReparseHelpers do
   """
   # Add additional spaces for any indentation past level 1
   def properly_indent(%Line.Indent{level: level, content: content}, target_level)
-  when level == target_level do
+      when level == target_level do
     content
   end
+
   def properly_indent(%Line.Indent{level: level, content: content}, target_level)
-  when level > target_level do
-    String.duplicate("    ", level-target_level) <> content
+      when level > target_level do
+    String.duplicate("    ", level - target_level) <> content
   end
+
   def properly_indent(line, _) do
     line.content
   end

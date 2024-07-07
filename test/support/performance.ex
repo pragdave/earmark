@@ -1,5 +1,4 @@
 defmodule Support.Performance do
-  
   @moduledoc """
   Create data for performance tests
   """
@@ -28,7 +27,7 @@ defmodule Support.Performance do
   """
   def make_list(elements_per_level) do
     _make_list(elements_per_level, 0)
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
   end
 
   @doc """
@@ -41,22 +40,27 @@ defmodule Support.Performance do
     content = File.read!(Path.join("test/fixtures", filename))
     content1 = Stream.cycle([content]) |> Enum.take(count) |> Enum.join("\n")
     {:ok, ast, []} = Earmark.Parser.as_ast(content1)
+
     case format do
       :ast -> ast
-      :html -> ast |> Earmark.Transform.transform
+      :html -> ast |> Earmark.Transform.transform()
     end
   end
+
   defp _make_list(elements_per_level, indent)
+
   defp _make_list([{header, n}], indent) do
-    prefix = Stream.cycle([" "])|>Enum.take(indent)
-    (1..n)
+    prefix = Stream.cycle([" "]) |> Enum.take(indent)
+
+    1..n
     |> Enum.map(fn number -> [prefix, "#{header} #{number}\n"] end)
   end
-  defp _make_list([{header, n}|rest], indent) do
-    prefix = Stream.cycle([" "])|>Enum.take(indent)
-    new_indent = indent + String.length(header) + 1
-    (1..n)
-    |> Enum.map(fn number -> [ prefix, "#{header} #{number}\n", _make_list(rest, new_indent)] end)
-  end
 
+  defp _make_list([{header, n} | rest], indent) do
+    prefix = Stream.cycle([" "]) |> Enum.take(indent)
+    new_indent = indent + String.length(header) + 1
+
+    1..n
+    |> Enum.map(fn number -> [prefix, "#{header} #{number}\n", _make_list(rest, new_indent)] end)
+  end
 end

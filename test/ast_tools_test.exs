@@ -3,4 +3,5 @@ defmodule Test.AstToolsTest do
 
   doctest Earmark.AstTools, import: true
 end
+
 #  SPDX-License-Identifier: Apache-2.0

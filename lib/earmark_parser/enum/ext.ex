@@ -21,10 +21,12 @@ defmodule Earmark.Parser.Enum.Ext do
   penalty concerning the complexity of the reducer function
   """
   def reduce_with_end(collection, initial_acc, reducer_fn)
+
   def reduce_with_end([], acc, reducer_fn) do
     reducer_fn.(:end, acc)
   end
-  def reduce_with_end([ele|rest], acc, reducer_fn) do
+
+  def reduce_with_end([ele | rest], acc, reducer_fn) do
     reduce_with_end(rest, reducer_fn.({:element, ele}, acc), reducer_fn)
   end
 
@@ -46,10 +48,13 @@ defmodule Earmark.Parser.Enum.Ext do
   # Helpers {{{
   defp _reverse_map_reduce(list, acc, result, fun)
   defp _reverse_map_reduce([], acc, result, _fun), do: {result, acc}
-  defp _reverse_map_reduce([fst|rst], acc, result, fun) do
+
+  defp _reverse_map_reduce([fst | rst], acc, result, fun) do
     {new_ele, new_acc} = fun.(fst, acc)
-    _reverse_map_reduce(rst, new_acc, [new_ele|result], fun)
+    _reverse_map_reduce(rst, new_acc, [new_ele | result], fun)
   end
+
   # }}}
 end
+
 #  SPDX-License-Identifier: Apache-2.0

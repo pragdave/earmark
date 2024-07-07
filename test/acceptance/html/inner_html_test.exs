@@ -4,7 +4,7 @@ defmodule Test.Acceptance.Html.InnerHtmlTest do
   describe "output with the inner_html option" do
     test "one para" do
       markdown = "aaa"
-      html     = "aaa\n"
+      html = "aaa\n"
       messages = []
 
       assert as_html(markdown, inner_html: true) == {:ok, html, messages}
@@ -12,7 +12,7 @@ defmodule Test.Acceptance.Html.InnerHtmlTest do
 
     test "two paras" do
       markdown = "aaa\n\nbbb\n"
-      html     = "aaa\nbbb\n"
+      html = "aaa\nbbb\n"
       messages = []
 
       assert as_html(markdown, inner_html: true) == {:ok, html, messages}
@@ -20,7 +20,7 @@ defmodule Test.Acceptance.Html.InnerHtmlTest do
 
     test "a list and a para" do
       markdown = "1. item\n\npara"
-      html     = "<ol>\n  <li>\nitem  </li>\n</ol>\npara\n"
+      html = "<ol>\n  <li>\nitem  </li>\n</ol>\npara\n"
       messages = []
 
       assert as_html(markdown, inner_html: true) == {:ok, html, messages}
@@ -28,7 +28,7 @@ defmodule Test.Acceptance.Html.InnerHtmlTest do
 
     test "complex content of the para" do
       markdown = "a **b** `c`"
-      html     = "a \n<strong>b</strong> \n<code class=\"inline\">c</code>"
+      html = "a \n<strong>b</strong> \n<code class=\"inline\">c</code>"
       messages = []
 
       assert as_html(markdown, inner_html: true) == {:ok, html, messages}

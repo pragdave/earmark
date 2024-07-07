@@ -33,8 +33,8 @@ defmodule Earmark.Options do
           inner_html: boolean(),
           line: non_neg_integer(),
           mapper: (list(any()), function() -> {:ok, list(any())} | {:error, any()}),
-          mapper_with_timeout:
-            (list(any()), function(), integer() -> {:ok, list(any())} | {:error, any()}),
+          mapper_with_timeout: (list(any()), function(), integer() ->
+                                  {:ok, list(any())} | {:error, any()}),
           messages: list(Earmark.Error.t()) | [],
           pedantic: boolean(),
           postprocessor: function() | nil,

@@ -24,9 +24,8 @@ defmodule Regressions.I078EscapedEscapesEscapeBacktixTest do
     # IO.puts html_from_file("test/fixtures/i078_fixed.md")
   end
 
-
   test "Issue https://github.com/pragdave/earmark/issues/78 correct html" do
-    html     = "<p>\nHello <code class=\"inline\">\\\\</code> \\</p>\n<pre><code>World</code></pre>\n"
+    html = "<p>\nHello <code class=\"inline\">\\\\</code> \\</p>\n<pre><code>World</code></pre>\n"
     assert html_from_file("test/fixtures/i078_short.md") == html
   end
 end

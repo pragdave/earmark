@@ -33,7 +33,6 @@ defmodule Earmark.Parser.Message do
     |> get_messages()
     |> Enum.sort(fn {_, l, _}, {_, r, _} -> r >= l end)
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

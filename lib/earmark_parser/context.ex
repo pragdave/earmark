@@ -52,17 +52,21 @@ defmodule Earmark.Parser.Context do
          %__MODULE__{referenced_footnote_ids: new} = context2
        ) do
     context_ = _merge_messages(context1, context2)
-    %{context_| referenced_footnote_ids: MapSet.union(orig, new)}
+    %{context_ | referenced_footnote_ids: MapSet.union(orig, new)}
   end
 
   defp _merge_messages(context, context_or_messages)
+
   defp _merge_messages(context, %__MODULE__{options: %Options{messages: messages}}) do
     _merge_messages(context, messages)
   end
-  defp _merge_messages(context, messages) do
-    %{context | options: %{context.options|messages: MapSet.union(context.options.messages, messages)}}
-  end
 
+  defp _merge_messages(context, messages) do
+    %{
+      context
+      | options: %{context.options | messages: MapSet.union(context.options.messages, messages)}
+    }
+  end
 
   defp _prepend(ctxt, []), do: ctxt
 
@@ -110,6 +114,7 @@ defmodule Earmark.Parser.Context do
       else
         ""
       end
+
     rule_updates =
       if options.gfm do
         rules = [

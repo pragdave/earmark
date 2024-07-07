@@ -4,7 +4,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
   describe "smarty pants on" do
     test "paired double" do
       markdown = "a \"double\" quote"
-      html     = "<p>\na “double” quote</p>\n"
+      html = "<p>\na “double” quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -12,7 +12,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "unpaired double" do
       markdown = "a \"double\" \"quote"
-      html     = "<p>\na “double” “quote</p>\n"
+      html = "<p>\na “double” “quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -20,7 +20,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "ignores inline code" do
       markdown = "`IO.puts \"no curly quotes\"`"
-      html     = "<p>\n<code class=\"inline\">IO.puts &quot;no curly quotes&quot;</code></p>\n"
+      html = "<p>\n<code class=\"inline\">IO.puts &quot;no curly quotes&quot;</code></p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -28,7 +28,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "ignores pre code blocks" do
       markdown = "```\nIO.puts \"no curly quotes\"\n```"
-      html     = "<pre><code>IO.puts &quot;no curly quotes&quot;</code></pre>\n"
+      html = "<pre><code>IO.puts &quot;no curly quotes&quot;</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -36,14 +36,15 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "two doubles" do
       markdown = "a \"double\" \"quote\""
-      html     = "<p>\na “double” “quote”</p>\n"
+      html = "<p>\na “double” “quote”</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
+
     test "paired single" do
       markdown = "a 'single' quote"
-      html     = "<p>\na ‘single’ quote</p>\n"
+      html = "<p>\na ‘single’ quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -51,7 +52,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "unpaired single" do
       markdown = "a 'single' 'quote"
-      html     = "<p>\na ‘single’ ‘quote</p>\n"
+      html = "<p>\na ‘single’ ‘quote</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -59,7 +60,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "two singles" do
       markdown = "a 'single' 'quote'"
-      html     = "<p>\na ‘single’ ‘quote’</p>\n"
+      html = "<p>\na ‘single’ ‘quote’</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -67,7 +68,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "a mess" do
       markdown = ~s{"a" 'messy' "affair"}
-      html     = "<p>\n“a” ‘messy’ “affair”</p>\n"
+      html = "<p>\n“a” ‘messy’ “affair”</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -75,7 +76,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "en dash" do
       markdown = "1947 -- 2020"
-      html     = "<p>\n1947 – 2020</p>\n"
+      html = "<p>\n1947 – 2020</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -83,7 +84,7 @@ defmodule Acceptance.Html.RenderSpecific.SmartyPantsTest do
 
     test "em dash" do
       markdown = "Earmark---A Pure Elixir Markdown Processor"
-      html     = "<p>\nEarmark—A Pure Elixir Markdown Processor</p>\n"
+      html = "<p>\nEarmark—A Pure Elixir Markdown Processor</p>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

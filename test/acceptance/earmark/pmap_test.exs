@@ -13,6 +13,6 @@ defmodule Test.Acceptance.Earmark.PmapTest do
       end
     end
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

@@ -1,5 +1,4 @@
 defmodule Earmark.Parser.Helpers.StringHelpers do
-
   @moduledoc false
 
   @doc """
@@ -13,6 +12,6 @@ defmodule Earmark.Parser.Helpers.StringHelpers do
   def behead(str, leading_string) do
     behead(str, String.length(leading_string))
   end
-
 end
+
 # SPDX-License-Identifier: Apache-2.0

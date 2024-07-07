@@ -87,7 +87,8 @@ defmodule Earmark.Parser.AstRenderer do
           emit(
             "h#{level}",
             context1.value |> Enum.reverse(),
-            attrs)
+            attrs
+          )
         ]
       end
     )
@@ -181,6 +182,7 @@ defmodule Earmark.Parser.AstRenderer do
          _loose?
        ) do
     context1 = render(blocks, clear_value(context), loose?)
+
     prepend(
       context,
       emit("li", context1.value, attrs),
@@ -208,13 +210,14 @@ defmodule Earmark.Parser.AstRenderer do
   ##################
 
   @empty_set MapSet.new([])
-  defp render_block(%Block.FnList{}=fn_list, context, _loose?) do
+  defp render_block(%Block.FnList{} = fn_list, context, _loose?) do
     if MapSet.equal?(context.referenced_footnote_ids, @empty_set) do
       context
     else
       render_defined_fns(fn_list, context)
     end
   end
+
   #######################################
   # Isolated IALs are rendered as paras #
   #######################################
@@ -254,7 +257,6 @@ defmodule Earmark.Parser.AstRenderer do
       start1 -> start1
     end
   end
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

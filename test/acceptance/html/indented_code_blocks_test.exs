@@ -4,7 +4,7 @@ defmodule Acceptance.Html.IndentedCodeBlocksTest do
   describe "Indented code blocks" do
     test "simple (but easy?)" do
       markdown = "    a simple\n      indented code block\n"
-      html     = "<pre><code>a simple\n  indented code block</code></pre>\n"
+      html = "<pre><code>a simple\n  indented code block</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -12,7 +12,7 @@ defmodule Acceptance.Html.IndentedCodeBlocksTest do
 
     test "code is soo verbatim" do
       markdown = "    <a/>\n    *hi*\n\n    - one\n"
-      html     = "<pre><code>&lt;a/&gt;\n*hi*\n\n- one</code></pre>\n"
+      html = "<pre><code>&lt;a/&gt;\n*hi*\n\n- one</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -20,7 +20,7 @@ defmodule Acceptance.Html.IndentedCodeBlocksTest do
 
     test "chunky bacon (RIP: Why)" do
       markdown = "    chunk1\n\n    chunk2\n  \n \n \n    chunk3\n"
-      html     = "<pre><code>chunk1\n\nchunk2\n\n\n\nchunk3</code></pre>\n"
+      html = "<pre><code>chunk1\n\nchunk2\n\n\n\nchunk3</code></pre>\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}

@@ -15,6 +15,7 @@ defmodule Acceptance.Transform.MetaTest do
 
       assert transform(ast) == expected
     end
+
     test "base case with verbatim" do
       {:ok, [{"pre", atts, children, _}], _} = ast_from_md(@pre)
       expected = "<pre><code>  some code</code></pre>\n"

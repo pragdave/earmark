@@ -14,4 +14,5 @@ defmodule Earmark.Parser.Block.List do
             start: "",
             type: :ul
 end
+
 #  SPDX-License-Identifier: Apache-2.0

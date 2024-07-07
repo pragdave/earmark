@@ -1,5 +1,4 @@
 defmodule Earmark.Parser.Parser do
-
   @moduledoc false
   alias Earmark.Parser.{Block, Line, LineScanner, Options}
 
@@ -41,7 +40,7 @@ defmodule Earmark.Parser.Parser do
   end
 
   def parse_markdown(lines, _) do
-    raise ArgumentError, "#{inspect lines} not a binary, nor a list of binaries"
+    raise ArgumentError, "#{inspect(lines)} not a binary, nor a list of binaries"
   end
 
   def parse(text_lines, options = %Options{}, recursive) do
@@ -58,7 +57,6 @@ defmodule Earmark.Parser.Parser do
   def parse_lines(lines, options, recursive) do
     {blocks, footnotes, options} =
       lines |> remove_trailing_blank_lines() |> lines_to_blocks(options, recursive)
-
 
     links = links_from_blocks(blocks)
     {blocks, links, footnotes, options}
@@ -268,7 +266,13 @@ defmodule Earmark.Parser.Parser do
     {code_lines, rest} = Enum.split_while(list, &indent_or_blank?/1)
     code_lines = remove_trailing_blank_lines(code_lines)
     code = for line <- code_lines, do: properly_indent(line, 1)
-    _parse([%Line.Blank{}|rest], [%Block.Code{lines: code, lnb: lnb} | result], options, recursive)
+
+    _parse(
+      [%Line.Blank{} | rest],
+      [%Block.Code{lines: code, lnb: lnb} | result],
+      options,
+      recursive
+    )
   end
 
   ###############
@@ -447,7 +451,6 @@ defmodule Earmark.Parser.Parser do
     )
   end
 
-
   #######################################################
   # Assign attributes that follow a block to that block #
   #######################################################
@@ -463,10 +466,16 @@ defmodule Earmark.Parser.Parser do
   end
 
   defp _check_closing_fence(rest, lnb, delimiter, options)
+
   defp _check_closing_fence([], lnb, delimiter, options) do
-    {[], add_message(options, {:error, lnb, "Fenced Code Block opened with #{delimiter} not closed at end of input"})}
+    {[],
+     add_message(
+       options,
+       {:error, lnb, "Fenced Code Block opened with #{delimiter} not closed at end of input"}
+     )}
   end
-  defp _check_closing_fence([_|rest], _lnb, _delimiter, options) do
+
+  defp _check_closing_fence([_ | rest], _lnb, _delimiter, options) do
     {rest, options}
   end
 

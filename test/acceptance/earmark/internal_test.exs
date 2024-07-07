@@ -16,5 +16,4 @@ defmodule Test.Acceptance.Earmark.InternalTest do
       assert result == "<h1>\nHeadline Level 1</h1>\n"
     end
   end
-
 end

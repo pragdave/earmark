@@ -1,5 +1,4 @@
 defmodule Earmark.Restructure do
-
   @doc ~S"""
 
   Walks an AST and allows you to process it (storing details in acc) and/or
@@ -44,14 +43,14 @@ defmodule Earmark.Restructure do
       ...(1)>   item, "a" -> {item, nil}
       ...(1)>   {name, _, _, _}=item, _ -> {item, name}
       ...(1)> end
-      ...(1)> markdown = """
+      ...(1)> markdown = \"""
       ...(1)> [no italics in links](http://example.io/some/path)
       ...(1)> but /here/
       ...(1)>
       ...(1)> -- ignore me
       ...(1)>
       ...(1)> text
-      ...(1)> """
+      ...(1)> \"""
       ...(1)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
       ...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
       {[
@@ -68,22 +67,26 @@ defmodule Earmark.Restructure do
         ], "p"}
 
   """
-  def walk_and_modify_ast(items, acc, process_item_fn, process_list_fn \\ &({&1, &2}))
-  when is_list(items) and is_function(process_item_fn) and is_function(process_list_fn)
-  do
+  def walk_and_modify_ast(items, acc, process_item_fn, process_list_fn \\ &{&1, &2})
+      when is_list(items) and is_function(process_item_fn) and is_function(process_list_fn) do
     {items, acc} = process_list_fn.(items, acc)
-    {ast, acc} = Enum.map_reduce(items, acc, fn (item, acc) ->
-      walk_and_modify_ast_item(item, acc, process_item_fn, process_list_fn)
-    end)
+
+    {ast, acc} =
+      Enum.map_reduce(items, acc, fn item, acc ->
+        walk_and_modify_ast_item(item, acc, process_item_fn, process_list_fn)
+      end)
+
     {List.flatten(ast), acc}
   end
 
   defp walk_and_modify_ast_item(item, acc, process_item_fn, process_list_fn) do
     case process_item_fn.(item, acc) do
       {{type, attribs, items, annotations}, acc}
-      when (is_binary(type) or is_atom(type)) and is_list(attribs) and is_list(items) and is_map(annotations) ->
+      when (is_binary(type) or is_atom(type)) and is_list(attribs) and is_list(items) and
+             is_map(annotations) ->
         {items, acc} = walk_and_modify_ast(items, acc, process_item_fn, process_list_fn)
         {{type, attribs, List.flatten(items), annotations}, acc}
+
       {item_or_items, acc} when is_binary(item_or_items) or is_list(item_or_items) ->
         {item_or_items, acc}
     end
@@ -101,9 +104,11 @@ defmodule Earmark.Restructure do
         ["This is ", "ALL CAPS", ", right?"]
   """
   def split_by_regex(item, regex, map_captures_fn)
-  when is_binary(item) and is_function(map_captures_fn) do
-    interest_parts = Regex.scan(regex, item)
-    |> Enum.map(map_captures_fn)
+      when is_binary(item) and is_function(map_captures_fn) do
+    interest_parts =
+      Regex.scan(regex, item)
+      |> Enum.map(map_captures_fn)
+
     other_parts = Regex.split(regex, item)
     # If the match is at the front of 'item', Regex.split will
     # return an empty string "before" the split. Therefore
@@ -119,14 +124,19 @@ defmodule Earmark.Restructure do
   list, and so forth until both lists are empty.
   """
   def merge_lists(first, second, acc \\ [])
+
   def merge_lists([], [], acc) do
     Enum.reverse(acc)
   end
-  def merge_lists([first|first_rest], second, acc) do
-    merge_lists(second, first_rest, [first|acc])
+
+  def merge_lists([first | first_rest], second, acc) do
+    merge_lists(second, first_rest, [first | acc])
   end
+
   def merge_lists([], _, _) do
-    raise ArgumentError, "merge_lists takes two lists where the first list is not shorter and at most 1 longer than the second list"
+    raise ArgumentError,
+          "merge_lists takes two lists where the first list is not shorter and at most 1 longer than the second list"
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0

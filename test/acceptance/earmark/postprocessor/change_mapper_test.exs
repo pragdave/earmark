@@ -16,7 +16,9 @@ defmodule Test.Acceptance.Earmark.Postprocessor.ChangeMapperTest do
     gAMMA
     """
     test "change case depending on class" do
-      expected = "<p>\nInvariable</p>\n<pre class=\"lower\"><code>will be lower</code></pre>\n<p>\nBeta</p>\n<pre class=\"upper\"><code>UPPERCASE</code></pre>\n<p>\ngAMMA</p>\n"
+      expected =
+        "<p>\nInvariable</p>\n<pre class=\"lower\"><code>will be lower</code></pre>\n<p>\nBeta</p>\n<pre class=\"upper\"><code>UPPERCASE</code></pre>\n<p>\ngAMMA</p>\n"
+
       assert parse(@markdown) == expected
     end
   end
@@ -31,6 +33,7 @@ defmodule Test.Acceptance.Earmark.Postprocessor.ChangeMapperTest do
   end
 
   defp main_mapper(text) when is_binary(text), do: text
+
   defp main_mapper(node) do
     classes = Earmark.AstTools.find_att_in_node(node, "class") || ""
 

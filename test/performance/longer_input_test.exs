@@ -8,7 +8,7 @@ defmodule Performance.LongerInputTest do
     end
 
     test "show data" do
-      IO.puts convert_file("medium.md", :html)
+      IO.puts(convert_file("medium.md", :html))
     end
   end
 end

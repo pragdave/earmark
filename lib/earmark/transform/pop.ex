@@ -7,7 +7,6 @@ defmodule Earmark.Transform.Pop do
   """
 
   defstruct fun: nil
-
 end
 
 # SPDX-License-Identifier: Apache-2.0

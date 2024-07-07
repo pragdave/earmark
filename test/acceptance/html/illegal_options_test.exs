@@ -9,13 +9,16 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
       messages = [
         {:warning, 0, "Unrecognized option no_such_option: true"}
       ]
+
       assert as_html("", no_such_option: true) == {:error, "", messages}
     end
+
     test "with non empty" do
       expected_messages = [
         {:warning, 0, "Unrecognized option hello: 42"},
-        {:warning, 0, "Unrecognized option no_such_option: true"},
+        {:warning, 0, "Unrecognized option no_such_option: true"}
       ]
+
       {:error, "", messages} = as_html("hello", no_such_option: true, hello: 42)
       assert Enum.sort(messages) == Enum.sort(expected_messages)
     end
@@ -24,16 +27,18 @@ defmodule Test.Acceptance.Html.IllegalOptionsTest do
   test "with as_html!" do
     error_messages =
       capture_io(:stderr, fn ->
-        as_html!("hello", oops: Earmark) 
+        as_html!("hello", oops: Earmark)
       end)
+
     assert error_messages == "<no file>:0: warning: Unrecognized option oops: Earmark\n"
-  end 
+  end
 
   test "with as_html! defining filename" do
     error_messages =
       capture_io(:stderr, fn ->
         as_html!("hello", oops: Earmark, file: "test.md")
       end)
+
     assert error_messages == "test.md:0: warning: Unrecognized option oops: Earmark\n"
   end
 end

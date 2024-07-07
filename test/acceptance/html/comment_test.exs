@@ -6,7 +6,7 @@ defmodule Acceptance.Html.CommentTest do
   describe "HTML Comments" do
     test "one line" do
       markdown = "<!-- Hello -->"
-      html     = "<!-- Hello -->\n"
+      html = "<!-- Hello -->\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -14,7 +14,7 @@ defmodule Acceptance.Html.CommentTest do
 
     test "more lines" do
       markdown = "<!-- Hello\n World -->"
-      html     = "<!-- Hello\n World -->\n"
+      html = "<!-- Hello\n World -->\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
@@ -22,11 +22,12 @@ defmodule Acceptance.Html.CommentTest do
 
     test "what about the closing" do
       markdown = "<!-- Hello\n World -->"
-      html     = "<!-- Hello\n World -->\n"
+      html = "<!-- Hello\n World -->\n"
       messages = []
 
       assert as_html(markdown) == {:ok, html, messages}
     end
   end
 end
+
 # SPDX-License-Identifier: Apache-2.0
