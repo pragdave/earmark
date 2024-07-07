@@ -24,6 +24,18 @@ jobs:
             otp: 25
             os: ubuntu-latest
             warnings_as_errors: true
+          - elixir: 1.15.x
+            otp: 25
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.16.x
+            otp: 26
+            os: ubuntu-latest
+            warnings_as_errors: true
+          - elixir: 1.17.x
+            otp: 27
+            os: ubuntu-latest
+            warnings_as_errors: true
     env:
       MIX_ENV: test
     steps:
@@ -50,7 +62,18 @@ jobs:
         env:
           CC: gcc-10
           CXX: g++-10
+      - run: mix compile
+        if: ${{! matrix.warnings_as_errors}}
+        env:
+          CC: gcc-10
+          CXX: g++-10
+      - run: mix test --warnings-as-errors
+        if: ${{matrix.warnings_as_errors}}
+        env:
+          CC: gcc-10
+          CXX: g++-10
       - run: mix test
+        if: ${{! matrix.warnings_as_errors}}
         env:
           CC: gcc-10
           CXX: g++-10
