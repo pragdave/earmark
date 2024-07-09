@@ -3,8 +3,8 @@ defmodule Test.Regressions.I154CrashOnSymbolicInputTest do
 
   test "do not crash here" do
     md = "\\[{:}"
-    html = "<p>[</p>"
-    assert Earmark.as_html(md) == html
+    html = "<p>\n[{:}</p>\n"
+    assert Earmark.as_html(md) == {:ok, html, []}
   end
   
 end
