@@ -255,7 +255,7 @@ defmodule Earmark.Parser.Ast.Inline do
     if match = Regex.run(@inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
-      new_tags = augment_tag_with_ial(context.value, ial_attrs)
+      new_tags = augment_tag_with_ial(context.value, ial_attrs, match)
       {behead(src, match), lnb, set_value(context1, new_tags), use_linky?}
     end
   end
