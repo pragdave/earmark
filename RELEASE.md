@@ -1,4 +1,78 @@
 
+## [Earmark](https://hex.pm/packages/earmark) 1.4.47 2024-07-12
+
+### First a small explanation
+
+This has been backported from https://github.com/RobertDober/earmark_parser/pull/156.
+
+It seems however important to clarify some things concerning the _split_ between `Earmark` and `EarmarkParser` which
+were confusing.
+
+They are **only** historically related and there is no formal dependency anymore. As I am still happy to help out with Earmark but also
+very relieved not to be obliged I might as well continue to do backports bugfixes (but probably not new features). However
+all decision about what will happen with `Earmark` and how the internal parser evolves will not be taken by me.
+
+This release is done beacause our [new maintainer](https://github.com/amit-chaudhari1) asked me to make it so (couldn't resist this one)
+and because he accepted the PR for the backport.
+
+Unfortunately the naming of the projects and the internal module `Earmark.Parser` have made people unconfortable with bug reports.
+
+Please note two things here.
+
+Firstly, and most importantly, nowbody will be harsh or impolite of you file an issue in the _wrong_ project, we'll figure it out. 
+
+Secondly I have opened an [Issue](https://github.com/pragdave/earmark/issues/500) about better documenting this in **both** projects.
+All comments and ideas on this topic are very much welcome.
+
+Hopefully this will become much clearer soon.
+
+### And now for something completely different
+
+- [Fix for #501](https://github.com/pragdave/earmark/issues/501)
+
+- [Fix for #495](https://github.com/pragdave/earmark/pull/498)
+
+- [Fix for #361](https://github.com/pragdave/earmark/pull/486)
+Kudos to [bradhanks](https://github.com/bradhanks)
+
+
+Much work was put into `Earmark` by Brad in the last months working on **getting rid of warnings**, typespecs and `mix format` compliance, the details of which are not
+really interesting in RNs, but shall be duely appreciated.
+
+- [Fixing broken link in doc](https://github.com/pragdave/earmark/pull/475)
+Kudos to [Rodolfo Carvalho](https://github.com/rhcarvalho)
+
+
+
+
+
+- Lots of PRs for typespecs by 
+
+### First a small explanation
+
+This has been backported from https://github.com/RobertDober/earmark_parser/pull/156.
+
+It seems however important to clarify some things concerning the _split_ between `Earmark` and `EarmarkParser` which
+were confusing.
+
+They are **only** historically related and there is no formal dependency anymore. As I am still happy to help out with Earmark but also
+very relieved not to be obliged I might as well continue to do backports bugfixes (but probably not new features). However
+all decision about what will happen with `Earmark` and how the internal parser evolves will not be taken by me.
+
+This release is done beacause our [new maintainer](https://github.com/amit-chaudhari1) asked me to make it so (couldn't resist this one)
+and because he accepted the PR for the backport.
+
+Unfortunately the naming of the projects and the internal module `Earmark.Parser` have made people unconfortable with bug reports.
+
+Please note two things here.
+
+Firstly, and most importantly, nowbody will be harsh or impolite of you file an issue in the _wrong_ project, we'll figure it out. 
+
+Secondly I have opened an [Issue](https://github.com/pragdave/earmark/issues/500) about better documenting this in **both** projects.
+All comments and ideas on this topic are very much welcome.
+
+Hopefully this will become much clearer soon.
+
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.46 2023-10-01
 
 Again much appreciated help from José

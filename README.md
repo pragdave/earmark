@@ -175,7 +175,7 @@ This is a convenience method to read a file or pass it to `EEx.eval_file` if its
 ends in  `.eex`
 
 The returned string is then passed to `as_html` this is used in the escript now and allows
-for a simple inclusion mechanism, as a matter of fact an `include` function is passed 
+for a simple inclusion mechanism, as a matter of fact an `include` function is passed
 
 
 ### Earmark.Internal.include/2
