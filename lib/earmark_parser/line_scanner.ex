@@ -259,7 +259,7 @@ defmodule Earmark.Parser.LineScanner do
 
   defp _create_list_item(match, indent, line)
 
-  defp _create_list_item([_, bullet, spaces, text] = match, indent, line) do
+  defp _create_list_item([_, bullet, spaces, text], indent, line) do
     sl = byte_size(spaces)
     sl1 = if sl > 3, do: 1, else: sl + 1
     sl2 = sl1 + byte_size(bullet)
