@@ -400,47 +400,47 @@ underlines for readability.
 
 # 1.4.0 2019/09/05
 
-- [145 Expose AST for output manipulation]( https://github.com/pragdave/earmark/issues/145)
+- [145 Expose AST for output manipulation](https://github.com/pragdave/earmark/issues/145)
 
-- [238 Pure Links are default now]( https://github.com/pragdave/earmark/issues/238)
+- [238 Pure Links are default now](https://github.com/pragdave/earmark/issues/238)
 
-- [256 Align needed Elixir Version with ex_doc (>= 1.7)]( https://github.com/pragdave/earmark/issues/256)
+- [256 Align needed Elixir Version with ex_doc (>= 1.7)](https://github.com/pragdave/earmark/issues/256)
 
-- [259 Deprecated option `sanitize` removed]( https://github.com/pragdave/earmark/issues/259)
+- [259 Deprecated option `sanitize` removed](https://github.com/pragdave/earmark/issues/259)
 
-- [261 Deprecated Plugins removed]( https://github.com/pragdave/earmark/issues/261)
+- [261 Deprecated Plugins removed](https://github.com/pragdave/earmark/issues/261)
 
-- [265 Make deprecated `Earmark.parse/2` private]( https://github.com/pragdave/earmark/issues/265)
+- [265 Make deprecated `Earmark.parse/2` private](https://github.com/pragdave/earmark/issues/265)
 
 
 # 1.3.6 2019/08/30
 
 Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 
--  [#270]( https://github.com/pragdave/earmark/issues/270)
+-  [#270](https://github.com/pragdave/earmark/issues/270)
       Error messages during parsing of table celles were duplicated in a number, exponential to the number of table cells.
 
--  [#268]( https://github.com/pragdave/earmark/issues/268)
+-  [#268](https://github.com/pragdave/earmark/issues/268)
       Deprecation warnings concerning pure links showed fixed link to https://github.com/pragdave/earmark, at least a reasonable choice ;),
       instead of the text of the link.
 
--  [#266]( https://github.com/pragdave/earmark/issues/266)
+-  [#266](https://github.com/pragdave/earmark/issues/266)
     According to HTML5 Style Guide better XHTML compatibility by closing void tags e.g. `<hr>` --&gt; `<hr />`
 
 
 # 1.3.5 2019/08/01
 
--  [#264]( https://github.com/pragdave/earmark/issues/264)
+-  [#264](https://github.com/pragdave/earmark/issues/264)
       Expose `Earmark.parse/2` but deprecate it.
 
--  [#262]( https://github.com/pragdave/earmark/issues/262)
+-  [#262](https://github.com/pragdave/earmark/issues/262)
     Remove non XHTML tags <colgroup> and <col>
 
 
--  [#236]( https://github.com/pragdave/earmark/issues/236)
+-  [#236](https://github.com/pragdave/earmark/issues/236)
       Deprecation of plugins.
 
--  [#257]( https://github.com/pragdave/earmark/issues/257)
+-  [#257](https://github.com/pragdave/earmark/issues/257)
       Deprecation of `sanitize` option.
 
 # 1.3.4 2019/07/29
@@ -493,9 +493,9 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 
 * Fix for issues
 
-  - [#224 titles might be extracted from outside link]( https://github.com/pragdave/earmark/issues/224 )
-  - [#220 render only first link title always correctly]( https://github.com/pragdave/earmark/issues/220 )
-  - [#218 replaced iff with longer but clearer if and only if ]( https://github.com/pragdave/earmark/issues/218 )
+  - [#224 titles might be extracted from outside link](https://github.com/pragdave/earmark/issues/224)
+  - [#220 render only first link title always correctly](https://github.com/pragdave/earmark/issues/220)
+  - [#218 replaced iff with longer but clearer if and only if ](https://github.com/pragdave/earmark/issues/218)
 
 ## Kudos:
   [niku](https://github.com/niku) for #218
@@ -503,15 +503,15 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 
 # 1.3.1 2018/12/21
 
-  - [#212 spaces at line end force line break]( https://github.com/pragdave/earmark/issues/212 )
-  - [#211 documentation explaining error messages]( https://github.com/pragdave/earmark/issues/211 )
+  - [#212 spaces at line end force line break](https://github.com/pragdave/earmark/issues/212)
+  - [#211 documentation explaining error messages](https://github.com/pragdave/earmark/issues/211)
 
 # 1.3.0 2018/11/15
 
 * Fix for issues
-  - [#208 Inline code made Commonmark compatible]( https://github.com/pragdave/earmark/issues/208 )
-  - [#203 escript does not report filename in error messages]( https://github.com/pragdave/earmark/issues/203 )
-  - [#90 Parsing "...' or '..." as link titles removed]( https://github.com/pragdave/earmark/issues/90 )
+  - [#208 Inline code made Commonmark compatible](https://github.com/pragdave/earmark/issues/208)
+  - [#203 escript does not report filename in error messages](https://github.com/pragdave/earmark/issues/203)
+  - [#90 Parsing "...' or '..." as link titles removed](https://github.com/pragdave/earmark/issues/90)
 
 ## Dev dependencies updated
 
@@ -527,21 +527,21 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 # 1.2.6 2018/08/21
 
 * Fix for issues
-  - [#198 Escapes inside link texts are ignored]( https://github.com/pragdave/earmark/issues/198 )
-  - [#197 README task broken in Elixir 1.7]( https://github.com/pragdave/earmark/issues/197 )
-  - [#191 Allow configurable timeout for parallel map]( https://github.com/pragdave/earmark/issues/191 )
-  - [#190 do not include generated src/*.erl in the package]( https://github.com/pragdave/earmark/issues/190 )
+  - [#198 Escapes inside link texts are ignored](https://github.com/pragdave/earmark/issues/198)
+  - [#197 README task broken in Elixir 1.7](https://github.com/pragdave/earmark/issues/197)
+  - [#191 Allow configurable timeout for parallel map](https://github.com/pragdave/earmark/issues/191)
+  - [#190 do not include generated src/*.erl in the package](https://github.com/pragdave/earmark/issues/190)
 
-* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde]( https://github.com/LostKobrakai )
+* [#195 incorrect HTML for inline code blocks and IAL specified classes](https://github.com/pragdave/earmark/issues/195) from [Benjamin Milde](https://github.com/LostKobrakai)
 
 # 1.2.5 2018/04/02
 
 * Fix for issues
-  - [#161]( https://github.com/pragdave/earmark/issues/161 )
-  - [#168]( https://github.com/pragdave/earmark/issues/168 )
-  - [#172]( https://github.com/pragdave/earmark/issues/172 )
-  - [#175]( https://github.com/pragdave/earmark/issues/175 )
-  - [#181]( https://github.com/pragdave/earmark/issues/181 )
+  - [#161](https://github.com/pragdave/earmark/issues/161)
+  - [#168](https://github.com/pragdave/earmark/issues/168)
+  - [#172](https://github.com/pragdave/earmark/issues/172)
+  - [#175](https://github.com/pragdave/earmark/issues/175)
+  - [#181](https://github.com/pragdave/earmark/issues/181)
 
 * [#178](https://github.com/pragdave/earmark/pull/178) from [jwworth](https://github.com/jwworth)
 
@@ -551,7 +551,7 @@ Hopefully the last patch release of 1.3 before the structural changes of 1.4.
 # 1.2.4 2017/11/28
 
 * Fix for issue
-  - [#166]( https://github.com/pragdave/earmark/issues/166 )
+  - [#166](https://github.com/pragdave/earmark/issues/166)
 
 * [PR160](https://github.com/pragdave/earmark/pull/160) from [simonwebdesign](https://github.com/simonewebdesign)
 * [PR163](https://github.com/pragdave/earmark/pull/163) from [nscyclone](https://github.com/nscyclone)
