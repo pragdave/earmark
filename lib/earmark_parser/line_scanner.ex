@@ -40,34 +40,36 @@ defmodule Earmark.Parser.LineScanner do
         >
   '''x
 
-  @rgx_map %{
-    block_quote: ~r/\A>\s?(.*)/,
-    column_rgx: ~r{\A[\s|:-]+\z},
-    comment_rest: ~r/(<!--.*?-->)(.*)/,
-    fence: ~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u,
-    footnote_definition: ~r/\A\[\^([^\s\]]+)\]:\s+(.*)/,
-    heading: ~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u,
-    html_close_tag: ~r/\A<\/([-\w]+?)>/,
-    html_comment_complete: ~r/\A <! (?: -- .*? -- \s* )+ > \z/x,
-    html_comment_start: ~r/\A <!-- .*? \z/x,
-    html_one_line: ~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>},
-    html_open_tag: ~r/\A < ([-\w]+?) (?:\s.*)? >/x,
-    html_self_closing_tag: ~r{\A<([-\w]+?)(?:\s.*)?/>.*},
-    ial_definition: ~r<^{:(\s*[^}]+)}\s*$>,
-    id_re: @id_re,
-    indent_re: @indent_re,
-    list_item_ordered: ~r/^(\d{1,9}[.)])\s(\s*)(.*)/,
-    list_item_unordered: ~r/^([-*+])\s(\s*)(.*)/,
-    ruler_dash: ~r/^ (?:-\s?){3,} $/x,
-    ruler_star: ~r/^ (?:\*\s?){3,} $/x,
-    ruler_underscore: ~r/\A (?:_\s?){3,} \z/x,
-    setext_heading: ~r/^(=|-)+\s*$/,
-    table_line: ~r/^ \| (?: [^|]+ \|)+ \s* $ /x,
-    table_line_gfm: ~r/\A (\s*) .* \| /x,
-    table_line_prefix_space: ~r/\A (\s*) .* \s \| \s /x,
-    void_tag: @void_tag_rgx,
-    wiki_link: ~r/\[\[ .*? \]\]/x
-  }
+  defp rgx_map do
+    %{
+      block_quote: ~r/\A>\s?(.*)/,
+      column_rgx: ~r{\A[\s|:-]+\z},
+      comment_rest: ~r/(<!--.*?-->)(.*)/,
+      fence: ~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u,
+      footnote_definition: ~r/\A\[\^([^\s\]]+)\]:\s+(.*)/,
+      heading: ~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u,
+      html_close_tag: ~r/\A<\/([-\w]+?)>/,
+      html_comment_complete: ~r/\A <! (?: -- .*? -- \s* )+ > \z/x,
+      html_comment_start: ~r/\A <!-- .*? \z/x,
+      html_one_line: ~r{\A<([-\w]+?)(?:\s.*)?>.*</\1>},
+      html_open_tag: ~r/\A < ([-\w]+?) (?:\s.*)? >/x,
+      html_self_closing_tag: ~r{\A<([-\w]+?)(?:\s.*)?/>.*},
+      ial_definition: ~r<^{:(\s*[^}]+)}\s*$>,
+      id_re: @id_re,
+      indent_re: @indent_re,
+      list_item_ordered: ~r/^(\d{1,9}[.)])\s(\s*)(.*)/,
+      list_item_unordered: ~r/^([-*+])\s(\s*)(.*)/,
+      ruler_dash: ~r/^ (?:-\s?){3,} $/x,
+      ruler_star: ~r/^ (?:\*\s?){3,} $/x,
+      ruler_underscore: ~r/\A (?:_\s?){3,} \z/x,
+      setext_heading: ~r/^(=|-)+\s*$/,
+      table_line: ~r/^ \| (?: [^|]+ \|)+ \s* $ /x,
+      table_line_gfm: ~r/\A (\s*) .* \| /x,
+      table_line_prefix_space: ~r/\A (\s*) .* \s \| \s /x,
+      void_tag: @void_tag_rgx,
+      wiki_link: ~r/\[\[ .*? \]\]/x
+    }
+  end
   @doc false
   def void_tag?(tag), do: Regex.match?(@void_tag_rgx, "<#{tag}>")
 
@@ -327,7 +329,7 @@ defmodule Earmark.Parser.LineScanner do
   defp regex_run(key, target), do: regex_run(key, target, [])
 
   defp regex_run(key, target, opts) do
-    @rgx_map
+    rgx_map()
     |> Map.get(key)
     |> Regex.run(target, opts)
   end
@@ -335,11 +337,12 @@ defmodule Earmark.Parser.LineScanner do
   defp table_line?(line), do: table_line?(line, :none)
 
   defp table_line?(line, opt) do
+    rgx_map = rgx_map()
     line
-    |> String.replace(@rgx_map.wiki_link, "")
+    |> String.replace(rgx_map.wiki_link, "")
     |> case do
-      line when opt in [:gfm] -> String.match?(line, @rgx_map.table_line_gfm)
-      _ -> String.match?(line, @rgx_map.table_line)
+      line when opt in [:gfm] -> String.match?(line, rgx_map.table_line_gfm)
+      _ -> String.match?(line, rgx_map.table_line)
     end
   end
 end
