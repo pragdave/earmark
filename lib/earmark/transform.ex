@@ -233,16 +233,17 @@ defmodule Earmark.Transform do
   def make_postprocessor(%{postprocessor: pp, registered_processors: rps}),
     do: _make_postprocessor([pp | rps])
 
-  @line_end ~r{\n\r?}
-
   @doc false
   @spec postprocessed_ast([String.t()] | String.t(), Options.options()) ::
           {:ok, Earmark.ast_node(), [Earmark.Error.t()]}
           | {:error, Earmark.ast_node(), [Earmark.Error.t()]}
   def postprocessed_ast(lines, options)
 
-  def postprocessed_ast(lines, options) when is_binary(lines),
-    do: lines |> String.split(@line_end) |> postprocessed_ast(options)
+  def postprocessed_ast(lines, options) when is_binary(lines) do
+    line_end_rgx = ~r{\n\r?}
+
+    lines |> String.split(line_end_rgx) |> postprocessed_ast(options)
+  end
 
   # This is an optimisation (buuuuuh) but we want a minimal impact of postprocessing code when it is not required
   # It is also a case of the mantra "Handle the simple case first" (yeeeeah)
@@ -356,12 +357,12 @@ defmodule Earmark.Transform do
   defp _maybe_add_newline1(%Options{compact_output: true}), do: []
   defp _maybe_add_newline1(_), do: ?\n
 
-  @crlf_rgx ~r{(?:\n\r?)+}
   defp _maybe_compact(element, options)
   defp _maybe_compact(element, %{compact_output: false}), do: element
 
   defp _maybe_compact(element, _options) do
-    String.replace(element, @crlf_rgx, " ")
+    crlf_rgx = ~r{(?:\n\r?)+}
+    String.replace(element, crlf_rgx, " ")
   end
 
   defp to_html(ast, options) do
@@ -457,8 +458,6 @@ defmodule Earmark.Transform do
     []
   end
 
-  @dbl1_rgx ~r{(^|[-–—/\(\[\{"”“\s])'}
-  @dbl2_rgx ~r{(^|[-–—/\(\[\{‘\s])\"}
   defp escape(element, %{smartypants: true} = options) do
     # Unfortunately these regexes still have to be left.
     # It doesn't seem possible to make _escape_to_iodata1
@@ -467,8 +466,8 @@ defmodule Earmark.Transform do
     # it outweights the performance benefit.
     element =
       element
-      |> replace(@dbl1_rgx, "\\1‘")
-      |> replace(@dbl2_rgx, "\\1“")
+      |> replace(~r{(^|[-–—/\(\[\{"”“\s])'}, "\\1‘")
+      |> replace(~r{(^|[-–—/\(\[\{‘\s])\"}, "\\1“")
 
     escape = Map.get(options, :escape, true)
     _escape_to_iodata1(element, 0, element, [], true, escape, 0)

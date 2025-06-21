@@ -8,7 +8,6 @@ defmodule Earmark.Parser.Helpers do
     Regex.replace(~r{(.*?)\t}, line, &expander/2)
   end
 
-  @trailing_ial_rgx ~r< (?<!^)(?'ial'{: \s* [^}]+ \s* }) \s* \z >x
   @doc ~S"""
   Returns a tuple containing a potentially present IAL and the line w/o the IAL
 
@@ -24,7 +23,8 @@ defmodule Earmark.Parser.Helpers do
       {nil, "{:.line-ial}"}
   """
   def extract_ial(line) do
-    case Regex.split(@trailing_ial_rgx, line, include_captures: true, parts: 2, on: [:ial]) do
+    regex = ~r< (?<!^)(?'ial'{: \s* [^}]+ \s* }) \s* \z >x
+    case Regex.split(regex, line, include_captures: true, parts: 2, on: [:ial]) do
       [_] -> {nil, line}
       [line_, "{:" <> ial, _] ->
         ial_ =
@@ -76,9 +76,11 @@ defmodule Earmark.Parser.Helpers do
    convert non-entity ampersands.
   """
 
-  @amp_rgx ~r{&(?!#?\w+;)}
+  def escape(html) do
+    regex = ~r{&(?!#?\w+;)}
 
-  def escape(html), do: _escape(Regex.replace(@amp_rgx, html, "&amp;"))
+    _escape(Regex.replace(regex, html, "&amp;"))
+  end
 
 
   defp _escape(html) do

@@ -18,12 +18,13 @@ defmodule Earmark.Parser.Helpers.HtmlParser do
   # Parse One Tag
   # -------------
 
-  @quoted_attr ~r{\A ([-\w]+) \s* = \s* (["']) (.*?) \2 \s*}x
-  @unquoted_attr ~r{\A ([-\w]+) (?: \s* = \s* ([^&\s>]*))? \s*}x
   defp _parse_atts(string, tag, atts) do
-    case Regex.run(@quoted_attr, string) do
+    quoted_attr = ~r{\A ([-\w]+) \s* = \s* (["']) (.*?) \2 \s*}x
+    unquoted_attr = ~r{\A ([-\w]+) (?: \s* = \s* ([^&\s>]*))? \s*}x
+
+    case Regex.run(quoted_attr, string) do
       [all, name, _delim, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
-      _ -> case Regex.run(@unquoted_attr, string) do
+      _ -> case Regex.run(unquoted_attr, string) do
              [all, name, value] -> _parse_atts(behead(string, all), tag, [{name, value}|atts])
              [all, name]        -> _parse_atts(behead(string, all), tag, [{name, name}|atts])
              _                  -> _parse_tag_tail(string, tag, atts)
@@ -31,17 +32,19 @@ defmodule Earmark.Parser.Helpers.HtmlParser do
     end
   end
 
-  # Are leading and trailing "-"s ok?
-  @tag_head ~r{\A \s* <([-\w]+) \s*}x
   defp _parse_tag(string) do
-    case Regex.run(@tag_head, string) do
+    # Are leading and trailing "-"s ok?
+    tag_head = ~r{\A \s* <([-\w]+) \s*}x
+
+    case Regex.run(tag_head, string) do
       [all, tag] -> _parse_atts(behead(string, all), tag, [])
     end
   end
 
-  @tag_tail ~r{\A .*? (/?)> \s* (.*) \z}x
   defp _parse_tag_tail(string, tag, atts) do
-    case Regex.run(@tag_tail, string) do
+    tag_tail = ~r{\A .*? (/?)> \s* (.*) \z}x
+
+    case Regex.run(tag_tail, string) do
       [_, closing, suffix]  ->
         suffix1 = String.replace(suffix, ~r{\s*</#{tag}>.*}, "")
         _close_tag_tail(tag, atts, closing != "", suffix1)
