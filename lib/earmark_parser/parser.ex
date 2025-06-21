@@ -509,12 +509,11 @@ defmodule Earmark.Parser.Parser do
 
   defp read_table(rest, col_count, rows) do
     rows = Enum.reverse(rows)
-    table = Block.Table.new_for_columns(col_count)
 
     table =
       case look_for_alignments(rows) do
-        nil -> %Block.Table{table | rows: rows}
-        aligns -> %Block.Table{table | alignments: aligns, header: hd(rows), rows: tl(tl(rows))}
+        nil -> %Block.Table{alignments: Elixir.List.duplicate(:left, col_count), rows: rows}
+        aligns -> %Block.Table{alignments: aligns, header: hd(rows), rows: tl(tl(rows))}
       end
 
     {table, [%Line.Blank{lnb: 0} | rest]}

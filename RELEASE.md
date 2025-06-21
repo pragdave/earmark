@@ -1,3 +1,24 @@
+## [Earmark](https://hex.pm/packages/earmark) 1.4.47 2025-06-21
+
+Midsummernight release ;)
+
+This is mainly for Elixir 1.19 and OTP 28
+
+Here are the usual KUDOs :)
+
+- [wjotekmach](https://github.com/wojtekmach) took care of OTP28 with this [PR#512](https://github.com/pragdave/earmark/pull/512) Many thanks
+
+- [nightconcept](https://github.com/nightconcept) did not leave us in the dark (yeah that's a cheap one) by taking care of the `Tuple.append/2` deprecation with [PR#511](https://github.com/pragdave/earmark/pull/511)
+
+- [adamu](https://github.com/adamu) eagle eyedely spotted that `ex_doc` did  Many thanks not depend on `Earmark` anymore and added it as dependency and also made the doc much better structured in 
+[PR#513](https://github.com/pragdave/earmark/pull/513)
+
+- [benmurde](https://github.com/benmurden) spotted somehow, that a typespec depending on `Regexp.replace` was incorrect, no idead how he did that, but clap! and fixed it in
+[PR#510](https://github.com/pragdave/earmark/pull/510)
+
+And eventually it was a walk in the park for YHS to fix the few remaining warnings.
+
+Thank you all.
 
 ## [Earmark](https://hex.pm/packages/earmark) 1.4.47 2024-07-12
 
