@@ -34,7 +34,7 @@ defmodule Earmark.Mixfile do
       app: :earmark,
       version: @version,
       compilers: [:leex, :yecc] ++ Mix.compilers(),
-      elixir: "~> 1.12",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       escript: escript_config(),
       deps: @deps,
