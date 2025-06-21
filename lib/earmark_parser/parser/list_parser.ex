@@ -182,9 +182,10 @@ defmodule Earmark.Parser.Parser.ListParser do
     %Block.List{loose?: loose?, type: type}
   end
 
-  @start_number_rgx ~r{\A0*(\d+)\.}
   defp _extract_start(%{bullet: bullet}) do
-    case Regex.run(@start_number_rgx, bullet) do
+    start_number_rgx = ~r{\A0*(\d+)\.}
+
+    case Regex.run(start_number_rgx, bullet) do
       nil -> ""
       [_, "1"] -> ""
       [_, start] -> ~s{ start="#{start}"}

@@ -3,18 +3,18 @@ defmodule Earmark.Parser.Helpers.PureLinkHelpers do
 
   import Earmark.Parser.Helpers.AstHelpers, only: [render_link: 2]
 
-  @pure_link_rgx ~r{
-    \A
-    (\s*)
-    (
-      (?:https?://|www\.)
-      [^\s<>]*
-      [^\s<>?!.,:*_~]
-    )
-  }ux
-
   def convert_pure_link(src) do
-    case Regex.run(@pure_link_rgx, src) do
+    pure_link_rgx = ~r{
+      \A
+      (\s*)
+      (
+        (?:https?://|www\.)
+        [^\s<>]*
+        [^\s<>?!.,:*_~]
+      )
+    }ux
+
+    case Regex.run(pure_link_rgx, src) do
       [_match, spaces, link_text] ->
         if String.ends_with?(link_text, ")") do
           remove_trailing_closing_parens(spaces, link_text)
@@ -27,9 +27,10 @@ defmodule Earmark.Parser.Helpers.PureLinkHelpers do
     end
   end
 
-  @split_at_ending_parens ~r{ (.*?) (\)*) \z}x
   defp remove_trailing_closing_parens(leading_spaces, link_text) do
-    [_, link_text, trailing_parens] = Regex.run(@split_at_ending_parens, link_text)
+    split_at_ending_parens = ~r{ (.*?) (\)*) \z}x
+
+    [_, link_text, trailing_parens] = Regex.run(split_at_ending_parens, link_text)
     trailing_paren_count = String.length(trailing_parens)
 
     # try to balance parens from the rhs

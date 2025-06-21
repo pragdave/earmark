@@ -152,16 +152,17 @@ defmodule Earmark.Parser.AstRenderer do
   #########
   # Lists #
   #########
-  @start_rgx ~r{\A\d+}
   defp render_block(
          %Block.List{type: type, bullet: bullet, blocks: items, attrs: attrs},
          context,
          _loose?
        ) do
+    start_rgx = ~r{\A\d+}
+
     context1 = render(items, clear_value(context))
 
     start_map =
-      case bullet && Regex.run(@start_rgx, bullet) do
+      case bullet && Regex.run(start_rgx, bullet) do
         nil -> %{}
         ["1"] -> %{}
         [start1] -> %{start: _normalize_start(start1)}

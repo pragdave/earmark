@@ -78,17 +78,19 @@ defmodule Earmark.Parser.Ast.Inline do
   #  Converters
   #
   ######################
-  @escape_rule ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])}
   def converter_for_escape({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@escape_rule, src) do
+    escape_rule = ~r{^\\([\\`*\{\}\[\]()\#+\-.!_>])}
+
+    if match = Regex.run(escape_rule, src) do
       [match, escaped] = match
       {behead(src, match), lnb, prepend(context, escaped), use_linky?}
     end
   end
 
-  @autolink_rgx ~r{^<([^ >]+(@|:\/)[^ >]+)>}
   def converter_for_autolink({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@autolink_rgx, src) do
+    autolink_rgx = ~r{^<([^ >]+(@|:\/)[^ >]+)>}
+
+    if match = Regex.run(autolink_rgx, src) do
       [match, link, protocol] = match
       {href, text} = convert_autolink(link, protocol)
       out = render_link(href, text)
@@ -126,11 +128,12 @@ defmodule Earmark.Parser.Ast.Inline do
     end
   end
 
-  @link_text ~S{(?:\[[^]]*\]|[^][]|\])*}
-  @reflink ~r{^!?\[(#{@link_text})\]\s*\[([^]]*)\]}x
   def converter_for_reflink({src, lnb, context, use_linky?}) do
+    link_text = ~S{(?:\[[^]]*\]|[^][]|\])*}
+    reflink = ~r{^!?\[(#{link_text})\]\s*\[([^]]*)\]}x
+
     if use_linky? do
-      if match = Regex.run(@reflink, src) do
+      if match = Regex.run(reflink, src) do
         {match_, alt_text, id} =
           case match do
             [match__, id, ""] -> {match__, id, id}
@@ -169,10 +172,11 @@ defmodule Earmark.Parser.Ast.Inline do
     end
   end
 
-  @nolink ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
   def converter_for_nolink({src, lnb, context, use_linky?}) do
+    nolink = ~r{^!?\[((?:\[[^]]*\]|[^][])*)\]}
+
     if use_linky? do
-      case Regex.run(@nolink, src) do
+      case Regex.run(nolink, src) do
         [match, id] ->
           case reference_link(context, match, id, id, lnb) do
             {:ok, out} -> {behead(src, match), lnb, prepend(context, out), use_linky?}
@@ -188,71 +192,78 @@ defmodule Earmark.Parser.Ast.Inline do
   ################################
   # Simple Tags: em, strong, del #
   ################################
-  @strikethrough_rgx ~r{\A~~(?=\S)([\s\S]*?\S)~~}
   def converter_for_strikethrough_gfm({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@strikethrough_rgx, src) do
+    strikethrough_rgx = ~r{\A~~(?=\S)([\s\S]*?\S)~~}
+
+    if match = Regex.run(strikethrough_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "del")
     end
   end
 
-  @strong_rgx ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
   def converter_for_strong({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@strong_rgx, src) do
+    strong_rgx = ~r{\A__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)}
+
+    if match = Regex.run(strong_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "strong")
     end
   end
 
-  @emphasis_rgx ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
   def converter_for_em({src, _, _, _} = conv_tuple) do
-    if match = Regex.run(@emphasis_rgx, src) do
+    emphasis_rgx = ~r{\A\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)}
+
+    if match = Regex.run(emphasis_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "em")
     end
   end
 
-  @sub_rgx ~r{\A~(?=\S)(.*?\S)~}
   def converter_for_sub({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
-    if match = Regex.run(@sub_rgx, src) do
+    sub_rgx = ~r{\A~(?=\S)(.*?\S)~}
+
+    if match = Regex.run(sub_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sub")
     end
   end
 
   def converter_for_sub(_), do: nil
 
-  @sup_rgx ~r{\A\^(?=\S)(.*?\S)\^}
   def converter_for_sup({src, _, %{options: %{sub_sup: true}}, _} = conv_tuple) do
-    if match = Regex.run(@sup_rgx, src) do
+    sup_rgx = ~r{\A\^(?=\S)(.*?\S)\^}
+
+    if match = Regex.run(sup_rgx, src) do
       _converter_for_simple_tag(conv_tuple, match, "sup")
     end
   end
 
   def converter_for_sup(_), do: nil
 
-  @squash_ws ~r{\s+}
-  @code ~r{^
-  (`+)		# $1 = Opening run of `
-  (.+?)		# $2 = The code block
-  (?<!`)
-  \1			# Matching closer
-  (?!`)
-}xs
   def converter_for_code({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@code, src) do
+    squash_ws = ~r{\s+}
+
+    code = ~r{^
+      (`+)		# $1 = Opening run of `
+      (.+?)		# $2 = The code block
+      (?<!`)
+      \1			# Matching closer
+      (?!`)
+    }xs
+
+    if match = Regex.run(code, src) do
       [match, _, content] = match
       # Commonmark
       content1 =
         content
         |> String.trim()
-        |> String.replace(@squash_ws, " ")
+        |> String.replace(squash_ws, " ")
 
       out = codespan(content1)
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
 
-  @inline_ial ~r<^\s*\{:\s*(.*?)\s*}>
-
   def converter_for_inline_ial({src, lnb, context, use_linky?}) do
-    if match = Regex.run(@inline_ial, src) do
+    inline_ial = ~r<^\s*\{:\s*(.*?)\s*}>
+
+    if match = Regex.run(inline_ial, src) do
       [match, ial] = match
       {context1, ial_attrs} = parse_attrs(context, ial, lnb)
       new_tags = augment_tag_with_ial(context.value, ial_attrs, match)
@@ -267,15 +278,16 @@ defmodule Earmark.Parser.Ast.Inline do
     end
   end
 
-  @line_ending ~r{\r\n?|\n}
   @spec converter_for_text(conversion_data()) :: conversion_data()
   def converter_for_text({src, lnb, context, _}) do
+    line_ending = ~r{\r\n?|\n}
+
     matched =
       case Regex.run(context.rules.text, src) do
         [match] -> match
       end
 
-    line_count = matched |> String.split(@line_ending) |> Enum.count()
+    line_count = matched |> String.split(line_ending) |> Enum.count()
 
     ast = hard_line_breaks(matched, context.options.gfm)
     ast = walk_ast(ast, &gruber_line_breaks/1)
@@ -319,22 +331,24 @@ defmodule Earmark.Parser.Ast.Inline do
     {link, link}
   end
 
-  @gruber_line_break Regex.compile!(" {2,}(?>\n)", "m")
   defp gruber_line_breaks(text) do
+    gruber_line_break = ~r/ {2,}(?>\n)/m
+
     text
-    |> String.split(@gruber_line_break)
+    |> String.split(gruber_line_break)
     |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
 
-  @gfm_hard_line_break ~r{\\\n}
   defp hard_line_breaks(text, gfm)
   defp hard_line_breaks(text, false), do: text
   defp hard_line_breaks(text, nil), do: text
 
   defp hard_line_breaks(text, _) do
+    gfm_hard_line_break = ~r{\\\n}
+
     text
-    |> String.split(@gfm_hard_line_break)
+    |> String.split(gfm_hard_line_break)
     |> Enum.intersperse(emit("br"))
     |> _remove_leading_empty()
   end
