@@ -56,6 +56,12 @@ defmodule Earmark.Mixfile do
     ]
   end
 
+  def cli do
+    [preferred_envs:
+      [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
+    ]
+  end
+
   defp elixirc_paths(:test), do: ["lib", "test/support", "dev"]
   defp elixirc_paths(:dev), do: ["lib", "lib1", "bench", "dev"]
   defp elixirc_paths(_), do: ["lib", "lib1"]

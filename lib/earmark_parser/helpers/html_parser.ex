@@ -97,3 +97,4 @@ defmodule Earmark.Parser.Helpers.HtmlParser do
     _parse_rest(rest, tag_tpl, [inner_line | lines])
   end
 end
+# SPDX-License-Identifier: Apache-2.0
