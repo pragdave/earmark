@@ -1,17 +1,17 @@
 defmodule Earmark.Parser.Helpers.HtmlParser do
-
   @moduledoc false
 
   import Earmark.Parser.Helpers.StringHelpers, only: [behead: 2]
   import Earmark.Parser.LineScanner, only: [void_tag?: 1]
 
   def parse_html(lines)
-  def parse_html([tag_line|rest]) do
+
+  def parse_html([tag_line | rest]) do
     case _parse_tag(tag_line) do
-      { :ok, tag, "" }      -> [_parse_rest(rest, tag, [])]
-      { :ok, tag, suffix }  -> [_parse_rest(rest, tag, [suffix])]
-      { :ext, tag, "" }     -> [_parse_rest(rest, tag, [])]
-      { :ext, tag, suffix } -> [_parse_rest(rest, tag, []), [suffix]]
+      {:ok, tag, ""} -> [_parse_rest(rest, tag, [])]
+      {:ok, tag, suffix} -> [_parse_rest(rest, tag, [suffix])]
+      {:ext, tag, ""} -> [_parse_rest(rest, tag, [])]
+      {:ext, tag, suffix} -> [_parse_rest(rest, tag, []), [suffix]]
     end
   end
 
@@ -53,9 +53,9 @@ defmodule Earmark.Parser.Helpers.HtmlParser do
 
   defp _close_tag_tail(tag, atts, closing?, suffix) do
     if closing? || void_tag?(tag) do
-      {:ext, {tag, Enum.reverse(atts)}, suffix }
+      {:ext, {tag, Enum.reverse(atts)}, suffix}
     else
-      {:ok, {tag, Enum.reverse(atts)}, suffix }
+      {:ok, {tag, Enum.reverse(atts)}, suffix}
     end
   end
 
@@ -64,18 +64,36 @@ defmodule Earmark.Parser.Helpers.HtmlParser do
 
   @verbatim %{verbatim: true}
   defp _parse_rest(rest, tag_tpl, lines)
+
   defp _parse_rest([], tag_tpl, lines) do
-    tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
-  end
-  defp _parse_rest([last_line], {tag, _}=tag_tpl, lines) do
-    case Regex.run(~r{\A\s*</#{tag}>\s*(.*)}, last_line) do
-      nil         -> tag_tpl |> Tuple.append(Enum.reverse([last_line|lines])) |> Tuple.append(@verbatim)
-      [_, ""]     -> tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim)
-      [_, suffix] -> [tag_tpl |> Tuple.append(Enum.reverse(lines)) |> Tuple.append(@verbatim), suffix]
-    end
-  end
-  defp _parse_rest([inner_line|rest], tag_tpl, lines) do
-    _parse_rest(rest, tag_tpl, [inner_line|lines])
+    tag_tpl
+    |> Tuple.insert_at(tuple_size(tag_tpl), Enum.reverse(lines))
+    |> Tuple.insert_at(tuple_size(tag_tpl) + 1, @verbatim)
   end
 
+  defp _parse_rest([last_line], {tag, _} = tag_tpl, lines) do
+    case Regex.run(~r{\A\s*</#{tag}>\s*(.*)}, last_line) do
+      nil ->
+        tag_tpl
+        |> Tuple.insert_at(tuple_size(tag_tpl), Enum.reverse([last_line | lines]))
+        |> Tuple.insert_at(tuple_size(tag_tpl) + 1, @verbatim)
+
+      [_, ""] ->
+        tag_tpl
+        |> Tuple.insert_at(tuple_size(tag_tpl), Enum.reverse(lines))
+        |> Tuple.insert_at(tuple_size(tag_tpl) + 1, @verbatim)
+
+      [_, suffix] ->
+        [
+          tag_tpl
+          |> Tuple.insert_at(tuple_size(tag_tpl), Enum.reverse(lines))
+          |> Tuple.insert_at(tuple_size(tag_tpl) + 1, @verbatim),
+          suffix
+        ]
+    end
+  end
+
+  defp _parse_rest([inner_line | rest], tag_tpl, lines) do
+    _parse_rest(rest, tag_tpl, [inner_line | lines])
+  end
 end
