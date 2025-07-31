@@ -1,4 +1,4 @@
-## [Earmark](https://hex.pm/packages/earmark) 1.4.47 2025-06-21
+## [Earmark](https://hex.pm/packages/earmark) 1.4.48 2025-06-21
 
 Midsummernight release ;)
 
