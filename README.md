@@ -74,40 +74,56 @@ Make a legal and normalized Option struct from, maps or keyword lists
 
 Without a param or an empty input we just get a new Option struct
 
+```elixir
 iex(1)> { make_options(), make_options(%{}) }
 { {:ok, %Earmark.Options{}}, {:ok, %Earmark.Options{}} }
+```
 
 The same holds for the bang version of course
 
+```elixir
 iex(2)> { make_options!(), make_options!(%{}) }
 { %Earmark.Options{}, %Earmark.Options{} }
+```
 
 
 We check for unallowed keys
 
+```elixir
 iex(3)> make_options(no_such_option: true)
 {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}]}
+```
 
 Of course we do not let our users discover one error after another
 
+```elixir
 iex(4)> make_options(no_such_option: true, gfm: false, still_not_an_option: 42)
 {:error, [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]}
+```
 
 And the bang version will raise an `Earmark.Error` as excepted (sic)
 
+```elixir
 iex(5)> make_options!(no_such_option: true, gfm: false, still_not_an_option: 42)
 ** (Earmark.Error) [{:warning, 0, "Unrecognized option no_such_option: true"}, {:warning, 0, "Unrecognized option still_not_an_option: 42"}]
+```
 
 Some values need to be numeric
 
+```elixir
 iex(6)> make_options(line: "42")
 {:error, [{:error, 0, "line option must be numeric"}]}
+```
 
+```elixir
 iex(7)> make_options(%Earmark.Options{footnote_offset: "42"})
 {:error, [{:error, 0, "footnote_offset option must be numeric"}]}
+```
 
+```elixir
 iex(8)> make_options(%{line: "42", footnote_offset: nil})
 {:error, [{:error, 0, "footnote_offset option must be numeric"}, {:error, 0, "line option must be numeric"}]}
+```
 
 
 ### Earmark.Options.relative_filename/2
@@ -115,31 +131,39 @@ iex(8)> make_options(%{line: "42", footnote_offset: nil})
 Allows to compute the path of a relative file name (starting with `"./"`) from the file in options
 and return an updated options struct
 
+```elixir
 iex(9)> options = %Earmark.Options{file: "some/path/xxx.md"}
 ...(9)> options_ = relative_filename(options, "./local.md")
 ...(9)> options_.file
 "some/path/local.md"
+```
 
 For your convenience you can just use a keyword list
 
+```elixir
 iex(10)> options = relative_filename([file: "some/path/_.md", breaks: true], "./local.md")
 ...(10)> {options.file, options.breaks}
 {"some/path/local.md", true}
+```
 
 If the filename is not absolute it just replaces the file in options
 
+```elixir
 iex(11)> options = %Earmark.Options{file: "some/path/xxx.md"}
 ...(11)> options_ = relative_filename(options, "local.md")
 ...(11)> options_.file
 "local.md"
+```
 
 And there is a special case when processing stdin, meaning that `file: nil` we replace file
 verbatim in that case
 
+```elixir
 iex(12)> options = %Earmark.Options{}
 ...(12)> options_ = relative_filename(options, "./local.md")
 ...(12)> options_.file
 "./local.md"
+```
 
 
 ### Earmark.Options.with_postprocessor/2
@@ -159,13 +183,13 @@ A wrapper to extract the AST from a call to `Earmark.Parser.as_ast` if a tuple `
 raise errors otherwise
 
 ```elixir
-    iex(1)> as_ast!(["Hello %% annotated"], annotations: "%%")
-    [{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
+iex(1)> as_ast!(["Hello %% annotated"], annotations: "%%")
+[{"p", [], ["Hello "], %{annotation: "%% annotated"}}]
 ```
 
 ```elixir
-    iex(2)> as_ast!("===")
-    ** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
+iex(2)> as_ast!("===")
+** (Earmark.Error) [{:warning, 1, "Unexpected line ==="}]
 ```
 
 
@@ -198,16 +222,16 @@ where `some file`  can be a relative path starting with `"./"`
 Here is an example using [these fixtures](https://github.com/pragdave/earmark/tree/master/test/fixtures)
 
 ```elixir
-    iex(3)> include("./include/basic.md.eex", file: "test/fixtures/does_not_matter")
-    "# Headline Level 1\n"
+iex(3)> include("./include/basic.md.eex", file: "test/fixtures/does_not_matter")
+"# Headline Level 1\n"
 ```
 
 And here is how it is used inside a template
 
 ```elixir
-    iex(4)> options = [file: "test/fixtures/does_not_matter"]
-    ...(4)> EEx.eval_string(~s{<%= include.("./include/basic.md.eex") %>}, include: &include(&1, options))
-    "# Headline Level 1\n"
+iex(4)> options = [file: "test/fixtures/does_not_matter"]
+...(4)> EEx.eval_string(~s{<%= include.("./include/basic.md.eex") %>}, include: &include(&1, options))
+"# Headline Level 1\n"
 ```
 
 
@@ -260,12 +284,12 @@ The result of the function call must be
 As an example let us transform an ast to have symbol keys
 
 ```elixir
-      iex(1)> input = [
-      ...(1)> {"h1", [], ["Hello"], %{title: true}},
-      ...(1)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}]
-      ...(1)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
-      [ {:h1, [], ["Hello"], %{title: true}},
-        {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
+iex(1)> input = [
+...(1)> {"h1", [], ["Hello"], %{title: true}},
+...(1)> {"ul", [], [{"li", [], ["alpha"], %{}}, {"li", [], ["beta"], %{}}], %{}}]
+...(1)> map_ast(input, fn {t, a, _, m} -> {String.to_atom(t), a, nil, m} end, true)
+[ {:h1, [], ["Hello"], %{title: true}},
+  {:ul, [], [{:li, [], ["alpha"], %{}}, {:li, [], ["beta"], %{}}], %{}} ]
 ```
 
 **N.B.** If this returning convention is not respected `map_ast` might not complain, but the resulting
@@ -284,13 +308,13 @@ A simple example, annotating traversal order in the meta map's `:count` key, as 
 interested in text nodes we use the fourth parameter `ignore_strings` which defaults to `false`
 
 ```elixir
-       iex(2)>  input = [
-       ...(2)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
-       ...(2)>  {"p", [], ["hello"], %{}}]
-       ...(2)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
-       ...(2)>  map_ast_with(input, 0, counter, true)
-       {[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
-         {"p", [], ["hello"], %{count: 3}}], 4}
+iex(2)>  input = [
+...(2)>  {"ul", [], [{"li", [], ["one"], %{}}, {"li", [], ["two"], %{}}], %{}},
+...(2)>  {"p", [], ["hello"], %{}}]
+...(2)>  counter = fn {t, a, _, m}, c -> {{t, a, nil, Map.put(m, :count, c)}, c+1} end
+...(2)>  map_ast_with(input, 0, counter, true)
+{[ {"ul", [], [{"li", [], ["one"], %{count: 1}}, {"li", [], ["two"], %{count: 2}}], %{count: 0}},
+ {"p", [], ["hello"], %{count: 3}}], 4}
 ```
 
 Let us describe an implementation of a real world use case taken from [Elixir Forum](https://elixirforum.com/t/how-to-extend-earmark/47406)
@@ -301,20 +325,20 @@ a link to the Elixir home page _but_ only when inside a `{"p",....}` node
 We can achieve this as follows
 
 ```elixir
-      iex(3)> elixir_home = {"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
-      ...(3)> transformer = fn {"p", atts, _, meta}, _ -> {{"p", atts, nil, meta}, true}
-      ...(3)>                  "#elixir", true -> {elixir_home, false}
-      ...(3)>                  text, _ when is_binary(text) -> {text, false}
-      ...(3)>                  node, _ ->  {node, false} end
-      ...(3)> ast = [
-      ...(3)>  {"p", [],[ "#elixir"], %{}}, {"bold", [],[ "#elixir"], %{}},
-      ...(3)>  {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], ["#elixir"], %{}}], %{}}
-      ...(3)> ]
-      ...(3)> map_ast_with(ast, false, transformer)
-      {[
-       {"p", [],[{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}, {"bold", [],[ "#elixir"], %{}},
-       {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}], %{}}
-      ], false}
+iex(3)> elixir_home = {"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}
+...(3)> transformer = fn {"p", atts, _, meta}, _ -> {{"p", atts, nil, meta}, true}
+...(3)>                  "#elixir", true -> {elixir_home, false}
+...(3)>                  text, _ when is_binary(text) -> {text, false}
+...(3)>                  node, _ ->  {node, false} end
+...(3)> ast = [
+...(3)>  {"p", [],[ "#elixir"], %{}}, {"bold", [],[ "#elixir"], %{}},
+...(3)>  {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], ["#elixir"], %{}}], %{}}
+...(3)> ]
+...(3)> map_ast_with(ast, false, transformer)
+{[
+ {"p", [],[{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}, {"bold", [],[ "#elixir"], %{}},
+ {"ol", [], [{"li", [],[ "#elixir"], %{}}, {"p", [],[ "elixir"], %{}}, {"p", [], [{"a", [{"href", "https://elixir-lang.org"}], ["Elixir"], %{}}], %{}}], %{}}
+], false}
 ```
 
 An alternate, maybe more elegant solution would be to change the mapper function during AST traversal
@@ -331,80 +355,80 @@ function applications depending on tags, as a convienience tuples of the form `{
 transformed into a `TagSpecificProcessors` struct.
 
 ```elixir
-    iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-    ...(4)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
-    ...(4)> m1.({"a", [], nil, nil})
-    {"a", [{"class", "class1"}], nil, nil}
+iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+...(4)> m1 = Earmark.Options.make_options!(postprocessor: add_class1) |> make_postprocessor()
+...(4)> m1.({"a", [], nil, nil})
+{"a", [{"class", "class1"}], nil, nil}
 ```
 
 We can also use the `registered_processors` field:
 
 ```elixir
-    iex(5)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-    ...(5)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
-    ...(5)> m2.({"a", [], nil, nil})
-    {"a", [{"class", "class1"}], nil, nil}
+iex(5)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+...(5)> m2 = Earmark.Options.make_options!(registered_processors: add_class1) |> make_postprocessor()
+...(5)> m2.({"a", [], nil, nil})
+{"a", [{"class", "class1"}], nil, nil}
 ```
 
 Knowing that values on the same attributes are added onto the front the following doctest demonstrates
 the order in which the processors are executed
 
 ```elixir
-    iex(6)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
-    ...(6)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
-    ...(6)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
-    ...(6)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
-    ...(6)> |> make_postprocessor()
-    ...(6)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
-    ...(6)> |> Enum.map(m)
-    [{"a", [{"class", "class3 class2 class1 link"}], nil, nil}, {"b", [{"class", "class2 class1"}], nil, nil}]
+iex(6)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
+...(6)> add_class2 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class2")
+...(6)> add_class3 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class3")
+...(6)> m = Earmark.Options.make_options!(postprocessor: add_class1, registered_processors: [add_class2, {"a", add_class3}])
+...(6)> |> make_postprocessor()
+...(6)> [{"a", [{"class", "link"}], nil, nil}, {"b", [], nil, nil}]
+...(6)> |> Enum.map(m)
+[{"a", [{"class", "class3 class2 class1 link"}], nil, nil}, {"b", [{"class", "class2 class1"}], nil, nil}]
 ```
 
 We can see that the tuple form has been transformed into a tag specific transformation **only** as a matter of fact, the explicit definition would be:
 
 ```elixir
-    iex(7)> m = make_postprocessor(
-    ...(7)>   %Earmark.Options{
-    ...(7)>     registered_processors:
-    ...(7)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
-    ...(7)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
-    ...(7)> |> Enum.map(m)
-    [{"a", [{"href", "url"}, {"target", "_blank"}], nil, nil}, {"b", [], nil, nil}]
+iex(7)> m = make_postprocessor(
+...(7)>   %Earmark.Options{
+...(7)>     registered_processors:
+...(7)>       [Earmark.TagSpecificProcessors.new({"a", &Earmark.AstTools.merge_atts_in_node(&1, target: "_blank")})]})
+...(7)> [{"a", [{"href", "url"}], nil, nil}, {"b", [], nil, nil}]
+...(7)> |> Enum.map(m)
+[{"a", [{"href", "url"}, {"target", "_blank"}], nil, nil}, {"b", [], nil, nil}]
 ```
 
 We can also define a tag specific transformer in one step, which might (or might not) solve potential performance issues
 when running too many processors
 
 ```elixir
-    iex(8)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
-    ...(8)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
-    ...(8)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
-    ...(8)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
-    ...(8)> m = Earmark.Options.make_options!(
-    ...(8)>       postprocessor: add_class4,
-    ...(8)>       registered_processors: [tsp, add_class6])
-    ...(8)> |> make_postprocessor()
-    ...(8)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
-    ...(8)> |> Enum.map(m)
-    [{"a", [{"class", "class6 class5 class4"}], nil, nil}, {"c", [{"class", "class6 class4"}], nil, nil}, {"b", [{"class", "class6 class5 class4"}], nil, nil}]
+iex(8)> add_class4 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class4")
+...(8)> add_class5 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class5")
+...(8)> add_class6 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class6")
+...(8)> tsp = Earmark.TagSpecificProcessors.new([{"a", add_class5}, {"b", add_class5}])
+...(8)> m = Earmark.Options.make_options!(
+...(8)>       postprocessor: add_class4,
+...(8)>       registered_processors: [tsp, add_class6])
+...(8)> |> make_postprocessor()
+...(8)> [{"a", [], nil, nil}, {"c", [], nil, nil}, {"b", [], nil, nil}]
+...(8)> |> Enum.map(m)
+[{"a", [{"class", "class6 class5 class4"}], nil, nil}, {"c", [{"class", "class6 class4"}], nil, nil}, {"b", [{"class", "class6 class5 class4"}], nil, nil}]
 ```
 
 Of course the mechanics shown above is hidden if all we want is to trigger the postprocessor chain in `Earmark.as_html`, here goes a typical
 example
 
 ```elixir
-    iex(9)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
-    ...(9)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
-    ...(9)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
-    ...(9)> options = [
-    ...(9)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
-    ...(9)> markdown = [
-    ...(9)>   "http://hello.x.com",
-    ...(9)>   "",
-    ...(9)>   "[some](url)",
-    ...(9)>  ]
-    ...(9)> Earmark.as_html!(markdown, options)
-    "<p class=\"example\">\n<a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n<a href=\"url\">some</a></p>\n"
+iex(9)> add_target = fn node -> # This will only be applied to nodes as it will become a TagSpecificProcessors
+...(9)>   if Regex.match?(~r{\.x\.com\z}, Earmark.AstTools.find_att_in_node(node, "href", "")), do:
+...(9)>     Earmark.AstTools.merge_atts_in_node(node, target: "_blank"), else: node end
+...(9)> options = [
+...(9)> registered_processors: [{"a", add_target}, {"p", &Earmark.AstTools.merge_atts_in_node(&1, class: "example")}]]
+...(9)> markdown = [
+...(9)>   "http://hello.x.com",
+...(9)>   "",
+...(9)>   "[some](url)",
+...(9)>  ]
+...(9)> Earmark.as_html!(markdown, options)
+"<p class=\"example\">\n<a href=\"http://hello.x.com\" target=\"_blank\">http://hello.x.com</a></p>\n<p class=\"example\">\n<a href=\"url\">some</a></p>\n"
 ```
 
 ##### Use case: Modification of Link Attributes depending on the URL
@@ -423,18 +447,18 @@ By annotating our markdown source we can then influence the rendering. In this e
 add some decoration
 
 ```elixir
-    iex(10)> markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
-    ...(10)> add_smiley = fn {_, _, _, meta} = quad, _acc ->
-    ...(10)>                case Map.get(meta, :annotation) do
-    ...(10)>                  "%% smile"   -> {quad, "\u1F601"}
-    ...(10)>                  "%% in_love" -> {quad, "\u1F60d"}
-    ...(10)>                  _            -> {quad, nil}
-    ...(10)>                end
-    ...(10)>                text, nil -> {text, nil}
-    ...(10)>                text, ann -> {"#{text} #{ann}", nil}
-    ...(10)>              end
-    ...(10)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
-    "<p>\nA joke  ὠ1</p>\n<p>\nCharming  ὠd</p>\n"
+iex(10)> markdown = [ "A joke %% smile", "", "Charming %% in_love" ]
+...(10)> add_smiley = fn {_, _, _, meta} = quad, _acc ->
+...(10)>                case Map.get(meta, :annotation) do
+...(10)>                  "%% smile"   -> {quad, "\u1F601"}
+...(10)>                  "%% in_love" -> {quad, "\u1F60d"}
+...(10)>                  _            -> {quad, nil}
+...(10)>                end
+...(10)>                text, nil -> {text, nil}
+...(10)>                text, ann -> {"#{text} #{ann}", nil}
+...(10)>              end
+...(10)> Earmark.as_ast!(markdown, annotations: "%%") |> Earmark.Transform.map_ast_with(nil, add_smiley) |> Earmark.transform
+"<p>\nA joke  ὠ1</p>\n<p>\nCharming  ὠd</p>\n"
 ```
 
 #### Structure Modifying Transformers
@@ -475,44 +499,44 @@ Here is an example using a custom format to make `<em>` nodes and allowing
 commented text to be left out
 
 ```elixir
-    iex(1)> is_comment? = fn item -> is_binary(item) && Regex.match?(~r/\A\s*--/, item) end
-    ...(1)> comment_remover =
-    ...(1)>   fn items, acc -> {Enum.reject(items, is_comment?), acc} end
-    ...(1)> italics_maker = fn
-    ...(1)>   item, acc when is_binary(item) ->
-    ...(1)>     new_item = Restructure.split_by_regex(
-    ...(1)>       item,
-    ...(1)>       ~r/\/([[:graph:]].*?[[:graph:]]|[[:graph:]])\//,
-    ...(1)>       fn [_, content] ->
-    ...(1)>         {"em", [], [content], %{}}
-    ...(1)>       end
-    ...(1)>     )
-    ...(1)>     {new_item, acc}
-    ...(1)>   item, "a" -> {item, nil}
-    ...(1)>   {name, _, _, _}=item, _ -> {item, name}
-    ...(1)> end
-    ...(1)> markdown = """
-    ...(1)> [no italics in links](http://example.io/some/path)
-    ...(1)> but /here/
-    ...(1)>
-    ...(1)> -- ignore me
-    ...(1)>
-    ...(1)> text
-    ...(1)> """
-    ...(1)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
-    ...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
-    {[
-      {"p", [],
-        [
-          {"a", [{"href", "http://example.io/some/path"}], ["no italics in links"],
-          %{}},
-          "\nbut ",
-          {"em", [], ["here"], %{}},
-          ""
-        ], %{}},
-        {"p", [], [], %{}},
-        {"p", [], ["text"], %{}}
-      ], "p"}
+iex(1)> is_comment? = fn item -> is_binary(item) && Regex.match?(~r/\A\s*--/, item) end
+...(1)> comment_remover =
+...(1)>   fn items, acc -> {Enum.reject(items, is_comment?), acc} end
+...(1)> italics_maker = fn
+...(1)>   item, acc when is_binary(item) ->
+...(1)>     new_item = Restructure.split_by_regex(
+...(1)>       item,
+...(1)>       ~r/\/([[:graph:]].*?[[:graph:]]|[[:graph:]])\//,
+...(1)>       fn [_, content] ->
+...(1)>         {"em", [], [content], %{}}
+...(1)>       end
+...(1)>     )
+...(1)>     {new_item, acc}
+...(1)>   item, "a" -> {item, nil}
+...(1)>   {name, _, _, _}=item, _ -> {item, name}
+...(1)> end
+...(1)> markdown = """
+...(1)> [no italics in links](http://example.io/some/path)
+...(1)> but /here/
+...(1)>
+...(1)> -- ignore me
+...(1)>
+...(1)> text
+...(1)> """
+...(1)> {:ok, ast, []} = Earmark.Parser.as_ast(markdown)
+...(1)> Restructure.walk_and_modify_ast(ast, nil, italics_maker, comment_remover)
+{[
+  {"p", [],
+    [
+      {"a", [{"href", "http://example.io/some/path"}], ["no italics in links"],
+      %{}},
+      "\nbut ",
+      {"em", [], ["here"], %{}},
+      ""
+    ], %{}},
+    {"p", [], [], %{}},
+    {"p", [], ["text"], %{}}
+  ], "p"}
 ```
 
 
@@ -526,9 +550,9 @@ by invoking map_captures_fn on each part, and a list of remaining parts,
 preserving the order of parts from what it was in the plain text item.
 
 ```elixir
-      iex(2)> input = "This is ::all caps::, right?"
-      ...(2)> split_by_regex(input, ~r/::(.*?)::/, fn [_, inner|_] -> String.upcase(inner) end)
-      ["This is ", "ALL CAPS", ", right?"]
+iex(2)> input = "This is ::all caps::, right?"
+...(2)> split_by_regex(input, ~r/::(.*?)::/, fn [_, inner|_] -> String.upcase(inner) end)
+["This is ", "ALL CAPS", ", right?"]
 ```
 
 
