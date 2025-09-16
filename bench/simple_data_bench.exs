@@ -147,8 +147,8 @@ defmodule Bench.SimpleDataBench do
   there are exterior bars.
 
   However in order to be more GFM compatible the `gfm_tables: true` option
-  can be used to interpret only interior vertical bars as a table if a seperation
-  line is given, therefor
+  can be used to interpret only interior vertical bars as a table if a separation
+  line is given, therefore
 
            Language|Rating
            --------|------
@@ -426,7 +426,7 @@ defmodule Bench.SimpleDataBench do
   **Rationale**:
 
   The AST is exposed in the spirit of [Floki's](https://hex.pm/packages/floki) there might be some subtle WS
-  differences and we chose to **always** have tripples, even for comments.
+  differences and we chose to **always** have triples, even for comments.
   We also do return a list for a single node
 
 

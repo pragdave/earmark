@@ -18,7 +18,7 @@ defmodule Acceptance.Html.EscapeTest do
       assert as_html(markdown, smartypants: false) == {:ok, html, messages}
     end
 
-    test "less obviously - escpe the escapes" do
+    test "less obviously - escape the escapes" do
       markdown = "\\\\` code`"
       html = "<p>\n\\<code class=\"inline\">code</code></p>\n"
       messages = []

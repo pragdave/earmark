@@ -328,7 +328,7 @@ defmodule Earmark.Parser do
 
   #### Lists
 
-  Lists are pretty much GFM compliant, but some behaviors concerning the interpreation of the markdown inside a List Item's first
+  Lists are pretty much GFM compliant, but some behaviors concerning the interpretation of the markdown inside a List Item's first
   paragraph seem not worth to be interpreted, examples are blockquote in a tight [list item](ttps://babelmark.github.io/?text=*+aa%0A++%3E+Second)
   which we can only have in a [loose one](https://babelmark.github.io/?text=*+aa%0A++%0A++%3E+Second)
 
