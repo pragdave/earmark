@@ -19,7 +19,7 @@ defmodule Acceptance.Html.CompactModeTest do
      assert html == expected
    end
 
-   test "does not preserve newlines in paragraphes" do
+   test "does not preserve newlines in paragraphs" do
      expected = "<p>\nhello world</p>\n"
      result = Earmark.transform( [{"p", [], ["hello\nworld"], %{}}], compact_output: true)
 

@@ -6,7 +6,7 @@ defmodule Earmark.Parser.Helpers.LookaheadHelpers do
   @doc """
   Indicates if the _numbered_line_ passed in leaves an inline code block open.
 
-  If so returns a tuple whre the first element is the opening sequence of backticks,
+  If so returns a tuple where the first element is the opening sequence of backticks,
   and the second the linenumber of the _numbered_line_
 
   Otherwise `{nil, 0}` is returned

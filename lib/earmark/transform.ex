@@ -121,7 +121,7 @@ defmodule Earmark.Transform do
   is the quadtuples of the AST which are of the form `{tag, atts, content, meta}`
 
   All postprocessors can just be functions on nodes or a `TagSpecificProcessors` struct which will group
-  function applications depending on tags, as a convienience tuples of the form `{tag, function}` will be
+  function applications depending on tags, as a convenience tuples of the form `{tag, function}` will be
   transformed into a `TagSpecificProcessors` struct.
 
       iex(4)> add_class1 = &Earmark.AstTools.merge_atts_in_node(&1, class: "class1")
@@ -310,7 +310,7 @@ defmodule Earmark.Transform do
   end
 
   @doc ~S"""
-  This too is a structure perserving transformation but a value is passed to the mapping function as an accumulator, and the mapping
+  This too is a structure preserving transformation but a value is passed to the mapping function as an accumulator, and the mapping
   function needs to return the new node and the accumulator as a tuple, here is a simple example
 
       iex(14)> {:ok, ast, _} = Earmark.Parser.as_ast("- 1\n\n2\n- 3\n")
@@ -454,7 +454,7 @@ defmodule Earmark.Transform do
 
   defp escape(element, options)
 
-  defp escape("", _opions) do
+  defp escape("", _options) do
     []
   end
 
@@ -463,7 +463,7 @@ defmodule Earmark.Transform do
     # It doesn't seem possible to make _escape_to_iodata1
     # transform, for example, "--'" to "–‘" without
     # significantly complicating the code to the point
-    # it outweights the performance benefit.
+    # it outweighs the performance benefit.
     element =
       element
       |> replace(~r{(^|[-–—/\(\[\{"”“\s])'}, "\\1‘")
@@ -498,7 +498,7 @@ defmodule Earmark.Transform do
     |> Enum.take(level * indent)
   end
 
-  # Optimized HTML escaping + smartypants, insipred by Plug.HTML
+  # Optimized HTML escaping + smartypants, inspired by Plug.HTML
   # https://github.com/elixir-plug/plug/blob/v1.11.0/lib/plug/html.ex
 
   # Do not escape HTML entities

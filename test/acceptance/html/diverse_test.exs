@@ -4,7 +4,7 @@ defmodule Acceptance.Html.DiverseTest do
   import ExUnit.CaptureIO
 
   describe "etc" do
-    test "entiy" do
+    test "entity" do
       markdown = "`f&ouml;&ouml;`\n"
       html     = "<p>\n<code class=\"inline\">f&amp;ouml;&amp;ouml;</code></p>\n"
       messages = []

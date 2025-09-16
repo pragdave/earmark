@@ -1243,7 +1243,7 @@ strings also support the following escape characters:
 Note it is generally not advised to use `\xNN` in Elixir
 strings, as introducing an invalid byte sequence would
 make the string invalid. If you have to introduce a
-character by its hexdecimal representation, it is best
+character by its hexadecimal representation, it is best
 to work with Unicode code points, such as `\uNNNN`. In fact,
 understanding Unicode code points can be essential when doing
 low-level manipulations of string, so let's explore them in
@@ -1405,7 +1405,7 @@ a string by their hexadecimal code:
 
 Finally, to convert a String into a list of integers
 code points, usually known as "char lists", you can call
-`Strig.to_charlist`:
+`String.to_charlist`:
 
     iex> String.to_charlist("olá")
     [111, 108, 225]
@@ -1815,9 +1815,9 @@ for custom data types.
     * `:json` (default) - the regular JSON escaping as defined by RFC 7159.
     * `:javascript_safe` - additionally escapes the LINE SEPARATOR (U+2028)
       and PARAGRAPH SEPARATOR (U+2029) characters to make the produced JSON
-      valid JavaSciprt.
+      valid JavaScript.
     * `:html_safe` - similar to `:javascript`, but also escapes the `/`
-      caracter to prevent XSS.
+      character to prevent XSS.
     * `:unicode_safe` - escapes all non-ascii characters.
 
   * `:maps` - controls how maps are encoded. Possible values are:
@@ -1900,7 +1900,7 @@ Let's assume a presence of the following struct:
     end
 
 If we were to call `@derive Jason.Encoder` just before `defstruct`,
-an implementaion similar to the follwing implementation would be generated:
+an implementation similar to the following implementation would be generated:
 
     defimpl Jason.Encoder, for: Test do
       def encode(value, opts) do
@@ -1909,7 +1909,7 @@ an implementaion similar to the follwing implementation would be generated:
     end
 
 If we called `@derive {Jason.Encoder, only: [:foo]}`, an implementation
-similar to the following implementation would be genrated:
+similar to the following implementation would be generated:
 
     defimpl Jason.Encoder, for: Test do
       def encode(value, opts) do
@@ -2492,8 +2492,8 @@ Currently we assume there are always spaces around interior vertical unless
 there are exterior bars.
 
 However in order to be more GFM compatible the `gfm_tables: true` option
-can be used to interpret only interior vertical bars as a table if a seperation
-line is given, therefor
+can be used to interpret only interior vertical bars as a table if a separation
+line is given, therefore
 
      Language|Rating
      --------|------

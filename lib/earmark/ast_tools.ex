@@ -5,7 +5,7 @@ defmodule Earmark.AstTools do
 
   @doc """
 
-  A helper to merge attributes in their cannonical representation
+  A helper to merge attributes in their canonical representation
 
 
       iex(1)> merge_atts([{"href", "url"}], target: "_blank")
