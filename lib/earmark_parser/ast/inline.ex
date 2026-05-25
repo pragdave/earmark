@@ -55,6 +55,7 @@ defmodule Earmark.Parser.Ast.Inline do
       converter_for_sup: &converter_for_sup/1,
       #
       converter_for_code: &converter_for_code/1,
+      converter_for_inline_comment: &converter_for_inline_comment/1,
       converter_for_br: &converter_for_br/1,
       converter_for_inline_ial: &converter_for_inline_ial/1,
       converter_for_pure_link: &converter_for_pure_link/1,
@@ -256,6 +257,17 @@ defmodule Earmark.Parser.Ast.Inline do
         |> String.replace(squash_ws, " ")
 
       out = codespan(content1)
+      {behead(src, match), lnb, prepend(context, out), use_linky?}
+    end
+  end
+
+  def converter_for_inline_comment({src, lnb, context, use_linky?}) do
+    comment_rgx = ~r/\A(<!--.*?-->)/s
+
+    if match = Regex.run(comment_rgx, src) do
+      [match, content] = match
+      inner = content |> String.replace_prefix("<!--", "") |> String.replace_suffix("-->", "")
+      out = {:comment, [], [inner], %{comment: true}}
       {behead(src, match), lnb, prepend(context, out), use_linky?}
     end
   end
