@@ -14,6 +14,13 @@ and any changes you make in this file will most likely be lost
 [![Hex.pm](https://img.shields.io/hexpm/dt/earmark.svg)](https://hex.pm/packages/earmark)
 
 
+## Disclaimer
+
+*Important:* Earmark is a program that translates markdown to html. Markdown is inherently **unsafe**. Earmark does not and cannot sanitize
+unsafe markdown input, as it can contain, verbatim HTML or Javascript amongst other issues.
+
+**DO NOT USE ON UNTRUSTED INPUT!**
+
 **N.B.**
 
 This README contains the docstrings and doctests from the code by means of [extractly](https://hex.pm/packages/extractly)
@@ -21,6 +28,7 @@ and the following code examples are therefore verified with `ExUnit` doctests.
 
 ## Table Of Content
 
+- [Disclaimer](#disclaimer)
 - [Table Of Content](#table-of-content)
 - [Options](#options)
   - [Earmark.Cli.Implementation](#earmarkcliimplementation)
