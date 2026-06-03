@@ -42,7 +42,6 @@ defmodule Earmark.Parser.LineScanner do
   # Converted rgx_map to a function
   defp rgx_map(:block_quote), do: ~r/\A>\s?(.*)/
   defp rgx_map(:column_rgx), do: ~r{\A[\s|:-]+\z}
-  defp rgx_map(:comment_rest), do: ~r/(<!--.*?-->)(.*)/
   defp rgx_map(:fence), do: ~r/\A(\s*)(`{3,}|~{3,})\s*([^`\s]*)\s*\z/u
   defp rgx_map(:footnote_definition), do: ~r/\A\[\^([^\s\]]+)\]:\s+(.*)/
   defp rgx_map(:heading), do: ~r/^(\#{1,6})\s+(?|(.*?)\s*#*\s*$|(.*))/u
@@ -296,22 +295,11 @@ defmodule Earmark.Parser.LineScanner do
   end
 
   defp _with_lookahead([line_lnb | lines], options, recursive) do
-    process_line(line_lnb, options, recursive) ++
+    [type_of(line_lnb, options, recursive)] ++
       _with_lookahead(lines, options, recursive)
   end
 
   defp _with_lookahead([], _options, _recursive), do: []
-
-  defp process_line({line, lnb}, options, recursive) do
-    case regex_run(:comment_rest, line, capture: :all_but_first) do
-      [comment, rest] ->
-        [type_of({comment, lnb}, options, recursive)] ++
-          [type_of({rest, lnb}, options, recursive)]
-
-      nil ->
-        [type_of({line, lnb}, options, recursive)]
-    end
-  end
 
   defp _determine_if_header(columns) do
     columns
